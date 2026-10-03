@@ -247,12 +247,31 @@ function FreeAnalysis() {
 
 function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChange: (s: string) => void }) {
   const [pgn, setPgn] = useState(initialPgn)
-  const [plies, setPlies] = useState<{ san: string; color: 'w' | 'b'; fenBefore: string }[]>([])
+  // one-time parse of the incoming PGN during first render (no effect needed)
+  const initialParse = useMemo(() => {
+    if (!initialPgn) return { plies: [], error: null as string | null }
+    try {
+      const g = new Chess()
+      g.loadPgn(initialPgn)
+      const history = g.history({ verbose: true })
+      const fens: { san: string; color: 'w' | 'b'; fenBefore: string }[] = []
+      const replay = new Chess()
+      for (const h of history) {
+        fens.push({ san: h.san, color: h.color, fenBefore: replay.fen() })
+        replay.move(h.san)
+      }
+      return { plies: fens, error: null }
+    } catch {
+      return { plies: [], error: 'Could not read that PGN.' }
+    }
+     
+  }, [])
+  const [plies, setPlies] = useState(initialParse.plies)
   const [evals, setEvals] = useState<PlyEval[]>([])
   const [cursor, setCursor] = useState(-1)
   const [analyzing, setAnalyzing] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(initialParse.error)
   const boardFenRef = useRef('')
 
   const startFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
@@ -277,11 +296,6 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
       setError('Could not read that PGN.')
       return false
     }
-  }, [])
-
-  useEffect(() => {
-    if (initialPgn) parsePgn(initialPgn)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const runReview = useCallback(async () => {

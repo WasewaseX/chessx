@@ -94,7 +94,7 @@ export function PuzzlesView() {
       else if (tab === 'rated' && state.daily) loadRated()
       else if (tab === 'daily' && state.daily && state.dayKey !== new Date().toLocaleDateString('sv-SE')) void loadDaily()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [tab])
 
   const game = useMemo(() => new Chess(fen), [fen])

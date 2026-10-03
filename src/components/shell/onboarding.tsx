@@ -40,7 +40,7 @@ export function Onboarding() {
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
         <div className="w-full max-w-lg">
           <div className="mb-8 flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            { }
             <img src="/logo.svg" alt="Ply" className="h-12 w-12 rounded-xl" />
             <div>
               <div className="font-display text-3xl font-extrabold">Ply</div>

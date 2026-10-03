@@ -142,15 +142,19 @@ export function ChessBoard({
     return map
   }, [selected, drag, game])
 
-  useEffect(() => {
-    if (!lastMove) return
+  // adjust state during render (React-recommended) instead of setState-in-effect
+  const [prevLastMove, setPrevLastMove] = useState(lastMove)
+  if (lastMove && lastMove !== prevLastMove) {
+    setPrevLastMove(lastMove)
     setAnimMove(lastMove)
-  }, [lastMove])
+  }
 
-  useEffect(() => {
+  const [prevFen, setPrevFen] = useState(fen)
+  if (prevFen !== fen) {
+    setPrevFen(fen)
     setSelected(null)
     setPromotion(null)
-  }, [fen])
+  }
 
   useEffect(() => {
     const el = boardRef.current
@@ -369,7 +373,7 @@ export function ChessBoard({
                 transition: delta ? 'transform 0.16s ease' : undefined,
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+              { }
               <img
                 src={`/pieces/${p.color}${p.type.toUpperCase()}.svg`}
                 alt=""
@@ -392,7 +396,7 @@ export function ChessBoard({
               transform: 'translate(-50%, -50%) scale(1.1)',
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            { }
             <img src={`/pieces/${drag.piece.color}${drag.piece.type.toUpperCase()}.svg`} alt="" className="h-full w-full drop-shadow-lg" draggable={false} />
           </div>
         )}
@@ -437,8 +441,14 @@ export function ChessBoard({
 
         {/* promotion picker */}
         {promotion && (
-          <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/60" onPointerDown={(e) => e.stopPropagation()}>
-            <div className="rounded-lg bg-background p-3 shadow-xl">
+          <div
+            className="absolute inset-0 z-40 flex items-center justify-center bg-black/60"
+            onPointerDown={(e) => {
+              e.stopPropagation()
+              setPromotion(null) // click outside the picker cancels
+            }}
+          >
+            <div className="rounded-lg bg-background p-3 shadow-xl" onPointerDown={(e) => e.stopPropagation()}>
               <div className="mb-2 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">Promote to</div>
               <div className="flex gap-2">
                 {['q', 'r', 'b', 'n'].map((t) => {
@@ -455,7 +465,7 @@ export function ChessBoard({
                         onMove?.(from as Square, to as Square, t)
                       }}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      { }
                       <img src={`/pieces/${color}${t.toUpperCase()}.svg`} alt={t} className="h-12 w-12" draggable={false} />
                     </button>
                   )

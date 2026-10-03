@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       lessonId,
       stepsDone,
       totalSteps,
-      hintsUsed,
+      hintsUsed: body.hintNow ? 1 : 0,
       completed: done,
       completedAt: done ? new Date() : null,
     },

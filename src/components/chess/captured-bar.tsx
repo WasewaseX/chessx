@@ -42,7 +42,7 @@ function CapturedSide({ lost, color }: { lost: Record<string, number>; color: 'w
     <div className="flex h-5 items-center gap-0">
       {ORDER.flatMap((t) =>
         Array.from({ length: Math.max(0, lost[t] ?? 0) }, (_, i) => (
-          // eslint-disable-next-line @next/next/no-img-element
+           
           <img
             key={`${t}-${i}`}
             src={`/pieces/${color}${t.toUpperCase()}.svg`}

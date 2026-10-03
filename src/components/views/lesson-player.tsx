@@ -35,14 +35,6 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const level = found?.level
   const lesson = found?.lesson
 
-  // reset state when lesson changes
-  useEffect(() => {
-    setStepIdx(0)
-    setCanAdvance(false)
-    setDone(false)
-    savedRef.current = { stepsDone: 0, postedDone: false }
-  }, [lessonId])
-
   const saveProgress = useCallback(
     (stepsDone: number, finished: boolean, hintNow = false) => {
       if (!lesson || !level) return
@@ -77,12 +69,10 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
   // finishing the last step unlocks completion
   const isLastStep = lesson ? stepIdx === lesson.steps.length - 1 : false
-  useEffect(() => {
-    if (isLastStep && canAdvance && !done) {
-      setDone(true)
-      if (lesson) saveProgress(lesson.steps.length, true)
-    }
-  }, [isLastStep, canAdvance, done, saveProgress, lesson])
+  if (lesson && isLastStep && canAdvance && !done) {
+    setDone(true)
+    saveProgress(lesson.steps.length, true)
+  }
 
   if (!lesson || !level) {
     return (
@@ -331,7 +321,7 @@ function DemoBoard({
     }
     timers.push(setTimeout(tick, 700))
     return () => timers.forEach(clearTimeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [fen])
 
   const stepForwardRef = useRef(stepForward)
@@ -697,7 +687,7 @@ function PlayoutStepView({
       if (step.success === 'material' && materialBalance(g) >= 3 && moves.length >= 2) return 'won'
       return null
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     [fen, moves],
   )
 

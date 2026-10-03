@@ -38,7 +38,7 @@ export function Sidebar() {
         onClick={() => navigate('home')}
         aria-label="Ply home"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+        { }
         <img src="/logo.svg" alt="Ply" className="h-9 w-9 rounded-lg" />
         <div>
           <div className="font-display text-xl font-extrabold tracking-tight">Ply</div>

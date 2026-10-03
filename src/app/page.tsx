@@ -22,7 +22,8 @@ function ViewRouter() {
     case 'lessons':
       return <LessonsView />
     case 'lesson':
-      return view.lessonId ? <LessonPlayer lessonId={view.lessonId} /> : <LessonsView />
+      // key remounts the player per lesson so its state resets cleanly
+      return view.lessonId ? <LessonPlayer key={view.lessonId} lessonId={view.lessonId} /> : <LessonsView />
     case 'puzzles':
       return <PuzzlesView />
     case 'coach':
@@ -68,7 +69,7 @@ export default function Page() {
   if (!loaded) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-sidebar">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+        { }
         <img src="/logo.svg" alt="Ply" className="h-14 w-14 animate-pulse rounded-xl" />
       </div>
     )
