@@ -18,7 +18,7 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   const body = await req.json().catch(() => ({}))
   const data: Record<string, unknown> = {}
-  const strFields = ['name', 'skillLevel', 'theme', 'darkMode', 'aiProvider', 'aiBaseUrl', 'aiModel', 'aiApiKey']
+  const strFields = ['name', 'skillLevel', 'coach', 'theme', 'darkMode', 'aiProvider', 'aiBaseUrl', 'aiModel', 'aiApiKey']
   const boolFields = ['soundEnabled', 'showCoords', 'showLegal', 'autoPromote', 'onboarded']
   for (const f of strFields) {
     if (f in body) {
@@ -38,7 +38,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 function publicProfile(p: Record<string, unknown>) {
-  // never send the raw API key to the client — only whether one exists
+  // never send the raw API key to the client, only whether one exists
   const { aiApiKey, ...rest } = p as { aiApiKey?: string | null }
   return { ...rest, hasApiKey: Boolean(aiApiKey) }
 }

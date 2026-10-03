@@ -204,7 +204,7 @@ function FreeAnalysis() {
                 <span className="ml-2 text-sm font-semibold text-muted-foreground">White POV</span>
               </div>
               <div className="mt-1 text-sm text-muted-foreground">
-                Best: <span className="font-mono font-bold text-foreground">{info.bestSan ?? '—'}</span>
+                Best: <span className="font-mono font-bold text-foreground">{info.bestSan ?? 'none'}</span>
               </div>
               {info.pv.length > 1 && (
                 <div className="mt-1 text-xs text-muted-foreground">

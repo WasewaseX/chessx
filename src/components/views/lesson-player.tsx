@@ -2,14 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
-import { ChessBoard, type Arrow, type Mark } from '@/components/chess/board'
-import { findLesson, LEVELS } from '@/content/levels'
+import { ChessBoard, type Arrow, type FlashMark, type Mark } from '@/components/chess/board'
+import { findLevel, TIERS } from '@/content/levels'
 import type { ExerciseStep, LessonStep } from '@/content/schema'
 import { useApp } from '@/lib/store'
 import { engine } from '@/lib/chess/engine-client'
 import { playSound } from '@/lib/chess/sounds'
 import { Button } from '@/components/ui/button'
 import { CoachDrawer } from '@/components/views/coach-drawer'
+import { SpeakButton } from '@/components/chess/speak-button'
+import { coachById, type Coach } from '@/lib/coaches'
 import { cn } from '@/lib/utils'
 import {
   ArrowLeft,
@@ -26,21 +28,25 @@ import {
   Sparkles,
 } from 'lucide-react'
 
-/* Coach character bubble — chess.com-style feedback with avatar + speech bubble */
+/* Coach character bubble: face + speech bubble, with an option to hear it */
 function CoachBubble({
   tone,
   chip,
+  coach,
+  speakText,
   children,
 }: {
   tone: 'praise' | 'wrong' | 'hint' | 'neutral'
   chip?: string
+  coach: Coach
+  speakText?: string
   children: React.ReactNode
 }) {
   return (
     <div className="flex items-start gap-2.5">
       <img
-        src="/coach.jpg"
-        alt="Coach"
+        src={coach.face}
+        alt={coach.name}
         className="h-11 w-11 shrink-0 rounded-full border-2 border-primary/60 object-cover object-top shadow-sm"
       />
       <div
@@ -64,11 +70,14 @@ function CoachBubble({
         />
         <div className="flex items-start justify-between gap-2">
           <span>{children}</span>
-          {chip && (
-            <span className="shrink-0 rounded-md bg-primary px-2 py-0.5 text-xs font-extrabold text-primary-foreground shadow-sm">
-              {chip}
-            </span>
-          )}
+          <div className="flex shrink-0 items-center gap-1">
+            {chip && (
+              <span className="rounded-md bg-primary px-2 py-0.5 text-xs font-extrabold text-primary-foreground shadow-sm">
+                {chip}
+              </span>
+            )}
+            {speakText && <SpeakButton text={speakText} voice={coach.voice} speed={coach.speed} />}
+          </div>
         </div>
       </div>
     </div>
@@ -77,22 +86,24 @@ function CoachBubble({
 
 export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const { navigate, profile } = useApp()
-  const found = findLesson(lessonId)
+  const coach = coachById(profile?.coach ?? 'nina')
+  const found = findLevel(lessonId)
   const [stepIdx, setStepIdx] = useState(0)
   const [canAdvance, setCanAdvance] = useState(false)
   const [done, setDone] = useState(false)
   const [coachOpen, setCoachOpen] = useState(false)
   const savedRef = useRef({ stepsDone: 0, postedDone: false })
 
-  const level = found?.level
-  const lesson = found?.lesson
+  const tier = found?.tier
+  const lesson = found?.level
+  const globalLevel = found?.globalN ?? 0
 
   const [xpFlash, setXpFlash] = useState<number | null>(null)
   const xpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const saveProgress = useCallback(
     (stepsDone: number, finished: boolean, hintNow = false) => {
-      if (!lesson || !level) return
+      if (!lesson || !tier) return
       fetch('/api/progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -101,7 +112,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           stepsDone,
           totalSteps: lesson.steps.length,
           done: finished,
-          level: level.n,
+          level: globalLevel,
           hintNow,
         }),
       })
@@ -116,7 +127,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         })
         .catch(() => {})
     },
-    [lesson, level],
+    [lesson, tier, globalLevel],
   )
 
   useEffect(() => {
@@ -141,7 +152,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
     setDone(true)
   }
 
-  if (!lesson || !level) {
+  if (!lesson || !tier) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <p className="text-muted-foreground">Lesson not found.</p>
@@ -187,7 +198,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         <div className="hidden h-4 w-px bg-border sm:block" />
         <div className="min-w-0">
           <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Level {level.n} · {level.title}
+            Tier {tier.n} · {tier.title}
           </div>
           <h1 className="truncate font-display text-lg font-bold">{lesson.title}</h1>
         </div>
@@ -228,7 +239,8 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         <PlayoutStepView
           key={stepIdx}
           step={step}
-          level={level.n}
+          level={globalLevel}
+          coach={coach}
           onPass={() => setCanAdvance(true)}
           soundEnabled={profile?.soundEnabled ?? true}
           showLegal={profile?.showLegal ?? true}
@@ -239,6 +251,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           key={stepIdx}
           step={step}
           lessonTitle={lesson.title}
+          coach={coach}
           onPass={() => setCanAdvance(true)}
           soundEnabled={profile?.soundEnabled ?? true}
           showLegal={profile?.showLegal ?? true}
@@ -261,8 +274,8 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
             )}
           </div>
           <div className={cn('order-1 lg:order-2', step.type !== 'demo' && 'lg:col-span-2')}>
-            {step.type === 'text' && <TextStepView step={step} onReady={() => setCanAdvance(true)} />}
-            {step.type === 'demo' && <DemoTextView step={step} onReady={() => setCanAdvance(true)} />}
+            {step.type === 'text' && <TextStepView step={step} coach={coach} onReady={() => setCanAdvance(true)} />}
+            {step.type === 'demo' && <DemoTextView step={step} coach={coach} onReady={() => setCanAdvance(true)} />}
             {step.type === 'quiz' && <QuizStepView key={stepIdx} step={step} onPass={() => setCanAdvance(true)} />}
           </div>
         </div>
@@ -306,13 +319,17 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
 /* ---------------- step views ---------------- */
 
-function TextStepView({ step, onReady }: { step: Extract<LessonStep, { type: 'text' }>; onReady: () => void }) {
+function TextStepView({ step, coach, onReady }: { step: Extract<LessonStep, { type: 'text' }>; coach: Coach; onReady: () => void }) {
   useEffect(() => {
     onReady()
   }, [onReady, step])
+  const spoken = [...step.body, step.keyIdea].filter(Boolean).join(' ')
   return (
     <div className="rounded-lg bg-card p-6 shadow-sm">
-      <h2 className="font-display text-xl font-bold">{step.title}</h2>
+      <div className="flex items-start justify-between gap-2">
+        <h2 className="font-display text-xl font-bold">{step.title}</h2>
+        <SpeakButton text={spoken} voice={coach.voice} speed={coach.speed} />
+      </div>
       <div className="mt-3 space-y-3">
         {step.body.map((p, i) => (
           <p key={i} className="leading-relaxed text-foreground/90">
@@ -329,13 +346,16 @@ function TextStepView({ step, onReady }: { step: Extract<LessonStep, { type: 'te
   )
 }
 
-function DemoTextView({ step, onReady }: { step: Extract<LessonStep, { type: 'demo' }>; onReady: () => void }) {
+function DemoTextView({ step, coach, onReady }: { step: Extract<LessonStep, { type: 'demo' }>; coach: Coach; onReady: () => void }) {
   useEffect(() => {
     onReady()
   }, [onReady, step])
   return (
     <div className="rounded-lg bg-card p-6 shadow-sm">
-      <h2 className="font-display text-xl font-bold">{step.title}</h2>
+      <div className="flex items-start justify-between gap-2">
+        <h2 className="font-display text-xl font-bold">{step.title}</h2>
+        <SpeakButton text={step.body.join(' ')} voice={coach.voice} speed={coach.speed} />
+      </div>
       <div className="mt-3 space-y-3">
         {step.body.map((p, i) => (
           <p key={i} className="leading-relaxed text-foreground/90">
@@ -364,17 +384,21 @@ function DemoBoard({
 }) {
   // Free-exploration board: the position starts as authored, the scripted line
   // (if any) plays once automatically, then the reader can move pieces
-  // themselves — legal moves only, with undo/reset and line replay.
+  // themselves, legal moves only, with undo/reset and line replay.
   const gameRef = useRef(new Chess(fen))
   const [shownFen, setShownFen] = useState(fen)
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null)
   const [depth, setDepth] = useState(0) // plies played away from the authored position
   const [autoplay, setAutoplay] = useState(Boolean(moves?.length))
+  const [flashes, setFlashes] = useState<FlashMark[]>([])
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
+  const flashTimersRef = useRef<ReturnType<typeof setTimeout>[]>([])
 
   const clearTimers = useCallback(() => {
     timersRef.current.forEach(clearTimeout)
     timersRef.current = []
+    flashTimersRef.current.forEach(clearTimeout)
+    flashTimersRef.current = []
   }, [])
 
   useEffect(() => () => clearTimers(), [clearTimers])
@@ -406,6 +430,12 @@ function DemoBoard({
           setLastMove({ from: mv.from, to: mv.to })
           setDepth((d) => d + 1)
           playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+          // flash where the piece went, then let it fade
+          setFlashes([
+            { square: mv.from, color: 'gold' },
+            { square: mv.to, color: 'green' },
+          ])
+          flashTimersRef.current.push(setTimeout(() => setFlashes([]), 700))
         }
         p++
         if (p < moves.length) timersRef.current.push(setTimeout(tick, 850))
@@ -423,7 +453,7 @@ function DemoBoard({
 
   function onMove(from: Square, to: Square, promotion?: string) {
     if (autoplay) return
-    // free exploration: allow moving either side — if it is not that piece's
+    // free exploration: allow moving either side, if it is not that piece's
     // turn, validate against a turn-swapped FEN (en-passant reset)
     let g = gameRef.current
     const piece = g.get(from)
@@ -447,7 +477,7 @@ function DemoBoard({
       setDepth((d) => d + 1)
       playSound(mv.captured ? 'capture' : 'move', soundEnabled)
     } catch {
-      /* illegal — ignore */
+      /* illegal, ignore */
     }
   }
 
@@ -479,6 +509,7 @@ function DemoBoard({
           lastMove={lastMove}
           marks={marks}
           arrows={arrows}
+          flashes={flashes}
           checkSquare={checkSquare}
           onMove={onMove}
           interactive={!autoplay}
@@ -510,7 +541,7 @@ function DemoBoard({
       </div>
       {!autoplay && depth === 0 && (
         <p className="mt-1 text-xs text-muted-foreground">
-          This board is yours to explore — pick up any piece and try moves.
+          This board is yours to explore. Pick up any piece and try moves.
         </p>
       )}
     </div>
@@ -578,6 +609,7 @@ function QuizStepView({ step, onPass }: { step: Extract<LessonStep, { type: 'qui
 function ExerciseView({
   step,
   lessonTitle,
+  coach,
   onPass,
   soundEnabled,
   showLegal,
@@ -586,6 +618,7 @@ function ExerciseView({
 }: {
   step: ExerciseStep
   lessonTitle: string
+  coach: Coach
   onPass: () => void
   soundEnabled: boolean
   showLegal: boolean
@@ -599,6 +632,30 @@ function ExerciseView({
   const [hintShown, setHintShown] = useState(false)
   const [shake, setShake] = useState(false)
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null)
+  const [flashes, setFlashes] = useState<FlashMark[]>([])
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // flash squares on the board (hint: where the piece can go, red: wrong try)
+  const flash = useCallback((marks: FlashMark[]) => {
+    setFlashes(marks)
+    if (flashTimer.current) clearTimeout(flashTimer.current)
+    flashTimer.current = setTimeout(() => setFlashes([]), 2900)
+  }, [])
+  useEffect(() => () => { if (flashTimer.current) clearTimeout(flashTimer.current) }, [])
+
+  // squares of the next expected move, used by the hint flash
+  const showHint = useCallback(() => {
+    setHintShown(true)
+    const san = step.solution[movesSoFar.length]
+    if (!san) return
+    try {
+      const probe = new Chess(gameRef.current.fen())
+      const mv = probe.move(san)
+      if (mv) flash([{ square: mv.from, color: 'gold' }, { square: mv.to, color: 'green' }])
+    } catch {
+      /* validator guarantees the line; ignore parse races */
+    }
+  }, [step.solution, movesSoFar.length, flash])
 
   const expectedUserIdx = movesSoFar.length // next user move is solution[movesSoFar.length] (even index)
   const game = useMemo(() => new Chess(fen), [fen])
@@ -641,6 +698,10 @@ function ExerciseView({
       setStatus('wrong')
       setShake(true)
       playSound('wrong', soundEnabled)
+      flash([
+        { square: from, color: 'red' },
+        { square: to, color: 'red' },
+      ])
       setTimeout(() => setShake(false), 450)
       return
     }
@@ -696,6 +757,8 @@ function ExerciseView({
           lastMove={lastMove}
           checkSquare={checkSquare}
           showLegal={showLegal && status !== 'done'}
+          animateTargets={status !== 'done'}
+          flashes={flashes}
           theme={theme}
           shake={shake}
         />
@@ -722,12 +785,14 @@ function ExerciseView({
           )}
           {status === 'wrong' && (
             <div className="mt-3">
-              <CoachBubble tone="wrong">Not quite. Take it back and look for something forcing.</CoachBubble>
+              <CoachBubble tone="wrong" coach={coach} speakText="Not quite. Take it back and look for something forcing.">
+                Not quite. Take it back and look for something forcing.
+              </CoachBubble>
             </div>
           )}
           {status === 'done' && (
             <div className="mt-3">
-              <CoachBubble tone="praise">{step.success}</CoachBubble>
+              <CoachBubble tone="praise" coach={coach} speakText={step.success}>{step.success}</CoachBubble>
             </div>
           )}
           {step.explanation && status === 'done' && (
@@ -741,7 +806,7 @@ function ExerciseView({
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => setHintShown(true)}
+              onClick={showHint}
               disabled={hintShown || status === 'done'}
             >
               <Lightbulb className="h-4 w-4" /> Hint
@@ -752,7 +817,7 @@ function ExerciseView({
           </div>
           {hintShown && status !== 'done' && (
             <div className="mt-3">
-              <CoachBubble tone="hint">{step.hint}</CoachBubble>
+              <CoachBubble tone="hint" coach={coach} speakText={step.hint}>{step.hint}</CoachBubble>
             </div>
           )}
         </div>
@@ -764,6 +829,7 @@ function ExerciseView({
 function PlayoutStepView({
   step,
   level,
+  coach,
   onPass,
   soundEnabled,
   showLegal,
@@ -771,6 +837,7 @@ function PlayoutStepView({
 }: {
   step: Extract<LessonStep, { type: 'playout' }>
   level: number
+  coach: Coach
   onPass: () => void
   soundEnabled: boolean
   showLegal: boolean
@@ -916,7 +983,7 @@ function PlayoutStepView({
         />
       </div>
       <div className="rounded-lg bg-card p-5 shadow-sm">
-        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Play it out · Level {level}</div>
+        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Play it out · Global level {level}</div>
         <h2 className="mt-1 font-display text-xl font-bold">{step.title}</h2>
         {step.body?.map((p, i) => (
           <p key={i} className="mt-2 text-sm text-foreground/90">
@@ -930,13 +997,17 @@ function PlayoutStepView({
 
         {status === 'won' && (
           <div className="mt-3">
-            <CoachBubble tone="praise">{step.successText}</CoachBubble>
+            <CoachBubble tone="praise" coach={coach} speakText={step.successText}>{step.successText}</CoachBubble>
           </div>
         )}
         {(status === 'lost' || status === 'draw') && (
           <div className="mt-3">
-            <CoachBubble tone="wrong">
-              {step.failText ?? (status === 'draw' ? 'Draw — not the goal here.' : 'That did not work. Reset and try a different plan.')}
+            <CoachBubble
+              tone="wrong"
+              coach={coach}
+              speakText={step.failText ?? (status === 'draw' ? 'A draw is not the goal here.' : 'That did not work. Reset and try a different plan.')}
+            >
+              {step.failText ?? (status === 'draw' ? 'A draw is not the goal here.' : 'That did not work. Reset and try a different plan.')}
             </CoachBubble>
           </div>
         )}
@@ -951,5 +1022,4 @@ function PlayoutStepView({
   )
 }
 
-// levels re-exported for reference by the coach drawer context
-void LEVELS
+void TIERS

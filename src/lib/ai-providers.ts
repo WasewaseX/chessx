@@ -17,7 +17,7 @@ export const PROVIDERS: Record<
   string,
   { label: string; baseUrl?: string; defaultModel?: string; kind: 'openai' | 'anthropic' | 'gemini' | 'builtin' }
 > = {
-  builtin: { label: 'Built-in (Ply AI)', kind: 'builtin' },
+  builtin: { label: 'Built-in (ChessX AI)', kind: 'builtin' },
   openai: { label: 'OpenAI', baseUrl: 'https://api.openai.com/v1', defaultModel: 'gpt-4o-mini', kind: 'openai' },
   anthropic: { label: 'Anthropic', baseUrl: 'https://api.anthropic.com', defaultModel: 'claude-3-5-haiku-latest', kind: 'anthropic' },
   gemini: { label: 'Google Gemini', baseUrl: 'https://generativelanguage.googleapis.com', defaultModel: 'gemini-2.0-flash', kind: 'gemini' },

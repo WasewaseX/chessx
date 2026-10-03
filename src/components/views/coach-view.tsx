@@ -7,6 +7,8 @@ import { useApp } from '@/lib/store'
 import { PROVIDERS } from '@/lib/ai-providers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { SpeakButton } from '@/components/chess/speak-button'
+import { coachById } from '@/lib/coaches'
 import { cn } from '@/lib/utils'
 import {
   ArrowLeftRight,
@@ -50,6 +52,7 @@ function sanLine(sans: string[]): string {
 
 export function CoachView() {
   const { profile, navigate } = useApp()
+  const coach = coachById(profile?.coach ?? 'nina')
   const gameRef = useRef(new Chess())
   const [fen, setFen] = useState(gameRef.current.fen())
   const [sans, setSans] = useState<string[]>([])
@@ -73,7 +76,7 @@ export function CoachView() {
 
   const provider = profile?.aiProvider ?? 'builtin'
   const providerLabel =
-    provider === 'builtin' ? 'Ply AI · built-in' : `${PROVIDERS[provider]?.label ?? provider} · your key`
+    provider === 'builtin' ? 'ChessX AI · built-in' : `${PROVIDERS[provider]?.label ?? provider} · your key`
 
   const onMove = useCallback(
     (from: Square, to: Square, promotion?: string) => {
@@ -150,7 +153,7 @@ export function CoachView() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             messages: next.slice(-16),
-            context: { ...context, skillLevel: profile?.skillLevel ?? 'beginner' },
+            context: { ...context, skillLevel: profile?.skillLevel ?? 'beginner', coach: coach.id },
           }),
         })
         const data = await res.json()
@@ -287,9 +290,10 @@ export function CoachView() {
     <div className="flex h-[560px] flex-col overflow-hidden rounded-lg bg-card shadow-sm lg:h-[640px]">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <img src="/coach.jpg" alt="Coach" className="h-8 w-8 rounded-full border border-primary/50 object-cover object-top" />
+          <img src={coach.face} alt={coach.name} className="h-9 w-9 rounded-full border border-primary/50 object-cover object-top" />
           <div>
-            <div className="text-sm font-bold leading-4">Coach</div>
+            <div className="text-sm font-bold leading-4">{coach.name}</div>
+            <div className="text-[11px] text-muted-foreground">{coach.title}</div>
             <button
               className="text-[11px] text-muted-foreground hover:text-foreground"
               onClick={() => navigate('settings')}
@@ -310,7 +314,7 @@ export function CoachView() {
         {messages.length === 0 && !busy && (
           <div>
             <div className="rounded-md bg-secondary p-3 text-sm leading-relaxed text-muted-foreground">
-              Set up any position on the board, then ask. Plans, tactics, openings, endgames, or what went wrong in a game — the coach sees whatever is on the board. For a full move-by-move review, play a game first and use{' '}
+              Set up any position on the board, then ask. Plans, tactics, openings, endgames, or what went wrong in a game, the coach sees whatever is on the board. For a full move-by-move review, play a game first and use{' '}
               <button className="font-semibold text-primary hover:underline" onClick={() => navigate('analysis')}>
                 Game review
               </button>
@@ -333,7 +337,7 @@ export function CoachView() {
         {messages.map((m, i) => (
           <div key={i} className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
             {m.role === 'assistant' && (
-              <img src="/coach.jpg" alt="" className="mr-2 mt-1 h-6 w-6 shrink-0 rounded-full border border-primary/50 object-cover object-top" />
+              <img src={coach.face} alt="" className="mr-2 mt-1 h-7 w-7 shrink-0 rounded-full object-cover object-top" />
             )}
             <div
               className={cn(
@@ -345,6 +349,7 @@ export function CoachView() {
             >
               {m.content}
             </div>
+            {m.role === 'assistant' && <SpeakButton text={m.content} voice={coach.voice} speed={coach.speed} className="ml-1 mt-0.5" />}
           </div>
         ))}
 

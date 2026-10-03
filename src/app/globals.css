@@ -167,3 +167,31 @@
 .animate-shake {
   animation: shake-x 0.4s ease;
 }
+
+/* square flash: pulses a square to draw the eye (lesson hints, feedback) */
+.flash-green { --flashc: 130, 182, 76; }
+.flash-gold { --flashc: 230, 168, 44; }
+.flash-red { --flashc: 202, 52, 49; }
+.square-flash {
+  background: rgba(var(--flashc), 0);
+  animation: square-flash 0.9s ease-out 3;
+}
+@keyframes square-flash {
+  0%, 100% { background: rgba(var(--flashc), 0); box-shadow: none; }
+  40% { background: rgba(var(--flashc), 0.5); box-shadow: inset 0 0 0 3px rgba(var(--flashc), 0.9); }
+}
+
+/* gentle pulse on legal move dots while a piece is held on lesson boards */
+.legal-pulse { animation: dot-pulse 1.5s ease-in-out infinite; }
+@keyframes dot-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* alive buttons: press physics shared by chunky CTAs */
+.btn-alive {
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+}
+.btn-alive:active:not(:disabled) {
+  transform: translateY(2px) scale(0.99);
+}

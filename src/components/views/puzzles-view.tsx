@@ -173,7 +173,7 @@ export function PuzzlesView() {
   const judgeEnd = useCallback(
     (g: Chess): 'solved' | null => {
       if (g.isCheckmate() && g.turn() !== solverSide) return 'solved'
-      if (g.isGameOver()) return null // draw/stalemate — not the goal
+      if (g.isGameOver()) return null // draw/stalemate, not the goal
       return null
     },
     [solverSide],
@@ -203,7 +203,7 @@ export function PuzzlesView() {
         const bestNorm = uci.slice(0, 2) + uci.slice(2, 4) + (uci.slice(4, 5) || '')
         const moveNorm = mv.from + mv.to + (mv.promotion ?? '')
         if (bestNorm !== moveNorm) {
-          // wrong move — undo, fail
+          // wrong move, undo, fail
           g.undo()
           setFen(g.fen())
           setPhase('wrong')
@@ -237,7 +237,7 @@ export function PuzzlesView() {
         }
       }
       if (remainingScript > 0) {
-        // opponent reply — use the scripted one while on-script, engine otherwise
+        // opponent reply, use the scripted one while on-script, engine otherwise
         if (!diverged) {
           setTimeout(() => {
             const gg = gameRef.current
@@ -257,7 +257,7 @@ export function PuzzlesView() {
           setTimeout(() => void engineReply(true), 500)
         }
       } else if (state.puzzle.themes.includes('mate')) {
-        // scripted line ended but no mate — keep playing (should not happen post-validation)
+        // scripted line ended but no mate, keep playing (should not happen post-validation)
         setTimeout(() => void engineReply(true), 500)
       } else {
         setPhase('solved')
@@ -304,7 +304,7 @@ export function PuzzlesView() {
         <div>
           <h1 className="font-display text-2xl font-extrabold">Puzzles</h1>
           <div className="text-sm text-muted-foreground">
-            Rating: {profile?.puzzleRating ?? '—'} · Streak: {profile?.puzzleStreak ?? 0} · Best: {profile?.bestPuzzleStreak ?? 0}
+            Rating: {profile?.puzzleRating ?? '-'} · Streak: {profile?.puzzleStreak ?? 0} · Best: {profile?.bestPuzzleStreak ?? 0}
           </div>
         </div>
         <div className="flex items-center gap-3">

@@ -1,4 +1,4 @@
-/* Content validator — run with: bun run src/content/validate.ts
+/* Content validator: run with: bun run src/content/validate.ts
  *
  * Replays every FEN / move line in the curriculum and the puzzle pack with
  * chess.js and enforces:
@@ -11,7 +11,7 @@
  * Exits non-zero on any failure. CI for content.
  */
 import { Chess } from 'chess.js'
-import type { Level, LessonStep, Puzzle } from './schema'
+import type { LessonStep, Puzzle, Tier } from './schema'
 
 let errors = 0
 let checked = 0
@@ -115,7 +115,7 @@ function checkPuzzle(where: string, p: Puzzle) {
       const after = materialBalance(g.fen())
       const side = new Chess(p.fen).turn() === 'w' ? 1 : -1
       const gain = (after - before) * side
-      if (gain < 2) err(where, `winningMaterial puzzle gains only ${gain} — should be >= 2`)
+      if (gain < 2) err(where, `winningMaterial puzzle gains only ${gain}, should be >= 2`)
     } catch {
       /* already reported */
     }
@@ -127,19 +127,22 @@ function checkPuzzle(where: string, p: Puzzle) {
 async function main() {
   console.log('Validating lesson content...')
   const levelsMod = await import('./levels')
-  const levels: Level[] = levelsMod.LEVELS
-  let lessons = 0
+  const tiers: Tier[] = levelsMod.TIERS
+  let levels = 0
   let steps = 0
-  for (const level of levels) {
-    for (const lesson of level.lessons) {
-      lessons++
-      for (const step of lesson.steps) {
+  for (const tier of tiers) {
+    if (tier.levels.length !== 20) {
+      err(`tier ${tier.id}`, `tier must have exactly 20 levels, has ${tier.levels.length}`)
+    }
+    for (const level of tier.levels) {
+      levels++
+      for (const step of level.steps) {
         steps++
-        checkStep(`${level.id}/${lesson.id} step "${step.title}"`, step)
+        checkStep(`t${tier.n}/${level.id} step "${step.title}"`, step)
       }
     }
   }
-  console.log(`  ${levels.length} levels, ${lessons} lessons, ${steps} steps checked (${errors} errors so far)`)
+  console.log(`  ${tiers.length} tiers, ${levels} levels, ${steps} steps checked (${errors} errors so far)`)
 
   console.log('Validating puzzles...')
   const puzzlesMod = await import('./puzzles')
@@ -147,13 +150,14 @@ async function main() {
   for (const p of puzzles) checkPuzzle(`puzzle ${p.id}`, p)
   console.log(`  ${puzzles.length} puzzles checked`)
 
-  // unique ids
-  const lessonIds = new Set<string>()
-  for (const level of levels) {
-    for (const lesson of level.lessons) {
-      if (lessonIds.has(lesson.id)) err('dup', `duplicate lesson id ${lesson.id}`)
-      lessonIds.add(lesson.id)
-    }
+  // unique ids, 1..20 numbering per tier
+  const levelIds = new Set<string>()
+  for (const tier of tiers) {
+    tier.levels.forEach((level, i) => {
+      if (level.n !== i + 1) err(`tier ${tier.id}`, `level ${i} has n=${level.n}, expected ${i + 1}`)
+      if (levelIds.has(level.id)) err('dup', `duplicate level id ${level.id}`)
+      levelIds.add(level.id)
+    })
   }
   const puzzleIds = new Set<string>()
   for (const p of puzzles) {

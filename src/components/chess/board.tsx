@@ -16,6 +16,12 @@ export interface Mark {
   color?: 'green' | 'red' | 'yellow' | 'gray'
 }
 
+/** Pulsing square highlight used by lessons to show where a piece can go. */
+export interface FlashMark {
+  square: string
+  color?: 'green' | 'gold' | 'red'
+}
+
 export interface BoardProps {
   fen: string
   orientation?: 'w' | 'b'
@@ -27,6 +33,9 @@ export interface BoardProps {
   checkSquare?: string | null
   marks?: Mark[]
   arrows?: Arrow[]
+  flashes?: FlashMark[]
+  /** pulse the legal move dots while a piece is selected (learning boards) */
+  animateTargets?: boolean
   showLegal?: boolean
   showCoords?: boolean
   theme?: string
@@ -146,7 +155,7 @@ function trackPieces(prev: TrackState, fen: string): TrackState {
   return { fen, pieces: result, bySquare, nextId: prev.nextId }
 }
 
-// FEN with the active color forced to `color` (and en-passant cleared) — used
+// FEN with the active color forced to `color` (and en-passant cleared), used
 // by free-exploration boards to validate a move for either side at any time.
 function fenWithTurn(fen: string, color: 'w' | 'b'): string {
   const parts = fen.split(' ')
@@ -166,6 +175,8 @@ export function ChessBoard({
   checkSquare,
   marks = [],
   arrows = [],
+  flashes = [],
+  animateTargets = false,
   showLegal = true,
   showCoords = true,
   theme = 'green',
@@ -188,7 +199,7 @@ export function ChessBoard({
     }
   }, [fen])
 
-  // piece identity tracking (render-phase state adjustment — official pattern)
+  // piece identity tracking (render-phase state adjustment, official pattern)
   const [tracked, setTracked] = useState<TrackState>(() => trackPieces(EMPTY_TRACK, fen))
   let pieces = tracked.pieces
   if (tracked.fen !== fen) {
@@ -426,7 +437,7 @@ export function ChessBoard({
         {showLegal &&
           [...legalTargets.entries()].map(([sq, isCapture]) =>
             sq === hoverSquare && drag ? null : (
-              <div key={`dot-${sq}`} className="pointer-events-none absolute z-10" style={{ ...squarePercent(sq), width: '12.5%', height: '12.5%' }}>
+              <div key={`dot-${sq}`} className={cn('pointer-events-none absolute z-10', animateTargets && 'legal-pulse')} style={{ ...squarePercent(sq), width: '12.5%', height: '12.5%' }}>
                 {isCapture ? (
                   <div className="absolute inset-[6%] rounded-full" style={{ border: 'calc(min(4vw, 26px) / 3) solid rgba(0,0,0,0.16)' }} />
                 ) : (
@@ -436,7 +447,19 @@ export function ChessBoard({
             ),
           )}
 
-        {/* pieces — persistent elements keyed by tracked id; left/top transitions animate moves */}
+        {/* flashing squares (hint / feedback pulses) */}
+        {flashes.map((f, i) => (
+          <div
+            key={`flash-${f.square}-${i}`}
+            className={cn(
+              'square-flash pointer-events-none absolute z-10',
+              f.color === 'red' ? 'flash-red' : f.color === 'gold' ? 'flash-gold' : 'flash-green',
+            )}
+            style={{ ...squarePercent(f.square), width: '12.5%', height: '12.5%' }}
+          />
+        ))}
+
+        {/* pieces, persistent elements keyed by tracked id; left/top transitions animate moves */}
         {pieces.map((p) => {
           const isDragged = drag?.from === p.square
           const pos = squarePercent(p.square)

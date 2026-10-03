@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useApp } from '@/lib/store'
 import { Button } from '@/components/ui/button'
-import { ALL_LESSONS } from '@/content/levels'
+import { ALL_LEVELS } from '@/content/levels'
 import { PUZZLES } from '@/content/puzzles'
 import { titleForXp } from '@/lib/rating'
 import { BOTS } from '@/lib/chess/bots'
@@ -31,8 +31,8 @@ interface GameRow {
 }
 
 function nextLessonId(completed: Set<string>): string | null {
-  for (const { lesson } of ALL_LESSONS) {
-    if (!completed.has(lesson.id)) return lesson.id
+  for (const { level } of ALL_LEVELS) {
+    if (!completed.has(level.id)) return level.id
   }
   return null
 }
@@ -73,15 +73,15 @@ export function HomeView() {
   const nextId = started.length
     ? started.sort((a, b) => (a.updatedAt ?? '') < (b.updatedAt ?? '') ? -1 : 1)[0]?.lessonId ?? nextLessonId(completed)
     : nextLessonId(completed)
-  const nextLesson = ALL_LESSONS.find((l) => l.lesson.id === nextId)
+  const nextLesson = ALL_LEVELS.find((l) => l.level.id === nextId)
   const doneCount = completed.size
-  const totalLessons = ALL_LESSONS.length
+  const totalLessons = ALL_LEVELS.length
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-extrabold sm:text-3xl">Hi {profile.name}</h1>
+          <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{profile.name}</h1>
           <p className="text-sm text-muted-foreground">
             {titleForXp(profile.xp)} · {profile.xp} XP · {doneCount}/{totalLessons} lessons done
           </p>
@@ -89,13 +89,13 @@ export function HomeView() {
         <div className="flex gap-2 text-center">
           <div className="rounded-md bg-card px-4 py-2 shadow-sm">
             <div className="text-lg font-extrabold leading-5">
-              {profile.puzzleRating ?? '—'}
+              {profile.puzzleRating ?? '-'}
             </div>
             <div className="text-[11px] text-muted-foreground">Puzzle rating</div>
           </div>
           <div className="rounded-md bg-card px-4 py-2 shadow-sm">
             <div className="text-lg font-extrabold leading-5">
-              {profile.ladderRating ?? '—'}
+              {profile.ladderRating ?? '-'}
             </div>
             <div className="text-[11px] text-muted-foreground">Bot ladder</div>
           </div>
@@ -121,16 +121,16 @@ export function HomeView() {
           {nextLesson ? (
             <>
               <div className="text-sm font-semibold">
-                Level {nextLesson.level.n} · {nextLesson.lesson.title}
+                {nextLesson.tier.title} · Level {nextLesson.level.n}: {nextLesson.level.title}
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">{nextLesson.lesson.subtitle}</p>
-              <Button className="btn-hero mt-4 px-6" onClick={() => navigate('lesson', nextLesson.lesson.id)}>
+              <p className="mt-1 text-sm text-muted-foreground">{nextLesson.level.subtitle}</p>
+              <Button className="btn-hero mt-4 px-6" onClick={() => navigate('lesson', nextLesson.level.id)}>
                 {doneCount === 0 ? 'First lesson' : 'Resume'} <ChevronRight className="h-4 w-4" />
               </Button>
             </>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Every lesson is done. Review any of them from the Lessons tab — or go chase the ladder.
+              Every lesson is done. Review any of them from the Lessons tab, or go chase the ladder.
             </p>
           )}
         </div>
@@ -147,7 +147,7 @@ export function HomeView() {
           <div className="text-sm text-muted-foreground">{dailyDate}</div>
           <div className="mt-2 flex items-center gap-2 text-sm font-semibold">
             <Target className="h-4 w-4 text-muted-foreground" />
-            {dailyDone === null ? 'Loading…' : dailyDone ? 'Solved — come back tomorrow' : 'Ready — take your shot'}
+            {dailyDone === null ? 'Loading…' : dailyDone ? 'Solved. Come back tomorrow' : 'Ready. Take your shot'}
           </div>
           <div className="mt-3 text-xs text-muted-foreground">
             One a day, chosen from the full pool. Rated.
@@ -164,10 +164,10 @@ export function HomeView() {
             <h2 className="font-display text-lg font-bold">Play</h2>
           </div>
           <div className="text-sm text-muted-foreground">
-            Ten engine opponents from {BOTS[0].name} ({BOTS[0].rating}) to {BOTS[BOTS.length - 1].name} ({BOTS[BOTS.length - 1].rating}).
+            Fourteen engine opponents with faces and attitudes, from {BOTS[0].name} ({BOTS[0].rating}) to {BOTS[BOTS.length - 1].name} ({BOTS[BOTS.length - 1].rating}).
           </div>
           <div className="mt-3 text-sm font-semibold text-primary">
-            {profile.ladderRating ? `Ladder rating: ${profile.ladderRating}` : 'Ladder: unrated — play your first game'}
+            {profile.ladderRating ? `Ladder rating: ${profile.ladderRating}` : 'Ladder: unrated. Play your first game'}
           </div>
         </button>
 

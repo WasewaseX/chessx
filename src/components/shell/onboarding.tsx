@@ -7,7 +7,7 @@ import { useApp } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
 const LEVELS = [
-  { id: 'new', title: 'New to chess', desc: 'I know how the pieces move — barely.' },
+  { id: 'new', title: 'New to chess', desc: 'I know how the pieces move. Barely.' },
   { id: 'beginner', title: 'Beginner', desc: 'I play casually and blunder a lot.' },
   { id: 'intermediate', title: 'Intermediate', desc: 'I know basic tactics and openings.' },
   { id: 'advanced', title: 'Advanced', desc: 'Tournament player, solid fundamentals.' },
@@ -41,9 +41,9 @@ export function Onboarding() {
         <div className="w-full max-w-lg">
           <div className="mb-8 flex items-center gap-3">
             { }
-            <img src="/logo.svg" alt="Ply" className="h-12 w-12 rounded-xl" />
+            <img src="/logo.svg" alt="ChessX" className="h-12 w-12 rounded-xl" />
             <div>
-              <div className="font-display text-3xl font-extrabold">Ply</div>
+              <div className="font-display text-3xl font-extrabold">ChessX</div>
               <div className="text-sm text-sidebar-foreground/60">Learn chess properly</div>
             </div>
           </div>

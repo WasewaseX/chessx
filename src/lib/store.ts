@@ -21,6 +21,7 @@ export interface ViewState {
 export interface ProfileData {
   name: string
   skillLevel: string
+  coach: string
   onboarded: boolean
   theme: string
   darkMode: string

@@ -36,12 +36,12 @@ export function Sidebar() {
       <button
         className="flex items-center gap-3 px-5 pb-2 pt-5 text-left"
         onClick={() => navigate('home')}
-        aria-label="Ply home"
+        aria-label="ChessX home"
       >
         { }
-        <img src="/logo.svg" alt="Ply" className="h-9 w-9 rounded-lg" />
+        <img src="/logo.svg" alt="ChessX" className="h-9 w-9 rounded-lg" />
         <div>
-          <div className="font-display text-xl font-extrabold tracking-tight">Ply</div>
+          <div className="font-display text-xl font-extrabold tracking-tight">ChessX</div>
           <div className="-mt-0.5 text-[11px] text-sidebar-foreground/60">Learn chess properly</div>
         </div>
       </button>
@@ -106,7 +106,7 @@ export function MobileNav() {
 export function AppFooter() {
   return (
     <footer className="mt-auto border-t border-border px-4 py-3 text-center text-[11px] text-muted-foreground">
-      Ply · Not affiliated with chess.com or Lichess. Piece set: cburnett (CC BY-SA 3.0). Engine: Stockfish.
+      ChessX · Not affiliated with chess.com or Lichess. Piece set: cburnett (CC BY-SA 3.0). Engine: Stockfish.
     </footer>
   )
 }

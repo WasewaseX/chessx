@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useApp } from '@/lib/store'
-import { LEVELS } from '@/content/levels'
+import { ALL_LEVELS, TIERS } from '@/content/levels'
 import { titleForXp } from '@/lib/rating'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
@@ -43,7 +43,7 @@ export function ProfileView() {
   const total = wins + losses + draws
   const winRate = total ? Math.round((wins / total) * 100) : null
   const completedLessons = progress.filter((p) => p.completed).length
-  const totalLessons = LEVELS.reduce((n, l) => n + l.lessons.length, 0)
+  const totalLessons = ALL_LEVELS.length
   const puzzleTotal = profile.puzzleSolved + profile.puzzleFailed
   const solveRate = puzzleTotal ? Math.round((profile.puzzleSolved / puzzleTotal) * 100) : null
 
@@ -65,13 +65,13 @@ export function ProfileView() {
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Puzzle rating"
-          value={profile.puzzleRating ?? '—'}
+          value={profile.puzzleRating ?? '-'}
           sub={profile.puzzleCount < 10 && profile.puzzleRating ? 'Provisional' : profile.puzzleRating ? `${profile.puzzleCount} rated puzzles` : 'Solve a puzzle to get rated'}
         />
         <StatCard
           label="Bot ladder"
-          value={profile.ladderRating ?? '—'}
-          sub={profile.ladderCount < 10 && profile.ladderRating ? 'Provisional' : profile.ladderRating ? `${profile.ladderCount} rated games` : 'Unrated — play a ladder game'}
+          value={profile.ladderRating ?? '-'}
+          sub={profile.ladderCount < 10 && profile.ladderRating ? 'Provisional' : profile.ladderRating ? `${profile.ladderCount} rated games` : 'Unrated. Play a ladder game'}
         />
         <StatCard label="Puzzle streak" value={profile.puzzleStreak} sub={`Best: ${profile.bestPuzzleStreak}`} />
         <StatCard label="Games" value={total} sub={winRate != null ? `${winRate}% won` : 'No games yet'} />
@@ -92,15 +92,16 @@ export function ProfileView() {
             <Progress value={totalLessons ? (completedLessons / totalLessons) * 100 : 0} />
           </div>
           <div className="mt-4 grid gap-2 text-sm">
-            {LEVELS.map((l) => {
-              const done = l.lessons.filter((les) => progress.find((p) => p.lessonId === les.id)?.completed).length
+            {TIERS.map((t) => {
+              const done = t.levels.filter((les) => progress.find((p) => p.lessonId === les.id)?.completed).length
               return (
-                <div key={l.id} className="flex items-center justify-between">
-                  <span className="text-muted-foreground">
-                    Level {l.n} · {l.title}
+                <div key={t.id} className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-muted-foreground">
+                    <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: t.color }} />
+                    Tier {t.n} · {t.title}
                   </span>
                   <span className="font-semibold">
-                    {done}/{l.lessons.length}
+                    {done}/{t.levels.length}
                   </span>
                 </div>
               )
@@ -120,7 +121,7 @@ export function ProfileView() {
               <div className="text-xs text-muted-foreground">Missed</div>
             </div>
             <div>
-              <div className="font-display text-2xl font-extrabold">{solveRate != null ? `${solveRate}%` : '—'}</div>
+              <div className="font-display text-2xl font-extrabold">{solveRate != null ? `${solveRate}%` : '-'}</div>
               <div className="text-xs text-muted-foreground">Solve rate</div>
             </div>
           </div>

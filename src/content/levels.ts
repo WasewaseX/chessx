@@ -1,16 +1,24 @@
-import type { Level } from './schema'
-import { level1 } from './levels/first-moves'
-import { level2 } from './levels/opening-play'
-import { level3 } from './levels/winning-material'
-import { level4 } from './levels/endgame-strategy'
-import { level5 } from './levels/master-class'
+import type { Tier } from './schema'
+import { newbie } from './tiers/newbie'
+import { beginner } from './tiers/beginner'
+import { intermediate } from './tiers/intermediate'
+import { advanced } from './tiers/advanced'
+import { master } from './tiers/master'
+import { grandmaster } from './tiers/grandmaster'
 
-export const LEVELS: Level[] = [level1, level2, level3, level4, level5]
+export const TIERS: Tier[] = [newbie, beginner, intermediate, advanced, master, grandmaster]
 
-export const ALL_LESSONS = LEVELS.flatMap((l) =>
-  l.lessons.map((lesson) => ({ level: l, lesson })),
+export interface LevelRef {
+  tier: Tier
+  level: Tier['levels'][number]
+  /** global level number, 1..120 */
+  globalN: number
+}
+
+export const ALL_LEVELS: LevelRef[] = TIERS.flatMap((tier) =>
+  tier.levels.map((level, i) => ({ tier, level, globalN: tier.n * 100 + i + 1 })),
 )
 
-export function findLesson(lessonId: string) {
-  return ALL_LESSONS.find((x) => x.lesson.id === lessonId)
+export function findLevel(levelId: string): LevelRef | undefined {
+  return ALL_LEVELS.find((x) => x.level.id === levelId)
 }

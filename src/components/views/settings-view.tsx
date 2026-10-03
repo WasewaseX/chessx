@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { COACHES } from '@/lib/coaches'
 import { cn } from '@/lib/utils'
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 
@@ -78,6 +79,38 @@ export function SettingsView() {
         </div>
       </section>
 
+      {/* coach */}
+      <section className="mt-4 rounded-lg bg-card p-5 shadow-sm">
+        <h2 className="font-display text-lg font-bold">Your coach</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Every coach covers the whole curriculum but each has their own style. They speak their feedback out loud too.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {COACHES.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => save({ coach: c.id })}
+              className={cn(
+                'flex items-start gap-3 rounded-lg border p-3 text-left transition',
+                profile.coach === c.id
+                  ? 'border-primary bg-primary/5 shadow-sm'
+                  : 'border-border hover:border-muted-foreground/40 hover:bg-accent/40',
+              )}
+              aria-pressed={profile.coach === c.id}
+            >
+              <img src={c.face} alt={c.name} className="h-14 w-14 shrink-0 rounded-full object-cover object-top shadow-sm" />
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-2">
+                  <span className="font-bold">{c.name}</span>
+                  <span className="text-xs font-semibold text-muted-foreground">{c.title}</span>
+                </div>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{c.blurb}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* board */}
       <section className="mt-4 rounded-lg bg-card p-5 shadow-sm">
         <h2 className="font-display text-lg font-bold">Board</h2>
@@ -141,7 +174,7 @@ export function SettingsView() {
       <section className="mt-4 rounded-lg bg-card p-5 shadow-sm">
         <h2 className="font-display text-lg font-bold">AI coach</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          The built-in model works out of the box. Prefer your own? Bring an API key — it is stored on this device's database and used server-side only.
+          The built-in model works out of the box. Prefer your own? Bring an API key. It is stored on this device's database and used server-side only.
         </p>
 
         <div className="mt-4 grid gap-4">
@@ -195,7 +228,7 @@ export function SettingsView() {
                 />
               </div>
               <div>
-                <Label htmlFor="key">API key {profile.hasApiKey ? '(saved — leave blank to keep)' : ''}</Label>
+                <Label htmlFor="key">API key {profile.hasApiKey ? '(saved, leave blank to keep)' : ''}</Label>
                 <Input
                   id="key"
                   type="password"
@@ -231,7 +264,7 @@ export function SettingsView() {
             </>
           )}
           {provider === 'builtin' && (
-            <p className="text-sm text-muted-foreground">Using the built-in Ply AI. No key needed.</p>
+            <p className="text-sm text-muted-foreground">Using the built-in ChessX AI. No key needed.</p>
           )}
         </div>
       </section>

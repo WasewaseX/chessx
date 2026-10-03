@@ -86,21 +86,26 @@ export interface PlayoutStep {
 
 export type LessonStep = TextStep | DemoStep | QuizStep | ExerciseStep | PlayoutStep
 
-export interface Lesson {
+/** One level inside a tier: a single interactive lesson with several steps. */
+export interface Level {
   id: string
+  /** 1..20 within the tier */
+  n: number
   title: string
   subtitle: string
   minutes: number
   steps: LessonStep[]
 }
 
-export interface Level {
+/** A full tier of the curriculum: 20 levels, newbie to grandmaster. */
+export interface Tier {
   id: string
+  /** 1..6 */
   n: number
   title: string
   tagline: string
   color: string
-  lessons: Lesson[]
+  levels: Level[]
 }
 
 export interface Puzzle {
@@ -111,6 +116,6 @@ export interface Puzzle {
   rating: number
   themes: string[]
   title: string
-  /** Real game it came from, if any, e.g. "Morphy – Duke of Brunswick, Paris 1858". */
+  /** Real game it came from, if any, e.g. "Morphy, Duke of Brunswick, Paris 1858". */
   source?: string
 }

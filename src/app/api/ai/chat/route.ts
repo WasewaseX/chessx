@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Chess } from 'chess.js'
 import { runChat, getAiConfig, type ChatMessage } from '@/lib/ai'
+import { coachById } from '@/lib/coaches'
 
 export const maxDuration = 60
 
@@ -96,6 +97,7 @@ export async function POST(req: NextRequest) {
 
   const ctx = body.context ?? {}
   const skill = String(ctx.skillLevel ?? 'beginner')
+  const coach = coachById(typeof ctx.coach === 'string' ? ctx.coach : 'nina')
 
   const contextLines: string[] = []
   if (ctx.fen) {
@@ -109,11 +111,14 @@ export async function POST(req: NextRequest) {
   if (ctx.moves) contextLines.push(`Moves played so far: ${ctx.moves}`)
 
   const system = [
-    'You are the coach inside Ply, a chess training app. You talk to one student.',
+    `You are ${coach.name}, the coach inside ChessX, a chess training app. You talk to one student.`,
+    coach.systemLine,
     `The student self-identifies as: ${skill}. Calibrate depth to that level.`,
     'Rules of conduct:',
     '- Be concise. A few short paragraphs at most. No lists unless asked.',
     '- Plain, direct chess language. No hype, no emojis, no filler like "great question".',
+    '- Never open with a greeting or introduction. Answer the question straight away, every time.',
+    '- Never use the em dash character. Use commas, periods or parentheses instead.',
     '- When a position is given, read the ASCII board carefully square by square before answering. Trust the board, not guesses about move order. Be concrete: name squares, pieces and moves in SAN.',
     '- Only name an opening or variation if you are certain it matches the moves actually played. If unsure, describe the moves and plans instead of guessing a name.',
     '- In a lesson exercise, guide with questions and ideas. Do NOT hand over the solution move unless the student explicitly asks for it after trying.',

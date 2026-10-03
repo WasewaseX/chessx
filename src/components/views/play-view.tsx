@@ -20,6 +20,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { pickBark } from '@/lib/chess/bots'
 import { ArrowLeft, Lightbulb, Undo2, Flag, RefreshCw, LineChart, Volume2, VolumeX } from 'lucide-react'
 
 type Phase = 'lobby' | 'playing' | 'over'
@@ -33,6 +34,17 @@ interface Setup {
 interface GameEnd {
   result: 'win' | 'loss' | 'draw'
   reason: string
+}
+
+function BotFace({ bot, className }: { bot: Bot; className?: string }) {
+  return (
+    <img
+      src={`/bots/${bot.id}.png`}
+      alt={bot.name}
+      className={cn('rounded-full object-cover', className)}
+      draggable={false}
+    />
+  )
 }
 
 export function PlayView() {
@@ -123,7 +135,7 @@ function Lobby({
           <h1 className="font-display text-xl font-extrabold">Bot ladder</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             One rated game at a time against the bot nearest your level.
-            {ladderRating ? ` Current rating: ${ladderRating}.` : ' Your first game sets your rating — provisional for 10 games.'}
+            {ladderRating ? ` Current rating: ${ladderRating}.` : ' Your first game sets your rating, provisional for 10 games.'}
           </p>
         </div>
         <Button className="btn-hero px-8 py-3 text-base" onClick={onLadder}>
@@ -164,12 +176,7 @@ function Lobby({
             onClick={() => onPlay(bot)}
             className="group flex items-center gap-3 rounded-lg bg-card p-4 text-left shadow-sm transition hover:shadow-md"
           >
-            <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-display text-xl font-extrabold text-white"
-              style={{ background: bot.color }}
-            >
-              {bot.avatar}
-            </div>
+            <BotFace bot={bot} className="h-12 w-12 shrink-0 border border-border/60 bg-secondary" />
             <div className="min-w-0">
               <div className="flex items-baseline gap-2">
                 <span className="truncate font-bold">{bot.name}</span>
@@ -215,7 +222,32 @@ function GameScreen({
   const [newRatingValue, setNewRatingValue] = useState<number | null>(null)
   const [savedPgn, setSavedPgn] = useState('')
   const [sound, setSound] = useState(soundEnabled)
+  // bot personality: speech bubble + material swing tracking
+  const [bark, setBark] = useState<string | null>(null)
+  const barkTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastBarkRef = useRef<string | undefined>(undefined)
+  const matBeforeRef = useRef(0)
   const orientation = flipped ? (setup.playerColor === 'w' ? 'b' : 'w') : setup.playerColor
+
+  const sayBark = useCallback(
+    (list: string[]) => {
+      if (list.length === 0) return
+      const line = pickBark(list, lastBarkRef.current)
+      lastBarkRef.current = line
+      setBark(line)
+      if (barkTimer.current) clearTimeout(barkTimer.current)
+      barkTimer.current = setTimeout(() => setBark(null), 6000)
+    },
+    [],
+  )
+
+  useEffect(() => () => { if (barkTimer.current) clearTimeout(barkTimer.current) }, [])
+
+  // greet when a new opponent sits down
+  useEffect(() => {
+    const t = setTimeout(() => sayBark(setup.bot.barks.greet), 800)
+    return () => clearTimeout(t)
+  }, [setup.bot.id, sayBark, setup.bot.barks.greet])
 
   const checkSquare = useMemo(() => {
     const g = gameRef.current
@@ -265,7 +297,14 @@ function GameScreen({
       })
       .catch(() => {})
     playSound(end.result === 'win' ? 'win' : end.result === 'loss' ? 'lose' : 'gameEnd', sound)
-  }, [end, recorded, setup, moves.length, playerName, setProfile, sound])
+    sayBark(
+      end.result === 'win'
+        ? setup.bot.barks.lose
+        : end.result === 'loss'
+          ? setup.bot.barks.win
+          : setup.bot.barks.draw,
+    )
+  }, [end, recorded, setup, moves.length, playerName, setProfile, sound, sayBark])
 
   const botMove = useCallback(async () => {
     const g = gameRef.current
@@ -289,17 +328,22 @@ function GameScreen({
           playSound(mv.captured ? 'capture' : mv.san.startsWith('O-O') ? 'castle' : 'move', sound)
           if (g.isCheck()) playSound('check', sound)
           setEnd(evaluateEnd(g))
+          // react to the exchange that just finished: did the player swing material?
+          const delta = materialFor(g.fen(), setup.playerColor) - matBeforeRef.current
+          if (delta <= -2 && Math.random() < 0.6) sayBark(setup.bot.barks.playerBlunder)
+          else if (delta >= 2 && Math.random() < 0.6) sayBark(setup.bot.barks.playerGood)
         }
       }
     } finally {
       setEngineThinking(false)
     }
-  }, [setup.bot, evaluateEnd, sound])
+  }, [setup.bot, setup.playerColor, evaluateEnd, sound, sayBark])
 
   const onPlayerMove = useCallback(
     (from: Square, to: Square, promotion?: string) => {
       const g = gameRef.current
       if (g.isGameOver() || g.turn() !== setup.playerColor) return
+      matBeforeRef.current = materialFor(g.fen(), setup.playerColor)
       try {
         const mv = g.move({ from, to, promotion: promotion ?? undefined })
         if (!mv) return
@@ -362,9 +406,7 @@ function GameScreen({
       {/* top bar */}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full font-display font-extrabold text-white" style={{ background: setup.bot.color }}>
-            {setup.bot.avatar}
-          </div>
+          <BotFace bot={setup.bot} className="h-9 w-9 border border-border/60 bg-secondary" />
           <div>
             <div className="text-sm font-bold leading-4">{setup.bot.name} · {setup.bot.rating}</div>
             <div className="text-xs text-muted-foreground">
@@ -393,14 +435,19 @@ function GameScreen({
         <div className="mx-auto w-full max-w-[640px] flex-1">
           {/* opponent plate */}
           <div className="mb-2 flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-extrabold text-white" style={{ background: setup.bot.color }}>
-              {setup.bot.avatar}
-            </div>
+            <BotFace bot={setup.bot} className="h-8 w-8 border border-border/60 bg-secondary" />
             <span className="text-sm font-semibold">
               {setup.bot.name} <span className="text-muted-foreground">({setup.bot.rating})</span>
             </span>
             {setup.rated && <span className="rounded bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground">Rated</span>}
           </div>
+          {bark && (
+            <div className="mb-2 flex items-center gap-2">
+              <div className="relative rounded-xl rounded-bl-sm border border-border/60 bg-card px-3 py-1.5 text-xs font-semibold shadow-sm">
+                {bark}
+              </div>
+            </div>
+          )}
           <ChessBoard
             fen={fen}
             orientation={orientation}
@@ -469,10 +516,28 @@ function GameScreen({
   )
 }
 
+/** Net material balance (pawn units) for one side from a FEN. */
+function materialFor(fen: string, color: 'w' | 'b'): number {
+  try {
+    const g = new Chess(fen)
+    let v = 0
+    for (const row of g.board()) {
+      for (const sq of row) {
+        if (!sq || sq.type === 'k') continue
+        const val = { p: 1, n: 3, b: 3, r: 5, q: 9 }[sq.type]
+        v += sq.color === color ? val : -val
+      }
+    }
+    return v
+  } catch {
+    return 0
+  }
+}
+
 function buildPgn(g: Chess, setup: Setup, playerName: string, end: GameEnd): string {
   try {
     const result = end.result === 'win' ? (setup.playerColor === 'w' ? '1-0' : '0-1') : end.result === 'loss' ? (setup.playerColor === 'w' ? '0-1' : '1-0') : '1/2-1/2'
-    g.setHeader('Event', setup.rated ? 'Ply Bot Ladder' : 'Ply Casual')
+    g.setHeader('Event', setup.rated ? 'ChessX Bot Ladder' : 'ChessX Casual')
     g.setHeader('White', setup.playerColor === 'w' ? playerName : `${setup.bot.name} (${setup.bot.rating})`)
     g.setHeader('Black', setup.playerColor === 'b' ? playerName : `${setup.bot.name} (${setup.bot.rating})`)
     g.setHeader('Result', result)

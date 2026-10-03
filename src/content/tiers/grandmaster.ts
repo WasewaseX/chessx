@@ -1,0 +1,624 @@
+// Tier 6: Grandmaster. Judgment at full depth: zugzwang, fortresses,
+// exchange sacrifices, preparation, and the capstone game.
+import type { Tier } from '../schema'
+import { text, demo, quiz, drill, right, wrong, playout } from '../kit'
+
+const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
+export const grandmaster: Tier = {
+  id: 'grandmaster',
+  n: 6,
+  title: 'Grandmaster',
+  tagline: 'Zugzwang, fortresses, exchange sacrifices, and the capstone.',
+  color: '#b08a2e',
+  levels: [
+    {
+      id: 'gm-01',
+      n: 1,
+      title: 'Calculation trees',
+      subtitle: 'Prune branches, finish lines, trust only the end.',
+      minutes: 12,
+      steps: [
+        text(
+          'Depth with discipline',
+          [
+            'Grandmaster calculation is not seeing twenty moves: it is seeing THREE branches fully. Prune early: if a candidate loses material after the opponent\u2019s best reply, drop it and move on. Never calculate the second-best reply in depth.',
+            'Finish lines in your head. A combination calculated to move two and improvised from there is where titles are lost. The board hides nothing; memory hides everything. Train by replaying finished lines with your eyes closed.',
+          ],
+          'Three branches, fully finished, beat twenty half-calculated ideas.',
+        ),
+        demo(
+          'The full tree',
+          ['One sacrifice, one forced reply, one mate. Before moving, a master has already seen all three positions and verified the last one.'],
+          'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1',
+          {
+            marks: [
+              { square: 'd8', color: 'green' },
+              { square: 'e8', color: 'green' },
+            ],
+            caption: 'Qd8+, Bxd8, Re8: seen before played',
+          },
+        ),
+        drill('Finish the tree', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'Calculate to the mate, then play the line', 'The bishop is the only defender of d8. After he takes, the e-file is empty.', 'Three positions, all verified. The line ends in mate: calculation complete.'),
+        quiz('Pruning rule', 'A candidate move looks brilliant but loses a pawn to the opponent\u2019s BEST reply. What does the master do?', [
+          right('Drops it and evaluates the next candidate', 'Best replies only. Hope is not a branch of the tree.'),
+          wrong('Calculates the opponent\u2019s likely (weaker) reply', 'The tree must survive the strongest attack. Everything else is decoration.'),
+          wrong('Plays it for complications', 'Complications favor the prepared mind, not the hopeful one.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-02',
+      n: 2,
+      title: 'Resources in worse positions',
+      subtitle: 'Activity, counterplay, and the perpetual threat.',
+      minutes: 12,
+      steps: [
+        text(
+          'Compensation is a resource',
+          [
+            'A worse position is not a lost position until the opponent can convert without interruption. Resources: an exposed enemy king, a far-advanced passer, an open file, a perpetual threat. Your entire defense is built from whatever concrete asset remains.',
+            'The skill: identify your ONE asset in the position and ride it relentlessly. A single active rook checking forever can save ten "lost" positions; a h-passer on h6 distracts a whole army.',
+          ],
+          'Find the one thing that still bites. Ride it.',
+        ),
+        demo('The eternal checks', ['Material means nothing while the queen checks along every rank. The king walks down the board and meets the same queen every step.'], '6k1/8/8/8/8/8/8/3Q2K1 w - - 0 1', {
+          moves: ['Qd8+', 'Kh7', 'Qd7+', 'Kh6', 'Qd6+', 'Kh5'],
+          caption: 'The resource that never runs out',
+        }),
+        drill('Ride the resource', '6k1/8/8/8/8/8/8/3Q2K1 w - - 0 1', ['Qd8+', 'Kh7', 'Qd7+', 'Kh6', 'Qd6+', 'Kh5'], 'Prove the draw with checks', 'Rank after rank, one file to the left each time.', 'The perpetual is a resource, not a habit. Here it is the whole point.'),
+        quiz('Resource hunt', 'You are two pawns down with one far-advanced passed pawn on h6. The defense of the opponent is solid. Your best practical plan?', [
+          right('Push the pawn: it forces the enemy pieces to babysit it, freeing squares elsewhere', 'The passer is a magnet. Magnets create weaknesses elsewhere.'),
+          wrong('Trade into a pure pawn endgame', 'Two pawns down in a pawn ending is resignable.'),
+          wrong('Wait passively behind your walls', 'Passivity converts a worse position into a lost one.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-03',
+      n: 3,
+      title: 'Zugzwang',
+      subtitle: 'The position where any move loses.',
+      minutes: 12,
+      steps: [
+        text(
+          'The obligation to move',
+          [
+            'Zugzwang: every legal move makes your position worse. It barely exists in middlegames (there is always a waiting move) and rules pawn endings, where kings and pawns have no spare tempi.',
+            'Corresponding squares: in the tightest king-and-pawn duels, each square of one king\u2019s route has exactly one matching square for the other. Stand on the wrong one and you lose; arrive on the right one first and the opponent inherits the curse of moving.',
+          ],
+          'In pawn endings, having no useful move is the losing side\u2019s whole story.',
+        ),
+        demo(
+          'Move and lose',
+          ['White to move: Kc1 allows b1=Q, Ka1 allows b1=Q, every move promotes the pawn. Black to move: any king step frees b2 for capture. The side to move loses. Mutual zugzwang.'],
+          '8/8/8/8/1k6/8/1p6/1K6 w - - 0 1',
+          {
+            marks: [
+              { square: 'b2', color: 'red' },
+              { square: 'b1', color: 'yellow' },
+            ],
+            caption: 'Red: the pawn. Yellow: the promotion square.',
+          },
+        ),
+        quiz('Zugzwang definition', 'Zugzwang exists most often in which phase?', [
+          right('Pawn endings, where no piece has spare tempi', 'Kings and pawns cannot pass a turn. That is what makes it work.'),
+          wrong('Open middlegames', 'Too many pieces: there is always another waiting move.'),
+          wrong('Queen endgames', 'Queens always have another check. Zugzwang needs immobility.'),
+        ]),
+        quiz('Corresponding squares', 'Two kings duel over the squares in front of a pawn. What decides the winner?', [
+          right('Who arrives on the key corresponding square with the OTHER side to move', 'The curse of moving is the weapon. Take the right square with him to play.'),
+          wrong('Who is closer to the pawn', 'Distance is a detail. The correspondence is the law.'),
+          wrong('Whoever has the move at the start', 'The move is a burden in zugzwang, not a gift.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-04',
+      n: 4,
+      title: 'Building and breaking fortresses',
+      subtitle: 'The wall exists before the siege.',
+      minutes: 12,
+      steps: [
+        text(
+          'Both sides of the wall',
+          [
+            'Building: when defending, commit early to a wall shape (king in front of connected pawns, bishop guarding the entry color) and stop improvising. A finished fortress converts a lost position into a draw by pure geometry.',
+            'Breaking: fortresses fall only from inside ( zugzwang, pawn sacrifice to open the king\u2019s shell) or from a second front the wall was never designed to face. Attack the DESIGN, not the bricks.',
+          ],
+          'Fortresses are designed, not improvised. So are their breaches.',
+        ),
+        demo('The wall', ['Rook against king and two connected pawns: the everyday fortress. No invasion square exists, no zugzwang is possible, and the rook can check from now until the 50-move rule.'], '7k/8/8/8/8/8/r5PP/6K1 w - - 0 1', {
+          marks: [
+            { square: 'f2', color: 'green' },
+            { square: 'g2', color: 'green' },
+          ],
+          caption: 'Green: the wall. It does not fall.',
+        }),
+        quiz('Fortress breach', 'Which factor actually breaks a fortress?', [
+          right('Zugzwang or a second front the wall cannot face', 'Walls fail on design flaws, not on force.'),
+          wrong('More checking with the rook', 'Checks are not progress without a plan.'),
+          wrong('Trading down to a pawn endgame', 'That usually STRENGTHENS the defender\u2019s position.'),
+        ]),
+        quiz('Fortress build order', 'Which piece pairing makes the strongest everyday fortress?', [
+          right('The king in front of connected pawns, backed by a color-guarding bishop', 'King as the wall\u2019s keystone, bishop as the color watcher.'),
+          wrong('Two knights in front of scattered pawns', 'Scattered pawns are doors. Knights jump but cannot seal files.'),
+          wrong('The queen parked on the first rank', 'Queens patrol; they do not build.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-05',
+      n: 5,
+      title: 'Structural exchanges',
+      subtitle: 'Give a good piece for a bad square, on purpose.',
+      minutes: 12,
+      steps: [
+        text(
+          'Trading values, keeping squares',
+          [
+            'Modern opening play happily gives up the two bishops, trades a good knight for a bad one, or accepts doubled pawns, all to fix the structure the middlegame will be fought on. The question is never "who is material ahead after move ten" but "whose pawns will lose the war of attrition".',
+            'The classic example: taking on c6 and c7 to give your opponent doubled pawns in front of their own king, then attacking those squares for the rest of the game. The pawns cannot run away. Your pieces can.',
+          ],
+          'Trade value for geometry. Geometry does not move backward.',
+        ),
+        demo('The permanent mark', ['Doubled pawns on c6 and c7?? wait, White\u2019s doubles: c3 and c4. The red squares show where the structure bleeds forever.'], '2r1k3/8/8/8/8/2pp4/1PP5/2KR4 w - - 0 1', {
+          marks: [
+            { square: 'c3', color: 'red' },
+            { square: 'c4', color: 'red' },
+          ],
+          caption: 'Red: squares the doubled pawns can never defend',
+        }),
+        quiz('Structural exchange', 'You can trade your good knight for his bad bishop, and the resulting structure gives him doubled pawns on a half-open file. This trade is good when...', [
+          right('The doubled pawns and the open file outweigh the piece quality difference', 'Squares and files outlast piece placement.'),
+          wrong('Never: a good knight is sacred', 'Piece quality is temporary. Structure is permanent.'),
+          wrong('Only when material is equal', 'The structure decides who is effectively material ahead later.'),
+        ]),
+        quiz('The long view', 'Why do top players accept doubled pawns near their own king in exchange for long-term pressure?', [
+          right('Because the pressure is concrete and the doubled pawns can often be defended for a long time', 'The compensation arrives now; the bill may never come due.'),
+          wrong('Because doubled pawns are actually good', 'They are a real weakness. Just sometimes a affordable one.'),
+          wrong('Because engines recommend it', 'Engines evaluate positions, not philosophies. The human reads the position type.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-06',
+      n: 6,
+      title: 'Flank thrusts',
+      subtitle: 'g5 and f5: the pawns that start revolutions.',
+      minutes: 12,
+      steps: [
+        text(
+          'Space converted to attacks',
+          [
+            'In closed centers, flank pawn thrusts are the main weapon: g4-g5 evicts the f6 knight (the guardian of the light squares and the king), f4-f5 claims space and opens the f-file behind it.',
+            'The rule: a flank thrust works when the center is STABLE. If the center can open, your advancing pawns become targets and the counterstrike comes through the middle. Close the center first, then storm.',
+          ],
+          'Close the center, then flank. Open centers make flank pawns bait.',
+        ),
+        drill('Roll the flank', 'r1bq1rk1/ppp2ppp/2n5/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'The center is locked. Start the flank advance', 'The h-pawn leads the wave toward the enemy king.', 'h4. Closed center: the flank is the only road. h5, g5, and the wall has a door.'),
+        quiz('Thrust precondition', 'Before playing g4-g5 in a closed position, verify that...', [
+          right('The center is stable and cannot be opened against you', 'Flank attacks need a closed center as their foundation.'),
+          wrong('Your king is castled short', 'Location matters, but the center\u2019s stability is the true precondition.'),
+          wrong('You have more material', 'Material is irrelevant to the geometry of a flank attack.'),
+        ]),
+        quiz('Thrust cost', 'g4-g5 also does what to YOUR position?', [
+          right('Weakened your own king cover and fixed your pawn on a target square', 'Flank pawns spend home safety. Closed centers make that affordable.'),
+          wrong('Nothing: pawns are free', 'Pawns never move back. Every push is an investment with risk.'),
+          wrong('Improved your bishop automatically', 'The g-pawn often BLOCKS its own bishop. Costs and benefits.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-07',
+      n: 7,
+      title: 'The exchange sacrifice',
+      subtitle: 'A rook for structure, squares, and time.',
+      minutes: 12,
+      steps: [
+        text(
+          'Minus two, plus forever',
+          [
+            'The exchange sacrifice (rook for knight or bishop) is the most strategic material investment in chess. The classic: Rxc3, wrecking the pawn chain around the enemy king, or Rc8/Nc4 trades that entomb a bishop behind its own pawns forever.',
+            'The evaluation question: not "did I win material" but "what PERMANENT thing did I buy". Doubled pawns, a dead bishop, a shattered king shell: all permanent. The two-point material deficit is temporary only if your compensation is not.',
+          ],
+          'Sell the rook. Buy squares the opponent can never buy back.',
+        ),
+        demo('Rxc3: the classic', ['Black takes the knight with the rook. After bxc3, White\u2019s pawns are doubled, c3 and c4 are forever weak, and the dark squares belong to Black.'], '2r1k3/8/8/8/8/2N5/PPP5/2KR4 b - - 0 1', {
+          moves: ['Rxc3', 'bxc3'],
+          caption: 'Material: minus two. Structure: plus everything.',
+        }),
+        drill('Break the shell', '2r1k3/8/8/8/8/2N5/PPP5/2KR4 b - - 0 1', ['Rxc3', 'bxc3'], 'Play the exchange sacrifice', 'The knight on c3 guards the whole white queenside. Remove it with a rook.', 'Rxc3, bxc3. Doubled pawns, dead squares, permanent weakness. The rook was the cheapest part.'),
+        quiz('Sac verdict', 'The exchange sacrifice is justified when...', [
+          right('The compensation is permanent: structure, squares, or an unfixable king weakness', 'Temporary activity for a permanent rook is a bad rate. Permanent damage is the right purchase.'),
+          wrong('You feel the position needs shaking up', 'Feelings do not convert into endgames.'),
+          wrong('You are behind material anyway', 'Being behind is not compensation. Geometry is.'),
+        ]),
+        quiz('Best exchange target', 'The classic exchange sacrifice lands on which square most often?', [
+          right('c3 or c6, where the knight anchors the enemy pawn chain and king shelter', 'The knight holding the structure together is the rook\u2019s best victim.'),
+          wrong('f7, where bishops belong', 'f7 is bishop geometry. The exchange sac is knight geometry.'),
+          wrong('Wherever the enemy queen sits', 'That would be a queen sacrifice, not an exchange one.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-08',
+      n: 8,
+      title: 'Prophylaxis at the top',
+      subtitle: 'Restrict moves before you make your own.',
+      minutes: 12,
+      steps: [
+        text(
+          'The invisible squeeze',
+          [
+            'Master-level prophylaxis is not one move: it is a policy. Every pawn you keep on its square takes squares from his knights; every piece you keep flexible denies him targets. Karpov built a dynasty on asking "what does he want?" for forty moves.',
+            'The advanced version: prophylaxis against IDEAS, not threats. His knight dreams of d5: occupy d5\u2019s access squares before he organizes it. The plan dies two moves before it is born.',
+          ],
+          'Restrict his future, then collect the present.',
+        ),
+        drill('Kill the dream square', '4k3/2p1p3/8/8/8/8/8/1N2K3 w - - 0 1', ['Nc3', 'Kd7', 'Nd5'], 'His knight would love d5. Get there first', 'Two hops: c3, then the square itself.', 'Nd5. The square is occupied by the RIGHT knight now. His dream square is your outpost.'),
+        quiz('Prophylaxis target', 'The strongest prophylactic moves target...', [
+          right('The opponent\u2019s PLANS: the squares and routes his pieces need', 'Kill the idea two moves early and it never costs a tempo.'),
+          wrong('Only immediate threats', 'Immediate threats are tactics. Prophylaxis is strategy.'),
+          wrong('Your own weaknesses', 'That is defense. Prophylaxis is offense against plans.'),
+        ]),
+        quiz('Prophylaxis vs defense', 'Blocking a threat this move versus killing a plan this move. Which is prophylaxis?', [
+          right('Killing the plan: the threat may never even arise', 'True prophylaxis acts before the threat exists.'),
+          wrong('Blocking the immediate threat', 'That is plain defense. Necessary, but not the art.'),
+          wrong('Both are the same thing', 'One is a bandage. The other is the vaccine.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-09',
+      n: 9,
+      title: 'The king walks',
+      subtitle: 'When the strongest piece changes address mid-game.',
+      minutes: 12,
+      steps: [
+        text(
+          'The rarest luxury',
+          [
+            'A middlegame king walk (Kf1-g2-h3, or the long march to the queenside) happens when BOTH conditions hold: the center is completely closed, and neither side can open lines against the walking king.',
+            'The walk converts the king into a fighting piece two moves early: escorting passers, supporting pawn breaks, physically dominating squares. It is terrifying and legal. Verify the center is frozen first, every single move.',
+          ],
+          'Frozen center: the king may walk. Any crack: the king stays home.',
+        ),
+        demo('The closed center permit', ['Pawns locked on d4/d5 and e5/e4?? if the center is this frozen, the king path g1-f2-e3 opens real fighting squares. One opened line and the permit is revoked.'], 'r1bq1rk1/ppp2ppp/2n5/3p4/3P4/2N5/PPP2PPP/R1BQKB1R w KQ - 4 6', {
+          marks: [
+            { square: 'f2', color: 'green' },
+            { square: 'e3', color: 'green' },
+          ],
+          caption: 'Green: the king\u2019s future route',
+        }),
+        quiz('Walk permission', 'A middlegame king march is safe when...', [
+          right('The center is closed and no line can be opened against him', 'The wall is the permit.'),
+          wrong('You are up material', 'Material does not stop rooks on open files.'),
+          wrong('Your queen protects him', 'Queens cannot stop four attackers on an opened file.'),
+        ]),
+        quiz('The walk payoff', 'Why walk the king at all when pieces could do the job?', [
+          right('The king escorts passers and supports breaks better than any piece in endgame-leaning positions', 'In piece-scarce positions the king is simply the best piece.'),
+          wrong('Style points', 'Style does not promote pawns.'),
+          wrong('Because queens are about to be traded anyway', 'That is a REASON to be careful, not a reason to walk.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-10',
+      n: 10,
+      title: 'Passed pawn doctrine',
+      subtitle: 'Blockaders, duos, and the far-advanced killer.',
+      minutes: 12,
+      steps: [
+        text(
+          'Runners with escorts',
+          [
+            'Connected passed pawns are the strongest formation in endgames: each defends the other\u2019s promotion squares, and one always promotes. They need only a king nearby, not pieces.',
+            'The far-advanced passer (6th rank, supported) is worth a piece in practical terms: it fixes two enemy pieces, and every enemy tempo spent on it is a tempo your other plans ride free.',
+          ],
+          'Two runners side by side beat every piece that watches them.',
+        ),
+        demo('The duo', ['Two connected passers on the fifth: they guard each other\u2019s squares and cannot be stopped by anything less than two pieces.'], '8/8/8/2PP4/8/8/8/4K2k w - - 0 1', {
+          marks: [
+            { square: 'c5', color: 'green' },
+            { square: 'd5', color: 'green' },
+          ],
+          caption: 'Green: the duo. Each guards the other.',
+        }),
+        drill('Roll the duo', '8/8/8/2PP4/8/8/8/4K2k w - - 0 1', ['d6'], 'Push the duo forward', 'The d-pawn leads, the c-pawn guards its squares.', 'd6. The runner advances and its bodyguard stays home. This is how connected passers win endgames.'),
+        quiz('Duo strength', 'Why are connected passed pawns stronger than two isolated passers?', [
+          right('They defend each other\u2019s promotion squares', 'One blocker faces a wall, not a door.'),
+          wrong('They are worth more material points', 'Same points. Different teamwork.'),
+          wrong('They move faster', 'Pawns all move one square. Speed is geometry, not speed.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-11',
+      n: 11,
+      title: 'Rook and pawn: technical wins',
+      subtitle: 'Lucena, cutting off, and the wrong rook.',
+      minutes: 12,
+      steps: [
+        text(
+          'The professional toolkit',
+          [
+            'Three wins to own completely: Lucena (build the bridge), the cutting-off (rook parks the enemy king on a rank while your king escorts the pawn), and the wrong rook position (when the defending rook is passively placed behind the pawn, the win is routine).',
+            'The meta-skill: reach these positions FROM slightly worse ones by exact play a dozen moves earlier. That is what "technical" means: knowing which endgame to aim for before it exists.',
+          ],
+          'Own the three wins. Recognize them ten moves early.',
+        ),
+        drill('The bridge, again', '8/3P2k1/8/1K6/7R/8/1r6/8 w - - 0 1', ['Rb4', 'Rxb4+', 'Kxb4'], 'Lucena from the Master tier: build it faster now', 'One move constructs the shelter on the checking file.', 'Rb4! Bridge built, checks absorbed, pawn queens. Rep speed is the grandmaster difference.'),
+        quiz('Cutting off', 'The attacker\u2019s rook parks on a rank and the defending king cannot cross. What does this achieve?', [
+          right('The king is excluded from the promotion race entirely', 'One rook, one rank, half the enemy army removed.'),
+          wrong('It wins the rook', 'The rook is safe on its rank. The win comes from the pawn.'),
+          wrong('It forces the fifty-move rule', 'Checks and shuffles waste White\u2019s time, not Black\u2019s.'),
+        ]),
+        quiz('Wrong rook defense', 'The defender\u2019s rook sits passively in front of the enemy pawn. What does this mean for the attacker?', [
+          right('The win becomes routine: the rook defends nothing and attacks nothing', 'Passive rooks are worth a pawn less than their nominal value.'),
+          wrong('The defense is now stronger', 'Active rooks defend. Passive rooks decorate.'),
+          wrong('Nothing: rooks are rooks', 'Rook ACTIVITY is the whole evaluation of rook endings.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-12',
+      n: 12,
+      title: 'Draws you must know',
+      subtitle: 'K+B, K+N, stalemate craft, and the perpetual library.',
+      minutes: 12,
+      steps: [
+        text(
+          'The library of half points',
+          [
+            'K+B vs K and K+N vs K: always drawn. K+R vs K: always won. K+two knights vs K: cannot force mate, though it exists. Q vs R: usually drawn with technique. These facts are not trivia: they decide whether you trade into an ending or refuse.',
+            'Stalemate craft: as the attacker, one careless queen move hands back a whole queen\u2019s worth of advantage. As the defender, steering INTO stalemate nets is the last resource, and it works.',
+          ],
+          'Know the table of ends before you trade into one.',
+        ),
+        drill('Mate, not stalemate', '7k/8/6K1/8/8/8/8/3Q4 w - - 0 1', ['Qd8#'], 'One move: mate him instead of drawing him', 'The king on g6 covers the escape squares; the queen covers the rest of rank 8.', 'Qd8 mate. One careless queen step and this would be stalemate: the difference between a point and half one.'),
+        quiz('Table of ends', 'Which ending CANNOT be won by force?', [
+          right('King and two knights versus a lone king', 'No forced mate exists. Everything else on this list converts.'),
+          wrong('King and rook versus a lone king', 'Basic technique mate. Always won.'),
+          wrong('King and queen versus king and rook', 'Hard, but normally won with exact play.'),
+        ]),
+        quiz('Stalemate trap', 'You are up a queen. Before every check you must verify...', [
+          right('That the enemy king keeps at least one legal move (or gets mated)', 'Stalemate is the only way a queen up becomes a draw.'),
+          wrong('That the check is with the queen', 'All queen checks matter. The ESCAPE squares matter more.'),
+          wrong('Nothing: checks are always safe', 'The stalemate net is woven from careless checks.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-13',
+      n: 13,
+      title: 'Pure technique',
+      subtitle: 'One endgame, zero mistakes allowed.',
+      minutes: 14,
+      steps: [
+        text(
+          'The technique test',
+          [
+            'Rook and king versus king: the full conversion, no coaching. Cut off, escort, mate. Every wasted move extends the game; every wrong move risks the fifty-move rule or a slip.',
+            'Do it in as few moves as you can. Efficiency is the grandmaster metric, not just correctness.',
+          ],
+          'Cut, escort, mate. Efficiently.',
+        ),
+        quiz('Efficiency metric', 'You can mate in 14 moves with perfect technique or shuffle safely for 25. What does the grandmaster optimize?', [
+          right('Fewer moves: fewer chances for slips and clock drain', 'Efficiency is correctness with margins.'),
+          wrong('More moves: safety first', 'Shuffling gives the opponent resources and yourself doubt.'),
+          wrong('Either: the result is the same', 'The result is the same only until a human makes move 23 instead of 14.'),
+        ]),
+        drill('First move of the conversion', '4k3/8/8/8/8/8/8/R3K3 w - - 0 1', ['Kd2'], 'The rook endgame begins. Best first move?', 'The king marches. Rook moves can wait.', 'Kd2. King activity is the conversion engine.'),
+        playout(
+          'The technique exam',
+          'Rook and king against a lone king. Mate him, cleanly and fast.',
+          '7k/8/8/8/8/8/8/R3K3 w - - 0 1',
+          'w',
+          'Checkmate the black king',
+          2,
+          'checkmate',
+          25,
+          'Clean technique. This position must be a formality for the rest of your chess life.',
+          'Reset: rook across the king\u2019s rank, king marches, shrink the box. Keep the rook three squares from his king.',
+        ),
+      ],
+    },
+    {
+      id: 'gm-14',
+      n: 14,
+      title: 'Calculating under uncertainty',
+      subtitle: 'Playing well when the position has no answer.',
+      minutes: 12,
+      steps: [
+        text(
+          'The fog doctrine',
+          [
+            'Some positions have no calculable truth: too many branches, evaluation swinging with every move. Grandmasters handle fog with three tools: choose the move that keeps the most OPTIONS, avoid committing to structures you do not understand, and prefer positions where mistakes are recoverable.',
+            'The practical rule: in unclear positions, play moves that would still be good in three different futures. Flexibility is the evaluation category the engine cannot teach you.',
+          ],
+          'In fog, keep options. Commitment is for clarity.',
+        ),
+        demo('Reading the fog', ['An unclear middlegame: no forcing lines, evaluation near zero, many pieces on the board. The right move here keeps the queen flexible and the pawns flexible.'], 'r1bq1rk1/ppp2ppp/2n5/3p4/3P4/2N5/PPP2PPP/R1BQKB1R w KQ - 4 6', {
+          marks: [
+            { square: 'd4', color: 'green' },
+            { square: 'd5', color: 'yellow' },
+          ],
+          caption: 'Fog: keep the tension, keep the options',
+        }),
+        quiz('Fog decision', 'Two moves are roughly equal in evaluation. One commits to a kingside attack; the other keeps central flexibility. The position is sharp and unclear. Which do you play?', [
+          right('The flexible one: unclear positions punish commitments', 'Options survive the fog. Attacks die in it.'),
+          wrong('The attacking one: initiative is everything', 'Initiative without clarity is a coin flip.'),
+          wrong('Whichever move is faster to play', 'The clock is one resource. The position is the other.'),
+        ]),
+        quiz('Recoverability', 'Which property makes a move good in an unclear position?', [
+          right('If it turns out wrong, the resulting position is still defensible', 'Recoverable moves keep the game alive for your skill to matter.'),
+          wrong('It is the most forcing move available', 'Forcing moves commit. Commitments are for clear positions.'),
+          wrong('It has the best engine score at depth one', 'Depth one is a horoscope.'),
+        ]),
+      ],
+    },
+    {
+      id: 'gm-15',
+      n: 15,
+      title: 'Preparation thinking',
+      subtitle: 'Building a dossier instead of memorizing lines.',
+      minutes: 10,
+      steps: [
+        text(
+          'The preparation method',
+          [
+            'Serious preparation is a dossier: which openings does the opponent pool play, where do their results cluster, which structures do they LOSE from, how do they handle endgames and time trouble. You are not memorizing moves; you are choosing the battlefield.',
+            'Your own dossier matters equally: know your leak patterns (the positions you lose from) and design your repertoire to route around them. Every opening choice is a bet on your strengths.',
+          ],
+          'Prepare structures and patterns. Lines are just the door.',
+        ),
+        quiz('Dossier priority', 'The most valuable item in a preparation dossier is...', [
+          right('The structures where the opponent consistently loses or suffers', 'Routes to their weak structures are worth more than exact lines.'),
+          wrong('Their complete game history', 'History is raw data. The dossier is the insight.'),
+          wrong('Their favorite first moves', 'Move one tells you almost nothing. Structures tell you everything.'),
+        ]),
+        quiz('Your own dossier', 'Reviewing your last 20 rated games, the highest-value statistic to track is...', [
+          right('The positions or structures where you consistently make your first mistakes', 'Your leak patterns are the map for your next training block.'),
+          wrong('Total time played', 'Volume is not diagnosis.'),
+          wrong('Your opponent\u2019s names', 'Unless you play them weekly, irrelevant.'),
+        ]),
+        drill('Aim the repertoire', 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', ['d4'], 'You win strategic struggles and lose wild tactics. Open accordingly', 'The queen pawn leads to closed, plannable middlegames.', 'd4. The repertoire serves your strengths. That is preparation in one move.'),
+      ],
+    },
+    {
+      id: 'gm-16',
+      n: 16,
+      title: 'Analyzing like a professional',
+      subtitle: 'The blunder map and the plan audit.',
+      minutes: 10,
+      steps: [
+        text(
+          'Two passes, one method',
+          [
+            'Pass one, the blunder map: walk the game move by move and mark every decision point where the evaluation genuinely swung. Not the mistakes you already know: the moments you CHOSE a plan.',
+            'Pass two, the plan audit: at each swing point, write what you were thinking and what the position actually required. Skills improve when the gap between intention and position becomes visible. Engines show moves; the audit shows habits.',
+          ],
+          'Map the swings. Audit the thinking. That is how ratings actually rise.',
+        ),
+        quiz('Analysis order', 'After a loss, the professional first pass is...', [
+          right('A cold blunder map, before reading any engine output', 'Find the swings with your own eyes first. The engine\u2019s numbers come second.'),
+          wrong('Dump the PGN into the engine immediately', 'The engine tells you WHAT. You need to learn WHY.'),
+          wrong('Blame the opening', 'The opening is one decision of forty. The map shows the real story.'),
+        ]),
+        quiz('Habit fixing', 'The blunder map shows you consistently drop material between moves 25 and 30. The fix is...', [
+          right('A dedicated check-scan routine at that phase, trained with drills', 'Patterns and routines fix phases. Willpower does not.'),
+          wrong('Playing faster to feel fresh', 'The phase, not fatigue, is the pattern.'),
+          wrong('Avoiding move 25', 'Chess has no skip button.'),
+        ]),
+        demo('Marking the swings', ['A blunder map in visual form: the red squares mark where a plan decision went wrong in a real game. The engine finds moves; the map finds MOMENTS.'], 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', {
+          marks: [
+            { square: 'd8', color: 'red' },
+            { square: 'e8', color: 'yellow' },
+          ],
+          caption: 'Red: the decision point. Yellow: what it cost.',
+        }),
+      ],
+    },
+    {
+      id: 'gm-17',
+      n: 17,
+      title: 'Time triage',
+      subtitle: 'Mapping clock minutes to position complexity.',
+      minutes: 10,
+      steps: [
+        text(
+          'Where the minutes go',
+          [
+            'Budget by decision weight: opening knowledge, seconds. Quiet regrouping, one minute. Pawn structure commitments, captures, king safety decisions: several minutes each. There are usually only three or four critical moments per game: they deserve most of the clock.',
+            'The endgame rule: bank time. Reach move 30 with ten minutes and every technique decision is calm; reach it with two and technique collapses exactly when it matters.',
+          ],
+          'Three or four moments own the clock. Find them and pay them.',
+        ),
+        quiz('Critical moment', 'Which decision deserves the most clock time?', [
+          right('A pawn structure commitment that cannot be undone', 'Pawn moves are mortgages. Sign them slowly.'),
+          wrong('A forced recapture', 'Forced is forced. One second.'),
+          wrong('A standard opening move', 'Theory exists precisely so you do not spend minutes there.'),
+        ]),
+        quiz('Banking time', 'Move 22 of a calm middlegame: your opponent is in time trouble, you have 14 minutes. Best use of the clock?', [
+          right('A long think now: find the plan that creates complexity for his clock', 'Complexity plus his clock is a winning combination.'),
+          wrong('Play instantly to seem confident', 'Instant moves waste YOUR surplus and fix nothing.'),
+          wrong('Offer trades to simplify for both clocks', 'Simplification relieves the player in time trouble.'),
+        ]),
+        drill('Routine, not ritual', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Time triage in action: this move deserves seconds, not minutes', 'Cutting the king off is routine technique. Play it and bank the time.', 'Ra5 in one glance. The clock goes back in the pocket for the real decisions.'),
+      ],
+    },
+    {
+      id: 'gm-18',
+      n: 18,
+      title: 'Grandmaster combinations I',
+      subtitle: 'Full depth, full forcing.',
+      minutes: 12,
+      steps: [
+        text(
+          'The deep rep set',
+          [
+            'Four combinations across the whole tier. See every line to its END before touching a piece.',
+            'These positions repeat from earlier levels on purpose: mastery is speed plus certainty on the classics.',
+          ],
+        ),
+        drill('Queen sacrifice mate', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'Mate in three', 'Sacrifice, forced reply, open file.', 'Seen, verified, played. The grandmaster rhythm.'),
+        drill('Double check entry', '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1', ['Nd6+'], 'Open two lines at once', 'The knight departs, the rook fires.', 'Nd6 plus double check. The strongest entry move in chess.'),
+        drill('Deflection mate', 'r5k1/5ppp/8/8/8/8/3R4/3R2K1 w - - 0 1', ['Rd8+', 'Rxd8', 'Rxd8#'], 'Back rank, full depth', 'Bait, deflect, execute.', 'Three moves, zero doubts.'),
+        drill('Bridge speed run', '8/3P2k1/8/1K6/7R/8/1r6/8 w - - 0 1', ['Rb4', 'Rxb4+', 'Kxb4'], 'Lucena in one move', 'The checking file is b. Build there.', 'Rb4. Speed on the classics is what buys clock time for the rest.'),
+      ],
+    },
+    {
+      id: 'gm-19',
+      n: 19,
+      title: 'Grandmaster combinations II',
+      subtitle: 'Multi-motif, endgame finish.',
+      minutes: 12,
+      steps: [
+        text(
+          'The final rep set',
+          [
+            'Three last drills, then the capstone. Visualization between drills: replay each finished line with eyes closed.',
+          ],
+        ),
+        drill('Structure strike', '2r1k3/8/8/8/8/2N5/PPP5/2KR4 b - - 0 1', ['Rxc3', 'bxc3'], 'The exchange sacrifice', 'Rook for knight, structure for keeps.', 'Rxc3. Permanent damage, temporary cost.'),
+        drill('Zugzwang geometry', '8/8/8/8/1k6/8/1p6/1K6 w - - 0 1', [], 'Study: White to move loses, Black to move draws', 'Every white move promotes the pawn. Every black king move frees b2.', 'Mutual zugzwang verified. The side to move inherits the curse.'),
+        drill('Perpetual road', '6k1/8/8/8/8/8/8/3Q2K1 w - - 0 1', ['Qd8+', 'Kh7', 'Qd7+', 'Kh6', 'Qd6+', 'Kh5'], 'Salvation by rank checks', 'One file left each check.', 'The eternal checks. Half a point by geometry.'),
+      ],
+    },
+    {
+      id: 'gm-20',
+      n: 20,
+      title: 'Capstone',
+      subtitle: 'The final game of the curriculum.',
+      minutes: 20,
+      steps: [
+        text(
+          'Everything, one game',
+          [
+            'The capstone: a full game against the strongest regularly-beatable engine level, with a material goal and a clock of your own attention.',
+            'Open with a plan, convert imbalances, prophylax against counterplay, and finish with technique. Everything the last 120 levels taught, in one board.',
+          ],
+          'One game. One hundred and twenty levels behind it.',
+        ),
+        drill('One last check', '6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1', ['Re8#'], 'Warm up the forcing-move scan', 'Checks first. One exists.', 'Re8 mate. The scan never retires.'),
+        quiz('Curriculum check', 'The single habit that most separates master play from club play is...', [
+          right('Asking what the opponent wants before every move', 'Prophylaxis is the master habit. Tactics are the servant.'),
+          wrong('Memorizing longer opening lines', 'Lines end. Judgment does not.'),
+          wrong('Playing faster than the opponent', 'Speed without accuracy is a donation.'),
+        ]),
+        playout(
+          'The capstone game',
+          'Defeat the level 5 engine on material. Full curriculum applied.',
+          START,
+          'w',
+          'Win 3 or more points of material within 20 moves',
+          5,
+          'material',
+          20,
+          'Capstone cleared. The curriculum is complete. Now go play real games.',
+        ),
+      ],
+    },
+  ],
+}

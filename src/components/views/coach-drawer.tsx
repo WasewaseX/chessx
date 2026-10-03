@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { SpeakButton } from '@/components/chess/speak-button'
+import { coachById } from '@/lib/coaches'
 import { cn } from '@/lib/utils'
 import { Send, X } from 'lucide-react'
 
@@ -37,6 +39,7 @@ export function CoachDrawer({
   const [error, setError] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const { profile } = useApp()
+  const coach = coachById(profile?.coach ?? 'nina')
 
   // fresh thread per open
   useEffect(() => {
@@ -64,7 +67,7 @@ export function CoachDrawer({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: next,
-          context: { ...context, skillLevel: context.skillLevel ?? profile?.skillLevel ?? 'beginner' },
+          context: { ...context, skillLevel: context.skillLevel ?? profile?.skillLevel ?? 'beginner', coach: coach.id },
         }),
       })
       const data = await res.json()
@@ -89,11 +92,11 @@ export function CoachDrawer({
     >
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <img src="/coach.jpg" alt="Coach" className="h-8 w-8 rounded-full border border-primary/50 object-cover object-top" />
+          <img src={coach.face} alt={coach.name} className="h-9 w-9 rounded-full border border-primary/50 object-cover object-top" />
           <div>
-            <div className="text-sm font-bold">Coach</div>
+            <div className="text-sm font-bold leading-4">{coach.name}</div>
             <div className="text-[11px] text-muted-foreground">
-              {profile?.aiProvider && profile.aiProvider !== 'builtin' ? 'Your own API key' : 'Ply AI'}
+              {profile?.aiProvider && profile.aiProvider !== 'builtin' ? 'Your own API key' : 'ChessX AI'}
             </div>
           </div>
         </div>
@@ -112,6 +115,9 @@ export function CoachDrawer({
         )}
         {messages.map((m, i) => (
           <div key={i} className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
+            {m.role === 'assistant' && (
+              <img src={coach.face} alt="" className="mr-2 mt-1 h-7 w-7 shrink-0 rounded-full object-cover object-top" />
+            )}
             <div
               className={cn(
                 'max-w-[85%] whitespace-pre-wrap rounded-lg px-3 py-2 text-sm leading-relaxed',
@@ -120,6 +126,7 @@ export function CoachDrawer({
             >
               {m.content}
             </div>
+            {m.role === 'assistant' && <SpeakButton text={m.content} voice={coach.voice} speed={coach.speed} className="ml-1 mt-0.5" />}
           </div>
         ))}
         {busy && <div className="text-sm text-muted-foreground">Thinking…</div>}
