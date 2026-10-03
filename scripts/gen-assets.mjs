@@ -36,12 +36,16 @@ function withTimeout(promise, ms) {
   return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))])
 }
 
+const START = parseInt(process.argv[2] ?? '0', 10)
+const END = parseInt(process.argv[3] ?? '999', 10)
+
 async function main() {
   const zai = await ZAI.create()
   fs.mkdirSync('public/bots', { recursive: true })
   fs.mkdirSync('public/coaches', { recursive: true })
 
-  for (const b of BOTS) {
+  const allBots = BOTS
+  for (const b of allBots.slice(START, END)) {
     const out = path.join('public/bots', `${b.id}.png`)
     if (fs.existsSync(out) && fs.statSync(out).size > 10000) { console.log('skip', b.id); continue }
     for (let attempt = 1; attempt <= 3; attempt++) {
