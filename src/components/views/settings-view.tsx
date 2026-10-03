@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { COACHES } from '@/lib/coaches'
+import { CharacterFace } from '@/components/chess/characters'
 import { cn } from '@/lib/utils'
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 
@@ -98,7 +99,7 @@ export function SettingsView() {
               )}
               aria-pressed={profile.coach === c.id}
             >
-              <img src={c.face} alt={c.name} className="h-14 w-14 shrink-0 rounded-full object-cover object-top shadow-sm" />
+              <CharacterFace id={c.id} label={c.name} className="h-14 w-14 shrink-0 rounded-full shadow-sm ring-1 ring-border" />
               <div className="min-w-0">
                 <div className="flex items-baseline gap-2">
                   <span className="font-bold">{c.name}</span>

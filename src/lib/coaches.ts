@@ -1,13 +1,13 @@
-// Coach roster: each coach has a face, a voice (TTS), a personality line
+// Coach roster: each coach has a face, a voice (spoken with the browser's
+// native voice engine, see src/lib/speech.ts), a personality line
 // used in AI prompts, and a range of tiers they specialize in.
 export interface Coach {
   id: string
   name: string
   title: string
-  face: string // /coaches/<id>.png
   color: string // accent
-  voice: string // TTS voice id
-  speed: number // TTS pace
+  voice: string // voice key for the browser speech engine ('nina', ...)
+  speed: number // speaking pace
   tiers: [number, number] // tier range they coach best (1..6), inclusive
   blurb: string // shown on the coach picker
   systemLine: string // persona injected into the AI system prompt
@@ -18,9 +18,8 @@ export const COACHES: Coach[] = [
     id: 'nina',
     name: 'Nina',
     title: 'Beginner coach',
-    face: '/coaches/nina.png',
     color: '#7fa650',
-    voice: 'tongtong',
+    voice: 'nina',
     speed: 0.95,
     tiers: [1, 2],
     blurb: 'Patient and warm. Explains everything twice without ever making you feel slow.',
@@ -31,9 +30,8 @@ export const COACHES: Coach[] = [
     id: 'victor',
     name: 'Victor',
     title: 'Tactics coach',
-    face: '/coaches/victor.png',
     color: '#c9742e',
-    voice: 'luodo',
+    voice: 'victor',
     speed: 1.05,
     tiers: [2, 4],
     blurb: 'Fast, punchy, obsessed with forcing moves. Checks, captures, threats, in that order.',
@@ -44,9 +42,8 @@ export const COACHES: Coach[] = [
     id: 'elena',
     name: 'Elena',
     title: 'Strategy coach',
-    face: '/coaches/elena.png',
     color: '#3f8f8a',
-    voice: 'xiaochen',
+    voice: 'elena',
     speed: 0.95,
     tiers: [3, 5],
     blurb: 'Calm and precise. Weak squares, structures and long-term plans over flash.',
@@ -57,9 +54,8 @@ export const COACHES: Coach[] = [
     id: 'sasha',
     name: 'Sasha',
     title: 'Master coach',
-    face: '/coaches/sasha.png',
     color: '#b08a2e',
-    voice: 'jam',
+    voice: 'sasha',
     speed: 0.9,
     tiers: [4, 6],
     blurb: 'Dry wit, sky-high standards. Calculation trees, prophylaxis and hard truths.',

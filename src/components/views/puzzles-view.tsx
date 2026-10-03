@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
-import { ChessBoard } from '@/components/chess/board'
+import { ChessBoard, type FlashMark } from '@/components/chess/board'
 import { PUZZLES, PUZZLE_THEMES } from '@/content/puzzles'
 import type { Puzzle } from '@/content/schema'
 import { useApp } from '@/lib/store'
@@ -11,9 +11,9 @@ import { playSound } from '@/lib/chess/sounds'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
-import { Flame, Lightbulb, RotateCcw, CalendarDays, Loader2, Trophy, XCircle } from 'lucide-react'
+import { Flame, Lightbulb, RotateCcw, CalendarDays, Loader2, Trophy } from 'lucide-react'
 
-type Phase = 'loading' | 'solving' | 'wrong' | 'solved' | 'failed'
+type Phase = 'loading' | 'solving' | 'solved' | 'failed'
 
 interface PuzzleState {
   puzzle: Puzzle
@@ -35,9 +35,17 @@ export function PuzzlesView() {
   const [diverged, setDiverged] = useState(false)
   const [showSolution, setShowSolution] = useState(false)
   const [solutionPly, setSolutionPly] = useState(0)
+  const [attempts, setAttempts] = useState(0)
+  const [guide, setGuide] = useState<string | null>(null)
+  const [flashes, setFlashes] = useState<FlashMark[]>([])
   const gameRef = useRef(new Chess())
   const busyRef = useRef(false)
   const soundEnabled = profile?.soundEnabled ?? true
+
+  const flash = useCallback((marks: FlashMark[]) => {
+    setFlashes(marks)
+    setTimeout(() => setFlashes((cur) => (cur === marks ? [] : cur)), 2900)
+  }, [])
 
   const loadRated = useCallback(() => {
     if (!profile) return
@@ -76,6 +84,9 @@ export function PuzzlesView() {
     setDiverged(false)
     setShowSolution(false)
     setSolutionPly(0)
+    setAttempts(0)
+    setGuide(null)
+    setFlashes([])
     busyRef.current = false
   }
 
@@ -203,12 +214,28 @@ export function PuzzlesView() {
         const bestNorm = uci.slice(0, 2) + uci.slice(2, 4) + (uci.slice(4, 5) || '')
         const moveNorm = mv.from + mv.to + (mv.promotion ?? '')
         if (bestNorm !== moveNorm) {
-          // wrong move, undo, fail
+          // a miss, not a failure: take the move back and guide toward the idea
           g.undo()
           setFen(g.fen())
-          setPhase('wrong')
           playSound('wrong', soundEnabled)
-          void record(false)
+          const n = attempts + 1
+          setAttempts(n)
+          if (n === 1) {
+            setGuide('Not the strongest move. Take it back and scan every check, capture and threat once more.')
+          } else if (n === 2) {
+            setGuide('The piece that moves is glowing. Find its most damaging square.')
+            try {
+              const probe = new Chess(g.fen())
+              const next = probe.move(expected[plyIdx])
+              if (next) flash([{ square: next.from, color: 'gold' }])
+            } catch {
+              /* validated content */
+            }
+          } else {
+            setGuide('Watch how the line works. Then take the next one with fresh eyes.')
+            void record(false)
+            playSolution()
+          }
           return
         }
         if (sanNorm !== expectedSan) setDiverged(true)
@@ -265,13 +292,14 @@ export function PuzzlesView() {
         void record(true)
       }
     },
-    [phase, state, line, diverged, record, engineReply, materialBalance, soundEnabled],
+    [phase, state, line, diverged, attempts, record, engineReply, materialBalance, soundEnabled, flash],
   )
 
   function playSolution() {
     if (!state) return
     const expected = state.puzzle.solution.split(' ').filter(Boolean)
     setShowSolution(true)
+    setPhase('failed')
     const g = gameRef.current
     // replay from scratch
     gameRef.current = new Chess(state.puzzle.fen)
@@ -327,13 +355,14 @@ export function PuzzlesView() {
         <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
           <div className="mx-auto w-full max-w-[600px]">
             <ChessBoard
-              fen={showSolution || solutionPly > 0 ? fen : fen}
+              fen={fen}
               orientation={solverSide}
               onMove={showSolution || phase !== 'solving' ? undefined : onMove}
               movableSide={showSolution || phase !== 'solving' ? undefined : solverSide}
               interactive={phase === 'solving' && !showSolution}
               lastMove={lastMove}
               checkSquare={checkSquare}
+              flashes={flashes}
             />
           </div>
 
@@ -371,9 +400,12 @@ export function PuzzlesView() {
                   Line: <span className="font-mono font-semibold text-foreground">{line.join(' ')}</span>
                 </div>
               )}
-              {phase === 'wrong' && (
-                <div className="mt-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive">
-                  <XCircle className="mr-1 inline h-4 w-4" /> Not the move. {ratingDelta != null && `Rating ${ratingDelta >= 0 ? '+' : ''}${ratingDelta}.`}
+              {guide && (
+                <div className="mt-3 rounded-md border border-[#e6a82c]/50 bg-[#e6a82c]/10 px-3 py-2 text-sm font-semibold text-foreground">
+                  {guide}
+                  {attempts > 0 && attempts < 3 && (
+                    <span className="mt-1 block text-xs font-normal text-muted-foreground">Attempt {attempts} of 3 before the line is shown.</span>
+                  )}
                 </div>
               )}
               {phase === 'solved' && (
@@ -383,12 +415,31 @@ export function PuzzlesView() {
               )}
 
               <div className="mt-4 flex flex-wrap gap-2">
-                {(phase === 'wrong' || phase === 'failed') && !showSolution && (
+                {phase === 'solving' && !showSolution && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setHintShown(true)
+                      try {
+                        const expected = puzzle.solution.split(' ').filter(Boolean)
+                        const probe = new Chess(gameRef.current.fen())
+                        const next = probe.move(expected[line.length])
+                        if (next) flash([{ square: next.from, color: 'gold' }])
+                      } catch {
+                        /* validated content */
+                      }
+                    }}
+                  >
+                    <Lightbulb className="h-4 w-4" /> Show me the piece
+                  </Button>
+                )}
+                {(phase === 'failed' || attempts >= 2) && !showSolution && (
                   <Button variant="secondary" size="sm" onClick={playSolution}>
                     <Lightbulb className="h-4 w-4" /> Show solution
                   </Button>
                 )}
-                {(phase === 'solved' || phase === 'wrong' || phase === 'failed' || showSolution) && (
+                {(phase === 'solved' || phase === 'failed' || showSolution) && (
                   <Button
                     className="btn-hero"
                     size="sm"
@@ -402,20 +453,7 @@ export function PuzzlesView() {
                 )}
               </div>
               {hintShown && phase === 'solving' && (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Hint: the first move of the line is{' '}
-                  <span className="font-mono font-bold text-foreground">{puzzle.solution.split(' ')[0].replace(/[+#]/g, '')}</span>.
-                </p>
-              )}
-              {phase === 'solving' && !hintShown && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="mt-2 text-muted-foreground"
-                  onClick={() => setHintShown(true)}
-                >
-                  <Lightbulb className="h-4 w-4" /> I need the first move
-                </Button>
+                <p className="mt-2 text-sm text-muted-foreground">The glowing piece is the one that moves. It is up to you to find where.</p>
               )}
             </div>
 

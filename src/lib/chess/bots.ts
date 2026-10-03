@@ -1,6 +1,6 @@
 export interface Bot {
   level: number
-  id: string // face file: /bots/<id>.png
+  id: string // character id, face drawn by components/chess/characters.tsx
   name: string
   rating: number
   description: string

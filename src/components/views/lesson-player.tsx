@@ -11,6 +11,7 @@ import { playSound } from '@/lib/chess/sounds'
 import { Button } from '@/components/ui/button'
 import { CoachDrawer } from '@/components/views/coach-drawer'
 import { SpeakButton } from '@/components/chess/speak-button'
+import { CharacterFace } from '@/components/chess/characters'
 import { coachById, type Coach } from '@/lib/coaches'
 import { cn } from '@/lib/utils'
 import {
@@ -21,13 +22,11 @@ import {
   RotateCcw,
   MessageSquareText,
   CheckCircle2,
-  XCircle,
-  Trophy,
   Play,
   Undo2,
   Sparkles,
+  CircleAlert,
 } from 'lucide-react'
-
 /* Coach character bubble: face + speech bubble, with an option to hear it */
 function CoachBubble({
   tone,
@@ -36,7 +35,7 @@ function CoachBubble({
   speakText,
   children,
 }: {
-  tone: 'praise' | 'wrong' | 'hint' | 'neutral'
+  tone: 'praise' | 'guide' | 'hint' | 'neutral'
   chip?: string
   coach: Coach
   speakText?: string
@@ -44,17 +43,13 @@ function CoachBubble({
 }) {
   return (
     <div className="flex items-start gap-2.5">
-      <img
-        src={coach.face}
-        alt={coach.name}
-        className="h-11 w-11 shrink-0 rounded-full border-2 border-primary/60 object-cover object-top shadow-sm"
-      />
+      <CharacterFace id={coach.id} label={coach.name} className="h-11 w-11 shrink-0 rounded-full border-2 border-primary/60 shadow-sm" />
       <div
         className={cn(
           'relative flex-1 rounded-xl px-3.5 py-2.5 text-sm font-semibold shadow-sm',
           tone === 'praise' && 'border border-primary/40 bg-primary/10 text-foreground',
-          tone === 'wrong' && 'border border-destructive/40 bg-destructive/10 text-destructive',
-          tone === 'hint' && 'border border-[#e6a82c]/50 bg-[#e6a82c]/10 text-foreground',
+          tone === 'guide' && 'border border-[#e6a82c]/50 bg-[#e6a82c]/10 text-foreground',
+          tone === 'hint' && 'border border-[#e6a82c]/40 bg-[#e6a82c]/5 text-foreground',
           tone === 'neutral' && 'bg-secondary text-foreground',
         )}
       >
@@ -63,8 +58,8 @@ function CoachBubble({
           className={cn(
             'absolute left-[-6px] top-4 h-3 w-3 rotate-45 border-l border-b',
             tone === 'praise' && 'border-primary/40 bg-primary/10',
-            tone === 'wrong' && 'border-destructive/40 bg-destructive/10',
-            tone === 'hint' && 'border-[#e6a82c]/50 bg-[#e6a82c]/10',
+            tone === 'guide' && 'border-[#e6a82c]/50 bg-[#e6a82c]/10',
+            tone === 'hint' && 'border-[#e6a82c]/40 bg-[#e6a82c]/5',
             tone === 'neutral' && 'border-secondary bg-secondary',
           )}
         />
@@ -550,15 +545,19 @@ function DemoBoard({
 
 function QuizStepView({ step, onPass }: { step: Extract<LessonStep, { type: 'quiz' }>; onPass: () => void }) {
   const [chosen, setChosen] = useState<number | null>(null)
+  const [misses, setMisses] = useState(0)
   const [answeredCorrect, setAnsweredCorrect] = useState(false)
   const correctIdx = step.options.findIndex((o) => o.correct)
 
   function choose(i: number) {
     if (answeredCorrect) return
-    setChosen(i)
     if (step.options[i].correct) {
+      setChosen(i)
       setAnsweredCorrect(true)
       onPass()
+    } else {
+      setChosen(i)
+      setMisses((m) => m + 1)
     }
   }
 
@@ -570,7 +569,8 @@ function QuizStepView({ step, onPass }: { step: Extract<LessonStep, { type: 'qui
       <div className="mt-4 grid gap-2">
         {step.options.map((o, i) => {
           const isChosen = chosen === i
-          const state = !isChosen ? 'idle' : o.correct ? 'correct' : 'wrong'
+          const state = !isChosen ? 'idle' : o.correct ? 'correct' : 'off'
+          const revealed = misses >= 2 && o.correct && !answeredCorrect
           return (
             <button
               key={i}
@@ -580,14 +580,15 @@ function QuizStepView({ step, onPass }: { step: Extract<LessonStep, { type: 'qui
                 'flex items-start gap-3 rounded-md border px-4 py-3 text-left text-sm font-medium transition',
                 state === 'idle' && 'border-border hover:border-primary/50 hover:bg-accent/50',
                 state === 'correct' && 'border-primary bg-primary/10',
-                state === 'wrong' && 'border-destructive bg-destructive/10',
+                state === 'off' && 'border-[#e6a82c]/60 bg-[#e6a82c]/10',
+                revealed && 'animate-pulse border-primary bg-primary/5',
                 answeredCorrect && !isChosen && 'opacity-50',
               )}
             >
               {state === 'correct' ? (
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              ) : state === 'wrong' ? (
-                <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+              ) : state === 'off' ? (
+                <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-[#b07f16]" />
               ) : (
                 <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-muted-foreground/40" />
               )}
@@ -599,8 +600,15 @@ function QuizStepView({ step, onPass }: { step: Extract<LessonStep, { type: 'qui
           )
         })}
       </div>
-      {answeredCorrect && (
+      {answeredCorrect ? (
         <p className="mt-3 text-sm font-semibold text-primary">Correct. {step.options[correctIdx]?.why}</p>
+      ) : chosen != null && !step.options[chosen].correct ? (
+        <div className="mt-3 rounded-md border border-[#e6a82c]/50 bg-[#e6a82c]/10 px-3 py-2 text-sm font-semibold text-foreground">
+          Tempting, but not the idea here. {step.options[chosen].why} Take another look.
+        </div>
+      ) : null}
+      {misses >= 2 && !answeredCorrect && (
+        <p className="mt-2 text-sm text-muted-foreground">The right answer is glowing now. Tap it, and keep the why in mind for the board.</p>
       )}
     </div>
   )
@@ -628,20 +636,31 @@ function ExerciseView({
   const gameRef = useRef(new Chess(step.fen))
   const [fen, setFen] = useState(step.fen)
   const [movesSoFar, setMovesSoFar] = useState<string[]>([])
-  const [status, setStatus] = useState<'solving' | 'wrong' | 'done'>('solving')
+  const [status, setStatus] = useState<'solving' | 'watch' | 'done'>('solving')
+  const [attempts, setAttempts] = useState(0)
+  const [guideMsg, setGuideMsg] = useState<string | null>(null)
   const [hintShown, setHintShown] = useState(false)
   const [shake, setShake] = useState(false)
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null)
   const [flashes, setFlashes] = useState<FlashMark[]>([])
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const watchTimers = useRef<ReturnType<typeof setTimeout>[]>([])
+  const watchingRef = useRef(false)
 
-  // flash squares on the board (hint: where the piece can go, red: wrong try)
+  // flash squares on the board (hints guide toward the idea, never punish)
   const flash = useCallback((marks: FlashMark[]) => {
     setFlashes(marks)
     if (flashTimer.current) clearTimeout(flashTimer.current)
     flashTimer.current = setTimeout(() => setFlashes([]), 2900)
   }, [])
-  useEffect(() => () => { if (flashTimer.current) clearTimeout(flashTimer.current) }, [])
+  useEffect(
+    () => () => {
+      if (flashTimer.current) clearTimeout(flashTimer.current)
+      watchTimers.current.forEach(clearTimeout)
+      watchTimers.current = []
+    },
+    [],
+  )
 
   // squares of the next expected move, used by the hint flash
   const showHint = useCallback(() => {
@@ -657,6 +676,58 @@ function ExerciseView({
     }
   }, [step.solution, movesSoFar.length, flash])
 
+  // After a few misses, show the idea on the board once, then hand the
+  // position back so the student still plays it themselves. Guidance, not
+  // punishment: nobody is marked wrong, they get shown and then they do it.
+  const watchSolution = useCallback(() => {
+    if (watchingRef.current) return
+    watchingRef.current = true
+    setStatus('watch')
+    gameRef.current = new Chess(step.fen)
+    setFen(step.fen)
+    setMovesSoFar([])
+    setLastMove(null)
+    setFlashes([])
+    let i = 0
+    const tick = () => {
+      if (i >= step.solution.length) {
+        gameRef.current = new Chess(step.fen)
+        setFen(step.fen)
+        setMovesSoFar([])
+        setLastMove(null)
+        setStatus('solving')
+        setHintShown(true)
+        setGuideMsg('Now you. Same position, same idea: play it move by move.')
+        try {
+          const probe = new Chess(step.fen)
+          const mv = probe.move(step.solution[0])
+          if (mv) flash([{ square: mv.from, color: 'gold' }, { square: mv.to, color: 'green' }])
+        } catch {
+          /* validated content */
+        }
+        watchingRef.current = false
+        return
+      }
+      try {
+        const mv = gameRef.current.move(step.solution[i])
+        if (mv) {
+          setFen(gameRef.current.fen())
+          setMovesSoFar((m) => [...m, mv.san])
+          setLastMove({ from: mv.from, to: mv.to })
+          playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+          setFlashes([{ square: mv.from, color: 'gold' }, { square: mv.to, color: 'green' }])
+          if (flashTimer.current) clearTimeout(flashTimer.current)
+          flashTimer.current = setTimeout(() => setFlashes([]), 700)
+        }
+      } catch {
+        /* validated content */
+      }
+      i++
+      watchTimers.current.push(setTimeout(tick, 850))
+    }
+    watchTimers.current.push(setTimeout(tick, 350))
+  }, [step, soundEnabled, flash])
+
   const expectedUserIdx = movesSoFar.length // next user move is solution[movesSoFar.length] (even index)
   const game = useMemo(() => new Chess(fen), [fen])
   const sideToMove = game.turn()
@@ -666,15 +737,20 @@ function ExerciseView({
   }, [game])
 
   function reset() {
+    watchTimers.current.forEach(clearTimeout)
+    watchTimers.current = []
+    watchingRef.current = false
     gameRef.current = new Chess(step.fen)
     setFen(step.fen)
     setMovesSoFar([])
     setStatus('solving')
     setLastMove(null)
+    setAttempts(0)
+    setGuideMsg(null)
   }
 
   function onMove(from: Square, to: Square, promotion?: string) {
-    if (status === 'done') return
+    if (status !== 'solving') return
     const g = gameRef.current
     const expected = step.solution[movesSoFar.length]
     let mv
@@ -695,14 +771,26 @@ function ExerciseView({
 
     if (!correct) {
       g.undo()
-      setStatus('wrong')
+      const n = attempts + 1
+      setAttempts(n)
       setShake(true)
+      setTimeout(() => setShake(false), 420)
       playSound('wrong', soundEnabled)
-      flash([
-        { square: from, color: 'red' },
-        { square: to, color: 'red' },
-      ])
-      setTimeout(() => setShake(false), 450)
+      if (n === 1) {
+        setGuideMsg('Not that idea. Take it back and look again: check every check, capture and threat first.')
+      } else if (n === 2) {
+        setGuideMsg('The piece that moves is glowing. Where does it do the most damage?')
+        try {
+          const probe = new Chess(gameRef.current.fen())
+          const mv = probe.move(step.solution[movesSoFar.length])
+          if (mv) flash([{ square: mv.from, color: 'gold' }])
+        } catch {
+          /* validated content */
+        }
+      } else if (!watchingRef.current) {
+        setGuideMsg('Watch the idea once, then play it yourself.')
+        watchSolution()
+      }
       return
     }
 
@@ -752,12 +840,12 @@ function ExerciseView({
           fen={fen}
           orientation={userSideFromFen}
           onMove={onMove}
-          movableSide={status === 'done' ? undefined : userSideFromFen}
-          interactive={status !== 'done'}
+          movableSide={status === 'solving' ? userSideFromFen : undefined}
+          interactive={status === 'solving'}
           lastMove={lastMove}
           checkSquare={checkSquare}
-          showLegal={showLegal && status !== 'done'}
-          animateTargets={status !== 'done'}
+          showLegal={showLegal && status === 'solving'}
+          animateTargets={status === 'solving'}
           flashes={flashes}
           theme={theme}
           shake={shake}
@@ -783,10 +871,10 @@ function ExerciseView({
               )}
             </div>
           )}
-          {status === 'wrong' && (
+          {guideMsg && status !== 'done' && (
             <div className="mt-3">
-              <CoachBubble tone="wrong" coach={coach} speakText="Not quite. Take it back and look for something forcing.">
-                Not quite. Take it back and look for something forcing.
+              <CoachBubble tone="guide" coach={coach} speakText={guideMsg}>
+                {guideMsg}
               </CoachBubble>
             </div>
           )}
@@ -800,14 +888,14 @@ function ExerciseView({
           )}
 
           <div className="mt-4 flex gap-2">
-            <Button variant="secondary" size="sm" onClick={reset} disabled={status === 'done'}>
+            <Button variant="secondary" size="sm" onClick={reset} disabled={status !== 'solving'}>
               <RotateCcw className="h-4 w-4" /> Reset
             </Button>
             <Button
               variant="secondary"
               size="sm"
               onClick={showHint}
-              disabled={hintShown || status === 'done'}
+              disabled={hintShown || status !== 'solving'}
             >
               <Lightbulb className="h-4 w-4" /> Hint
             </Button>
@@ -1003,7 +1091,7 @@ function PlayoutStepView({
         {(status === 'lost' || status === 'draw') && (
           <div className="mt-3">
             <CoachBubble
-              tone="wrong"
+              tone="guide"
               coach={coach}
               speakText={step.failText ?? (status === 'draw' ? 'A draw is not the goal here.' : 'That did not work. Reset and try a different plan.')}
             >

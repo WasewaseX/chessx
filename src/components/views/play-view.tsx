@@ -6,6 +6,7 @@ import { ChessBoard, type Arrow } from '@/components/chess/board'
 import { MoveList } from '@/components/chess/move-list'
 import { CapturedBar } from '@/components/chess/captured-bar'
 import { BOTS, botForLevel, botForRating, type Bot } from '@/lib/chess/bots'
+import { CharacterFace } from '@/components/chess/characters'
 import { engine } from '@/lib/chess/engine-client'
 import { playSound } from '@/lib/chess/sounds'
 import { seedForSkill } from '@/lib/rating'
@@ -37,27 +38,7 @@ interface GameEnd {
 }
 
 function BotFace({ bot, className }: { bot: Bot; className?: string }) {
-  const [failed, setFailed] = useState(false)
-  if (failed) {
-    return (
-      <div
-        className={cn('flex shrink-0 items-center justify-center rounded-full font-display text-lg font-extrabold text-white', className)}
-        style={{ background: bot.color }}
-        aria-label={bot.name}
-      >
-        {bot.name.slice(0, 1)}
-      </div>
-    )
-  }
-  return (
-    <img
-      src={`/bots/${bot.id}.png`}
-      alt={bot.name}
-      className={cn('rounded-full object-cover', className)}
-      draggable={false}
-      onError={() => setFailed(true)}
-    />
-  )
+  return <CharacterFace id={bot.id} label={bot.name} className={cn('shrink-0 rounded-full', className)} />
 }
 
 export function PlayView() {

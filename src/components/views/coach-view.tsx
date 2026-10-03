@@ -8,6 +8,7 @@ import { PROVIDERS } from '@/lib/ai-providers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SpeakButton } from '@/components/chess/speak-button'
+import { CharacterFace } from '@/components/chess/characters'
 import { coachById } from '@/lib/coaches'
 import { cn } from '@/lib/utils'
 import {
@@ -290,7 +291,7 @@ export function CoachView() {
     <div className="flex h-[560px] flex-col overflow-hidden rounded-lg bg-card shadow-sm lg:h-[640px]">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <img src={coach.face} alt={coach.name} className="h-9 w-9 rounded-full border border-primary/50 object-cover object-top" />
+          <CharacterFace id={coach.id} label={coach.name} className="h-9 w-9 shrink-0 rounded-full border border-primary/50" />
           <div>
             <div className="text-sm font-bold leading-4">{coach.name}</div>
             <div className="text-[11px] text-muted-foreground">{coach.title}</div>
@@ -337,7 +338,7 @@ export function CoachView() {
         {messages.map((m, i) => (
           <div key={i} className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
             {m.role === 'assistant' && (
-              <img src={coach.face} alt="" className="mr-2 mt-1 h-7 w-7 shrink-0 rounded-full object-cover object-top" />
+              <CharacterFace id={coach.id} className="mr-2 mt-1 h-7 w-7 shrink-0 rounded-full" />
             )}
             <div
               className={cn(
