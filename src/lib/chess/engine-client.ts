@@ -32,12 +32,14 @@ class EngineClient {
   private sfPending: ((v: string) => void) | null = null
   private sfEvalPending: ((v: EngineInfo) => void) | null = null
 
-  private newWaiter<T>(): { promise: Promise<T>; id: number } {
+  private newWaiter<T>(): { promise: Promise<T>; id: number; resolve: (v: T) => void } {
     const id = ++this.seq
+    let resolveFn!: (v: T) => void
     const promise = new Promise<T>((resolve, reject) => {
+      resolveFn = resolve
       this.waiters.set(id, { resolve: resolve as (v: unknown) => void, reject })
     })
-    return { promise, id }
+    return { promise, id, resolve: resolveFn }
   }
 
   private settle(id: number, value: unknown) {
@@ -133,7 +135,7 @@ class EngineClient {
       } else if (this.sfPending) {
         const p = this.sfPending
         this.sfPending = null
-        p(best ?? '(none)')
+        p(best && best !== '(none)' ? best : '')
       }
       this.sfLines = []
       return
@@ -188,8 +190,8 @@ class EngineClient {
       return { uci: r.best ?? '0000' }
     }
     const w = this.sf!
-    const { promise, id } = this.newWaiter<string>()
-    this.sfPending = promise
+    const { promise, resolve } = this.newWaiter<string>()
+    this.sfPending = resolve
     const started = Date.now()
     w.postMessage(`position fen ${req.fen}`)
     w.postMessage(`go depth ${req.depth ?? 12}`)
@@ -218,8 +220,8 @@ class EngineClient {
       return { depth: req.depth ?? 3, scoreCp: r.scoreCp, mate: r.mate, pv: r.pv }
     }
     const w = this.sf!
-    const { promise, id } = this.newWaiter<EngineInfo>()
-    this.sfEvalPending = promise
+    const { promise, resolve } = this.newWaiter<EngineInfo>()
+    this.sfEvalPending = resolve
     w.postMessage(`position fen ${req.fen}`)
     w.postMessage(`go depth ${req.depth ?? 12}`)
     return promise

@@ -42,15 +42,14 @@ export function PuzzlesView() {
   const loadRated = useCallback(() => {
     if (!profile) return
     const target = profile.puzzleRating ?? 800
-    // pick the closest unrated-recently puzzle near target rating
-    const pool = [...PUZZLES]
-    let best = pool[0]
-    for (const p of pool) {
-      if (Math.abs(p.rating - target) < Math.abs(best.rating - target)) best = p
-    }
+    // pick a random puzzle among the closest to the target rating, avoiding the current one
+    const pool = [...PUZZLES].sort((a, b) => Math.abs(a.rating - target) - Math.abs(b.rating - target))
+    const candidates = pool.slice(0, Math.min(5, pool.length)).filter((p) => p.id !== state?.puzzle.id)
+    const choices = candidates.length ? candidates : pool.slice(0, 1)
+    const best = choices[Math.floor(Math.random() * choices.length)]
     setState({ puzzle: best })
     startPuzzle(best)
-  }, [profile])
+  }, [profile, state?.puzzle.id])
 
   const loadDaily = useCallback(async () => {
     const dayKey = new Date().toLocaleDateString('sv-SE')
@@ -97,7 +96,13 @@ export function PuzzlesView() {
      
   }, [tab])
 
-  const game = useMemo(() => new Chess(fen), [fen])
+  const game = useMemo(() => {
+    try {
+      return new Chess(fen)
+    } catch {
+      return new Chess()
+    }
+  }, [fen])
   const solverSide = useMemo(() => (state ? new Chess(state.puzzle.fen).turn() : 'w'), [state])
   const checkSquare = useMemo(() => {
     if (!game.isCheck()) return null
@@ -414,16 +419,14 @@ export function PuzzlesView() {
               )}
             </div>
 
-            {state?.daily && state.seriesNumber != null && (
+            {state?.daily && (
               <div className="rounded-lg bg-card p-4 shadow-sm">
                 <div className="flex items-center gap-2 text-sm font-semibold">
                   <CalendarDays className="h-4 w-4 text-primary" />
                   Daily for{' '}
                   {new Date(state.dayKey + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                 </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  Daily #{state.seriesNumber}. Comes back tomorrow with a fresh position.
-                </div>
+                <div className="mt-1 text-xs text-muted-foreground">Comes back tomorrow with a fresh position.</div>
               </div>
             )}
           </div>

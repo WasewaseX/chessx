@@ -89,7 +89,7 @@ export function CoachDrawer({
     >
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary font-display text-sm font-extrabold text-white">C</div>
+          <img src="/coach.jpg" alt="Coach" className="h-8 w-8 rounded-full border border-primary/50 object-cover object-top" />
           <div>
             <div className="text-sm font-bold">Coach</div>
             <div className="text-[11px] text-muted-foreground">

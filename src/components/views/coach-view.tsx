@@ -287,9 +287,7 @@ export function CoachView() {
     <div className="flex h-[560px] flex-col overflow-hidden rounded-lg bg-card shadow-sm lg:h-[640px]">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary font-display text-sm font-extrabold text-primary-foreground">
-            C
-          </div>
+          <img src="/coach.jpg" alt="Coach" className="h-8 w-8 rounded-full border border-primary/50 object-cover object-top" />
           <div>
             <div className="text-sm font-bold leading-4">Coach</div>
             <button
@@ -335,9 +333,7 @@ export function CoachView() {
         {messages.map((m, i) => (
           <div key={i} className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
             {m.role === 'assistant' && (
-              <div className="mr-2 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-extrabold text-primary-foreground">
-                C
-              </div>
+              <img src="/coach.jpg" alt="" className="mr-2 mt-1 h-6 w-6 shrink-0 rounded-full border border-primary/50 object-cover object-top" />
             )}
             <div
               className={cn(

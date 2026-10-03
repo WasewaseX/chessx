@@ -44,10 +44,17 @@ export async function POST(req: NextRequest) {
     },
   })
 
+  let updated = null
   if (xpGain > 0) {
     const p = await db.profile.findUnique({ where: { id: 'me' } })
-    if (p) await db.profile.update({ where: { id: 'me' }, data: { xp: p.xp + xpGain } })
+    if (p) updated = await db.profile.update({ where: { id: 'me' }, data: { xp: p.xp + xpGain } })
   }
 
-  return NextResponse.json({ progress, xpGain })
+  let payload: Record<string, unknown> = { progress, xpGain }
+  const full = updated ?? (await db.profile.findUnique({ where: { id: 'me' } }))
+  if (full) {
+    const { aiApiKey, ...safe } = full as Record<string, unknown>
+    payload = { ...payload, profile: { ...safe, hasApiKey: Boolean(aiApiKey) } }
+  }
+  return NextResponse.json(payload)
 }

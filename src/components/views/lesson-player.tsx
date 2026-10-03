@@ -21,7 +21,59 @@ import {
   CheckCircle2,
   XCircle,
   Trophy,
+  Play,
+  Undo2,
+  Sparkles,
 } from 'lucide-react'
+
+/* Coach character bubble — chess.com-style feedback with avatar + speech bubble */
+function CoachBubble({
+  tone,
+  chip,
+  children,
+}: {
+  tone: 'praise' | 'wrong' | 'hint' | 'neutral'
+  chip?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex items-start gap-2.5">
+      <img
+        src="/coach.jpg"
+        alt="Coach"
+        className="h-11 w-11 shrink-0 rounded-full border-2 border-primary/60 object-cover object-top shadow-sm"
+      />
+      <div
+        className={cn(
+          'relative flex-1 rounded-xl px-3.5 py-2.5 text-sm font-semibold shadow-sm',
+          tone === 'praise' && 'border border-primary/40 bg-primary/10 text-foreground',
+          tone === 'wrong' && 'border border-destructive/40 bg-destructive/10 text-destructive',
+          tone === 'hint' && 'border border-[#e6a82c]/50 bg-[#e6a82c]/10 text-foreground',
+          tone === 'neutral' && 'bg-secondary text-foreground',
+        )}
+      >
+        <span
+          aria-hidden
+          className={cn(
+            'absolute left-[-6px] top-4 h-3 w-3 rotate-45 border-l border-b',
+            tone === 'praise' && 'border-primary/40 bg-primary/10',
+            tone === 'wrong' && 'border-destructive/40 bg-destructive/10',
+            tone === 'hint' && 'border-[#e6a82c]/50 bg-[#e6a82c]/10',
+            tone === 'neutral' && 'border-secondary bg-secondary',
+          )}
+        />
+        <div className="flex items-start justify-between gap-2">
+          <span>{children}</span>
+          {chip && (
+            <span className="shrink-0 rounded-md bg-primary px-2 py-0.5 text-xs font-extrabold text-primary-foreground shadow-sm">
+              {chip}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const { navigate, profile } = useApp()
@@ -34,6 +86,9 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
   const level = found?.level
   const lesson = found?.lesson
+
+  const [xpFlash, setXpFlash] = useState<number | null>(null)
+  const xpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const saveProgress = useCallback(
     (stepsDone: number, finished: boolean, hintNow = false) => {
@@ -53,6 +108,11 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         .then((r) => r.json())
         .then((d) => {
           if (d.profile) useApp.getState().setProfile(d.profile)
+          if (typeof d.xpGain === 'number' && d.xpGain > 0) {
+            setXpFlash(d.xpGain)
+            if (xpTimerRef.current) clearTimeout(xpTimerRef.current)
+            xpTimerRef.current = setTimeout(() => setXpFlash(null), 2500)
+          }
         })
         .catch(() => {})
     },
@@ -67,11 +127,18 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
     }
   }, [stepIdx, lesson, saveProgress])
 
-  // finishing the last step unlocks completion
+  // finishing the last step unlocks completion (state adjusts in render, save posts here)
+  const postedDoneRef = useRef(false)
+  useEffect(() => {
+    if (done && lesson && !postedDoneRef.current) {
+      postedDoneRef.current = true
+      saveProgress(lesson.steps.length, true)
+    }
+  }, [done, lesson, saveProgress])
+
   const isLastStep = lesson ? stepIdx === lesson.steps.length - 1 : false
   if (lesson && isLastStep && canAdvance && !done) {
     setDone(true)
-    saveProgress(lesson.steps.length, true)
   }
 
   if (!lesson || !level) {
@@ -91,7 +158,6 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   function goNext() {
     if (last && !done) {
       setDone(true)
-      saveProgress(lesson.steps.length, true)
       return
     }
     if (last && done) {
@@ -151,6 +217,11 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         <span className="ml-2 text-xs font-semibold text-muted-foreground">
           {stepIdx + 1} / {lesson.steps.length}
         </span>
+        {xpFlash != null && (
+          <span className="ml-auto inline-flex animate-pulse items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-extrabold text-primary-foreground shadow">
+            <Sparkles className="h-3.5 w-3.5" /> +{xpFlash} XP
+          </span>
+        )}
       </div>
 
       {step.type === 'playout' ? (
@@ -197,20 +268,26 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         </div>
       )}
 
-      {/* footer nav */}
-      <div className="mt-6 flex items-center justify-between">
-        <Button variant="secondary" onClick={goPrev} disabled={stepIdx === 0}>
-          <ChevronLeft className="h-4 w-4" /> Back
-        </Button>
-        {canAdvance ? (
-          <Button className="btn-hero px-8" onClick={goNext}>
-            {last && done ? 'Finish' : last ? 'Complete lesson' : 'Continue'} <ChevronRight className="h-4 w-4" />
+      {/* sticky bottom action bar */}
+      <div className="sticky bottom-4 z-30 mt-6 pb-1">
+        <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-background/95 p-2 shadow-lg backdrop-blur">
+          <Button variant="secondary" onClick={goPrev} disabled={stepIdx === 0} className="shrink-0">
+            <ChevronLeft className="h-4 w-4" /> Back
           </Button>
-        ) : (
-          <Button variant="secondary" disabled>
-            {step.type === 'exercise' || step.type === 'playout' ? 'Solve it to continue' : step.type === 'quiz' ? 'Answer to continue' : '…'}
-          </Button>
-        )}
+          {canAdvance ? (
+            <Button className="btn-hero h-12 flex-1 text-base font-extrabold tracking-wide" onClick={goNext}>
+              {last && done ? 'Finish' : last ? 'Complete lesson' : 'Continue'} <ChevronRight className="h-5 w-5" />
+            </Button>
+          ) : (
+            <Button variant="secondary" disabled className="h-12 flex-1 text-sm font-bold">
+              {step.type === 'exercise' || step.type === 'playout'
+                ? 'Solve it to continue'
+                : step.type === 'quiz'
+                  ? 'Answer to continue'
+                  : '…'}
+            </Button>
+          )}
+        </div>
       </div>
 
       <CoachDrawer
@@ -285,84 +362,157 @@ function DemoBoard({
   caption?: string
   soundEnabled: boolean
 }) {
-  const [shownFen, setShownFen] = useState(fen)
-  const [ply, setPly] = useState(0)
-  const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null)
+  // Free-exploration board: the position starts as authored, the scripted line
+  // (if any) plays once automatically, then the reader can move pieces
+  // themselves — legal moves only, with undo/reset and line replay.
   const gameRef = useRef(new Chess(fen))
+  const [shownFen, setShownFen] = useState(fen)
+  const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null)
+  const [depth, setDepth] = useState(0) // plies played away from the authored position
+  const [autoplay, setAutoplay] = useState(Boolean(moves?.length))
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
 
-  useEffect(() => {
-    gameRef.current = new Chess(fen)
-    setShownFen(fen)
-    setPly(0)
-    setLastMove(null)
-  }, [fen])
+  const clearTimers = useCallback(() => {
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current = []
+  }, [])
 
-  const stepForward = useCallback(() => {
-    if (!moves || ply >= moves.length) return
-    const g = gameRef.current
-    const mv = g.move(moves[ply])
-    if (mv) {
-      setShownFen(g.fen())
-      setPly((p) => p + 1)
-      setLastMove({ from: mv.from, to: mv.to })
-      playSound(mv.captured ? 'capture' : 'move', soundEnabled)
-    }
-  }, [moves, ply, soundEnabled])
-
-  // auto-play the line when the step appears
-  useEffect(() => {
-    if (!moves?.length) return
-    let p = 0
-    const timers: ReturnType<typeof setTimeout>[] = []
-    const tick = () => {
-      stepForwardRef.current()
-      p++
-      if (p < moves.length) timers.push(setTimeout(tick, 800))
-    }
-    timers.push(setTimeout(tick, 700))
-    return () => timers.forEach(clearTimeout)
-     
-  }, [fen])
-
-  const stepForwardRef = useRef(stepForward)
-  stepForwardRef.current = stepForward
+  useEffect(() => () => clearTimers(), [clearTimers])
 
   const checkSquare = useMemo(() => {
-    const g = new Chess(shownFen)
-    if (!g.isCheck()) return null
-    const turn = g.turn()
-    return g.board().flat().find((s) => s && s.type === 'k' && s.color === turn)?.square ?? null
+    try {
+      const g = new Chess(shownFen)
+      if (!g.isCheck()) return null
+      return g.board().flat().find((s) => s && s.type === 'k' && s.color === g.turn())?.square ?? null
+    } catch {
+      return null
+    }
   }, [shownFen])
+
+  const playLine = useCallback(
+    (delayFirst = 400) => {
+      if (!moves?.length) return
+      clearTimers()
+      gameRef.current = new Chess(fen)
+      setShownFen(fen)
+      setLastMove(null)
+      setDepth(0)
+      setAutoplay(true)
+      let p = 0
+      const tick = () => {
+        const mv = gameRef.current.move(moves[p])
+        if (mv) {
+          setShownFen(gameRef.current.fen())
+          setLastMove({ from: mv.from, to: mv.to })
+          setDepth((d) => d + 1)
+          playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+        }
+        p++
+        if (p < moves.length) timersRef.current.push(setTimeout(tick, 850))
+        else setAutoplay(false)
+      }
+      timersRef.current.push(setTimeout(tick, delayFirst))
+    },
+    [moves, fen, soundEnabled, clearTimers],
+  )
+
+  // auto-play the line once when the step appears
+  useEffect(() => {
+    if (moves?.length) playLine(650)
+  }, [fen])
+
+  function onMove(from: Square, to: Square, promotion?: string) {
+    if (autoplay) return
+    // free exploration: allow moving either side — if it is not that piece's
+    // turn, validate against a turn-swapped FEN (en-passant reset)
+    let g = gameRef.current
+    const piece = g.get(from)
+    if (!piece) return
+    if (g.turn() !== piece.color) {
+      const parts = g.fen().split(' ')
+      parts[1] = piece.color
+      if (parts.length >= 4) parts[3] = '-'
+      try {
+        g = new Chess(parts.join(' '))
+      } catch {
+        return
+      }
+    }
+    try {
+      const mv = g.move({ from, to, promotion: promotion ?? undefined })
+      if (!mv) return
+      gameRef.current = g
+      setShownFen(g.fen())
+      setLastMove({ from: mv.from, to: mv.to })
+      setDepth((d) => d + 1)
+      playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+    } catch {
+      /* illegal — ignore */
+    }
+  }
+
+  function undo() {
+    if (autoplay) return
+    const mv = gameRef.current.undo()
+    if (!mv) return
+    setShownFen(gameRef.current.fen())
+    setDepth((d) => Math.max(0, d - 1))
+    const hist = gameRef.current.history({ verbose: true })
+    const last = hist[hist.length - 1]
+    setLastMove(last ? { from: last.from, to: last.to } : null)
+  }
+
+  function reset() {
+    clearTimers()
+    gameRef.current = new Chess(fen)
+    setShownFen(fen)
+    setLastMove(null)
+    setDepth(0)
+    setAutoplay(false)
+  }
 
   return (
     <div>
-      <ChessBoard fen={shownFen} lastMove={lastMove} marks={marks} arrows={arrows} checkSquare={checkSquare} interactive={false} />
-      <div className="mt-2 flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">{caption ?? ''}</div>
-        {moves && moves.length > 0 && (
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => {
-              gameRef.current = new Chess(fen)
-              setShownFen(fen)
-              setPly(0)
-              setLastMove(null)
-              setTimeout(() => {
-                let p = 0
-                const tick = () => {
-                  stepForwardRef.current()
-                  p++
-                  if (p < (moves?.length ?? 0)) setTimeout(tick, 800)
-                }
-                setTimeout(tick, 400)
-              }, 50)
-            }}
-          >
-            <RotateCcw className="h-4 w-4" /> Replay
-          </Button>
+      <div className="relative">
+        <ChessBoard
+          fen={shownFen}
+          lastMove={lastMove}
+          marks={marks}
+          arrows={arrows}
+          checkSquare={checkSquare}
+          onMove={onMove}
+          interactive={!autoplay}
+          movableSide="any"
+        />
+        {autoplay && (
+          <div className="absolute inset-0 z-40 flex items-end justify-center bg-transparent">
+            <div className="mb-3 rounded-full bg-black/70 px-4 py-1.5 text-xs font-semibold text-white shadow-lg">
+              Playing the line…
+            </div>
+          </div>
         )}
       </div>
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+        <div className="text-sm text-muted-foreground">{caption ?? ''}</div>
+        <div className="flex flex-wrap gap-1.5">
+          {moves && moves.length > 0 && (
+            <Button variant="secondary" size="sm" onClick={() => playLine(150)} disabled={autoplay}>
+              <Play className="h-4 w-4" /> Watch the line
+            </Button>
+          )}
+          <Button variant="secondary" size="sm" onClick={undo} disabled={autoplay || depth === 0}>
+            <Undo2 className="h-4 w-4" /> Undo
+          </Button>
+          <Button variant="secondary" size="sm" onClick={reset} disabled={autoplay || depth === 0}>
+            <RotateCcw className="h-4 w-4" /> Reset
+          </Button>
+        </div>
+      </div>
+      {!autoplay && depth === 0 && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          This board is yours to explore — pick up any piece and try moves.
+        </p>
+      )}
     </div>
   )
 }
@@ -571,14 +721,13 @@ function ExerciseView({
             </div>
           )}
           {status === 'wrong' && (
-            <div className="mt-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive">
-              Not that. Look again — what does the position really want?
+            <div className="mt-3">
+              <CoachBubble tone="wrong">Not quite. Take it back and look for something forcing.</CoachBubble>
             </div>
           )}
           {status === 'done' && (
-            <div className="mt-3 rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-sm font-semibold text-foreground">
-              <Trophy className="mr-1 inline h-4 w-4 text-primary" />
-              {step.success}
+            <div className="mt-3">
+              <CoachBubble tone="praise">{step.success}</CoachBubble>
             </div>
           )}
           {step.explanation && status === 'done' && (
@@ -602,8 +751,8 @@ function ExerciseView({
             </Button>
           </div>
           {hintShown && status !== 'done' && (
-            <div className="mt-3 rounded-md border-l-4 border-[#e6a82c] bg-[#e6a82c]/10 px-3 py-2 text-sm">
-              {step.hint}
+            <div className="mt-3">
+              <CoachBubble tone="hint">{step.hint}</CoachBubble>
             </div>
           )}
         </div>
@@ -780,14 +929,15 @@ function PlayoutStepView({
         </div>
 
         {status === 'won' && (
-          <div className="mt-3 rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-sm font-semibold">
-            <Trophy className="mr-1 inline h-4 w-4 text-primary" />
-            {step.successText}
+          <div className="mt-3">
+            <CoachBubble tone="praise">{step.successText}</CoachBubble>
           </div>
         )}
         {(status === 'lost' || status === 'draw') && (
-          <div className="mt-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive">
-            {step.failText ?? (status === 'draw' ? 'Draw — not the goal here.' : 'That did not work. Reset and try a different plan.')}
+          <div className="mt-3">
+            <CoachBubble tone="wrong">
+              {step.failText ?? (status === 'draw' ? 'Draw — not the goal here.' : 'That did not work. Reset and try a different plan.')}
+            </CoachBubble>
           </div>
         )}
 

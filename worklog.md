@@ -41,3 +41,27 @@ Stage Summary:
 - Board interaction suite verified: drag, click-move, turn order, illegal rejection, promotion complete + cancel
 - Progress pipeline: POST fixed, per-step saves, XP; key-remount resets lesson state
 - All lint clean; no runtime errors in dev.log
+
+---
+Task ID: 3
+Agent: main
+Task: Fix "pieces don't move" bugs, wipe fake profile data (Alex/XP), make lessons interactive with movable pieces, chess.com-style polish
+
+Work Log:
+- DB had leftover test data from an earlier automated onboarding test (name "Alex", 85 XP, onboarded=true, lesson progress) — user never typed "Alex". Wiped profile/gameRecord/lessonProgress/puzzleAttempt tables so a fresh user gets real onboarding and 0 XP
+- chess.com screenshots: direct browsing still blocked by Cloudflare turnstile (headless). Used image-search instead; saved chess.com lesson + game-review references to reference/cc-lessons.png, cc-p1.png. Adopted: coach avatar + speech bubble with reward chip, giant full-width green Continue, board-first lesson layout
+- BUG 1 (engine, all bot contexts): engine-client.ts stored the Promise object in sfPending/sfEvalPending but onStockfishMessage CALLED it as a resolve fn -> TypeError inside worker handler -> waiter never settled -> bot stuck on "Thinking…" forever (bot pieces never move). Fixed newWaiter to return its resolve fn; assignments now store resolve; '(none)' bestmove now resolves '' instead of a 6-char string that passed length checks
+- BUG 2 (puzzles view crash): new Chess('') in useMemo threw "Invalid FEN" on first render (fen state starts empty). Guarded with try/catch fallback to startpos. Also loadRated deterministically returned the same puzzle for unrated users ("Next puzzle" repeated); now picks randomly among 5 closest-rated, excluding current
+- BUG 3 (visual, the real "pieces don't move"): board.tsx keyed pieces by square so every move REMOUNTED the piece element; a fresh element with an initial transform never transitions -> pieces rendered at/around their origin square instead of destination. Replaced with piece-identity tracking (exact-square reuse, then nearest same-type/color matching, max dist 6) persisted in render-phase-adjusted state; pieces now keyed by tracked id with left/top transitions — moves animate for user moves, bot replies, autoplay lines and back/forward nav
+- Lessons now interactive everywhere: DemoBoard rewritten as free-exploration sandbox — scripted line autoplays once, then reader can move either side (legal-move dots included), Undo/Reset/Watch-the-line controls, overlay chip during playback. Added movableSide='any' board mode: pickup gate skips turn check, legal targets computed against a turn-swapped FEN (en-passant cleared) so demo pieces of the non-active side are draggable; DemoBoard onMove validates with the same trick
+- Exercise/playout feedback upgraded to CoachBubble (coach portrait + tail bubble + praise/wrong/hint tones); static "+5 XP" chip removed as dishonest on replayed steps — replaced by real "+N XP" flash next to progress dots driven by the API's xpGain, and /api/progress now returns the profile so the sidebar XP updates live mid-lesson
+- Sticky bottom action bar in lesson player (Back + full-width h-12 hero Continue, "Solve it to continue" when gated); lesson completion save moved to effect with postedDoneRef guard (lint: no side effects/refs in render)
+- Generated coach character portrait (public/coach.jpg, 1024px, 45KB); wired into lesson CoachBubble, coach view header + message avatars, coach drawer header
+- Honesty sweep: removed "Puzzle #640" pseudo-series from home + daily card; verified no other hardcoded names/ratings/XP — titles come from real XP, ratings null until earned, seeds explained in onboarding
+- Browser-verified: onboarding fresh flow, lesson autoplay + explore drag (e4-e5, backward push correctly rejected), undo/reset, exercise capture + CoachBubble, puzzle serve/solve with rating +15, bot game e4 Nf6 Nf3 Nxe4 + resignation record, coach chat end-to-end (position-aware reply), analysis live eval (+0.29 depth 14), mobile 390px lesson with sticky CTA, no horizontal overflow
+- Final DB wipe after testing (0 rows all tables); lint 0 errors 0 warnings; dev.log clean (all 200s)
+
+Stage Summary:
+- Root causes behind "pieces don't move": engine waiter never resolving (bot stuck), FEN-keyed remount killing animations, and locked demo boards — all three fixed and browser-verified
+- No fake data anywhere: no Alex, no XP without doing something, no invented ratings/series numbers
+- Lessons are now a sandbox: every demo board explorable with either side; coach character gives chess.com-style feedback; XP flashes only when actually granted

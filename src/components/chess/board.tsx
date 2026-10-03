@@ -21,7 +21,8 @@ export interface BoardProps {
   orientation?: 'w' | 'b'
   onMove?: (from: Square, to: Square, promotion?: string) => void
   interactive?: boolean // can the user pick up pieces at all
-  movableSide?: 'w' | 'b' | 'both' // whose pieces may be moved
+  /** 'w'/'b': that side only, turn-enforced. 'both': alternate turns. 'any': free exploration, either side any time. */
+  movableSide?: 'w' | 'b' | 'both' | 'any'
   lastMove?: { from: string; to: string } | null
   checkSquare?: string | null
   marks?: Mark[]
@@ -63,6 +64,10 @@ interface PieceData {
   type: string
 }
 
+interface TrackedPiece extends PieceData {
+  id: number
+}
+
 function parseBoard(fen: string): PieceData[] {
   const pieces: PieceData[] = []
   const rows = fen.split(' ')[0].split('/')
@@ -82,6 +87,73 @@ function parseBoard(fen: string): PieceData[] {
     }
   }
   return pieces
+}
+
+/**
+ * Piece identity tracking across FEN changes so the same <img> element keeps
+ * rendering for a given piece and its left/top transition animates the move.
+ * Matching: exact-square reuse first, then nearest same-type/same-color
+ * (handles normal moves, captures, castling); everything else is new.
+ */
+interface TrackState {
+  fen: string
+  pieces: TrackedPiece[]
+  bySquare: Map<string, TrackedPiece>
+  nextId: number
+}
+
+const EMPTY_TRACK: TrackState = { fen: '', pieces: [], bySquare: new Map(), nextId: 1 }
+
+function trackPieces(prev: TrackState, fen: string): TrackState {
+  const next = parseBoard(fen)
+  const result: TrackedPiece[] = []
+  const consumed = new Set<number>()
+  const unmatched: PieceData[] = []
+
+  for (const np of next) {
+    const old = prev.bySquare.get(np.square)
+    if (old && !consumed.has(old.id) && old.color === np.color && old.type === np.type) {
+      consumed.add(old.id)
+      result.push({ ...np, id: old.id })
+    } else {
+      unmatched.push(np)
+    }
+  }
+
+  const pool = [...prev.bySquare.values()].filter((p) => !consumed.has(p.id))
+  for (const np of unmatched) {
+    let bestIdx = -1
+    let bestDist = Infinity
+    pool.forEach((op, i) => {
+      if (op.color !== np.color || op.type !== np.type) return
+      const d = Math.abs(fileOf(op.square) - fileOf(np.square)) + Math.abs(rankOf(op.square) - rankOf(np.square))
+      if (d < bestDist) {
+        bestDist = d
+        bestIdx = i
+      }
+    })
+    if (bestIdx >= 0 && bestDist <= 6) {
+      const [op] = pool.splice(bestIdx, 1)
+      consumed.add(op.id)
+      result.push({ ...np, id: op.id })
+    } else {
+      result.push({ ...np, id: prev.nextId++ })
+    }
+  }
+
+  const bySquare = new Map<string, TrackedPiece>()
+  for (const p of result) bySquare.set(p.square, p)
+  return { fen, pieces: result, bySquare, nextId: prev.nextId }
+}
+
+// FEN with the active color forced to `color` (and en-passant cleared) — used
+// by free-exploration boards to validate a move for either side at any time.
+function fenWithTurn(fen: string, color: 'w' | 'b'): string {
+  const parts = fen.split(' ')
+  if (parts.length < 2) return fen
+  parts[1] = color
+  if (parts.length >= 4) parts[3] = '-'
+  return parts.join(' ')
 }
 
 export function ChessBoard({
@@ -107,7 +179,6 @@ export function ChessBoard({
   const [drag, setDrag] = useState<{ from: string; x: number; y: number; piece: PieceData } | null>(null)
   const [hoverSquare, setHoverSquare] = useState<string | null>(null)
   const [promotion, setPromotion] = useState<{ from: string; to: string } | null>(null)
-  const [animMove, setAnimMove] = useState<{ from: string; to: string } | null>(lastMove ?? null)
 
   const game = useMemo(() => {
     try {
@@ -117,15 +188,38 @@ export function ChessBoard({
     }
   }, [fen])
 
-  const pieces = useMemo(() => parseBoard(fen), [fen])
+  // piece identity tracking (render-phase state adjustment — official pattern)
+  const [tracked, setTracked] = useState<TrackState>(() => trackPieces(EMPTY_TRACK, fen))
+  let pieces = tracked.pieces
+  if (tracked.fen !== fen) {
+    const nextTrack = trackPieces(tracked, fen)
+    setTracked(nextTrack)
+    pieces = nextTrack.pieces
+  }
 
   const canMovePiece = useCallback(
     (color: 'w' | 'b') => {
       if (!interactive) return false
+      if (movableSide === 'any') return true
       return movableSide === 'both' || movableSide === color
     },
     [interactive, movableSide],
   )
+
+  // Chess instance used to compute legal targets. In free-exploration ('any')
+  // mode a piece of the non-active side is validated against a turn-swapped FEN.
+  const targetsGame = useMemo(() => {
+    if (movableSide !== 'any') return game
+    const from = (selected ?? drag?.from) as Square | undefined
+    if (!from) return game
+    const pc = game.get(from)
+    if (!pc || pc.color === game.turn()) return game
+    try {
+      return new Chess(fenWithTurn(fen, pc.color))
+    } catch {
+      return game
+    }
+  }, [movableSide, game, selected, drag, fen])
 
   const legalTargets = useMemo(() => {
     if (!selected && !drag) return new Map<string, boolean>()
@@ -133,22 +227,16 @@ export function ChessBoard({
     const map = new Map<string, boolean>()
     if (!from) return map
     try {
-      for (const m of game.moves({ square: from, verbose: true })) {
+      for (const m of targetsGame.moves({ square: from, verbose: true })) {
         map.set(m.to, Boolean(m.captured))
       }
     } catch {
       /* square had no piece */
     }
     return map
-  }, [selected, drag, game])
+  }, [selected, drag, targetsGame])
 
-  // adjust state during render (React-recommended) instead of setState-in-effect
-  const [prevLastMove, setPrevLastMove] = useState(lastMove)
-  if (lastMove && lastMove !== prevLastMove) {
-    setPrevLastMove(lastMove)
-    setAnimMove(lastMove)
-  }
-
+  // reset transient interaction state when the position changes
   const [prevFen, setPrevFen] = useState(fen)
   if (prevFen !== fen) {
     setPrevFen(fen)
@@ -206,7 +294,8 @@ export function ChessBoard({
         setSelected(null)
         return
       }
-      if (piece && canMovePiece(piece.color) && game.turn() === piece.color) {
+      const pickupOk = piece && canMovePiece(piece.color) && (movableSide === 'any' || game.turn() === piece.color)
+      if (pickupOk) {
         const rect = boardRef.current?.getBoundingClientRect()
         if (!rect) return
         setDrag({ from: square, x: e.clientX, y: e.clientY, piece: { square, color: piece.color, type: piece.type } })
@@ -216,7 +305,7 @@ export function ChessBoard({
         setSelected(null)
       }
     },
-    [game, selected, legalTargets, canMovePiece, tryMove, promotion],
+    [game, movableSide, selected, legalTargets, canMovePiece, tryMove, promotion],
   )
 
   const onPointerMove = useCallback(
@@ -266,14 +355,6 @@ export function ChessBoard({
     left: `${(orientation === 'w' ? fileOf(sq) : 7 - fileOf(sq)) * 12.5}%`,
     top: `${(orientation === 'w' ? rankOf(sq) : 7 - rankOf(sq)) * 12.5}%`,
   })
-
-  const animDelta = (from: string, to: string) => {
-    const dx = fileOf(from) - fileOf(to)
-    const dy = rankOf(from) - rankOf(to)
-    const fx = orientation === 'w' ? dx : -dx
-    const fy = orientation === 'w' ? dy : -dy
-    return { x: fx * 100, y: fy * 100 }
-  }
 
   return (
     <div
@@ -355,25 +436,23 @@ export function ChessBoard({
             ),
           )}
 
-        {/* pieces */}
+        {/* pieces — persistent elements keyed by tracked id; left/top transitions animate moves */}
         {pieces.map((p) => {
           const isDragged = drag?.from === p.square
-          const anim = animMove?.to === p.square && animMove?.from !== p.square ? animMove : null
-          const delta = anim ? animDelta(anim.from, anim.to) : null
+          const pos = squarePercent(p.square)
           return (
             <div
-              key={`${p.square}-${p.color}${p.type}`}
+              key={p.id}
               className="pointer-events-none absolute z-20"
               style={{
-                ...squarePercent(p.square),
+                left: pos.left,
+                top: pos.top,
                 width: '12.5%',
                 height: '12.5%',
                 opacity: isDragged ? 0.25 : 1,
-                transform: delta ? `translate(${delta.x}%, ${delta.y}%)` : undefined,
-                transition: delta ? 'transform 0.16s ease' : undefined,
+                transition: 'left 0.16s ease, top 0.16s ease, opacity 0.12s ease',
               }}
             >
-              { }
               <img
                 src={`/pieces/${p.color}${p.type.toUpperCase()}.svg`}
                 alt=""

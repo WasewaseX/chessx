@@ -147,7 +147,7 @@ export function HomeView() {
           <div className="text-sm text-muted-foreground">{dailyDate}</div>
           <div className="mt-2 flex items-center gap-2 text-sm font-semibold">
             <Target className="h-4 w-4 text-muted-foreground" />
-            {dailyDone === null ? 'Loading…' : dailyDone ? 'Solved — see streaks' : `Puzzle #${seriesNumber(dayKey)} waiting`}
+            {dailyDone === null ? 'Loading…' : dailyDone ? 'Solved — come back tomorrow' : 'Ready — take your shot'}
           </div>
           <div className="mt-3 text-xs text-muted-foreground">
             One a day, chosen from the full pool. Rated.
@@ -242,12 +242,4 @@ export function HomeView() {
       </div>
     </div>
   )
-}
-
-function seriesNumber(dayKey: string): number {
-  // honest series counter: days since the app launched
-  const epoch = Date.UTC(2025, 0, 1)
-  const d = new Date(dayKey + 'T00:00:00Z').getTime()
-  if (Number.isNaN(d)) return 1
-  return Math.max(1, Math.floor((d - epoch) / 86400000))
 }
