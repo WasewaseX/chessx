@@ -37,12 +37,25 @@ interface GameEnd {
 }
 
 function BotFace({ bot, className }: { bot: Bot; className?: string }) {
+  const [failed, setFailed] = useState(false)
+  if (failed) {
+    return (
+      <div
+        className={cn('flex shrink-0 items-center justify-center rounded-full font-display text-lg font-extrabold text-white', className)}
+        style={{ background: bot.color }}
+        aria-label={bot.name}
+      >
+        {bot.name.slice(0, 1)}
+      </div>
+    )
+  }
   return (
     <img
       src={`/bots/${bot.id}.png`}
       alt={bot.name}
       className={cn('rounded-full object-cover', className)}
       draggable={false}
+      onError={() => setFailed(true)}
     />
   )
 }
