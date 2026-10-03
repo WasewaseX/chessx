@@ -1,0 +1,112 @@
+'use client'
+
+import Link from 'next/link'
+import { useApp, type ViewName } from '@/lib/store'
+import { cn } from '@/lib/utils'
+import {
+  Home,
+  Swords,
+  GraduationCap,
+  Puzzle,
+  MessageSquareText,
+  LineChart,
+  UserRound,
+  Settings,
+} from 'lucide-react'
+import { titleForXp } from '@/lib/rating'
+
+const NAV: { name: ViewName; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { name: 'home', label: 'Home', icon: Home },
+  { name: 'play', label: 'Play', icon: Swords },
+  { name: 'lessons', label: 'Lessons', icon: GraduationCap },
+  { name: 'puzzles', label: 'Puzzles', icon: Puzzle },
+  { name: 'coach', label: 'Coach', icon: MessageSquareText },
+]
+
+const NAV_EXTRA: { name: ViewName; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { name: 'analysis', label: 'Analysis', icon: LineChart },
+  { name: 'profile', label: 'Profile', icon: UserRound },
+  { name: 'settings', label: 'Settings', icon: Settings },
+]
+
+export function Sidebar() {
+  const { view, navigate, profile } = useApp()
+  return (
+    <aside className="hidden w-56 shrink-0 flex-col bg-sidebar text-sidebar-foreground lg:flex">
+      <button
+        className="flex items-center gap-3 px-5 pb-2 pt-5 text-left"
+        onClick={() => navigate('home')}
+        aria-label="Ply home"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.svg" alt="Ply" className="h-9 w-9 rounded-lg" />
+        <div>
+          <div className="font-display text-xl font-extrabold tracking-tight">Ply</div>
+          <div className="-mt-0.5 text-[11px] text-sidebar-foreground/60">Learn chess properly</div>
+        </div>
+      </button>
+
+      <nav className="mt-3 flex-1 px-3" aria-label="Main">
+        {[...NAV, ...NAV_EXTRA].map(({ name, label, icon: Icon }) => (
+          <button
+            key={name}
+            onClick={() => navigate(name)}
+            aria-current={view.name === name ? 'page' : undefined}
+            className={cn(
+              'mb-0.5 flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition-colors',
+              view.name === name ? 'bg-sidebar-accent text-white' : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-white',
+            )}
+          >
+            <Icon className="h-5 w-5" />
+            {label}
+          </button>
+        ))}
+      </nav>
+
+      <div className="border-t border-sidebar-border px-5 py-4 text-xs text-sidebar-foreground/70">
+        {profile ? (
+          <>
+            <div className="font-bold text-sidebar-foreground">{profile.name}</div>
+            <div className="mt-0.5">
+              {titleForXp(profile.xp)} · {profile.xp} XP
+            </div>
+          </>
+        ) : null}
+      </div>
+    </aside>
+  )
+}
+
+export function MobileNav() {
+  const { view, navigate } = useApp()
+  return (
+    <nav
+      className="fixed inset-x-0 bottom-0 z-40 flex border-t border-sidebar-border bg-sidebar text-sidebar-foreground lg:hidden"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      aria-label="Main mobile"
+    >
+      {NAV.map(({ name, label, icon: Icon }) => (
+        <button
+          key={name}
+          onClick={() => navigate(name)}
+          className={cn(
+            'flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-semibold',
+            view.name === name ? 'text-[#a3d160]' : 'text-sidebar-foreground/70',
+          )}
+          aria-current={view.name === name ? 'page' : undefined}
+        >
+          <Icon className="h-5 w-5" />
+          {label}
+        </button>
+      ))}
+    </nav>
+  )
+}
+
+export function AppFooter() {
+  return (
+    <footer className="mt-auto border-t border-border px-4 py-3 text-center text-[11px] text-muted-foreground">
+      Ply · Not affiliated with chess.com or Lichess. Piece set: cburnett (CC BY-SA 3.0). Engine: Stockfish.
+    </footer>
+  )
+}

@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id             String   @id @default("me")
+  name           String   @default("Player")
+  skillLevel     String   @default("beginner") // new | beginner | intermediate | advanced | expert
+  onboarded      Boolean  @default(false)
+  theme          String   @default("green") // board theme: green | brown | slate | walnut
+  darkMode       String   @default("system") // light | dark | system
+  soundEnabled   Boolean  @default(true)
+  showCoords     Boolean  @default(true)
+  showLegal      Boolean  @default(true)
+  autoPromote    Boolean  @default(false)
+  xp             Int      @default(0)
+  // puzzle rating
+  puzzleRating   Int?
+  puzzleCount    Int      @default(0)
+  puzzleStreak   Int      @default(0)
+  bestPuzzleStreak Int    @default(0)
+  puzzleSolved   Int      @default(0)
+  puzzleFailed   Int      @default(0)
+  dailyDoneDate  String?  // yyyy-mm-dd of last completed daily puzzle (user tz)
+  // bot ladder rating (rated bot games)
+  ladderRating   Int?
+  ladderCount    Int      @default(0)
+  // AI provider settings (BYO API)
+  aiProvider     String   @default("builtin") // builtin | openai | anthropic | gemini | openrouter | groq | deepseek | custom
+  aiBaseUrl      String?
+  aiApiKey       String?
+  aiModel        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model GameRecord {
+  id          String   @id @default(cuid())
+  color       String // w | b
+  botLevel    Int // 1-10
+  botName     String
+  rated       Boolean  @default(false)
+  result      String // win | loss | draw
+  reason      String // checkmate | resign | stalemate | insufficient | repetition | fifty | agreement | abandoned
+  pgn         String
+  finalFen    String
+  moveCount   Int
+  ratingDelta Int?
+  accuracy    Float?
+  createdAt   DateTime @default(now())
+}
+
+model LessonProgress {
+  id            String   @id @default(cuid())
+  lessonId      String   @unique
+  completed     Boolean  @default(false)
+  stepsDone     Int      @default(0)
+  totalSteps    Int      @default(0)
+  hintsUsed     Int      @default(0)
+  completedAt   DateTime?
+  updatedAt     DateTime @updatedAt
+}
+
+model PuzzleAttempt {
+  id         String   @id @default(cuid())
+  puzzleId   String
+  kind       String   @default("rated") // rated | daily
+  solved     Boolean
+  ratingDelta Int?
+  dayKey     String? // for daily: yyyy-mm-dd
+  createdAt  DateTime @default(now())
+}

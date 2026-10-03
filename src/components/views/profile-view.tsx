@@ -1,0 +1,193 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useApp } from '@/lib/store'
+import { LEVELS } from '@/content/levels'
+import { titleForXp } from '@/lib/rating'
+import { Progress } from '@/components/ui/progress'
+import { cn } from '@/lib/utils'
+
+interface GameRow {
+  id: string
+  color: string
+  botName: string
+  botLevel: number
+  result: string
+  reason: string
+  rated: boolean
+  ratingDelta: number | null
+  createdAt: string
+}
+
+export function ProfileView() {
+  const { profile } = useApp()
+  const [games, setGames] = useState<GameRow[]>([])
+  const [progress, setProgress] = useState<{ lessonId: string; completed: boolean; stepsDone: number }[]>([])
+
+  useEffect(() => {
+    fetch('/api/games?limit=50')
+      .then((r) => r.json())
+      .then((d) => setGames(d.games ?? []))
+      .catch(() => {})
+    fetch('/api/progress')
+      .then((r) => r.json())
+      .then((d) => setProgress(d.progress ?? []))
+      .catch(() => {})
+  }, [])
+
+  if (!profile) return null
+
+  const wins = games.filter((g) => g.result === 'win').length
+  const losses = games.filter((g) => g.result === 'loss').length
+  const draws = games.filter((g) => g.result === 'draw').length
+  const total = wins + losses + draws
+  const winRate = total ? Math.round((wins / total) * 100) : null
+  const completedLessons = progress.filter((p) => p.completed).length
+  const totalLessons = LEVELS.reduce((n, l) => n + l.lessons.length, 0)
+  const puzzleTotal = profile.puzzleSolved + profile.puzzleFailed
+  const solveRate = puzzleTotal ? Math.round((profile.puzzleSolved / puzzleTotal) * 100) : null
+
+  return (
+    <div className="mx-auto w-full max-w-4xl px-4 py-6">
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary font-display text-2xl font-extrabold text-white">
+          {profile.name.slice(0, 1).toUpperCase()}
+        </div>
+        <div>
+          <h1 className="font-display text-2xl font-extrabold">{profile.name}</h1>
+          <p className="text-sm text-muted-foreground">
+            {titleForXp(profile.xp)} · {profile.xp} XP ·{' '}
+            {profile.skillLevel[0].toUpperCase() + profile.skillLevel.slice(1)}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Puzzle rating"
+          value={profile.puzzleRating ?? '—'}
+          sub={profile.puzzleCount < 10 && profile.puzzleRating ? 'Provisional' : profile.puzzleRating ? `${profile.puzzleCount} rated puzzles` : 'Solve a puzzle to get rated'}
+        />
+        <StatCard
+          label="Bot ladder"
+          value={profile.ladderRating ?? '—'}
+          sub={profile.ladderCount < 10 && profile.ladderRating ? 'Provisional' : profile.ladderRating ? `${profile.ladderCount} rated games` : 'Unrated — play a ladder game'}
+        />
+        <StatCard label="Puzzle streak" value={profile.puzzleStreak} sub={`Best: ${profile.bestPuzzleStreak}`} />
+        <StatCard label="Games" value={total} sub={winRate != null ? `${winRate}% won` : 'No games yet'} />
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <div className="rounded-lg bg-card p-5 shadow-sm">
+          <h2 className="font-display text-lg font-bold">Lessons</h2>
+          <div className="mt-3">
+            <div className="mb-1 flex justify-between text-sm">
+              <span className="font-semibold">
+                {completedLessons}/{totalLessons} complete
+              </span>
+              <span className="text-muted-foreground">
+                {totalLessons ? Math.round((completedLessons / totalLessons) * 100) : 0}%
+              </span>
+            </div>
+            <Progress value={totalLessons ? (completedLessons / totalLessons) * 100 : 0} />
+          </div>
+          <div className="mt-4 grid gap-2 text-sm">
+            {LEVELS.map((l) => {
+              const done = l.lessons.filter((les) => progress.find((p) => p.lessonId === les.id)?.completed).length
+              return (
+                <div key={l.id} className="flex items-center justify-between">
+                  <span className="text-muted-foreground">
+                    Level {l.n} · {l.title}
+                  </span>
+                  <span className="font-semibold">
+                    {done}/{l.lessons.length}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="rounded-lg bg-card p-5 shadow-sm">
+          <h2 className="font-display text-lg font-bold">Puzzles</h2>
+          <div className="mt-3 grid grid-cols-3 gap-3 text-center">
+            <div>
+              <div className="font-display text-2xl font-extrabold text-primary">{profile.puzzleSolved}</div>
+              <div className="text-xs text-muted-foreground">Solved</div>
+            </div>
+            <div>
+              <div className="font-display text-2xl font-extrabold text-destructive">{profile.puzzleFailed}</div>
+              <div className="text-xs text-muted-foreground">Missed</div>
+            </div>
+            <div>
+              <div className="font-display text-2xl font-extrabold">{solveRate != null ? `${solveRate}%` : '—'}</div>
+              <div className="text-xs text-muted-foreground">Solve rate</div>
+            </div>
+          </div>
+          <div className="mt-4 space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Current streak</span>
+              <span className="font-semibold">{profile.puzzleStreak}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Best streak</span>
+              <span className="font-semibold">{profile.bestPuzzleStreak}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Daily puzzles done</span>
+              <span className="font-semibold">{profile.dailyDoneDate ? 'Today' : 'Not yet today'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-lg bg-card shadow-sm">
+        <div className="border-b border-border px-5 py-3">
+          <h2 className="font-display text-lg font-bold">Game history</h2>
+        </div>
+        {games.length === 0 ? (
+          <div className="px-5 py-6 text-sm text-muted-foreground">No games played yet.</div>
+        ) : (
+          <div className="divide-y divide-border">
+            {games.map((g) => (
+              <div key={g.id} className="flex items-center justify-between px-5 py-2.5 text-sm">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span
+                    className={cn(
+                      'inline-block h-2.5 w-2.5 shrink-0 rounded-full',
+                      g.result === 'win' ? 'bg-primary' : g.result === 'loss' ? 'bg-destructive' : 'bg-muted-foreground',
+                    )}
+                  />
+                  <span className="font-semibold">
+                    {g.result === 'win' ? 'Won' : g.result === 'loss' ? 'Lost' : 'Drew'} as {g.color === 'w' ? 'White' : 'Black'}
+                  </span>
+                  <span className="truncate text-muted-foreground">vs {g.botName}</span>
+                  <span className="hidden text-xs text-muted-foreground sm:inline">by {g.reason}</span>
+                  {g.rated && g.ratingDelta != null && (
+                    <span className={g.ratingDelta >= 0 ? 'font-semibold text-primary' : 'font-semibold text-destructive'}>
+                      {g.ratingDelta >= 0 ? '+' : ''}
+                      {g.ratingDelta}
+                    </span>
+                  )}
+                </div>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {new Date(g.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function StatCard({ label, value, sub }: { label: string; value: string | number; sub: string }) {
+  return (
+    <div className="rounded-lg bg-card p-4 shadow-sm">
+      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mt-1 font-display text-2xl font-extrabold">{value}</div>
+      <div className="mt-0.5 text-xs text-muted-foreground">{sub}</div>
+    </div>
+  )
+}
