@@ -18,6 +18,7 @@ export const intermediate: Tier = {
       title: 'Double attack',
       subtitle: 'Any piece can hit two targets at once.',
       minutes: 9,
+      concepts: ['doubleAttack', 'fork'],
       steps: [
         quiz('Retrieval first', 'From the Beginner tier: what does the mnemonic LPDO stand for?', [
           right('Loose Pieces Drop Off', 'Undefended pieces are the targets every double attack is looking for.'),
@@ -58,6 +59,7 @@ export const intermediate: Tier = {
       title: 'Discovered attack',
       subtitle: 'Move one piece, unleash the one behind it.',
       minutes: 9,
+      concepts: ['discoveredAttack', 'doubleAttack'],
       steps: [
         quiz('Retrieval first', 'Which pieces can create a discovered attack?', [
           right('Any two of your pieces sharing a line: the front one moves, the back one fires', 'Files, ranks and diagonals all carry discoveries. The front piece just has to step aside.'),
@@ -107,6 +109,7 @@ export const intermediate: Tier = {
       title: 'The zwischenzug',
       subtitle: 'Before recapturing, ask: is there something stronger?',
       minutes: 9,
+      concepts: ['calculation', 'tempo'],
       steps: [
         quiz('Retrieval first', 'Against a double check, what is the only legal response?', [
           right('Moving the king', 'Two checkers cannot be blocked or captured with one move. The king walks.'),
@@ -152,6 +155,7 @@ export const intermediate: Tier = {
       title: 'Deflection',
       subtitle: 'Pull the defender away, then strike.',
       minutes: 9,
+      concepts: ['removingDefender', 'mate'],
       steps: [
         quiz('Retrieval first', 'What is a zwischenzug in one sentence?', [
           right('An intermediate move played instead of the expected recapture', 'Check, threat or bigger capture first; the recapture can wait.'),
@@ -197,6 +201,7 @@ export const intermediate: Tier = {
       title: 'Decoy and clearance',
       subtitle: 'Lure to a doomed square, sweep the road behind you.',
       minutes: 9,
+      concepts: ['removingDefender', 'tempo'],
       steps: [
         quiz('Retrieval first', 'What makes deflection different from simple removal of the defender?', [
           right('Deflection chases the defender off its post; removal captures it', 'Chasing can cost nothing. Removal usually trades material for the guard.'),
@@ -245,6 +250,7 @@ export const intermediate: Tier = {
       title: 'Outposts and weak squares',
       subtitle: 'Plant a knight where it can never be evicted.',
       minutes: 10,
+      concepts: ['outposts', 'pieceActivity'],
       steps: [
         quiz('Retrieval first', 'When is a clearance sacrifice worth playing?', [
           right('When what you win or open is worth more than the piece you move out of the way', 'Pay less than you collect. Same arithmetic as every tactic.'),
@@ -299,6 +305,7 @@ export const intermediate: Tier = {
       title: 'Open files and the 7th rank',
       subtitle: 'Rooks need roads. Give them the best one.',
       minutes: 9,
+      concepts: ['openFiles', 'pieceActivity'],
       steps: [
         quiz('Retrieval first', 'Which piece profits most from an outpost square?', [
           right('The knight', 'Short range plus a safe home equals domination.'),
@@ -344,6 +351,7 @@ export const intermediate: Tier = {
       title: 'Pawn structure sins',
       subtitle: 'Doubled, isolated, backward: know what you create.',
       minutes: 10,
+      concepts: ['pawnStructure', 'outposts'],
       steps: [
         quiz('Retrieval first', 'What does a rook gain from a half-open file?', [
           right('Free attacks on an enemy pawn with nothing attacking back', 'Press the pawn, and every defender it summons is a piece doing nothing else.'),
@@ -402,6 +410,7 @@ export const intermediate: Tier = {
       title: 'Good and bad bishops',
       subtitle: 'Same piece, wildly different jobs.',
       minutes: 9,
+      concepts: ['bishopPair', 'pawnStructure', 'tradeDecisions'],
       steps: [
         quiz('Retrieval first', 'What is the true cost of an isolated pawn beyond the pawn itself?', [
           right('The square in front of it becomes an enemy outpost', 'The parking spot can outlast the pawn. That square is the real debt.'),
@@ -451,6 +460,7 @@ export const intermediate: Tier = {
       title: 'Practice arena: weapons',
       subtitle: 'Mixed drills from the whole arsenal.',
       minutes: 11,
+      concepts: ['doubleAttack', 'discoveredAttack', 'calculation'],
       steps: [
         quiz('Retrieval first', 'How do you fix a bad bishop most cheaply?', [
           right('Trade it for the enemy\'s best piece, or reroute it outside the pawn wall', 'Either the bad bishop leaves or the diagonals open. Both are wins.'),
@@ -495,6 +505,7 @@ export const intermediate: Tier = {
       title: 'Attacking the castled king',
       subtitle: 'Storm the walls where they are thinnest.',
       minutes: 10,
+      concepts: ['kingSafety', 'pawnBreaks'],
       steps: [
         quiz('Retrieval first', 'What does a clearance sacrifice usually buy?', [
           right('An open line for a bigger piece behind the mover', 'The pawn steps aside and the rook or queen inherits the road.'),
@@ -541,6 +552,7 @@ export const intermediate: Tier = {
       title: 'Defense technique',
       subtitle: 'Trade the attacker, hold the line, hit back.',
       minutes: 10,
+      concepts: ['defense', 'tradeDecisions'],
       steps: [
         quiz('Retrieval first', 'Which piece is the classic final defender of a castled kingside?', [
           right('The knight on f6', 'It guards h7 and g8-area squares. Every attack starts by dealing with it.'),
@@ -576,6 +588,7 @@ export const intermediate: Tier = {
       title: 'Two weaknesses',
       subtitle: 'One defense can hold. Two collapse.',
       minutes: 10,
+      concepts: ['initiative', 'pieceActivity'],
       steps: [
         quiz('Retrieval first', 'When should the defender spend a tempo on luft?', [
           right('When the back rank itself is the threatened entry', 'Luft is defense only where it answers the real threat.'),
@@ -634,6 +647,7 @@ export const intermediate: Tier = {
       title: 'King activity and opposition',
       subtitle: 'In the endgame, the king is a fighting piece.',
       minutes: 10,
+      concepts: ['kingActivity', 'opposition', 'endgame'],
       steps: [
         quiz('Retrieval first', 'How do you choose which of two weaknesses to attack?', [
           right('The one the enemy pieces reach last', 'Distance is defense. Attack where the help is late.'),
@@ -682,6 +696,7 @@ export const intermediate: Tier = {
       title: 'Pawn endings',
       subtitle: 'The square rule and the pawn race.',
       minutes: 10,
+      concepts: ['endgame', 'technique'],
       steps: [
         quiz('Retrieval first', 'Where does the attacking king go in a king-and-pawn endgame?', [
           right('In front of his own pawn', 'The escort formation. The pawn is only as strong as the king driving it.'),
@@ -732,6 +747,7 @@ export const intermediate: Tier = {
       title: 'Rook endings basics',
       subtitle: 'Cut the king off, keep the rook active.',
       minutes: 10,
+      concepts: ['endgame', 'pieceActivity'],
       steps: [
         quiz('Retrieval first', 'When the defender moves first, how does the square rule change?', [
           right('He gets a free step: entering the square this move catches the pawn', 'The standard rule assumes the pawn moves first. King-first adds one tempo of reach.'),
@@ -774,6 +790,7 @@ export const intermediate: Tier = {
       title: 'Converting an advantage',
       subtitle: 'Winning won positions is its own skill.',
       minutes: 10,
+      concepts: ['technique', 'tradeDecisions', 'endgame'],
       steps: [
         quiz('Retrieval first', 'How far from the enemy king should a cut-off rook stand?', [
           right('Two or three ranks: close enough to matter, far enough to be safe', 'A fence the king can attack is not a fence.'),
@@ -823,6 +840,7 @@ export const intermediate: Tier = {
       title: 'Practice arena: endgames',
       subtitle: 'Kings, pawns and rooks under pressure.',
       minutes: 11,
+      concepts: ['endgame', 'kingActivity', 'promotion'],
       steps: [
         quiz('Retrieval first', 'What is the first question when converting a won position?', [
           right('What does my opponent want, and how do I deny it?', 'Counterplay first, technique second. That order wins games.'),
@@ -871,6 +889,7 @@ export const intermediate: Tier = {
       title: 'Practice arena: mixed',
       subtitle: 'Tactics and technique, shuffled.',
       minutes: 11,
+      concepts: ['calculation', 'winningMaterial'],
       steps: [
         quiz('Retrieval first', 'Which promoting move is usually strongest: plain promotion or promotion with check?', [
           right('Promotion with check: Black must answer instead of counterattacking', 'Tempo on the promotion square is worth almost a move.'),
@@ -914,6 +933,7 @@ export const intermediate: Tier = {
       title: 'Intermediate graduation',
       subtitle: 'A famous pattern, one exam, one game.',
       minutes: 14,
+      concepts: ['famousGame', 'mate', 'sacrifice'],
       steps: [
         text(
           'The exam',

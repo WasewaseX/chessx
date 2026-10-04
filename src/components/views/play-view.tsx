@@ -281,6 +281,7 @@ function GameScreen({
         pgn,
         finalFen: gameRef.current.fen(),
         moveCount: moves.length,
+        dayKey: new Date().toLocaleDateString('sv-SE'),
       }),
     })
       .then((r) => r.json())

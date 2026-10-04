@@ -18,6 +18,7 @@ export const grandmaster: Tier = {
       title: 'Calculation trees',
       subtitle: 'Prune branches, finish lines, trust only the end.',
       minutes: 12,
+      concepts: ['calculation', 'sacrifice', 'mate'],
       steps: [
         quiz('Retrieval first', 'From the Master tier: what is the single habit that separates master play from club play?', [
           right('Asking what the opponent wants before every move', 'Prophylaxis first. Tactics serve the plan.'),
@@ -63,6 +64,7 @@ export const grandmaster: Tier = {
       title: 'Resources in worse positions',
       subtitle: 'Activity, counterplay, and the perpetual threat.',
       minutes: 12,
+      concepts: ['defense', 'pieceActivity'],
       steps: [
         quiz('Retrieval first', 'What is the right way to train deep calculation?', [
           right('Hold finished lines in your head, eyes closed, until they stop dissolving', 'Visualization holds the tree together under time pressure.'),
@@ -100,6 +102,7 @@ export const grandmaster: Tier = {
       title: 'Zugzwang',
       subtitle: 'The position where any move loses.',
       minutes: 12,
+      concepts: ['zugzwang', 'endgame', 'opposition'],
       steps: [
         quiz('Retrieval first', 'How do you defend a materially worse position?', [
           right('Find your one concrete asset and ride it relentlessly', 'One real resource is a defense. Five vague hopes are decoration.'),
@@ -152,6 +155,7 @@ export const grandmaster: Tier = {
       title: 'Building and breaking fortresses',
       subtitle: 'The wall exists before the siege.',
       minutes: 12,
+      concepts: ['defense', 'endgame'],
       steps: [
         quiz('Retrieval first', 'What decides zugzwang duels between kings?', [
           right('Corresponding squares and spare tempi', 'Arrive on the right square with him to move. One spare pawn move flips everything.'),
@@ -196,6 +200,7 @@ export const grandmaster: Tier = {
       title: 'Structural exchanges',
       subtitle: 'Give a good piece for a bad square, on purpose.',
       minutes: 12,
+      concepts: ['tradeDecisions', 'pawnStructure'],
       steps: [
         quiz('Retrieval first', 'How do fortresses actually fall?', [
           right('Zugzwang, or a second front the design never faced', 'Flaws, not force.'),
@@ -240,6 +245,7 @@ export const grandmaster: Tier = {
       title: 'Flank thrusts',
       subtitle: 'g5 and f5: the pawns that start revolutions.',
       minutes: 12,
+      concepts: ['pawnBreaks', 'initiative'],
       steps: [
         quiz('Retrieval first', 'How does the side holding doubled pawns usually survive?', [
           right('Piece control of the front pawn\u2019s squares while the compensation lasts', 'The bill is postponed, not canceled. Pieces are the postponement.'),
@@ -278,6 +284,7 @@ export const grandmaster: Tier = {
       title: 'The exchange sacrifice',
       subtitle: 'A rook for structure, squares, and time.',
       minutes: 12,
+      concepts: ['sacrifice', 'pawnStructure', 'pieceActivity'],
       steps: [
         quiz('Retrieval first', 'What must be true before a flank pawn thrust?', [
           right('The center is stable: it cannot be opened against you', 'Closed center first, flank second. Reverse the order and lose.'),
@@ -320,6 +327,7 @@ export const grandmaster: Tier = {
       title: 'Prophylaxis at the top',
       subtitle: 'Restrict moves before you make your own.',
       minutes: 12,
+      concepts: ['prophylaxis', 'outposts'],
       steps: [
         quiz('Retrieval first', 'Where does the classic exchange sacrifice land, and what does it buy?', [
           right('On c3/c6: the knight anchoring the enemy structure, buying permanent damage', 'The structural anchor is the rook\u2019s victim.'),
@@ -363,6 +371,7 @@ export const grandmaster: Tier = {
       title: 'The king walks',
       subtitle: 'When the strongest piece changes address mid-game.',
       minutes: 12,
+      concepts: ['kingActivity', 'kingSafety', 'center'],
       steps: [
         quiz('Retrieval first', 'What is the difference between prophylaxis and plain defense?', [
           right('Prophylaxis kills PLANS before they exist; defense answers THREATS that exist', 'The vaccine versus the bandage.'),
@@ -407,6 +416,7 @@ export const grandmaster: Tier = {
       title: 'Passed pawn doctrine',
       subtitle: 'Blockaders, duos, and the far-advanced killer.',
       minutes: 12,
+      concepts: ['endgame', 'promotion'],
       steps: [
         quiz('Retrieval first', 'What revokes a middlegame king walk\u2019s permission?', [
           right('The center opening: even one line against the walking king is fatal', 'Frozen center walks. Open center dies.'),
@@ -447,6 +457,7 @@ export const grandmaster: Tier = {
       title: 'Rook and pawn: technical wins',
       subtitle: 'Lucena, cutting off, and the wrong rook.',
       minutes: 12,
+      concepts: ['endgame', 'technique', 'kingActivity'],
       steps: [
         quiz('Retrieval first', 'Why does a far-advanced supported passer play like a piece?', [
           right('It pins down multiple defenders, and every tempo they spend is yours', 'The magnet effect funds your whole remaining plan.'),
@@ -485,6 +496,7 @@ export const grandmaster: Tier = {
       title: 'Draws you must know',
       subtitle: 'K+B, K+N, stalemate craft, and the perpetual library.',
       minutes: 12,
+      concepts: ['endgame', 'technique', 'defense'],
       steps: [
         quiz('Retrieval first', 'What makes an endgame win "technical"?', [
           right('You recognized and steered toward it many moves before it arrived', 'The professional wins endings in the transition, not at the board of the ending.'),
@@ -523,6 +535,7 @@ export const grandmaster: Tier = {
       title: 'Pure technique',
       subtitle: 'One endgame, zero mistakes allowed.',
       minutes: 14,
+      concepts: ['technique', 'endgame', 'kingActivity'],
       steps: [
         quiz('Retrieval first', 'Which endings are forced wins, and which are forced draws?', [
           right('K+R and K+Q: won. K+B, K+N, two knights: drawn', 'The table of ends. It filters every trade offer you will ever accept.'),
@@ -568,6 +581,7 @@ export const grandmaster: Tier = {
       title: 'Calculating under uncertainty',
       subtitle: 'Playing well when the position has no answer.',
       minutes: 12,
+      concepts: ['calculation', 'prophylaxis'],
       steps: [
         quiz('Retrieval first', 'What does technical efficiency protect beyond the clock?', [
           right('Accuracy margin: fewer moves, fewer slip chances', 'Every extra move is a door for disaster.'),
@@ -612,6 +626,7 @@ export const grandmaster: Tier = {
       title: 'Preparation thinking',
       subtitle: 'Building a dossier instead of memorizing lines.',
       minutes: 10,
+      concepts: ['development', 'endgame'],
       steps: [
         quiz('Retrieval first', 'What makes a move good in an unclear position?', [
           right('Recoverability and usefulness across multiple futures', 'Flexibility is the fog currency.'),
@@ -650,6 +665,7 @@ export const grandmaster: Tier = {
       title: 'Analyzing like a professional',
       subtitle: 'The blunder map and the plan audit.',
       minutes: 10,
+      concepts: ['calculation', 'prophylaxis'],
       steps: [
         quiz('Retrieval first', 'What is the most valuable item in any preparation dossier?', [
           right('The structures where the opponent (and you) consistently leak', 'Routes to weak structures beat exact lines every time.'),
@@ -694,6 +710,7 @@ export const grandmaster: Tier = {
       title: 'Time triage',
       subtitle: 'Mapping clock minutes to position complexity.',
       minutes: 10,
+      concepts: ['tempo', 'calculation'],
       steps: [
         quiz('Retrieval first', 'What does the plan audit compare at every swing point?', [
           right('What you were thinking versus what the position required', 'The intention gap is where improvement lives.'),
@@ -732,6 +749,7 @@ export const grandmaster: Tier = {
       title: 'Grandmaster combinations I',
       subtitle: 'Full depth, full forcing.',
       minutes: 12,
+      concepts: ['sacrifice', 'mate', 'calculation'],
       steps: [
         quiz('Retrieval first', 'Why does the endgame deserve banked clock time?', [
           right('Technique decisions multiply while the clock bottoms out', 'Arrive funded or the conversion wobbles.'),
@@ -757,6 +775,7 @@ export const grandmaster: Tier = {
       title: 'Grandmaster combinations II',
       subtitle: 'Multi-motif, endgame finish.',
       minutes: 12,
+      concepts: ['sacrifice', 'zugzwang', 'defense'],
       steps: [
         quiz('Retrieval first', 'What is the calculation habit this rep set drills?', [
           right('Seeing every line to its end before the first move', 'The board verifies. The head calculates.'),
@@ -780,6 +799,7 @@ export const grandmaster: Tier = {
       title: 'Capstone',
       subtitle: 'The final game of the curriculum.',
       minutes: 20,
+      concepts: ['calculation', 'endgame', 'technique'],
       steps: [
         quiz('Retrieval first', 'What must Black avoid in a winning king-and-pawn versus king duel?', [
           right('Losing a tempo: every king step must keep the pawn guarded and the cage closed', 'One careless step frees the defending king and the win evaporates.'),

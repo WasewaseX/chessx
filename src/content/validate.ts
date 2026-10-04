@@ -11,10 +11,13 @@
  * Exits non-zero on any failure. CI for content.
  */
 import { Chess } from 'chess.js'
-import type { GtmStep, LessonStep, Puzzle, Tier } from './schema'
+import { CONCEPTS } from './schema'
+import type { GtmStep, LessonStep, Level, Puzzle, Tier } from './schema'
 
 let errors = 0
 let checked = 0
+let conceptChecks = 0
+const CONCEPT_SET = new Set<string>(CONCEPTS)
 
 function err(where: string, msg: string) {
   errors++
@@ -155,6 +158,22 @@ function checkGtm(where: string, step: GtmStep) {
   if (step.moves.length < 2) err(where, 'gtm should have at least 2 guesses')
 }
 
+/** Every level must carry 2..4 concept ids drawn from the CONCEPTS taxonomy. */
+function checkConcepts(where: string, level: Level) {
+  const list = level.concepts
+  conceptChecks++
+  if (!list || !Array.isArray(list) || list.length === 0) {
+    err(where, 'level has no concepts tags')
+    return
+  }
+  if (list.length < 2) err(where, `only ${list.length} concept tag, need 2 to 4: [${list.join(', ')}]`)
+  if (list.length > 4) err(where, `${list.length} concept tags, max is 4: [${list.join(', ')}]`)
+  for (const c of list) {
+    conceptChecks++
+    if (!CONCEPT_SET.has(c)) err(where, `unknown concept "${c}" (not in CONCEPTS)`)
+  }
+}
+
 function materialBalance(fen: string): number {
   const vals: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9 }
   const g = new Chess(fen)
@@ -210,13 +229,16 @@ async function main() {
     }
     for (const level of tier.levels) {
       levels++
+      checkConcepts(`t${tier.n}/${level.id} concepts`, level)
       for (const step of level.steps) {
         steps++
         checkStep(`t${tier.n}/${level.id} step "${step.title}"`, step)
       }
     }
   }
-  console.log(`  ${tiers.length} tiers, ${levels} levels, ${steps} steps checked (${errors} errors so far)`)
+  console.log(
+    `  ${tiers.length} tiers, ${levels} levels, ${steps} steps checked, ${conceptChecks} concept tags checked (${errors} errors so far)`,
+  )
 
   console.log('Validating puzzles...')
   const puzzlesMod = await import('./puzzles')

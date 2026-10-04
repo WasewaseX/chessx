@@ -121,7 +121,19 @@ export interface Level {
   subtitle: string
   minutes: number
   steps: LessonStep[]
+  /** 2..4 concept ids from CONCEPTS that this level actually teaches. */
+  concepts?: string[]
 }
+
+/** Shared concept taxonomy used by the skill model, puzzle themes and review. */
+export const CONCEPTS = [
+  'mate', 'fork', 'pin', 'skewer', 'discoveredAttack', 'doubleAttack', 'removingDefender',
+  'promotion', 'endgame', 'winningMaterial', 'sacrifice', 'defense', 'famousGame',
+  'development', 'center', 'castlingSafety', 'kingSafety', 'pawnStructure', 'openFiles',
+  'pieceActivity', 'kingActivity', 'opposition', 'outposts', 'zugzwang', 'calculation',
+  'prophylaxis', 'coordination', 'pawnBreaks', 'bishopPair', 'initiative', 'technique',
+  'tempo', 'tradeDecisions',
+] as const
 
 /** Full credit for the master move or an alsoGood alternative. */
 export type GtmCredit = 'full' | 'half' | 'none'

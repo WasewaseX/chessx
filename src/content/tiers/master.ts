@@ -17,6 +17,7 @@ export const master: Tier = {
       title: 'Thinking in imbalances',
       subtitle: 'Stop counting. Start comparing.',
       minutes: 10,
+      concepts: ['pawnStructure', 'kingSafety', 'development'],
       steps: [
         quiz('Retrieval first', 'From the Advanced tier: when do you trade the last rooks in a won rook ending?', [
           right('When the resulting pawn endgame is a calculated win', 'Concrete wins only. The final trade must be math, not mood.'),
@@ -67,6 +68,7 @@ export const master: Tier = {
       title: 'Prophylaxis',
       subtitle: 'Ask what he wants. Take it away first.',
       minutes: 10,
+      concepts: ['prophylaxis', 'defense'],
       steps: [
         quiz('Retrieval first', 'What are the six imbalances worth comparing in every position?', [
           right('Material, space, development, king safety, structure, activity', 'The six dials of evaluation.'),
@@ -109,6 +111,7 @@ export const master: Tier = {
       title: 'The initiative',
       subtitle: 'Spend material. Buy the tempo that mates.',
       minutes: 10,
+      concepts: ['initiative', 'sacrifice', 'tempo'],
       steps: [
         quiz('Retrieval first', 'When is a prophylactic move worth a tempo over your own plan?', [
           right('When his best idea hurts more than your idea helps', 'Kill the bigger threat first. Then execute yours against a parried defense.'),
@@ -146,6 +149,7 @@ export const master: Tier = {
       title: 'Majorities and the minority attack',
       subtitle: 'Pawn geography decides plans.',
       minutes: 10,
+      concepts: ['pawnStructure', 'pawnBreaks'],
       steps: [
         quiz('Retrieval first', 'What keeps an initiative alive, in one sentence?', [
           right('Checks and threats on every move, never two quiet moves in a row', 'The initiative is the right to keep asking questions.'),
@@ -191,6 +195,7 @@ export const master: Tier = {
       title: 'Permanent versus temporary',
       subtitle: 'Which weaknesses can outlive this attack?',
       minutes: 10,
+      concepts: ['pawnStructure', 'initiative'],
       steps: [
         quiz('Retrieval first', 'What does a pawn majority create that a minority attack does not?', [
           right('A passed pawn', 'Majorities make runners. Minorities make files and fixed targets.'),
@@ -235,6 +240,7 @@ export const master: Tier = {
       title: 'Trading with intent',
       subtitle: 'Which pieces stay, which pieces go, and why.',
       minutes: 10,
+      concepts: ['tradeDecisions', 'kingSafety'],
       steps: [
         quiz('Retrieval first', 'Which weakness heals with one piece move, and which never heals?', [
           right('A loose piece heals; a doubled or isolated pawn never does', 'Pieces are temporary, structure is permanent. Pawns are the long game.'),
@@ -273,6 +279,7 @@ export const master: Tier = {
       title: 'Owning the color',
       subtitle: 'Deep color complexes: plan by square color.',
       minutes: 10,
+      concepts: ['bishopPair', 'kingSafety'],
       steps: [
         quiz('Retrieval first', 'What are the three questions of every trade?', [
           right('Whose pieces are better, whose king is safer, whose structure endures', 'The resulting position is the only thing a trade buys.'),
@@ -314,6 +321,7 @@ export const master: Tier = {
       title: 'Blockade as a strategy',
       subtitle: 'Passed pawns are prisoners if you hold the square.',
       minutes: 10,
+      concepts: ['outposts', 'prophylaxis'],
       steps: [
         quiz('Retrieval first', 'Against a lone light-squared bishop, which squares do you invade?', [
           right('The dark squares: he is blind to every one of them', 'Attack the color the defender cannot police.'),
@@ -352,6 +360,7 @@ export const master: Tier = {
       title: 'Dynamic versus static',
       subtitle: 'Know when the clock on your advantage expires.',
       minutes: 10,
+      concepts: ['initiative', 'pawnStructure'],
       steps: [
         quiz('Retrieval first', 'In Nimzowitsch\u2019s system, what is the order of operations against a passed pawn?', [
           right('Restrain it, blockade it, destroy it', 'Three steps. Skipping to destruction loses to the pieces behind the pawn.'),
@@ -404,6 +413,7 @@ export const master: Tier = {
       title: 'Practice arena: master tools',
       subtitle: 'Everything from this tier, live.',
       minutes: 12,
+      concepts: ['prophylaxis', 'initiative', 'tradeDecisions'],
       steps: [
         quiz('Retrieval first', 'Which type of advantage must be spent immediately, and which can be invested?', [
           right('Dynamic: spent now. Static: invested for the endgame', 'Development leads expire. Broken structures do not.'),
@@ -437,6 +447,7 @@ export const master: Tier = {
       title: 'Steering the game',
       subtitle: 'Choose openings by the endgames they promise.',
       minutes: 10,
+      concepts: ['endgame', 'development'],
       steps: [
         quiz('Retrieval first', 'Name the five master tools: prophylaxis, trade voting, color invasion, blockade and...', [
           right('The initiative: keeping every move forcing', 'Five tools. Every strong middlegame is one of them running.'),
@@ -475,6 +486,7 @@ export const master: Tier = {
       title: 'Rook endings deep',
       subtitle: 'Short-side defense, checking distance, the active king.',
       minutes: 12,
+      concepts: ['endgame', 'defense', 'kingActivity'],
       steps: [
         quiz('Retrieval first', 'How do you choose which structures to steer your repertoire toward?', [
           right('The ones where your own game results say you win', 'Your games are the data. Steer to your evidence.'),
@@ -520,6 +532,7 @@ export const master: Tier = {
       title: 'Fortresses',
       subtitle: 'Positions that cannot be cracked, no matter what.',
       minutes: 10,
+      concepts: ['endgame', 'defense', 'technique'],
       steps: [
         quiz('Retrieval first', 'In a pawn-down rook ending, where do the defending king and rook go?', [
           right('King short side, rook checks from the long side, three files or more away', 'Maximum distance keeps the checks unblockable and the draw alive.'),
@@ -564,6 +577,7 @@ export const master: Tier = {
       title: 'Opposite bishops, mastered',
       subtitle: 'The outside passed pawn doctrine.',
       minutes: 12,
+      concepts: ['endgame', 'promotion'],
       steps: [
         quiz('Retrieval first', 'When does fortress thinking begin for the defender?', [
           right('Before the attackers arrive', 'Walls are built in advance. Improvised ones crumble.'),
@@ -604,6 +618,7 @@ export const master: Tier = {
       title: 'The opposite-side storm',
       subtitle: 'Racing pawns with everything on the line.',
       minutes: 12,
+      concepts: ['kingSafety', 'pawnBreaks', 'initiative'],
       steps: [
         quiz('Retrieval first', 'As the defender in an opposite-bishop ending, where does your bishop live?', [
           right('On the color of the dangerous pawn, abandoning the other color', 'Commit to one complex. Half a board is holdable.'),
@@ -642,6 +657,7 @@ export const master: Tier = {
       title: 'Difficult defense',
       subtitle: 'Staying alive with activity, not hope.',
       minutes: 12,
+      concepts: ['defense', 'tradeDecisions', 'pieceActivity'],
       steps: [
         quiz('Retrieval first', 'Where do the heavy pieces go in an opposite-side castling race?', [
           right('Behind the storming pawns, ready for the first opened file', 'Pawns open the door. Rooks and queen walk through it.'),
@@ -685,6 +701,7 @@ export const master: Tier = {
       title: 'Clock and mind',
       subtitle: 'Practical decisions: time, tilt, and tempo bluffs.',
       minutes: 10,
+      concepts: ['tempo', 'calculation'],
       steps: [
         quiz('Retrieval first', 'What is the shape of correct active defense?', [
           right('Trade pieces, create one concrete counter-threat, force him to prove the win', 'Annoying, concrete, alive. Hope is none of those.'),
@@ -728,6 +745,7 @@ export const master: Tier = {
       title: 'Practice arena: master tactics I',
       subtitle: 'Deep combinations, verified.',
       minutes: 12,
+      concepts: ['sacrifice', 'mate', 'calculation'],
       steps: [
         quiz('Retrieval first', 'Which moments justify burning clock minutes?', [
           right('Irreversible branch points: captures, structures, king safety', 'Everything else runs on seconds.'),
@@ -760,6 +778,7 @@ export const master: Tier = {
       title: 'Practice arena: master tactics II',
       subtitle: 'Multi-motif, full depth.',
       minutes: 12,
+      concepts: ['calculation', 'discoveredAttack', 'defense'],
       steps: [
         quiz('Retrieval first', 'What is the master calculation habit this arena trains?', [
           right('Finishing the entire line in your head before touching a piece', 'The board is for verification, not for discovery.'),
@@ -792,6 +811,7 @@ export const master: Tier = {
       title: 'Master graduation',
       subtitle: 'One exam, one game against the machine.',
       minutes: 15,
+      concepts: ['calculation', 'endgame'],
       steps: [
         quiz('Retrieval first', 'Where does the zwischenzug live?', [
           right('In the moment after a capture, when everyone plays automatically', 'The intermediate move is the deepest practical habit in tactics.'),

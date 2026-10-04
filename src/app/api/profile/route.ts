@@ -29,6 +29,10 @@ export async function PATCH(req: NextRequest) {
     }
   }
   for (const f of boolFields) if (f in body) data[f] = Boolean(body[f])
+  if ('goalMinutes' in body) {
+    const g = Number(body.goalMinutes)
+    if (Number.isFinite(g)) data.goalMinutes = Math.max(5, Math.min(120, Math.round(g)))
+  }
   const profile = await db.profile.upsert({
     where: { id: 'me' },
     update: data,

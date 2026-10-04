@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { newRating, seedForSkill } from '@/lib/rating'
+import { bumpActivity } from '@/lib/server/skill'
+import { dayKeyLocal } from '@/lib/day'
 
 export async function GET(req: NextRequest) {
   const limit = Math.min(50, Number(req.nextUrl.searchParams.get('limit') ?? 20))
@@ -22,6 +24,7 @@ export async function POST(req: NextRequest) {
   const pgn = String(body.pgn ?? '').slice(0, 20000)
   const finalFen = String(body.finalFen ?? '').slice(0, 100)
   const moveCount = Math.max(0, Math.min(1000, Number(body.moveCount ?? 0)))
+  const dayKey = /^\d{4}-\d{2}-\d{2}$/.test(String(body.dayKey ?? '')) ? String(body.dayKey) : dayKeyLocal()
 
   const profile = await db.profile.findUnique({ where: { id: 'me' } })
   if (!profile) return NextResponse.json({ error: 'no profile' }, { status: 400 })
@@ -61,6 +64,8 @@ export async function POST(req: NextRequest) {
       ratingDelta,
     },
   })
+
+  await bumpActivity(dayKey, 'gamesPlayed', 1)
 
   const updated = await db.profile.findUnique({ where: { id: 'me' } })
   return NextResponse.json({ record, profile: updated, xpGain })

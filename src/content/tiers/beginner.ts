@@ -18,6 +18,7 @@ export const beginner: Tier = {
       title: 'The center is gold',
       subtitle: 'Why e4 and d4 beat h4 and a4 every time.',
       minutes: 9,
+      concepts: ['center', 'pieceActivity'],
       steps: [
         text(
           'Four squares, whole game',
@@ -86,6 +87,7 @@ export const beginner: Tier = {
       title: 'Develop your pieces',
       subtitle: 'Knights and bishops out, one move each.',
       minutes: 9,
+      concepts: ['development', 'tempo'],
       steps: [
         text(
           'Every move, a new piece',
@@ -125,6 +127,7 @@ export const beginner: Tier = {
       title: 'Castle early',
       subtitle: 'The king walks in, the rook joins the game.',
       minutes: 9,
+      concepts: ['castlingSafety', 'kingSafety', 'development'],
       steps: [
         text(
           'King safety is development too',
@@ -167,6 +170,7 @@ export const beginner: Tier = {
       title: 'Do not hang pieces',
       subtitle: 'The blunder check that saves hundreds of points.',
       minutes: 9,
+      concepts: ['defense', 'winningMaterial'],
       steps: [
         text(
           'The blunder scan',
@@ -206,6 +210,7 @@ export const beginner: Tier = {
       title: 'The fork',
       subtitle: 'One piece, two victims.',
       minutes: 10,
+      concepts: ['fork', 'winningMaterial'],
       steps: [
         text(
           'Double trouble',
@@ -267,6 +272,7 @@ export const beginner: Tier = {
       title: 'The pin',
       subtitle: 'A piece frozen in front of its own king.',
       minutes: 10,
+      concepts: ['pin', 'winningMaterial'],
       steps: [
         text(
           'Pinned means paralyzed',
@@ -313,6 +319,7 @@ export const beginner: Tier = {
       title: 'The skewer',
       subtitle: 'The pin in reverse: the king moves, the prize falls.',
       minutes: 9,
+      concepts: ['skewer', 'winningMaterial'],
       steps: [
         text(
           'Through the king',
@@ -359,6 +366,7 @@ export const beginner: Tier = {
       title: 'Loose pieces drop off',
       subtitle: 'LPDO: the mnemonic that wins games.',
       minutes: 9,
+      concepts: ['winningMaterial', 'defense'],
       steps: [
         text(
           'Undefended equals edible',
@@ -409,6 +417,7 @@ export const beginner: Tier = {
       title: 'Counting attackers and defenders',
       subtitle: 'When is a capture safe? Do the math.',
       minutes: 10,
+      concepts: ['calculation', 'winningMaterial'],
       steps: [
         text(
           'The exchange count',
@@ -456,6 +465,7 @@ export const beginner: Tier = {
       title: 'Removing the defender',
       subtitle: 'Break the bodyguard first, then collect.',
       minutes: 9,
+      concepts: ['removingDefender', 'winningMaterial'],
       steps: [
         text(
           'Cut the support',
@@ -506,6 +516,7 @@ export const beginner: Tier = {
       title: 'Back-rank defense',
       subtitle: 'Make luft before the rook arrives.',
       minutes: 9,
+      concepts: ['defense', 'kingSafety', 'mate'],
       steps: [
         text(
           'One pawn move, one exit',
@@ -556,6 +567,7 @@ export const beginner: Tier = {
       title: 'The two-rook ladder',
       subtitle: 'The easiest mate in chess, done with a ladder.',
       minutes: 10,
+      concepts: ['mate', 'endgame', 'technique'],
       steps: [
         text(
           'Rooks climb, king runs out of board',
@@ -608,6 +620,7 @@ export const beginner: Tier = {
       title: 'Queen and king: the box mate',
       subtitle: 'Shrink the box, call your king over, mate.',
       minutes: 11,
+      concepts: ['mate', 'endgame', 'technique', 'coordination'],
       steps: [
         text(
           'Herding with the queen',
@@ -670,6 +683,7 @@ export const beginner: Tier = {
       title: 'Passed pawns',
       subtitle: 'No enemy pawns in the way: run or push.',
       minutes: 10,
+      concepts: ['endgame', 'promotion', 'kingActivity'],
       steps: [
         text(
           'The runner on the board',
@@ -733,6 +747,7 @@ export const beginner: Tier = {
       title: 'Practice arena: tactics I',
       subtitle: 'Fork, pin, skewer, mixed.',
       minutes: 11,
+      concepts: ['fork', 'pin', 'skewer'],
       steps: [
         text(
           'Weapons out',
@@ -773,6 +788,7 @@ export const beginner: Tier = {
       title: 'Practice arena: tactics II',
       subtitle: 'Loose pieces, counting, defense.',
       minutes: 11,
+      concepts: ['defense', 'winningMaterial'],
       steps: [
         text(
           'Defense counts too',
@@ -810,6 +826,7 @@ export const beginner: Tier = {
       title: 'Your first opening: the Italian',
       subtitle: 'A complete, honest opening you can play forever.',
       minutes: 11,
+      concepts: ['famousGame', 'development', 'castlingSafety'],
       steps: [
         text(
           'The Italian Game',
@@ -873,6 +890,7 @@ export const beginner: Tier = {
       title: 'Play a development game',
       subtitle: 'Full game, one goal: castle by move 12.',
       minutes: 15,
+      concepts: ['development', 'castlingSafety'],
       steps: [
         text(
           'Plan over pieces',
@@ -918,6 +936,7 @@ export const beginner: Tier = {
       title: 'Beginner exam',
       subtitle: 'One quiz, one mate, one trap to punish.',
       minutes: 11,
+      concepts: ['mate', 'pin', 'fork'],
       steps: [
         text(
           'Prove it',
@@ -963,6 +982,7 @@ export const beginner: Tier = {
       title: 'Beginner graduation',
       subtitle: 'One more game, one tier down.',
       minutes: 16,
+      concepts: ['winningMaterial', 'mate', 'skewer'],
       steps: [
         text(
           'Where you stand now',

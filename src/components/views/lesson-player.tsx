@@ -94,7 +94,7 @@ function CoachBubble({
 }
 
 export function LessonPlayer({ lessonId }: { lessonId: string }) {
-  const { navigate, profile } = useApp()
+  const { navigate, profile, setPendingReview } = useApp()
   const coach = coachMaybe(profile?.coach)
   const found = findLevel(lessonId)
   const [stepIdx, setStepIdx] = useState(0)
@@ -113,6 +113,10 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const saveProgress = useCallback(
     (stepsDone: number, finished: boolean, hintNow = false) => {
       if (!lesson || !tier) return
+      // A spaced-review replay launched from the Review view grades that item.
+      const pending = useApp.getState().pendingReview
+      const reviewItemId =
+        pending?.kind === 'lesson' && pending.refId === lesson.id ? pending.itemId : null
       fetch('/api/progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -123,11 +127,15 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           done: finished,
           level: globalLevel,
           hintNow,
+          concepts: lesson.concepts ?? [],
+          reviewItemId,
+          dayKey: new Date().toLocaleDateString('sv-SE'),
         }),
       })
         .then((r) => r.json())
         .then((d) => {
           if (d.profile) useApp.getState().setProfile(d.profile)
+          if (reviewItemId) setPendingReview(null)
           if (typeof d.xpGain === 'number' && d.xpGain > 0) {
             setXpFlash(d.xpGain)
             if (xpTimerRef.current) clearTimeout(xpTimerRef.current)
@@ -136,7 +144,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         })
         .catch(() => {})
     },
-    [lesson, tier, globalLevel],
+    [lesson, tier, globalLevel, setPendingReview],
   )
 
   useEffect(() => {

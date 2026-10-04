@@ -10,10 +10,12 @@ import { engine } from '@/lib/chess/engine-client'
 import { playSound } from '@/lib/chess/sounds'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { RushPanel } from '@/components/views/rush-view'
 import { cn } from '@/lib/utils'
-import { Flame, Lightbulb, RotateCcw, CalendarDays, Loader2, Trophy } from 'lucide-react'
+import { Flame, Lightbulb, RotateCcw, CalendarDays, Loader2, Trophy, Repeat2 } from 'lucide-react'
 
 type Phase = 'loading' | 'solving' | 'solved' | 'failed'
+type PuzzleTab = 'rated' | 'daily' | 'rush'
 
 interface PuzzleState {
   puzzle: Puzzle
@@ -23,9 +25,11 @@ interface PuzzleState {
 }
 
 export function PuzzlesView() {
-  const { profile, setProfile } = useApp()
-  const [tab, setTab] = useState<'rated' | 'daily'>('rated')
+  const { profile, setProfile, pendingReview, setPendingReview } = useApp()
+  const [tab, setTab] = useState<PuzzleTab>('rated')
   const [state, setState] = useState<PuzzleState | null>(null)
+  const [reviewItemId, setReviewItemId] = useState<string | null>(null)
+  const [graded, setGraded] = useState<{ intervalDays: number } | null>(null)
   const [phase, setPhase] = useState<Phase>('loading')
   const [fen, setFen] = useState('')
   const [line, setLine] = useState<string[]>([])
@@ -40,6 +44,7 @@ export function PuzzlesView() {
   const [flashes, setFlashes] = useState<FlashMark[]>([])
   const gameRef = useRef(new Chess())
   const busyRef = useRef(false)
+  const reviewLoadRef = useRef(false)
   const soundEnabled = profile?.soundEnabled ?? true
 
   const flash = useCallback((marks: FlashMark[]) => {
@@ -86,11 +91,29 @@ export function PuzzlesView() {
     setSolutionPly(0)
     setAttempts(0)
     setGuide(null)
+    setGraded(null)
     setFlashes([])
     busyRef.current = false
   }
 
   useEffect(() => {
+    // Launching a spaced-review puzzle from the Review view.
+    if (profile && pendingReview?.kind === 'puzzle') {
+      const p = PUZZLES.find((x) => x.id === pendingReview.refId)
+      setPendingReview(null)
+      if (p) {
+        reviewLoadRef.current = true
+        setTab('rated')
+        setReviewItemId(pendingReview.itemId)
+        setState({ puzzle: p })
+        startPuzzle(p)
+      }
+    }
+  }, [profile, pendingReview, setPendingReview])
+
+  useEffect(() => {
+    if (reviewLoadRef.current) return
+    if (tab === 'rush') return
     if (profile && !state) {
       if (tab === 'rated') loadRated()
       else void loadDaily()
@@ -98,6 +121,7 @@ export function PuzzlesView() {
   }, [profile, state, tab, loadRated, loadDaily])
 
   useEffect(() => {
+    if (tab === 'rush') return
     if (state) {
       if (tab === 'rated' && !state.daily) loadRated()
       else if (tab === 'daily' && !state.daily) void loadDaily()
@@ -136,25 +160,31 @@ export function PuzzlesView() {
     async (solved: boolean) => {
       if (!state) return
       try {
+        const isReview = Boolean(reviewItemId)
         const res = await fetch('/api/puzzles/attempt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             puzzleId: state.puzzle.id,
-            kind: state.daily ? 'daily' : 'rated',
+            kind: isReview ? 'review' : state.daily ? 'daily' : 'rated',
             solved,
             puzzleRating: state.puzzle.rating,
             dayKey: state.dayKey,
+            reviewItemId,
           }),
         })
         const d = await res.json()
         if (d.profile) setProfile(d.profile)
         setRatingDelta(d.ratingDelta ?? null)
+        if (isReview) {
+          setReviewItemId(null)
+          if (d.graded?.intervalDays != null) setGraded({ intervalDays: d.graded.intervalDays })
+        }
       } catch {
         /* offline attempt, ignore */
       }
     },
-    [state, setProfile],
+    [state, setProfile, reviewItemId],
   )
 
   const engineReply = useCallback(
@@ -336,22 +366,25 @@ export function PuzzlesView() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Tabs value={tab} onValueChange={(v) => setTab(v as 'rated' | 'daily')}>
+          <Tabs value={tab} onValueChange={(v) => setTab(v as PuzzleTab)}>
             <TabsList>
               <TabsTrigger value="rated">Rated</TabsTrigger>
               <TabsTrigger value="daily">Daily</TabsTrigger>
+              <TabsTrigger value="rush">Rush</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
       </div>
 
-      {phase === 'loading' && (
+      {tab === 'rush' && <RushPanel />}
+
+      {tab !== 'rush' && phase === 'loading' && (
         <div className="flex items-center justify-center py-20 text-muted-foreground">
           <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Setting the board…
         </div>
       )}
 
-      {puzzle && phase !== 'loading' && (
+      {puzzle && tab !== 'rush' && phase !== 'loading' && (
         <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
           <div className="mx-auto w-full max-w-[600px]">
             <ChessBoard
@@ -370,7 +403,15 @@ export function PuzzlesView() {
             <div className="rounded-lg bg-card p-5 shadow-sm">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  {state?.daily ? 'Daily puzzle' : 'Rated puzzle'}
+                  {reviewItemId ? (
+                    <span className="inline-flex items-center gap-1 text-[#a3d160]">
+                      <Repeat2 className="h-3.5 w-3.5" /> Spaced review
+                    </span>
+                  ) : state?.daily ? (
+                    'Daily puzzle'
+                  ) : (
+                    'Rated puzzle'
+                  )}
                 </div>
                 <div className="flex items-center gap-1 text-sm font-bold">
                   <Flame className="h-4 w-4 text-[#e6a82c]" /> {profile?.puzzleStreak ?? 0}
@@ -410,7 +451,10 @@ export function PuzzlesView() {
               )}
               {phase === 'solved' && (
                 <div className="mt-3 rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-sm font-semibold">
-                  <Trophy className="mr-1 inline h-4 w-4 text-primary" /> Solved. {ratingDelta != null && `Rating ${ratingDelta >= 0 ? '+' : ''}${ratingDelta}.`}
+                  <Trophy className="mr-1 inline h-4 w-4 text-primary" /> Solved.
+                  {graded
+                    ? ` Back in ${graded.intervalDays === 1 ? 'a day' : `${graded.intervalDays} days`}.`
+                    : ratingDelta != null && ` Rating ${ratingDelta >= 0 ? '+' : ''}${ratingDelta}.`}
                 </div>
               )}
 
@@ -452,6 +496,9 @@ export function PuzzlesView() {
                   </Button>
                 )}
               </div>
+              {graded && phase === 'failed' && (
+                <p className="mt-2 text-xs text-muted-foreground">Still in the review queue, it comes back tomorrow.</p>
+              )}
               {hintShown && phase === 'solving' && (
                 <p className="mt-2 text-sm text-muted-foreground">The glowing piece is the one that moves. It is up to you to find where.</p>
               )}

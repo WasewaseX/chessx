@@ -26,7 +26,7 @@ Chess.com spread these over 15 years. The plan below sequences them so the learn
 - Fourteen character bots from Pip (350) to Maximum (2600): drawn faces, play styles, live barks on your swings and blunders, each one a character, not a skill slider.
 - Real board audio: the wooden click sample set used by the lichess project (CC0) through a gain-staged master bus with a limiter, so captures and opponent moves never spike.
 - Engine play: Stockfish WASM in a worker, skill 0 to 20, rated bot ladder with Elo, casual games, hints, takebacks, resignations.
-- Puzzles: rated pool with Elo, streaks, daily puzzle.
+- Puzzles: rated pool with Elo, streaks, daily puzzle, Puzzle Rush (3 minute and survival with bests), and a 39-puzzle pool where every position passed the Stockfish verifier (scripts/verify-puzzles.ts: legal replay, engine-best moves, forced replies, winning finish).
 - Analysis: PGN import, eval bar, move-by-move review, eval graph.
 - BYO API keys: built-in model works with no setup; OpenAI, Anthropic, Gemini, OpenRouter, Groq, DeepSeek and any OpenAI-compatible endpoint supported server-side.
 - Honesty rules: no invented XP, ratings start empty, no greeting copy, no em dashes.
@@ -35,13 +35,12 @@ Chess.com spread these over 15 years. The plan below sequences them so the learn
 
 Goal: a new user reaches their first 10 hours and comes back the next day.
 
-- Skill model v1: per-concept mastery from lesson steps, quiz misses, drill retries and hint usage. Concepts map to the curriculum taxonomy (pins, forks, lucena, outposts, ...). Mastery drives what the app shows next.
-- Spaced repetition across levels and puzzles: missed items resurface on an improving schedule (SM-2 derived), both as review steps inside tiers and as a dedicated Review tab.
-- Puzzle engine upgrade: theme tags filter practice, per-theme Elo, streak freeze, Puzzle Rush mode (3 min / survival) and Puzzle Battle vs a bot clock (head to head on the same positions, first to the score wins).
-- Streaks and honest motivation: daily goal by minutes or puzzles, streak calendar, no fake numbers anywhere.
+- Skill model v1 (shipped): every level carries concept tags from the shared 33-concept taxonomy, puzzle attempts and lesson completions feed per-concept mastery (SkillMastery), the Review view shows concept strength bars plus the weakest concepts.
+- Spaced repetition (shipped): SM-2 derived queue (ReviewItem) that resurfaces missed puzzles and lessons finished with hints on a 1d, 4d, then interval-times-ease schedule; the dedicated Review view lists what is due now and what is coming, and launching an item grades it when you face it again. Still open: review steps inside tier flow.
+- Streaks and honest motivation (shipped): daily goal in active minutes counted by client heartbeats (idle time never counts), per-day activity ledger (ActivityDay) fed by real events, streak calendar on home and profile, goal picker, honest best-streak math with today treated as still open.
 - Game report v1 (the chess.com review experience, shipped): move classification (brilliant, best, good, inaccuracy, mistake, blunder) from Stockfish win-percentage deltas, accuracy per side, opening name detection, players and result from PGN headers, a Key moments card with one-line reasons that jumps to the position, coach lines per key move. Mate positions scored from the game state so the final move can never poison the accuracy math. Still open: shareable summary and longer-game depth budgeting.
 - Insights v1: accuracy trend, common mistake tags, opening results table, time-of-day performance. Every number derived from your real games, never seeded.
-- Performance: eval cache per position, engine depth budgeting by position complexity, report generation under 20s for a 40-move game on a mid laptop.
+- Puzzle engine next steps: theme filters and per-theme practice, streak freeze, Puzzle Battle vs a bot clock (head to head on the same positions), and a larger puzzle pool, the pack grew 13 to 39 and should keep growing with the verifier as the gate.
 
 ## Phase 2, Content moat (next, weeks 6 to 12)
 

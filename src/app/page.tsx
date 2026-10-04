@@ -9,10 +9,12 @@ import { PlayView } from '@/components/views/play-view'
 import { LessonsView } from '@/components/views/lessons-view'
 import { LessonPlayer } from '@/components/views/lesson-player'
 import { PuzzlesView } from '@/components/views/puzzles-view'
+import { ReviewView } from '@/components/views/review-view'
 import { CoachView } from '@/components/views/coach-view'
 import { AnalysisView } from '@/components/views/analysis-view'
 import { ProfileView } from '@/components/views/profile-view'
 import { SettingsView } from '@/components/views/settings-view'
+import { useActivityHeartbeat } from '@/lib/use-activity-heartbeat'
 
 function ViewRouter() {
   const { view } = useApp()
@@ -26,6 +28,8 @@ function ViewRouter() {
       return view.lessonId ? <LessonPlayer key={view.lessonId} lessonId={view.lessonId} /> : <LessonsView />
     case 'puzzles':
       return <PuzzlesView />
+    case 'review':
+      return <ReviewView />
     case 'coach':
       return <CoachView />
     case 'analysis':
@@ -43,6 +47,8 @@ export default function Page() {
   useHashSync()
   const { setProfile, profile } = useApp()
   const [loaded, setLoaded] = useState(false)
+
+  useActivityHeartbeat(Boolean(profile?.onboarded))
 
   useEffect(() => {
     let alive = true

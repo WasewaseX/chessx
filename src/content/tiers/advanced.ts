@@ -18,6 +18,7 @@ export const advanced: Tier = {
       title: 'Candidate moves',
       subtitle: 'Checks, captures, threats. In that order.',
       minutes: 9,
+      concepts: ['calculation', 'initiative'],
       steps: [
         quiz('Retrieval first', 'From the Intermediate tier: which piece blockades a passed pawn best, and why?', [
           right('The knight: it attacks around the pawn and can never be pushed off', 'The pawn cannot chase it, and the knight still fights while blockading.'),
@@ -65,6 +66,7 @@ export const advanced: Tier = {
       title: 'The blunder check',
       subtitle: 'Before you move: what is his best reply?',
       minutes: 9,
+      concepts: ['calculation', 'defense'],
       steps: [
         quiz('Retrieval first', 'Why do forcing moves get calculated before quiet ones?', [
           right('They leave the opponent the fewest choices, so the lines are most certain', 'Certainty is the currency of calculation. Forcing moves buy it.'),
@@ -99,6 +101,7 @@ export const advanced: Tier = {
       title: 'The attack is worth a piece',
       subtitle: 'Sacrifice material when the king cannot hide.',
       minutes: 9,
+      concepts: ['sacrifice', 'kingSafety', 'removingDefender'],
       steps: [
         quiz('Retrieval first', 'When does the blunder check run, according to the last level?', [
           right('On every move, with extra attention on captures and trades', 'Captures rearrange geometry. Geometry is where the surprises live.'),
@@ -136,6 +139,7 @@ export const advanced: Tier = {
       title: 'Storms and battering rams',
       subtitle: 'Opening the wall where the king hides.',
       minutes: 9,
+      concepts: ['kingSafety', 'pawnBreaks', 'initiative'],
       steps: [
         quiz('Retrieval first', 'What must a sacrifice deliver to be playable?', [
           right('A nameable return: a line, a tempo, or a removed defender, with a calculated finish', 'Lines, tempo, defenders. No name, no sacrifice.'),
@@ -176,6 +180,7 @@ export const advanced: Tier = {
       title: 'The counterattack',
       subtitle: 'When attacked, ask where THEY are weak.',
       minutes: 9,
+      concepts: ['defense', 'initiative'],
       steps: [
         quiz('Retrieval first', 'What must you do to the f6-style defender before a kingside attack works?', [
           right('Drive him off, trade him, or deflect him', 'No guard, no wall. Every attack starts with the keeper.'),
@@ -217,6 +222,7 @@ export const advanced: Tier = {
       title: 'Weak color complexes',
       subtitle: 'When one color of squares goes dark.',
       minutes: 9,
+      concepts: ['pawnStructure', 'outposts', 'tradeDecisions'],
       steps: [
         quiz('Retrieval first', 'Which counterattacks actually work against an ongoing attack?', [
           right('Ones that come with check or immediate material threat', 'The attacker must be forced to spend a tempo. Slow counterplay is a gift of time.'),
@@ -270,6 +276,7 @@ export const advanced: Tier = {
       title: 'Blockade and deep outposts',
       subtitle: 'Some squares are addresses, not stops.',
       minutes: 9,
+      concepts: ['outposts', 'pieceActivity'],
       steps: [
         quiz('Retrieval first', 'Your counterattack must come with what, to work against an active attack?', [
           right('Check or immediate material threat', 'The attacker loses tempo only when forced. Slow plans lose races.'),
@@ -313,6 +320,7 @@ export const advanced: Tier = {
       title: 'Space and maneuvering',
       subtitle: 'More room, better pieces, no trades.',
       minutes: 9,
+      concepts: ['pieceActivity', 'tradeDecisions'],
       steps: [
         quiz('Retrieval first', 'What does a knight do best on an advanced outpost?', [
           right('Attacks pieces that can never chase it away with pawns', 'Pawn-proof squares turn knights into landlords.'),
@@ -361,6 +369,7 @@ export const advanced: Tier = {
       title: 'Pawn chains',
       subtitle: 'Attack the base. Know when to release.',
       minutes: 9,
+      concepts: ['pawnStructure', 'pawnBreaks'],
       steps: [
         quiz('Retrieval first', 'You are cramped. What do you trade, and what do you keep?', [
           right('Trade pieces, keep pawns, and prepare a pawn break', 'Fewer pieces fit in small rooms, and the break is the exit door.'),
@@ -401,6 +410,7 @@ export const advanced: Tier = {
       title: 'Practice arena: calculation',
       subtitle: 'Forcing moves under pressure.',
       minutes: 10,
+      concepts: ['calculation', 'mate'],
       steps: [
         quiz('Retrieval first', 'Which pawn of a chain do you attack, and why?', [
           right('The base: the rearmost pawn, the only one no other pawn can shield', 'Everything in front of it has neighbors. The base stands alone.'),
@@ -444,6 +454,7 @@ export const advanced: Tier = {
       title: 'Openings with a purpose',
       subtitle: 'Repertoires are plans, not memorization.',
       minutes: 10,
+      concepts: ['development', 'center', 'castlingSafety'],
       steps: [
         quiz('Retrieval first', 'Which pawn in a chain is the target?', [
           right('The base, the rearmost one', 'No pawn can defend it. Pieces get tied down for life guarding it.'),
@@ -484,6 +495,7 @@ export const advanced: Tier = {
       title: 'Isolated queen\u2019s pawn',
       subtitle: 'The most debated pawn in chess.',
       minutes: 10,
+      concepts: ['pawnStructure', 'openFiles', 'tradeDecisions'],
       steps: [
         quiz('Retrieval first', 'How deep should you know your opening IDEAS versus memorized moves?', [
           right('Five moves of understanding beat twenty moves of memory', 'Understanding survives every deviation. Memory dies at the first novelty.'),
@@ -523,6 +535,7 @@ export const advanced: Tier = {
       title: 'Lucena: the bridge',
       subtitle: 'The most important winning position in rook endgames.',
       minutes: 10,
+      concepts: ['endgame', 'technique', 'kingActivity'],
       steps: [
         quiz('Retrieval first', 'What does the defender of an IQP want, in one line?', [
           right('Trades and an endgame, where the pawn becomes a target', 'Every trade moves the game toward the phase the isolani fears.'),
@@ -568,6 +581,7 @@ export const advanced: Tier = {
       title: 'Philidor: rear checks',
       subtitle: 'The most important drawing position in rook endgames.',
       minutes: 10,
+      concepts: ['endgame', 'defense', 'technique'],
       steps: [
         quiz('Retrieval first', 'Where does the bridge rook interpose in Lucena?', [
           right('On the checking file, one rank below your king', 'Same file as the checks, sheltered by the king. The checks are over.'),
@@ -605,6 +619,7 @@ export const advanced: Tier = {
       title: 'Rook activity',
       subtitle: 'Cutting off, behind passed pawns, the active king.',
       minutes: 10,
+      concepts: ['endgame', 'pieceActivity', 'kingActivity'],
       steps: [
         quiz('Retrieval first', 'When do Philidor\u2019s rear checks begin?', [
           right('The moment the pawn steps to the 6th rank', 'Before that, the rook waits on the first rank. Timing is the technique.'),
@@ -640,6 +655,7 @@ export const advanced: Tier = {
       title: 'Opposite bishops',
       subtitle: 'Drawish, until an outside passed pawn changes everything.',
       minutes: 10,
+      concepts: ['endgame', 'promotion', 'pawnStructure'],
       steps: [
         quiz('Retrieval first', 'Rook behind your own passed pawn does what, compared to behind theirs?', [
           right('Yours: escorts the promotion. Theirs: herds and farms it', 'One rook, two jobs, depending on whose pawn it follows.'),
@@ -688,6 +704,7 @@ export const advanced: Tier = {
       title: 'Knight versus bishop',
       subtitle: 'The eternal argument, settled by structure.',
       minutes: 10,
+      concepts: ['pieceActivity', 'pawnStructure', 'tradeDecisions'],
       steps: [
         quiz('Retrieval first', 'How do you beat a correct opposite-colored bishop with one extra passed pawn?', [
           right('Create a second passed pawn on the opposite color', 'One bishop stops one runner. Two runners on both colors cannot be stopped.'),
@@ -728,6 +745,7 @@ export const advanced: Tier = {
       title: 'Queen endings',
       subtitle: 'Checks, forks, and the perpetual road.',
       minutes: 10,
+      concepts: ['endgame', 'fork', 'technique'],
       steps: [
         quiz('Retrieval first', 'In an open position with few pawns, which minor piece usually wins the argument?', [
           right('The bishop: long diagonals and range decide open play', 'No walls to jump, all the room to use.'),
@@ -772,6 +790,7 @@ export const advanced: Tier = {
       title: 'Converting winning endgames',
       subtitle: 'King centralization and simplification.',
       minutes: 10,
+      concepts: ['technique', 'kingActivity', 'endgame'],
       steps: [
         quiz('Retrieval first', 'What is the defender\u2019s lifeline in queen endings?', [
           right('The perpetual check: an endless series of checks the attacker cannot escape', 'Half a point by repetition. The most common saved draw in queen endings.'),
@@ -817,6 +836,7 @@ export const advanced: Tier = {
       title: 'Advanced graduation',
       subtitle: 'One exam, one game, tier cleared.',
       minutes: 15,
+      concepts: ['endgame', 'calculation', 'technique'],
       steps: [
         quiz('Retrieval first', 'When does trading the last rooks pay off in a won rook ending?', [
           right('When the pawn endgame after the trade is a calculated win', 'Concrete wins only. Hopes do not convert.'),

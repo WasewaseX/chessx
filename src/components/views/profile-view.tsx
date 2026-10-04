@@ -5,7 +5,9 @@ import { useApp } from '@/lib/store'
 import { ALL_LEVELS, TIERS } from '@/content/levels'
 import { titleForXp } from '@/lib/rating'
 import { Progress } from '@/components/ui/progress'
+import { useActivity, StreakCalendar } from '@/components/shell/streak'
 import { cn } from '@/lib/utils'
+import { Zap } from 'lucide-react'
 
 interface GameRow {
   id: string
@@ -20,9 +22,10 @@ interface GameRow {
 }
 
 export function ProfileView() {
-  const { profile } = useApp()
+  const { profile, patchProfile } = useApp()
   const [games, setGames] = useState<GameRow[]>([])
   const [progress, setProgress] = useState<{ lessonId: string; completed: boolean; stepsDone: number }[]>([])
+  const activity = useActivity()
 
   useEffect(() => {
     fetch('/api/games?limit=50')
@@ -34,6 +37,22 @@ export function ProfileView() {
       .then((d) => setProgress(d.progress ?? []))
       .catch(() => {})
   }, [])
+
+  async function setGoal(goal: number) {
+    if (!profile) return
+    patchProfile({ goalMinutes: goal })
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goalMinutes: goal }),
+      })
+      const d = await res.json()
+      if (d.profile) patchProfile(d.profile)
+    } catch {
+      /* keep optimistic value */
+    }
+  }
 
   if (!profile) return null
 
@@ -75,6 +94,78 @@ export function ProfileView() {
         />
         <StatCard label="Puzzle streak" value={profile.puzzleStreak} sub={`Best: ${profile.bestPuzzleStreak}`} />
         <StatCard label="Games" value={total} sub={winRate != null ? `${winRate}% won` : 'No games yet'} />
+      </div>
+
+      {/* Daily goal, streak calendar, rush bests */}
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <div className="rounded-lg bg-card p-5 shadow-sm">
+          <h2 className="font-display text-lg font-bold">Daily goal</h2>
+          <div className="mt-3 flex items-center gap-3">
+            <div className="flex items-center gap-1.5 font-display text-3xl font-extrabold">
+              <Zap className="h-6 w-6 text-primary" />
+              {activity?.streaks.current ?? 0}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              day streak
+              <br />
+              best: {activity?.streaks.best ?? 0}
+            </div>
+          </div>
+          <div className="mt-4">
+            <div className="mb-2 text-sm font-semibold">Goal: {profile.goalMinutes} active minutes a day</div>
+            <div className="flex flex-wrap gap-2">
+              {[10, 15, 30, 45, 60].map((g) => (
+                <button
+                  key={g}
+                  onClick={() => void setGoal(g)}
+                  aria-pressed={profile.goalMinutes === g}
+                  className={cn(
+                    'rounded-md border px-3 py-1.5 text-sm font-semibold transition-all duration-150 active:scale-95',
+                    profile.goalMinutes === g
+                      ? 'border-primary bg-primary/15'
+                      : 'border-border hover:bg-secondary',
+                  )}
+                >
+                  {g} min
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Active minutes are counted while you actually play, solve or study. Idle time never counts.
+            </p>
+          </div>
+          <div className="mt-4">
+            <div className="mb-2 text-sm font-semibold">Last 12 weeks</div>
+            {activity ? <StreakCalendar days={activity.days} goalMinutes={activity.goalMinutes} weeks={12} /> : null}
+          </div>
+        </div>
+
+        <div className="rounded-lg bg-card p-5 shadow-sm">
+          <h2 className="font-display text-lg font-bold">Puzzle Rush</h2>
+          <div className="mt-3 grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-md bg-secondary/60 p-4">
+              <div className="font-display text-2xl font-extrabold text-primary">{profile.rushBest3m}</div>
+              <div className="text-xs text-muted-foreground">3 minute best</div>
+            </div>
+            <div className="rounded-md bg-secondary/60 p-4">
+              <div className="font-display text-2xl font-extrabold text-primary">{profile.rushBestSurvival}</div>
+              <div className="text-xs text-muted-foreground">Survival best</div>
+            </div>
+          </div>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Rush lives in the Puzzles tab. The 3 minute run scores as many solves as the clock allows, survival ends at three misses.
+          </p>
+          <div className="mt-4 space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Puzzles solved all time</span>
+              <span className="font-semibold">{profile.puzzleSolved}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Puzzles missed all time</span>
+              <span className="font-semibold">{profile.puzzleFailed}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">

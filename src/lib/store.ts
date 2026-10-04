@@ -8,6 +8,7 @@ export type ViewName =
   | 'lessons'
   | 'lesson'
   | 'puzzles'
+  | 'review'
   | 'coach'
   | 'analysis'
   | 'profile'
@@ -39,6 +40,9 @@ export interface ProfileData {
   dailyDoneDate: string | null
   ladderRating: number | null
   ladderCount: number
+  goalMinutes: number
+  rushBest3m: number
+  rushBestSurvival: number
   aiProvider: string
   aiBaseUrl: string | null
   aiModel: string | null
@@ -54,12 +58,15 @@ interface AppState {
   /** PGN awaiting review in the Analysis view (set after a game ends). */
   reviewPgn: string | null
   setReviewPgn: (pgn: string | null) => void
+  /** A spaced-repetition item launched from the Review view. */
+  pendingReview: { itemId: string; kind: 'puzzle' | 'lesson'; refId: string } | null
+  setPendingReview: (item: AppState['pendingReview']) => void
 }
 
 function viewFromHash(): ViewState {
   const h = window.location.hash.replace(/^#\/?/, '')
   const [name, lessonId] = h.split('/')
-  const valid: ViewName[] = ['home', 'play', 'lessons', 'lesson', 'puzzles', 'coach', 'analysis', 'profile', 'settings']
+  const valid: ViewName[] = ['home', 'play', 'lessons', 'lesson', 'puzzles', 'review', 'coach', 'analysis', 'profile', 'settings']
   if (valid.includes(name as ViewName)) {
     return { name: name as ViewName, lessonId: lessonId || undefined }
   }
@@ -78,6 +85,8 @@ export const useApp = create<AppState>((set) => ({
     set((s) => ({ profile: s.profile ? { ...s.profile, ...p } : s.profile })),
   reviewPgn: null,
   setReviewPgn: (pgn) => set({ reviewPgn: pgn }),
+  pendingReview: null,
+  setPendingReview: (item) => set({ pendingReview: item }),
 }))
 
 /** Keeps the hash and the store in sync (deep links, back button). */

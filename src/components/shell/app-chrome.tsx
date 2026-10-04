@@ -12,6 +12,7 @@ import {
   LineChart,
   UserRound,
   Settings,
+  History,
 } from 'lucide-react'
 import { titleForXp } from '@/lib/rating'
 
@@ -24,6 +25,7 @@ const NAV: { name: ViewName; label: string; icon: React.ComponentType<{ classNam
 ]
 
 const NAV_EXTRA: { name: ViewName; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { name: 'review', label: 'Review', icon: History },
   { name: 'analysis', label: 'Analysis', icon: LineChart },
   { name: 'profile', label: 'Profile', icon: UserRound },
   { name: 'settings', label: 'Settings', icon: Settings },

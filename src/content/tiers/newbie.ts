@@ -18,6 +18,7 @@ export const newbie: Tier = {
       title: 'The board',
       subtitle: '64 squares, a naming system, and the two center squares everyone fights for.',
       minutes: 9,
+      concepts: ['center', 'pieceActivity'],
       steps: [
         text(
           'A map of the battlefield',
@@ -95,6 +96,7 @@ export const newbie: Tier = {
       title: 'The pawn',
       subtitle: 'Forward only, captures sideways, and never back.',
       minutes: 9,
+      concepts: ['pawnStructure', 'center'],
       steps: [
         text(
           'The smallest piece, the biggest personality',
@@ -153,6 +155,7 @@ export const newbie: Tier = {
       title: 'The knight',
       subtitle: 'The only piece that jumps.',
       minutes: 9,
+      concepts: ['pieceActivity', 'center'],
       steps: [
         text(
           'Two up, one across',
@@ -208,6 +211,7 @@ export const newbie: Tier = {
       title: 'The bishop',
       subtitle: 'One color of squares for its whole life.',
       minutes: 9,
+      concepts: ['pieceActivity', 'bishopPair'],
       steps: [
         text(
           'Diagonals forever',
@@ -256,6 +260,7 @@ export const newbie: Tier = {
       title: 'The rook',
       subtitle: 'Straight lines, open files, and the last rank.',
       minutes: 9,
+      concepts: ['openFiles', 'pieceActivity'],
       steps: [
         text(
           'Ranks and files',
@@ -299,6 +304,7 @@ export const newbie: Tier = {
       title: 'The queen',
       subtitle: 'Rook and bishop in one very strong piece.',
       minutes: 9,
+      concepts: ['winningMaterial', 'development', 'doubleAttack'],
       steps: [
         text(
           'The strongest piece',
@@ -342,6 +348,7 @@ export const newbie: Tier = {
       title: 'The king',
       subtitle: 'Slow in the opening, decisive at the end.',
       minutes: 9,
+      concepts: ['kingSafety', 'kingActivity'],
       steps: [
         text(
           'One careful step at a time',
@@ -392,6 +399,7 @@ export const newbie: Tier = {
       title: 'Check',
       subtitle: 'The king is attacked. Three ways out.',
       minutes: 8,
+      concepts: ['defense', 'kingSafety'],
       steps: [
         text(
           'What check means',
@@ -428,6 +436,7 @@ export const newbie: Tier = {
       title: 'Checkmate: the back rank',
       subtitle: 'The most common mate in beginner chess.',
       minutes: 9,
+      concepts: ['mate', 'kingSafety'],
       steps: [
         text(
           'Trapped behind his own pawns',
@@ -474,6 +483,7 @@ export const newbie: Tier = {
       title: 'Castling',
       subtitle: 'King and rook move together, once per game.',
       minutes: 9,
+      concepts: ['castlingSafety', 'kingSafety'],
       steps: [
         text(
           'The two-piece move',
@@ -529,6 +539,7 @@ export const newbie: Tier = {
       title: 'En passant',
       subtitle: 'The strange pawn capture everyone discovers late.',
       minutes: 8,
+      concepts: ['pawnStructure', 'tempo'],
       steps: [
         text(
           'The capture that looks illegal',
@@ -568,6 +579,7 @@ export const newbie: Tier = {
       title: 'Promotion',
       subtitle: 'A pawn reaches the last rank and becomes something huge.',
       minutes: 8,
+      concepts: ['promotion', 'tempo'],
       steps: [
         text(
           'The pawn grows up',
@@ -614,6 +626,7 @@ export const newbie: Tier = {
       title: 'Stalemate and draws',
       subtitle: 'Games do not always end in a mate.',
       minutes: 8,
+      concepts: ['endgame', 'technique'],
       steps: [
         text(
           'Five ways to draw',
@@ -659,6 +672,7 @@ export const newbie: Tier = {
       title: 'Values and trades',
       subtitle: 'Know what your pieces are worth before you swap.',
       minutes: 9,
+      concepts: ['winningMaterial', 'tradeDecisions'],
       steps: [
         text(
           'The scoreboard of material',
@@ -714,6 +728,7 @@ export const newbie: Tier = {
       title: 'Attacked or defended?',
       subtitle: 'The one question that prevents most beginner blunders.',
       minutes: 8,
+      concepts: ['defense', 'winningMaterial'],
       steps: [
         text(
           'Look before you leap',
@@ -757,6 +772,7 @@ export const newbie: Tier = {
       title: 'Practice arena I',
       subtitle: 'Capture drills: spot the free pieces.',
       minutes: 10,
+      concepts: ['winningMaterial', 'defense'],
       steps: [
         text(
           'Training, not testing',
@@ -807,6 +823,7 @@ export const newbie: Tier = {
       title: 'Practice arena II',
       subtitle: 'Give check. Escape check. Stay sharp.',
       minutes: 9,
+      concepts: ['tempo', 'defense', 'mate'],
       steps: [
         text(
           'Checks cut both ways',
@@ -844,6 +861,7 @@ export const newbie: Tier = {
       title: 'Practice arena III',
       subtitle: 'Review: castling, en passant, promotion.',
       minutes: 8,
+      concepts: ['castlingSafety', 'promotion', 'pawnStructure'],
       steps: [
         text(
           'Mixed review',
@@ -884,6 +902,7 @@ export const newbie: Tier = {
       title: 'The opening plan',
       subtitle: 'Center, develop, castle. Three jobs, first ten moves.',
       minutes: 10,
+      concepts: ['center', 'development', 'castlingSafety'],
       steps: [
         text(
           'What to do at the start',
@@ -935,6 +954,7 @@ export const newbie: Tier = {
       title: 'Newbie graduation',
       subtitle: 'A famous trap, one last quiz, and your first full game.',
       minutes: 14,
+      concepts: ['famousGame', 'mate', 'sacrifice'],
       steps: [
         text(
           'You know every rule now',

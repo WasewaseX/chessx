@@ -31,6 +31,10 @@ model Profile {
   // bot ladder rating (rated bot games)
   ladderRating   Int?
   ladderCount    Int      @default(0)
+  // daily goal + rush bests
+  goalMinutes    Int      @default(15)
+  rushBest3m     Int      @default(0)
+  rushBestSurvival Int    @default(0)
   // AI provider settings (BYO API)
   aiProvider     String   @default("builtin") // builtin | openai | anthropic | gemini | openrouter | groq | deepseek | custom
   aiBaseUrl      String?
@@ -70,9 +74,60 @@ model LessonProgress {
 model PuzzleAttempt {
   id         String   @id @default(cuid())
   puzzleId   String
-  kind       String   @default("rated") // rated | daily
+  kind       String   @default("rated") // rated | daily | review
   solved     Boolean
   ratingDelta Int?
   dayKey     String? // for daily: yyyy-mm-dd
   createdAt  DateTime @default(now())
+}
+
+// One row per calendar day the player was active. id is the dayKey itself.
+model ActivityDay {
+  id            String   @id // yyyy-mm-dd (user tz)
+  minutes       Int      @default(0) // active minutes, heartbeats from the client
+  puzzlesSolved Int      @default(0)
+  lessonSteps   Int      @default(0)
+  gamesPlayed   Int      @default(0)
+  goalMet       Boolean  @default(false)
+  updatedAt     DateTime @updatedAt
+}
+
+// Completed Puzzle Rush runs.
+model RushRun {
+  id        String   @id @default(cuid())
+  mode      String // threeMin | survival
+  score     Int
+  total     Int
+  seconds   Int
+  dayKey    String
+  createdAt DateTime @default(now())
+}
+
+// Spaced-repetition queue (SM-2 derived): missed puzzles and lessons that
+// deserve a revisit. One row per (kind, refId).
+model ReviewItem {
+  id           String   @id @default(cuid())
+  kind         String // puzzle | lesson
+  refId        String
+  concept      String?
+  ease         Float    @default(2.5)
+  intervalDays Float    @default(0)
+  reps         Int      @default(0)
+  lapses       Int      @default(0)
+  dueAt        DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([kind, refId])
+}
+
+// Per-concept mastery for the skill model. Concepts use the shared taxonomy
+// in src/content/schema.ts (CONCEPTS).
+model SkillMastery {
+  id        String   @id @default(cuid())
+  concept   String   @unique
+  mastery   Float    @default(0) // 0..1
+  attempts  Int      @default(0)
+  correct   Int      @default(0)
+  updatedAt DateTime @updatedAt
 }

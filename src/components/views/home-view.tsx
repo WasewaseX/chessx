@@ -7,6 +7,7 @@ import { ALL_LEVELS } from '@/content/levels'
 import { PUZZLES } from '@/content/puzzles'
 import { titleForXp } from '@/lib/rating'
 import { BOTS } from '@/lib/chess/bots'
+import { GoalCard } from '@/components/shell/streak'
 import {
   Swords,
   GraduationCap,
@@ -111,7 +112,7 @@ export function HomeView() {
 
       <div className="grid gap-4 md:grid-cols-3">
         {/* Continue learning */}
-        <div className="md:col-span-2 rounded-lg bg-card p-5 shadow-sm">
+        <div className="rounded-lg bg-card p-5 shadow-sm md:col-span-2">
           <div className="mb-3 flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-primary" />
             <h2 className="font-display text-lg font-bold">
@@ -134,6 +135,9 @@ export function HomeView() {
             </p>
           )}
         </div>
+
+        {/* Daily goal + streak */}
+        <GoalCard />
 
         {/* Daily puzzle */}
         <button
