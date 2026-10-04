@@ -31,3 +31,7 @@ bun run validate:content
 ```
 
 Board sounds: the wooden click set from the lichess project (public/sfx, CC0). Piece set: cburnett (CC BY-SA 3.0). Engine: Stockfish. Not affiliated with chess.com or Lichess.
+
+## Source of truth
+
+All work is versioned at `github.com/WasewaseX/chessx`. Every finished change is committed and pushed there. Roadmap: see `ROADMAP.md`. Agent work log: see `worklog.md` (not part of the product, it records what was built when).
