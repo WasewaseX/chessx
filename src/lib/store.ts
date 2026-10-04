@@ -58,6 +58,9 @@ interface AppState {
   /** PGN awaiting review in the Analysis view (set after a game ends). */
   reviewPgn: string | null
   setReviewPgn: (pgn: string | null) => void
+  /** Saved game id that belongs to reviewPgn, so the report can land in Insights. */
+  reviewGameId: string | null
+  setReviewGameId: (id: string | null) => void
   /** A spaced-repetition item launched from the Review view. */
   pendingReview: { itemId: string; kind: 'puzzle' | 'lesson'; refId: string } | null
   setPendingReview: (item: AppState['pendingReview']) => void
@@ -85,6 +88,8 @@ export const useApp = create<AppState>((set) => ({
     set((s) => ({ profile: s.profile ? { ...s.profile, ...p } : s.profile })),
   reviewPgn: null,
   setReviewPgn: (pgn) => set({ reviewPgn: pgn }),
+  reviewGameId: null,
+  setReviewGameId: (id) => set({ reviewGameId: id }),
   pendingReview: null,
   setPendingReview: (item) => set({ pendingReview: item }),
 }))

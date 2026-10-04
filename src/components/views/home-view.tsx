@@ -71,9 +71,10 @@ export function HomeView() {
 
   const completed = new Set(progress.filter((p) => p.completed).map((p) => p.lessonId))
   const started = progress.filter((p) => !p.completed && p.stepsDone > 0)
-  const nextId = started.length
-    ? started.sort((a, b) => (a.updatedAt ?? '') < (b.updatedAt ?? '') ? -1 : 1)[0]?.lessonId ?? nextLessonId(completed)
-    : nextLessonId(completed)
+  const mostRecent = started.length
+    ? started.reduce((a, b) => ((a.updatedAt ?? '') > (b.updatedAt ?? '') ? a : b))
+    : null
+  const nextId = mostRecent?.lessonId ?? nextLessonId(completed)
   const nextLesson = ALL_LEVELS.find((l) => l.level.id === nextId)
   const doneCount = completed.size
   const totalLessons = ALL_LEVELS.length

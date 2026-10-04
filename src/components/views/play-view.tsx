@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -42,7 +43,7 @@ function BotFace({ bot, className }: { bot: Bot; className?: string }) {
 }
 
 export function PlayView() {
-  const { profile, setProfile, navigate, setReviewPgn } = useApp()
+  const { profile, setProfile, navigate, setReviewPgn, setReviewGameId } = useApp()
   const [phase, setPhase] = useState<Phase>('lobby')
   const [setup, setSetup] = useState<Setup | null>(null)
   const [colorChoice, setColorChoice] = useState<'w' | 'b' | 'random'>('w')
@@ -88,8 +89,9 @@ export function PlayView() {
           setPhase('lobby')
         }
       }}
-      onReview={(pgn) => {
+      onReview={(pgn, gameId) => {
         setReviewPgn(pgn)
+        setReviewGameId(gameId)
         navigate('analysis')
       }}
       setProfile={setProfile}
@@ -196,7 +198,7 @@ function GameScreen({
 }: {
   setup: Setup
   onExit: (rematch: boolean) => void
-  onReview: (pgn: string) => void
+  onReview: (pgn: string, gameId: string | null) => void
   setProfile: (p: import('@/lib/store').ProfileData) => void
   skillLevel: string
   playerName: string
@@ -215,6 +217,7 @@ function GameScreen({
   const [ratingDelta, setRatingDelta] = useState<number | null>(null)
   const [newRatingValue, setNewRatingValue] = useState<number | null>(null)
   const [savedPgn, setSavedPgn] = useState('')
+  const [savedGameId, setSavedGameId] = useState<string | null>(null)
   const [sound, setSound] = useState(soundEnabled)
   // bot personality: speech bubble + material swing tracking
   const [bark, setBark] = useState<string | null>(null)
@@ -289,6 +292,7 @@ function GameScreen({
         if (d.profile) setProfile(d.profile)
         setRatingDelta(d.record?.ratingDelta ?? null)
         setNewRatingValue(d.profile?.ladderRating ?? null)
+        setSavedGameId(d.record?.id ?? null)
       })
       .catch(() => {})
     playSound(end.result === 'win' ? 'win' : end.result === 'loss' ? 'lose' : 'gameEnd', sound)
@@ -482,9 +486,11 @@ function GameScreen({
             <DialogTitle className="font-display text-2xl font-extrabold">
               {end?.result === 'win' ? 'You won' : end?.result === 'loss' ? 'You lost' : 'Draw'}
             </DialogTitle>
+            <DialogDescription>
+              {end?.result === 'win' ? 'Won' : end?.result === 'loss' ? 'Lost' : 'Drawn'} by {end?.reason} against {setup.bot.name}.
+            </DialogDescription>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            {end?.result === 'win' ? 'Won' : end?.result === 'loss' ? 'Lost' : 'Drawn'} by {end?.reason} against {setup.bot.name}.
             {setup.rated && ratingDelta != null && (
               <>
                 {' '}Ladder rating {newRatingValue ?? ''} ({ratingDelta >= 0 ? '+' : ''}
@@ -493,7 +499,7 @@ function GameScreen({
             )}
           </p>
           <div className="mt-2 flex flex-col gap-2">
-            <Button className="btn-hero w-full py-3" onClick={() => onReview(savedPgn)}>
+            <Button className="btn-hero w-full py-3" onClick={() => onReview(savedPgn, savedGameId)}>
               <LineChart className="h-4 w-4" /> Game review
             </Button>
             <div className="flex gap-2">

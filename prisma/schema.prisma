@@ -57,6 +57,14 @@ model GameRecord {
   moveCount   Int
   ratingDelta Int?
   accuracy    Float?
+  // game report v1: filled when the player runs a review on this game
+  opening     String?
+  whiteAcc    Float?
+  blackAcc    Float?
+  playerAcc   Float?
+  labelsJson  String? // per-side label counts, {best:{w,b},...}
+  localHour   Int? // player's local hour (0-23) when the game ended, for time-of-day insights
+  analyzedAt  DateTime?
   createdAt   DateTime @default(now())
 }
 

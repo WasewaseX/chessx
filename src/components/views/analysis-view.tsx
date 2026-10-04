@@ -7,15 +7,16 @@ import { EvalBar } from '@/components/chess/eval-bar'
 import { MoveList } from '@/components/chess/move-list'
 import { engine } from '@/lib/chess/engine-client'
 import { accuracyFromLoss } from '@/lib/rating'
+import { detectOpening } from '@/lib/chess/openings'
 import { useApp } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { Loader2, Play, Pause, ChevronLeft, ChevronRight, Sparkles, Trash2 } from 'lucide-react'
+import { Loader2, Play, Pause, ChevronLeft, ChevronRight, Sparkles, Trash2, Copy, Check } from 'lucide-react'
 
-type Label = 'best' | 'brilliant' | 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder'
+export type Label = 'best' | 'brilliant' | 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder'
 
-const LABEL_META: Record<Label, { text: string; bg: string; icon?: string }> = {
+export const LABEL_META: Record<Label, { text: string; bg: string; icon?: string }> = {
   best: { text: 'Best', bg: '#81b64c' },
   brilliant: { text: 'Brilliant', bg: '#26c2a3' },
   excellent: { text: 'Excellent', bg: '#95bb4a' },
@@ -25,7 +26,7 @@ const LABEL_META: Record<Label, { text: string; bg: string; icon?: string }> = {
   blunder: { text: 'Blunder', bg: '#ca3431' },
 }
 
-interface PlyEval {
+export interface PlyEval {
   san: string
   color: 'w' | 'b'
   /** eval before the move, white POV pawns */
@@ -41,7 +42,7 @@ export function AnalysisView() {
   const setReviewPgn = useApp((s) => s.setReviewPgn)
   // snapshot at mount: the PGN is set right before navigating here
   const incomingPgn = useApp.getState().reviewPgn
-  const [mode, setMode] = useState<'free' | 'review'>(incomingPgn ? 'review' : 'free')
+  const [mode, setMode] = useState<'free' | 'review' | 'insights'>(incomingPgn ? 'review' : 'free')
   const [pgnInput, setPgnInput] = useState(incomingPgn ?? '')
 
   useEffect(() => {
@@ -54,19 +55,19 @@ export function AnalysisView() {
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <h1 className="font-display text-2xl font-extrabold">Analysis</h1>
         <div className="flex overflow-hidden rounded-md border">
-          {(['free', 'review'] as const).map((m) => (
+          {(['free', 'review', 'insights'] as const).map((m) => (
             <button
               key={m}
               onClick={() => setMode(m)}
               className={cn('px-4 py-1.5 text-sm font-semibold capitalize', mode === m ? 'bg-primary text-primary-foreground' : 'bg-secondary')}
             >
-              {m === 'free' ? 'Board & engine' : 'Game review'}
+              {m === 'free' ? 'Board & engine' : m === 'review' ? 'Game review' : 'Insights'}
             </button>
           ))}
         </div>
       </div>
 
-      {mode === 'free' ? <FreeAnalysis /> : <GameReview initialPgn={pgnInput} onPgnChange={setPgnInput} />}
+      {mode === 'free' ? <FreeAnalysis /> : mode === 'review' ? <GameReview initialPgn={pgnInput} onPgnChange={setPgnInput} /> : <InsightsPanel />}
     </div>
   )
 }
@@ -246,8 +247,18 @@ function FreeAnalysis() {
 
 /* ---------------- game review ---------------- */
 
+/** Longer games get a shallower search so a review finishes in reasonable time. */
+function reviewDepth(plies: number): number {
+  if (plies <= 40) return 14
+  if (plies <= 80) return 12
+  if (plies <= 140) return 10
+  return 8
+}
+
 function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChange: (s: string) => void }) {
   const [pgn, setPgn] = useState(initialPgn)
+  // the saved game this review belongs to, when it came from the Play tab
+  const gameId = useApp.getState().reviewGameId
   // one-time parse of the incoming PGN during first render (no effect needed)
   const initialParse = useMemo(() => {
     if (!initialPgn) return { plies: [], error: null as string | null }
@@ -273,6 +284,7 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
   const [analyzing, setAnalyzing] = useState(false)
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(initialParse.error)
+  const [savedToInsights, setSavedToInsights] = useState(false)
   const boardFenRef = useRef('')
 
   const startFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
@@ -303,13 +315,15 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
     if (plies.length === 0 || analyzing) return
     setAnalyzing(true)
     setProgress(0)
+    setSavedToInsights(false)
+    const depth = reviewDepth(plies.length)
     const results: PlyEval[] = []
     let prevWhitePov = 0
     for (let i = 0; i < plies.length; i++) {
       const p = plies[i]
       const gBefore = new Chess(p.fenBefore)
       // eval before the move
-      const beforeRes = await engine.eval({ fen: p.fenBefore, depth: 12 })
+      const beforeRes = await engine.eval({ fen: p.fenBefore, depth })
       const turn = gBefore.turn()
       // engine mate scores are side-to-move POV; mate 0 means mated right now
       const mateToWhite = (m: number, t: 'w' | 'b') => (t === 'w' ? (m > 0 ? 80 : -80) : (m > 0 ? -80 : 80))
@@ -323,7 +337,7 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
       if (gAfter.isCheckmate()) afterWhite = afterTurn === 'w' ? -80 : 80
       else if (gAfter.isGameOver()) afterWhite = 0
       else {
-        const afterRes = await engine.eval({ fen: gAfter.fen(), depth: 12 })
+        const afterRes = await engine.eval({ fen: gAfter.fen(), depth })
         afterWhite = afterRes.mate != null ? mateToWhite(afterRes.mate, afterTurn) : ((afterTurn === 'w' ? afterRes.scoreCp ?? 0 : -(afterRes.scoreCp ?? 0)) / 100)
       }
 
@@ -383,6 +397,20 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
       setProgress(Math.round(((i + 1) / plies.length) * 100))
     }
     setAnalyzing(false)
+
+    // persist the summary so Insights can aggregate it (games played here only)
+    if (gameId) {
+      try {
+        const res = await fetch('/api/games/report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gameId, plies: results, localHour: new Date().getHours() }),
+        })
+        if (res.ok) setSavedToInsights(true)
+      } catch {
+        /* report saving is best effort, the on-screen report still works */
+      }
+    }
   }, [plies, analyzing])
 
   // keyboard navigation
@@ -515,9 +543,35 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
               )}
               {analyzing && <div className="mt-2 h-1.5 overflow-hidden rounded bg-secondary"><div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} /></div>}
               {!analyzing && (
-                <Button className="btn-hero mt-3 w-full" onClick={runReview} disabled={analyzing}>
-                  <Sparkles className="h-4 w-4" /> {evals.length ? 'Re-analyze' : 'Analyze game'}
-                </Button>
+                <div className="mt-3 flex gap-2">
+                  <Button className="btn-hero flex-1" onClick={runReview} disabled={analyzing}>
+                    <Sparkles className="h-4 w-4" /> {evals.length ? 'Re-analyze' : 'Analyze game'}
+                  </Button>
+                  {evals.length > 0 && (
+                    <CopyReportButton
+                      buildText={() =>
+                        reportText({
+                          white: headers.white ?? 'White',
+                          black: headers.black ?? 'Black',
+                          result,
+                          opening,
+                          whiteAcc,
+                          blackAcc,
+                          evals,
+                          moments,
+                        })
+                      }
+                    />
+                  )}
+                </div>
+              )}
+              {savedToInsights && (
+                <p className="mt-2 text-xs font-semibold text-primary">Saved to your insights.</p>
+              )}
+              {!savedToInsights && evals.length > 0 && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Insights only collect games you play here. Paste a PGN from somewhere else and it stays out.
+                </p>
               )}
             </div>
 
@@ -627,65 +681,6 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
 }
 
 /* ---------------- game report helpers ---------------- */
-
-// Compact opening table: longest matching SAN prefix wins.
-const OPENINGS: [string, string][] = [
-  ['e4 e5 nf3 nc6 bb5', 'Ruy Lopez'],
-  ['e4 e5 nf3 nc6 bc4', 'Italian Game'],
-  ['e4 e5 nf3 nc6 d4', 'Scotch Game'],
-  ['e4 e5 nf3 nf6', 'Petrov Defence'],
-  ['e4 e5 nf3 d6', 'Philidor Defence'],
-  ['e4 e5 nc3', 'Vienna Game'],
-  ['e4 e5 f4', "King's Gambit"],
-  ['e4 e5 bc4', "Bishop's Opening"],
-  ['e4 e5 d4', 'Center Game'],
-  ['e4 c5 nf3 d6', 'Sicilian, Open'],
-  ['e4 c5 nf3 nc6', 'Sicilian, Old'],
-  ['e4 c5 nf3 e6', 'Sicilian, French Variation'],
-  ['e4 c5', 'Sicilian Defence'],
-  ['e4 e6', 'French Defence'],
-  ['e4 c6', 'Caro-Kann Defence'],
-  ['e4 d5', 'Scandinavian Defence'],
-  ['e4 nf6', 'Alekhine Defence'],
-  ['e4 d6', 'Pirc Defence'],
-  ['e4 g6', 'Modern Defence'],
-  ['d4 d5 c4 e6', "Queen's Gambit Declined"],
-  ['d4 d5 c4 c6', 'Slav Defence'],
-  ['d4 d5 c4 dxc4', "Queen's Gambit Accepted"],
-  ['d4 d5 c4', "Queen's Gambit"],
-  ['d4 nf6 c4 g6', "King's Indian Defence"],
-  ['d4 nf6 c4 e6 nc3 bb4', 'Nimzo-Indian Defence'],
-  ['d4 nf6 c4 b6', "Queen's Indian Defence"],
-  ['d4 nf6 c4', 'Indian Game'],
-  ['d4 f5', 'Dutch Defence'],
-  ['d4 d5 nf3', "Queen's Pawn Game"],
-  ['d4 d5', "Queen's Pawn Game"],
-  ['nf3 d5 g3', 'Réti Opening'],
-  ['nf3 d5 c4', 'Réti Opening'],
-  ['nf3', 'Zukertort Opening'],
-  ['c4', 'English Opening'],
-  ['g3', 'Benko Opening'],
-  ['b3', 'Nimzo-Larsen Attack'],
-  ['f4', "Bird's Opening"],
-  ['e4 e5', "King's Pawn Game"],
-  ['e4', "King's Pawn Opening"],
-  ['d4', "Queen's Pawn Opening"],
-]
-
-function detectOpening(sans: string[]): string {
-  const seq = sans.slice(0, 8).map((s) => s.replace(/[+#]/g, '').toLowerCase())
-  let best: string | null = null
-  let bestLen = 0
-  for (const [prefix, name] of OPENINGS) {
-    const parts = prefix.split(' ')
-    if (seq.length < parts.length) continue
-    if (parts.every((p, i) => seq[i] === p) && parts.length > bestLen) {
-      best = name
-      bestLen = parts.length
-    }
-  }
-  return best ?? 'Irregular opening'
-}
 
 /** Pull the named headers straight out of the PGN text, only what exists. */
 function pgnHeaders(text: string): { white?: string; black?: string; result?: string; date?: string } {
@@ -797,5 +792,288 @@ function EvalGraph({ evals, cursor, onSeek }: { evals: PlyEval[]; cursor: number
         <line x1={(cursor / Math.max(1, evals.length - 1)) * W} y1="0" x2={(cursor / Math.max(1, evals.length - 1)) * W} y2={H} stroke="#ca3431" strokeWidth="0.5" />
       )}
     </svg>
+  )
+}
+
+/* ---------------- copy report ---------------- */
+
+function CopyReportButton({ buildText }: { buildText: () => string }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <Button
+      variant="secondary"
+      size="icon"
+      className="h-9 w-9 shrink-0 self-stretch"
+      aria-label="Copy report"
+      title="Copy report"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(buildText())
+          setCopied(true)
+          setTimeout(() => setCopied(false), 1600)
+        } catch {
+          /* clipboard blocked, nothing to do */
+        }
+      }}
+    >
+      {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+    </Button>
+  )
+}
+
+/** Plain-text shareable summary. Only numbers this report actually computed. */
+function reportText(r: {
+  white: string
+  black: string
+  result: string | null
+  opening: string
+  whiteAcc: number | null
+  blackAcc: number | null
+  evals: PlyEval[]
+  moments: { index: number; eval: PlyEval }[]
+}): string {
+  const lines: string[] = []
+  lines.push(`ChessX game report: ${r.white} vs ${r.black}`)
+  if (r.result) lines.push(`Result: ${r.result}`)
+  lines.push(`Opening: ${r.opening}`)
+  if (r.whiteAcc != null && r.blackAcc != null) {
+    lines.push(`Accuracy: ${r.whiteAcc}% White, ${r.blackAcc}% Black`)
+  }
+  const quality = (color: 'w' | 'b') => {
+    const c: Record<string, number> = {}
+    for (const e of r.evals.filter((x) => x.color === color)) c[e.label] = (c[e.label] ?? 0) + 1
+    return c
+  }
+  const fmt = (c: Record<string, number>) =>
+    (['brilliant', 'best', 'excellent', 'good', 'inaccuracy', 'mistake', 'blunder'] as Label[])
+      .map((l) => `${LABEL_META[l].text} ${c[l] ?? 0}`)
+      .join(', ')
+  lines.push('')
+  lines.push(`White moves: ${fmt(quality('w'))}`)
+  lines.push(`Black moves: ${fmt(quality('b'))}`)
+  if (r.moments.length) {
+    lines.push('')
+    lines.push('Key moments:')
+    for (const { index, eval: e } of r.moments) {
+      lines.push(`  ${Math.floor(index / 2) + 1}. ${e.san} (${e.color === 'w' ? 'White' : 'Black'}): ${LABEL_META[e.label].text}. ${reasonFor(e)}`)
+    }
+  }
+  return lines.join('\n')
+}
+
+/* ---------------- insights ---------------- */
+
+interface InsightsGame {
+  id: string
+  botName: string
+  color: string
+  result: string
+  rated: boolean
+  opening: string | null
+  playerAcc: number | null
+  createdAt: string
+}
+
+interface InsightsData {
+  games: InsightsGame[]
+  labels: { inaccuracy: number; mistake: number; blunder: number; brilliant: number; best: number; excellent: number; good: number } | null
+  openings: { opening: string; games: number; wins: number; losses: number; draws: number; avgAcc: number | null }[]
+  timeOfDay: { bucket: string; games: number; wins: number; avgAcc: number | null }[]
+}
+
+function InsightsPanel() {
+  const [data, setData] = useState<InsightsData | null>(null)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/insights')
+      .then((r) => r.json())
+      .then((d) => {
+        setData(d)
+        setLoaded(true)
+      })
+      .catch(() => setLoaded(true))
+  }, [])
+
+  if (!loaded) {
+    return (
+      <div className="flex items-center justify-center py-16 text-muted-foreground">
+        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading your insights…
+      </div>
+    )
+  }
+
+  const analyzed = data?.games.filter((g) => g.playerAcc != null) ?? []
+  if (analyzed.length === 0) {
+    return (
+      <div className="mx-auto max-w-xl rounded-xl bg-card p-8 text-center shadow-sm">
+        <h2 className="font-display text-xl font-extrabold">No analyzed games yet</h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          Play a game in the Play tab, press Game review, then Analyze game. Insights build from
+          the reports of games you actually play here, never from invented filler.
+        </p>
+      </div>
+    )
+  }
+
+  const accs = analyzed.map((g) => g.playerAcc as number)
+  const avgAcc = Math.round((accs.reduce((a, b) => a + b, 0) / accs.length) * 10) / 10
+  const wins = analyzed.filter((g) => g.result === 'win').length
+  const losses = analyzed.filter((g) => g.result === 'loss').length
+  const draws = analyzed.length - wins - losses
+  const labels = data?.labels
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-lg bg-card p-4 text-center shadow-sm">
+          <div className="font-display text-3xl font-extrabold">{avgAcc}%</div>
+          <div className="text-xs text-muted-foreground">Average accuracy</div>
+        </div>
+        <div className="rounded-lg bg-card p-4 text-center shadow-sm">
+          <div className="font-display text-3xl font-extrabold">{analyzed.length}</div>
+          <div className="text-xs text-muted-foreground">Analyzed games</div>
+        </div>
+        <div className="rounded-lg bg-card p-4 text-center shadow-sm">
+          <div className="font-display text-3xl font-extrabold">
+            {wins}<span className="text-base text-muted-foreground">/{draws}/{losses}</span>
+          </div>
+          <div className="text-xs text-muted-foreground">Win / draw / loss</div>
+        </div>
+      </div>
+
+      <AccuracyTrend games={analyzed} />
+
+      {labels && (
+        <div className="rounded-lg bg-card p-4 shadow-sm">
+          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Your move quality mix</div>
+          <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-4">
+            {(['brilliant', 'best', 'excellent', 'good', 'inaccuracy', 'mistake', 'blunder'] as Label[]).map((l) => (
+              <div key={l} className="flex items-center justify-between text-sm">
+                <span className="flex items-center gap-1.5 text-muted-foreground">
+                  <span className="h-2 w-2 rounded-full" style={{ background: LABEL_META[l].bg }} />
+                  {LABEL_META[l].text}
+                </span>
+                <span className="font-bold">{labels[l]}</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">Every move you played in analyzed games, counted by the report.</p>
+        </div>
+      )}
+
+      <OpeningTable rows={data?.openings ?? []} />
+
+      <TimeOfDay rows={data?.timeOfDay ?? []} />
+    </div>
+  )
+}
+
+/** Accuracy per analyzed game, oldest to newest, drawn as an honest line. */
+function AccuracyTrend({ games }: { games: InsightsGame[] }) {
+  const pts = games.map((g, i) => ({ i, acc: g.playerAcc as number, g }))
+  const W = 100
+  const H = 36
+  const min = Math.min(...pts.map((p) => p.acc), 40)
+  const max = Math.max(...pts.map((p) => p.acc), 100)
+  const x = (i: number) => (pts.length === 1 ? W / 2 : (i / (pts.length - 1)) * W)
+  const y = (a: number) => H - 3 - ((a - min) / Math.max(1, max - min)) * (H - 8)
+  const line = pts.map((p, i) => `${x(i)},${y(p.acc)}`).join(' ')
+  return (
+    <div className="rounded-lg bg-card p-4 shadow-sm">
+      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Accuracy trend</div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="mt-2 h-28 w-full" preserveAspectRatio="none">
+        {pts.length > 1 && <polyline points={`0,${H} ${line} ${W},${H}`} fill="rgba(130,182,76,0.15)" stroke="none" />}
+        <polyline points={line} fill="none" stroke="#81b64c" strokeWidth="0.8" />
+        {pts.map((p, i) => (
+          <circle key={p.g.id} cx={x(i)} cy={y(p.acc)} r="1" fill="#81b64c" />
+        ))}
+      </svg>
+      <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+        <span>oldest</span>
+        <span>{pts.length} game{pts.length === 1 ? '' : 's'}, {pts[0].acc}% to {pts[pts.length - 1].acc}%</span>
+        <span>newest</span>
+      </div>
+      <div className="mt-2 space-y-1">
+        {[...pts].reverse().slice(0, 5).map((p) => (
+          <div key={p.g.id} className="flex items-center gap-2 text-xs">
+            <span className="w-20 shrink-0 text-muted-foreground">
+              {new Date(p.g.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </span>
+            <span className="min-w-0 flex-1 truncate font-semibold">vs {p.g.botName}</span>
+            <span className={cn('font-bold', p.g.result === 'win' ? 'text-primary' : p.g.result === 'loss' ? 'text-destructive' : 'text-muted-foreground')}>
+              {p.g.result === 'win' ? 'Win' : p.g.result === 'loss' ? 'Loss' : 'Draw'}
+            </span>
+            <span className="w-12 text-right font-mono font-bold">{p.acc}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function OpeningTable({ rows }: { rows: InsightsData['openings'] }) {
+  if (rows.length === 0) return null
+  return (
+    <div className="rounded-lg bg-card p-4 shadow-sm">
+      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Openings you actually played</div>
+      <div className="mt-2 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-xs text-muted-foreground">
+              <th className="py-1.5 font-semibold">Opening</th>
+              <th className="py-1.5 text-center font-semibold">Games</th>
+              <th className="py-1.5 text-center font-semibold">W/D/L</th>
+              <th className="py-1.5 text-right font-semibold">Avg accuracy</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.opening} className="border-t border-border/60">
+                <td className="py-1.5 font-semibold">{r.opening}</td>
+                <td className="py-1.5 text-center">{r.games}</td>
+                <td className="py-1.5 text-center tabular-nums">{r.wins}/{r.draws}/{r.losses}</td>
+                <td className="py-1.5 text-right font-mono">{r.avgAcc != null ? `${Math.round(r.avgAcc)}%` : '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+const TIME_BUCKETS: { bucket: string; hint: string }[] = [
+  { bucket: 'morning', hint: '5:00 to 12:00' },
+  { bucket: 'afternoon', hint: '12:00 to 17:00' },
+  { bucket: 'evening', hint: '17:00 to 22:00' },
+  { bucket: 'night', hint: '22:00 to 5:00' },
+]
+
+function TimeOfDay({ rows }: { rows: InsightsData['timeOfDay'] }) {
+  const max = Math.max(1, ...rows.map((r) => r.games))
+  const hintFor = (bucket: string) => TIME_BUCKETS.find((b) => b.bucket === bucket)?.hint
+  return (
+    <div className="rounded-lg bg-card p-4 shadow-sm">
+      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">When you play your best</div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-4">
+        {rows.map((r) => (
+          <div key={r.bucket} className="rounded-md bg-secondary/60 p-3">
+            <div className="flex items-baseline justify-between">
+              <span className="text-sm font-bold capitalize">{r.bucket}</span>
+              <span className="text-xs text-muted-foreground">{r.games} game{r.games === 1 ? '' : 's'}</span>
+            </div>
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded bg-secondary">
+              <div className="h-full bg-primary" style={{ width: `${(r.games / max) * 100}%` }} />
+            </div>
+            <div className="mt-1.5 text-xs text-muted-foreground">
+              {r.avgAcc != null ? `${Math.round(r.avgAcc)}% avg accuracy` : 'no reports yet'}
+              {r.games > 0 ? ` · ${r.wins} won` : ''}
+            </div>
+            <div className="text-[10px] text-muted-foreground/70">your hours: {hintFor(r.bucket)}</div>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
