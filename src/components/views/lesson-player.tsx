@@ -980,6 +980,7 @@ function GtmStepView({
   const [results, setResults] = useState<Array<'full' | 'half' | 'none'>>([])
   const [feedback, setFeedback] = useState<{ tone: 'praise' | 'guide' | 'hint'; text: string } | null>(null)
   const [phase, setPhase] = useState<'guess' | 'done'>('guess')
+  const [locked, setLocked] = useState(false)
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null)
   const [flashes, setFlashes] = useState<FlashMark[]>([])
   const [shake, setShake] = useState(false)
@@ -1012,6 +1013,7 @@ function GtmStepView({
   const advanceAfter = useCallback(
     (cur: GtmStep['moves'][number]) => {
       lockedRef.current = true
+      setLocked(true)
       later(() => {
         const g = gameRef.current
         if (cur.reply) {
@@ -1027,11 +1029,13 @@ function GtmStepView({
           }
           later(() => {
             lockedRef.current = false
+            setLocked(false)
             setIdx((i) => i + 1)
             setMisses(0)
           }, 650)
         } else {
           lockedRef.current = false
+          setLocked(false)
           setPhase('done')
           onPass()
         }
@@ -1126,6 +1130,7 @@ function GtmStepView({
     timers.current.forEach(clearTimeout)
     timers.current = []
     lockedRef.current = false
+    setLocked(false)
     gameRef.current = new Chess(startFen)
     setFen(startFen)
     setIdx(0)
@@ -1159,11 +1164,11 @@ function GtmStepView({
           fen={fen}
           orientation={guessSide}
           onMove={onMove}
-          movableSide={phase === 'guess' && !lockedRef.current ? guessSide : undefined}
-          interactive={phase === 'guess' && !lockedRef.current}
+          movableSide={phase === 'guess' && !locked ? guessSide : undefined}
+          interactive={phase === 'guess' && !locked}
           lastMove={lastMove}
           checkSquare={checkSquare}
-          showLegal={showLegal && phase === 'guess' && !lockedRef.current}
+          showLegal={showLegal && phase === 'guess' && !locked}
           flashes={flashes}
           theme={theme}
           shake={shake}
