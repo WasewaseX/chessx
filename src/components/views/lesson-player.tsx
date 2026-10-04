@@ -12,7 +12,8 @@ import { Button } from '@/components/ui/button'
 import { CoachDrawer } from '@/components/views/coach-drawer'
 import { SpeakButton } from '@/components/chess/speak-button'
 import { CharacterFace } from '@/components/chess/characters'
-import { coachById, type Coach } from '@/lib/coaches'
+import { coachMaybe, type Coach } from '@/lib/coaches'
+import { CoachCards, usePickCoach } from '@/components/shell/coach-choice'
 import { cn } from '@/lib/utils'
 import {
   ArrowLeft,
@@ -27,7 +28,9 @@ import {
   Sparkles,
   CircleAlert,
 } from 'lucide-react'
-/* Coach character bubble: face + speech bubble, with an option to hear it */
+/* Coach character bubble: face + speech bubble, with an option to hear it.
+   No coach chosen yet? The bubble becomes the chooser: nothing speaks until
+   the player picks who mentors them. */
 function CoachBubble({
   tone,
   chip,
@@ -37,10 +40,21 @@ function CoachBubble({
 }: {
   tone: 'praise' | 'guide' | 'hint' | 'neutral'
   chip?: string
-  coach: Coach
+  coach?: Coach
   speakText?: string
   children: React.ReactNode
 }) {
+  const { pick, busyId } = usePickCoach()
+  if (!coach) {
+    return (
+      <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-3">
+        <p className="text-sm font-semibold">Pick your coach. Every hint and success message is theirs.</p>
+        <div className="mt-2.5">
+          <CoachCards value={busyId} onChange={(id) => void pick(id)} columns={2} compact />
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="flex items-start gap-2.5">
       <CharacterFace id={coach.id} label={coach.name} className="h-11 w-11 shrink-0 rounded-full border-2 border-primary/60 shadow-sm" />
@@ -81,7 +95,7 @@ function CoachBubble({
 
 export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const { navigate, profile } = useApp()
-  const coach = coachById(profile?.coach ?? 'nina')
+  const coach = coachMaybe(profile?.coach)
   const found = findLevel(lessonId)
   const [stepIdx, setStepIdx] = useState(0)
   const [canAdvance, setCanAdvance] = useState(false)
@@ -314,7 +328,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
 /* ---------------- step views ---------------- */
 
-function TextStepView({ step, coach, onReady }: { step: Extract<LessonStep, { type: 'text' }>; coach: Coach; onReady: () => void }) {
+function TextStepView({ step, coach, onReady }: { step: Extract<LessonStep, { type: 'text' }>; coach?: Coach; onReady: () => void }) {
   useEffect(() => {
     onReady()
   }, [onReady, step])
@@ -323,7 +337,7 @@ function TextStepView({ step, coach, onReady }: { step: Extract<LessonStep, { ty
     <div className="rounded-lg bg-card p-6 shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <h2 className="font-display text-xl font-bold">{step.title}</h2>
-        <SpeakButton text={spoken} voice={coach.voice} speed={coach.speed} />
+        {coach && <SpeakButton text={spoken} voice={coach.voice} speed={coach.speed} />}
       </div>
       <div className="mt-3 space-y-3">
         {step.body.map((p, i) => (
@@ -341,7 +355,7 @@ function TextStepView({ step, coach, onReady }: { step: Extract<LessonStep, { ty
   )
 }
 
-function DemoTextView({ step, coach, onReady }: { step: Extract<LessonStep, { type: 'demo' }>; coach: Coach; onReady: () => void }) {
+function DemoTextView({ step, coach, onReady }: { step: Extract<LessonStep, { type: 'demo' }>; coach?: Coach; onReady: () => void }) {
   useEffect(() => {
     onReady()
   }, [onReady, step])
@@ -349,7 +363,7 @@ function DemoTextView({ step, coach, onReady }: { step: Extract<LessonStep, { ty
     <div className="rounded-lg bg-card p-6 shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <h2 className="font-display text-xl font-bold">{step.title}</h2>
-        <SpeakButton text={step.body.join(' ')} voice={coach.voice} speed={coach.speed} />
+        {coach && <SpeakButton text={step.body.join(' ')} voice={coach.voice} speed={coach.speed} />}
       </div>
       <div className="mt-3 space-y-3">
         {step.body.map((p, i) => (
@@ -626,7 +640,7 @@ function ExerciseView({
 }: {
   step: ExerciseStep
   lessonTitle: string
-  coach: Coach
+  coach?: Coach
   onPass: () => void
   soundEnabled: boolean
   showLegal: boolean
@@ -925,7 +939,7 @@ function PlayoutStepView({
 }: {
   step: Extract<LessonStep, { type: 'playout' }>
   level: number
-  coach: Coach
+  coach?: Coach
   onPass: () => void
   soundEnabled: boolean
   showLegal: boolean

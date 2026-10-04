@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SpeakButton } from '@/components/chess/speak-button'
 import { CharacterFace } from '@/components/chess/characters'
-import { coachById } from '@/lib/coaches'
+import { coachMaybe } from '@/lib/coaches'
+import { CoachChoice } from '@/components/shell/coach-choice'
 import { cn } from '@/lib/utils'
 import {
   ArrowLeftRight,
@@ -53,7 +54,7 @@ function sanLine(sans: string[]): string {
 
 export function CoachView() {
   const { profile, navigate } = useApp()
-  const coach = coachById(profile?.coach ?? 'nina')
+  const coach = coachMaybe(profile?.coach)
   const gameRef = useRef(new Chess())
   const [fen, setFen] = useState(gameRef.current.fen())
   const [sans, setSans] = useState<string[]>([])
@@ -287,7 +288,7 @@ export function CoachView() {
     </div>
   )
 
-  const chatPanel = (
+  const chatPanel = coach ? (
     <div className="flex h-[560px] flex-col overflow-hidden rounded-lg bg-card shadow-sm lg:h-[640px]">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2.5">
@@ -428,7 +429,17 @@ export function CoachView() {
         </form>
       </div>
     </div>
-  )
+  ) : null
+
+  if (!coach) {
+    return (
+      <div className="mx-auto w-full max-w-6xl px-4 py-6">
+        <h1 className="font-display text-2xl font-extrabold">Coach</h1>
+        <p className="mb-2 mt-1 text-sm text-muted-foreground">Your coach guides every chat, lesson and review. Pick who fits you, switch any time.</p>
+        <CoachChoice />
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6">

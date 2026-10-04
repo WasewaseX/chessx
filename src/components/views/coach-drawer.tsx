@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SpeakButton } from '@/components/chess/speak-button'
 import { CharacterFace } from '@/components/chess/characters'
-import { coachById } from '@/lib/coaches'
+import { coachMaybe } from '@/lib/coaches'
+import { CoachChoice } from '@/components/shell/coach-choice'
 import { cn } from '@/lib/utils'
 import { Send, X } from 'lucide-react'
 
@@ -40,7 +41,7 @@ export function CoachDrawer({
   const [error, setError] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const { profile } = useApp()
-  const coach = coachById(profile?.coach ?? 'nina')
+  const coach = coachMaybe(profile?.coach)
 
   // fresh thread per open
   useEffect(() => {
@@ -57,6 +58,10 @@ export function CoachDrawer({
   async function send() {
     const text = input.trim()
     if (!text || busy) return
+    if (!coach) {
+      setError('Pick a coach first. They answer here and in your lessons.')
+      return
+    }
     setInput('')
     setError(null)
     const next: Msg[] = [...messages, { role: 'user', content: text }]
@@ -93,13 +98,19 @@ export function CoachDrawer({
     >
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <CharacterFace id={coach.id} label={coach.name} className="h-9 w-9 shrink-0 rounded-full border border-primary/50" />
-          <div>
-            <div className="text-sm font-bold leading-4">{coach.name}</div>
-            <div className="text-[11px] text-muted-foreground">
-              {profile?.aiProvider && profile.aiProvider !== 'builtin' ? 'Your own API key' : 'ChessX AI'}
-            </div>
-          </div>
+          {coach ? (
+            <>
+              <CharacterFace id={coach.id} label={coach.name} className="h-9 w-9 shrink-0 rounded-full border border-primary/50" />
+              <div>
+                <div className="text-sm font-bold leading-4">{coach.name}</div>
+                <div className="text-[11px] text-muted-foreground">
+                  {profile?.aiProvider && profile.aiProvider !== 'builtin' ? 'Your own API key' : 'ChessX AI'}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="text-sm font-bold leading-4">Coach</div>
+          )}
         </div>
         <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} aria-label="Close coach">
           <X className="h-4 w-4" />
@@ -107,7 +118,9 @@ export function CoachDrawer({
       </div>
 
       <div ref={scrollRef} className="scroll-slim flex-1 space-y-3 overflow-y-auto p-4">
-        {messages.length === 0 && (
+        {!coach ? (
+          <CoachChoice layout="panel" title="Pick your coach" subtitle="They answer here and in your lessons. You can switch any time in Settings." />
+        ) : messages.length === 0 && (
           <div className="rounded-md bg-secondary p-3 text-sm text-muted-foreground">
             {context.lessonTitle
               ? `You're in "${context.lessonTitle}". Ask about the current position, the idea behind a move, or anything from the lesson.`
@@ -116,7 +129,7 @@ export function CoachDrawer({
         )}
         {messages.map((m, i) => (
           <div key={i} className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
-            {m.role === 'assistant' && (
+            {m.role === 'assistant' && coach && (
               <CharacterFace id={coach.id} className="mr-2 mt-1 h-7 w-7 shrink-0 rounded-full" />
             )}
             <div
@@ -127,7 +140,7 @@ export function CoachDrawer({
             >
               {m.content}
             </div>
-            {m.role === 'assistant' && <SpeakButton text={m.content} voice={coach.voice} speed={coach.speed} className="ml-1 mt-0.5" />}
+            {m.role === 'assistant' && coach && <SpeakButton text={m.content} voice={coach.voice} speed={coach.speed} className="ml-1 mt-0.5" />}
           </div>
         ))}
         {busy && <div className="text-sm text-muted-foreground">Thinking…</div>}

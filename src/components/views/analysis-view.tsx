@@ -33,6 +33,7 @@ interface PlyEval {
   /** eval after the move, white POV pawns */
   after: number
   bestUci: string | null
+  bestSan: string | null
   label: Label
 }
 
@@ -310,13 +311,21 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
       // eval before the move
       const beforeRes = await engine.eval({ fen: p.fenBefore, depth: 12 })
       const turn = gBefore.turn()
-      const beforeWhite = beforeRes.mate != null ? (beforeRes.mate > 0 ? 80 : -80) : ((turn === 'w' ? beforeRes.scoreCp ?? 0 : -(beforeRes.scoreCp ?? 0)) / 100)
+      // engine mate scores are side-to-move POV; mate 0 means mated right now
+      const mateToWhite = (m: number, t: 'w' | 'b') => (t === 'w' ? (m > 0 ? 80 : -80) : (m > 0 ? -80 : 80))
+      const beforeWhite = beforeRes.mate != null ? mateToWhite(beforeRes.mate, turn) : ((turn === 'w' ? beforeRes.scoreCp ?? 0 : -(beforeRes.scoreCp ?? 0)) / 100)
 
       const gAfter = new Chess(p.fenBefore)
       gAfter.move(p.san)
-      const afterRes = await engine.eval({ fen: gAfter.fen(), depth: 12 })
       const afterTurn = gAfter.turn()
-      const afterWhite = afterRes.mate != null ? (afterRes.mate > 0 ? 80 : -80) : ((afterTurn === 'w' ? afterRes.scoreCp ?? 0 : -(afterRes.scoreCp ?? 0)) / 100)
+      // terminal positions: score from the game state, the engine has nothing to add
+      let afterWhite: number
+      if (gAfter.isCheckmate()) afterWhite = afterTurn === 'w' ? -80 : 80
+      else if (gAfter.isGameOver()) afterWhite = 0
+      else {
+        const afterRes = await engine.eval({ fen: gAfter.fen(), depth: 12 })
+        afterWhite = afterRes.mate != null ? mateToWhite(afterRes.mate, afterTurn) : ((afterTurn === 'w' ? afterRes.scoreCp ?? 0 : -(afterRes.scoreCp ?? 0)) / 100)
+      }
 
       // drop from mover's POV
       const beforePov = p.color === 'w' ? beforeWhite : -beforeWhite
@@ -334,18 +343,32 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
           isBest = false
         }
       }
+      const bestSan: string | null = (() => {
+        if (!beforeRes.pv.length) return null
+        try {
+          const test = new Chess(p.fenBefore)
+          return test.move({ from: beforeRes.pv[0].slice(0, 2), to: beforeRes.pv[0].slice(2, 4), promotion: beforeRes.pv[0].slice(4, 5) || undefined })?.san ?? null
+        } catch {
+          return null
+        }
+      })()
 
-      // sacrifice detection: move gives up material immediately
-      const moved = gBefore.get(gAfter.history({ verbose: true })[gAfter.history().length - 1]?.from as never)
-      void moved
+      // sacrifice detection: the move gives up material AND the opponent can
+      // actually take the piece, otherwise every quiet knight move would count
       const mv = gAfter.history({ verbose: true })[gAfter.history({ verbose: true }).length - 1]
       const pieceVals: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 }
       const capturedVal = mv?.captured ? pieceVals[mv.captured] : 0
       const movedVal = mv ? pieceVals[mv.piece] : 0
-      const immediateSac = movedVal - capturedVal >= 3
+      const givesMaterial = movedVal - capturedVal >= 3
+      const canBeTaken = mv
+        ? gAfter
+            .moves({ verbose: true })
+            .some((m: { to: string; flags: string }) => m.to === mv.to && /[ce]/.test(m.flags))
+        : false
+      const realSac = givesMaterial && canBeTaken
 
       let label: Label
-      if (isBest && immediateSac && afterPov >= beforePov - 0.4) label = 'brilliant'
+      if (isBest && realSac && afterPov >= beforePov - 0.4) label = 'brilliant'
       else if (isBest) label = 'best'
       else if (drop < 0.15) label = 'excellent'
       else if (drop < 0.5) label = 'good'
@@ -353,7 +376,7 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
       else if (drop < 2.5) label = 'mistake'
       else label = 'blunder'
 
-      results.push({ san: p.san, color: p.color, before: Math.round(beforeWhite * 100) / 100, after: Math.round(afterWhite * 100) / 100, bestUci: beforeRes.pv[0] ?? null, label })
+      results.push({ san: p.san, color: p.color, before: Math.round(beforeWhite * 100) / 100, after: Math.round(afterWhite * 100) / 100, bestUci: beforeRes.pv[0] ?? null, bestSan, label })
       prevWhitePov = afterWhite
       void prevWhitePov
       setEvals([...results])
@@ -373,9 +396,12 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
   }, [plies.length])
 
   const shownFen = cursor >= 0 && cursor < plies.length ? fenAfterPly(plies, cursor, startFen) : cursor === -1 ? startFen : startFen
-  const shownLast = cursor >= 0 ? null : null
   const lastPly = cursor >= 0 ? plies[cursor] : null
   const plyEval = cursor >= 0 ? evals[cursor] : null
+  const headers = useMemo(() => pgnHeaders(pgn), [pgn])
+  const opening = useMemo(() => detectOpening(plies.map((p) => p.san)), [plies])
+  const result = resultText(headers.result)
+  const moments = useMemo(() => keyMoments(evals), [evals])
 
   const whiteLosses = evals.filter((e) => e.color === 'w').map((e) => Math.max(0, (e.color === 'w' ? e.before : -e.before) - (e.color === 'w' ? e.after : -e.after)))
   const blackLosses = evals.filter((e) => e.color === 'b').map((e) => Math.max(0, (e.color === 'b' ? -e.before : e.before) - (e.color === 'b' ? -e.after : e.after)))
@@ -397,7 +423,7 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
             <ChessBoard
               fen={shownFen}
               interactive={false}
-              lastMove={lastPly ? (shownLast ?? extractLastMove(plies, cursor)) : null}
+              lastMove={lastPly ? extractLastMove(plies, cursor) : null}
             />
             <div className="mt-2 flex items-center justify-center gap-2">
               <Button variant="secondary" size="sm" onClick={() => setCursor(-1)} disabled={cursor === -1}>
@@ -453,11 +479,24 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
           <>
             <div className="rounded-lg bg-card p-4 shadow-sm">
               <div className="flex items-center justify-between">
-                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Review</div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Game report</div>
                 {analyzing && (
                   <span className="text-sm font-semibold text-muted-foreground">{progress}%</span>
                 )}
               </div>
+              {(headers.white || headers.black || result) && (
+                <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm">
+                  {headers.white && <span className="font-bold">{headers.white}</span>}
+                  {headers.white && headers.black && <span className="text-xs text-muted-foreground">vs</span>}
+                  {headers.black && <span className="font-bold">{headers.black}</span>}
+                  {result && <span className="ml-auto rounded bg-secondary px-1.5 py-0.5 text-xs font-bold">{result}</span>}
+                </div>
+              )}
+              {plies.length > 0 && (
+                <div className="mt-1 text-xs text-muted-foreground">
+                  Opening: <span className="font-semibold text-foreground">{opening}</span>
+                </div>
+              )}
               {whiteAcc != null ? (
                 <div className="mt-2 grid grid-cols-2 gap-3 text-center">
                   <div>
@@ -524,11 +563,38 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
                     {plyEval.before > 0 ? '+' : ''}{plyEval.before.toFixed(1)} → {plyEval.after > 0 ? '+' : ''}{plyEval.after.toFixed(1)}
                   </span>
                 </div>
-                {plyEval.label === 'blunder' && (
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Engine preferred <span className="font-mono font-bold text-foreground">{plyEval.bestUci?.slice(0, 2)}–{plyEval.bestUci?.slice(2, 4)}</span>. The gap is bigger than 2.5 points.
-                  </p>
+                {(plyEval.label === 'blunder' || plyEval.label === 'mistake' || plyEval.label === 'inaccuracy' || plyEval.label === 'brilliant') && (
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{reasonFor(plyEval)}</p>
                 )}
+              </div>
+            )}
+
+            {moments.length > 0 && (
+              <div className="rounded-lg bg-card p-4 shadow-sm">
+                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Key moments</div>
+                <div className="mt-2 space-y-1">
+                  {moments.map(({ index, eval: e }) => (
+                    <button
+                      key={index}
+                      onClick={() => setCursor(index)}
+                      className="pressable flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left hover:bg-accent"
+                    >
+                      <span
+                        className="mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase text-white"
+                        style={{ background: LABEL_META[e.label].bg }}
+                      >
+                        {LABEL_META[e.label].text}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-bold">
+                          {moveNumber(index)}. {e.san}
+                          <span className="ml-1 font-normal text-muted-foreground">({e.color === 'w' ? 'White' : 'Black'})</span>
+                        </span>
+                        <span className="block text-xs leading-snug text-muted-foreground">{reasonFor(e)}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -558,6 +624,132 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
       </div>
     </div>
   )
+}
+
+/* ---------------- game report helpers ---------------- */
+
+// Compact opening table: longest matching SAN prefix wins.
+const OPENINGS: [string, string][] = [
+  ['e4 e5 nf3 nc6 bb5', 'Ruy Lopez'],
+  ['e4 e5 nf3 nc6 bc4', 'Italian Game'],
+  ['e4 e5 nf3 nc6 d4', 'Scotch Game'],
+  ['e4 e5 nf3 nf6', 'Petrov Defence'],
+  ['e4 e5 nf3 d6', 'Philidor Defence'],
+  ['e4 e5 nc3', 'Vienna Game'],
+  ['e4 e5 f4', "King's Gambit"],
+  ['e4 e5 bc4', "Bishop's Opening"],
+  ['e4 e5 d4', 'Center Game'],
+  ['e4 c5 nf3 d6', 'Sicilian, Open'],
+  ['e4 c5 nf3 nc6', 'Sicilian, Old'],
+  ['e4 c5 nf3 e6', 'Sicilian, French Variation'],
+  ['e4 c5', 'Sicilian Defence'],
+  ['e4 e6', 'French Defence'],
+  ['e4 c6', 'Caro-Kann Defence'],
+  ['e4 d5', 'Scandinavian Defence'],
+  ['e4 nf6', 'Alekhine Defence'],
+  ['e4 d6', 'Pirc Defence'],
+  ['e4 g6', 'Modern Defence'],
+  ['d4 d5 c4 e6', "Queen's Gambit Declined"],
+  ['d4 d5 c4 c6', 'Slav Defence'],
+  ['d4 d5 c4 dxc4', "Queen's Gambit Accepted"],
+  ['d4 d5 c4', "Queen's Gambit"],
+  ['d4 nf6 c4 g6', "King's Indian Defence"],
+  ['d4 nf6 c4 e6 nc3 bb4', 'Nimzo-Indian Defence'],
+  ['d4 nf6 c4 b6', "Queen's Indian Defence"],
+  ['d4 nf6 c4', 'Indian Game'],
+  ['d4 f5', 'Dutch Defence'],
+  ['d4 d5 nf3', "Queen's Pawn Game"],
+  ['d4 d5', "Queen's Pawn Game"],
+  ['nf3 d5 g3', 'Réti Opening'],
+  ['nf3 d5 c4', 'Réti Opening'],
+  ['nf3', 'Zukertort Opening'],
+  ['c4', 'English Opening'],
+  ['g3', 'Benko Opening'],
+  ['b3', 'Nimzo-Larsen Attack'],
+  ['f4', "Bird's Opening"],
+  ['e4 e5', "King's Pawn Game"],
+  ['e4', "King's Pawn Opening"],
+  ['d4', "Queen's Pawn Opening"],
+]
+
+function detectOpening(sans: string[]): string {
+  const seq = sans.slice(0, 8).map((s) => s.replace(/[+#]/g, '').toLowerCase())
+  let best: string | null = null
+  let bestLen = 0
+  for (const [prefix, name] of OPENINGS) {
+    const parts = prefix.split(' ')
+    if (seq.length < parts.length) continue
+    if (parts.every((p, i) => seq[i] === p) && parts.length > bestLen) {
+      best = name
+      bestLen = parts.length
+    }
+  }
+  return best ?? 'Irregular opening'
+}
+
+/** Pull the named headers straight out of the PGN text, only what exists. */
+function pgnHeaders(text: string): { white?: string; black?: string; result?: string; date?: string } {
+  const pick = (key: string) => {
+    const m = text.match(new RegExp(`\\[${key} "([^"]*)"\\]`))
+    const v = m?.[1]?.trim()
+    return v && v !== '?' && v !== '' ? v : undefined
+  }
+  return { white: pick('White'), black: pick('Black'), result: pick('Result'), date: pick('Date') }
+}
+
+function resultText(r?: string): string | null {
+  if (r === '1-0') return 'White won'
+  if (r === '0-1') return 'Black won'
+  if (r === '1/2-1/2') return 'Draw'
+  return null
+}
+
+function moveNumber(plyIndex: number): number {
+  return Math.floor(plyIndex / 2) + 1
+}
+
+/** One honest line per key move, generated from the numbers we already have. */
+function reasonFor(e: PlyEval): string {
+  const drop = Math.max(0, (e.color === 'w' ? e.before : -e.before) - (e.color === 'w' ? e.after : -e.after))
+  const best = e.bestSan
+  switch (e.label) {
+    case 'brilliant':
+      return `A real sacrifice: the piece can be taken, but the engine confirms ${e.san} still works.`
+    case 'blunder': {
+      const swing = Math.abs(e.after - e.before)
+      const winning = e.color === 'w' ? e.after >= 3 : e.after <= -3
+      if (swing >= 20) {
+        return best
+          ? `This decides the game by force. ${best} was the shot instead.`
+          : 'This walks into a forced finish.'
+      }
+      const base = best ? `The engine preferred ${best}` : 'The position swung hard against you'
+      return `${base}. The swing is ${swing.toFixed(1)} points${winning ? ' and hands the opponent a winning position' : ''}.`
+    }
+    case 'mistake':
+      return best ? `Costs about ${drop.toFixed(1)} points. ${best} was stronger.` : `Costs about ${drop.toFixed(1)} points.`
+    case 'inaccuracy':
+      return best ? `A slight drift, about ${drop.toFixed(1)} points. ${best} keeps more of an edge.` : `A slight drift, about ${drop.toFixed(1)} points.`
+    default:
+      return best ? `Solid, though ${best} was marginally sharper.` : 'Solid move.'
+  }
+}
+
+interface KeyMoment {
+  index: number
+  eval: PlyEval
+}
+
+/** The plies worth talking about: the biggest swings plus any brilliancy. */
+function keyMoments(evals: PlyEval[]): KeyMoment[] {
+  const scored = evals.map((e, index) => {
+    const drop = Math.max(0, (e.color === 'w' ? e.before : -e.before) - (e.color === 'w' ? e.after : -e.after))
+    const interest = e.label === 'brilliant' ? 9 + drop : drop
+    return { index, eval: e, interest }
+  })
+  const interesting = scored.filter((s) => s.eval.label !== 'best' && s.eval.label !== 'excellent' && s.eval.label !== 'good')
+  interesting.sort((a, b) => b.interest - a.interest)
+  return interesting.slice(0, 4).map(({ index, eval: e }) => ({ index, eval: e }))
 }
 
 function fenAfterPly(plies: { san: string; fenBefore: string }[], cursor: number, startFen: string): string {

@@ -137,7 +137,7 @@ export function HomeView() {
 
         {/* Daily puzzle */}
         <button
-          className="rounded-lg bg-card p-5 text-left shadow-sm transition hover:shadow-md"
+          className="pressable rounded-lg bg-card p-5 text-left shadow-sm hover:shadow-md"
           onClick={() => navigate('puzzles')}
         >
           <div className="mb-3 flex items-center gap-2">
@@ -156,7 +156,7 @@ export function HomeView() {
 
         {/* Play */}
         <button
-          className="rounded-lg bg-card p-5 text-left shadow-sm transition hover:shadow-md"
+          className="pressable rounded-lg bg-card p-5 text-left shadow-sm hover:shadow-md"
           onClick={() => navigate('play')}
         >
           <div className="mb-3 flex items-center gap-2">
@@ -173,7 +173,7 @@ export function HomeView() {
 
         {/* Coach */}
         <button
-          className="rounded-lg bg-card p-5 text-left shadow-sm transition hover:shadow-md"
+          className="pressable rounded-lg bg-card p-5 text-left shadow-sm hover:shadow-md"
           onClick={() => navigate('coach')}
         >
           <div className="mb-3 flex items-center gap-2">
@@ -187,7 +187,7 @@ export function HomeView() {
 
         {/* Puzzles */}
         <button
-          className="rounded-lg bg-card p-5 text-left shadow-sm transition hover:shadow-md"
+          className="pressable rounded-lg bg-card p-5 text-left shadow-sm hover:shadow-md"
           onClick={() => navigate('puzzles')}
         >
           <div className="mb-3 flex items-center gap-2">

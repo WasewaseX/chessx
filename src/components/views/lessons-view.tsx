@@ -96,8 +96,8 @@ export function LessonsView() {
                     title={level.title}
                     aria-label={`Level ${level.n}: ${level.title}`}
                     className={cn(
-                      'group relative flex aspect-square flex-col items-center justify-center gap-0.5 rounded-lg border-2 text-center transition',
-                      isDone && 'border-transparent text-white shadow-sm',
+                      'pressable group relative flex aspect-square flex-col items-center justify-center gap-0.5 rounded-lg border-2 text-center',
+                      isDone && 'border-transparent text-white shadow-sm hover:brightness-105',
                       !isDone && isNext && 'border-primary bg-primary/10',
                       !isDone && !isNext && 'border-border bg-card hover:border-muted-foreground/40',
                     )}

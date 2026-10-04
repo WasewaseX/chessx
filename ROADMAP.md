@@ -39,7 +39,7 @@ Goal: a new user reaches their first 10 hours and comes back the next day.
 - Spaced repetition across levels and puzzles: missed items resurface on an improving schedule (SM-2 derived), both as review steps inside tiers and as a dedicated Review tab.
 - Puzzle engine upgrade: theme tags filter practice, per-theme Elo, streak freeze, Puzzle Rush mode (3 min / survival) and Puzzle Battle vs a bot clock (head to head on the same positions, first to the score wins).
 - Streaks and honest motivation: daily goal by minutes or puzzles, streak calendar, no fake numbers anywhere.
-- Game report v1 (the chess.com review experience): move classification (brilliant, best, good, inaccuracy, mistake, blunder) from Stockfish win-percentage deltas, accuracy per side, one-line coach comments per key move, shareable summary. This is the single most requested chess.com feature and it needs to be excellent.
+- Game report v1 (the chess.com review experience, shipped): move classification (brilliant, best, good, inaccuracy, mistake, blunder) from Stockfish win-percentage deltas, accuracy per side, opening name detection, players and result from PGN headers, a Key moments card with one-line reasons that jumps to the position, coach lines per key move. Mate positions scored from the game state so the final move can never poison the accuracy math. Still open: shareable summary and longer-game depth budgeting.
 - Insights v1: accuracy trend, common mistake tags, opening results table, time-of-day performance. Every number derived from your real games, never seeded.
 - Performance: eval cache per position, engine depth budgeting by position complexity, report generation under 20s for a 40-move game on a mid laptop.
 

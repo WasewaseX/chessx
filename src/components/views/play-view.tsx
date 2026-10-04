@@ -168,7 +168,7 @@ function Lobby({
           <button
             key={bot.level}
             onClick={() => onPlay(bot)}
-            className="group flex items-center gap-3 rounded-lg bg-card p-4 text-left shadow-sm transition hover:shadow-md"
+            className="pressable group flex items-center gap-3 rounded-lg bg-card p-4 text-left shadow-sm hover:shadow-md"
           >
             <BotFace bot={bot} className="h-12 w-12 shrink-0 border border-border/60 bg-secondary" />
             <div className="min-w-0">

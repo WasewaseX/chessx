@@ -68,6 +68,12 @@ export function coachById(id: string): Coach {
   return COACHES.find((c) => c.id === id) ?? COACHES[0]
 }
 
+/** The chosen coach, or undefined when the player has not picked one yet. Never falls back silently. */
+export function coachMaybe(id?: string | null): Coach | undefined {
+  if (!id) return undefined
+  return COACHES.find((c) => c.id === id)
+}
+
 /** The coach that best fits a tier number (1..6). */
 export function coachForTier(tier: number): Coach {
   return COACHES.find((c) => tier >= c.tiers[0] && tier <= c.tiers[1]) ?? COACHES[0]

@@ -70,7 +70,7 @@ export default function Page() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-sidebar">
         { }
-        <img src="/logo.svg" alt="ChessX" className="h-14 w-14 animate-pulse rounded-xl" />
+        <img src="/brand.svg" alt="ChessX" className="h-14 w-14 animate-pulse rounded-xl" />
       </div>
     )
   }

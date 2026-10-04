@@ -11,7 +11,7 @@ model Profile {
   id             String   @id @default("me")
   name           String   @default("Player")
   skillLevel     String   @default("beginner") // new | beginner | intermediate | advanced | expert
-  coach          String   @default("nina") // active coach: nina | victor | elena | sasha
+  coach          String   @default("") // chosen coach id, empty until the player picks one themselves
   onboarded      Boolean  @default(false)
   theme          String   @default("green") // board theme: green | brown | slate | walnut
   darkMode       String   @default("system") // light | dark | system

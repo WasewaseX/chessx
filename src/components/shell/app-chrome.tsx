@@ -39,10 +39,9 @@ export function Sidebar() {
         aria-label="ChessX home"
       >
         { }
-        <img src="/logo.svg" alt="ChessX" className="h-9 w-9 rounded-lg" />
+        <img src="/brand.svg" alt="ChessX" className="h-9 w-9 rounded-lg transition-transform duration-200 active:scale-90" />
         <div>
           <div className="font-display text-xl font-extrabold tracking-tight">ChessX</div>
-          <div className="-mt-0.5 text-[11px] text-sidebar-foreground/60">Learn chess properly</div>
         </div>
       </button>
 
@@ -53,8 +52,8 @@ export function Sidebar() {
             onClick={() => navigate(name)}
             aria-current={view.name === name ? 'page' : undefined}
             className={cn(
-              'mb-0.5 flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition-colors',
-              view.name === name ? 'bg-sidebar-accent text-white' : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-white',
+              'mb-0.5 flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition-all duration-150 hover:bg-sidebar-accent/60 active:scale-[0.98]',
+              view.name === name ? 'bg-sidebar-accent text-white' : 'text-sidebar-foreground/80 hover:text-white',
             )}
           >
             <Icon className="h-5 w-5" />
@@ -90,7 +89,7 @@ export function MobileNav() {
           key={name}
           onClick={() => navigate(name)}
           className={cn(
-            'flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-semibold',
+            'flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-semibold transition-transform duration-150 active:scale-90',
             view.name === name ? 'text-[#a3d160]' : 'text-sidebar-foreground/70',
           )}
           aria-current={view.name === name ? 'page' : undefined}
