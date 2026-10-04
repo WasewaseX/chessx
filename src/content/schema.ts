@@ -84,7 +84,33 @@ export interface PlayoutStep {
   failText?: string
 }
 
-export type LessonStep = TextStep | DemoStep | QuizStep | ExerciseStep | PlayoutStep
+export interface GtmMove {
+  /** The master's actual move, SAN. The lesson line continues from it. */
+  san: string
+  /** The opponent's scripted reply in the real game, SAN. Omit after the final move. */
+  reply?: string
+  /** Other moves that solve the point equally well; full credit. */
+  alsoGood?: string[]
+  /** Playable but weaker; half credit, then the master's move is shown. */
+  okay?: string[]
+  /** One or two lines: the idea behind the master's move. */
+  why: string
+}
+
+export interface GtmStep {
+  type: 'gtm'
+  title: string
+  body: string[]
+  /** Real game it came from, or an honest label like "Composed study for ChessX". */
+  source: string
+  fen: string
+  /** Moves already played and shown on the board before guessing starts. */
+  prelude?: string[]
+  /** One entry per guessing-side move, in order. */
+  moves: GtmMove[]
+}
+
+export type LessonStep = TextStep | DemoStep | QuizStep | ExerciseStep | PlayoutStep | GtmStep
 
 /** One level inside a tier: a single interactive lesson with several steps. */
 export interface Level {
@@ -96,6 +122,9 @@ export interface Level {
   minutes: number
   steps: LessonStep[]
 }
+
+/** Full credit for the master move or an alsoGood alternative. */
+export type GtmCredit = 'full' | 'half' | 'none'
 
 /** A full tier of the curriculum: 20 levels, newbie to grandmaster. */
 export interface Tier {

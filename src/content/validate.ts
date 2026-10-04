@@ -11,7 +11,7 @@
  * Exits non-zero on any failure. CI for content.
  */
 import { Chess } from 'chess.js'
-import type { LessonStep, Puzzle, Tier } from './schema'
+import type { GtmStep, LessonStep, Puzzle, Tier } from './schema'
 
 let errors = 0
 let checked = 0
@@ -78,7 +78,81 @@ function checkStep(where: string, step: LessonStep) {
     checkLine(where, step.fen, step.solution, last.includes('#'))
   } else if (step.type === 'playout') {
     checkFen(where, step.fen)
+  } else if (step.type === 'gtm') {
+    checkGtm(where, step)
   }
+}
+
+function checkGtm(where: string, step: GtmStep) {
+  if (!checkFen(where, step.fen)) return
+  const prelude = step.prelude ?? []
+  // full main line must be legal: prelude + san + reply, alternating
+  const mainLine: string[] = []
+  for (const m of step.moves) {
+    mainLine.push(m.san)
+    if (m.reply) mainLine.push(m.reply)
+  }
+  checkLine(where, step.fen, [...prelude, ...mainLine])
+  // every alternative must be legal in the exact position it would be played
+  const probe = new Chess(step.fen)
+  for (const san of prelude) {
+    try {
+      probe.move(san)
+    } catch {
+      return // already reported by checkLine
+    }
+  }
+  for (let i = 0; i < step.moves.length; i++) {
+    const m = step.moves[i]
+    const alts = [...(m.alsoGood ?? []), ...(m.okay ?? [])]
+    for (const alt of alts) {
+      const attempt = new Chess(probe.fen())
+      try {
+        const mv = attempt.move(alt)
+        if (mv) {
+          checked++
+          if (alt.includes('x') && !mv.captured) err(where, `alt "${alt}" says capture but is not (move ${i + 1})`)
+          if (mv.captured && !alt.includes('x')) err(where, `alt "${alt}" is a capture but SAN hides it (move ${i + 1})`)
+          if (alt.includes('#') && !attempt.isCheckmate()) err(where, `alt "${alt}" says mate but is not (move ${i + 1})`)
+          if (alt.includes('+') && !attempt.isCheck()) err(where, `alt "${alt}" says check but is not (move ${i + 1})`)
+        }
+      } catch {
+        err(where, `illegal alternative "${alt}" at guess ${i + 1} from ${probe.fen()}`)
+      }
+    }
+    // walk the main line forward for the next guess position
+    try {
+      probe.move(m.san)
+      if (m.reply) probe.move(m.reply)
+    } catch {
+      return // already reported by checkLine
+    }
+  }
+  // the guessing side must alternate correctly: prelude parity + turn order
+  const turnAtGuess = new Chess(step.fen)
+  try {
+    for (const san of prelude) turnAtGuess.move(san)
+  } catch {
+    /* reported */
+  }
+  const expectedSide = turnAtGuess.turn()
+  for (let i = 0; i < step.moves.length; i++) {
+    const probeG = new Chess(step.fen)
+    try {
+      for (const san of prelude) probeG.move(san)
+      for (let j = 0; j < i; j++) {
+        probeG.move(step.moves[j].san)
+        if (step.moves[j].reply) probeG.move(step.moves[j].reply)
+      }
+      if (probeG.turn() !== expectedSide) {
+        err(where, `guess ${i + 1} is not ${expectedSide} to move, check prelude/reply parity`)
+      }
+    } catch {
+      /* reported */
+    }
+    checked++
+  }
+  if (step.moves.length < 2) err(where, 'gtm should have at least 2 guesses')
 }
 
 function materialBalance(fen: string): number {

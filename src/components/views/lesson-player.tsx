@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
 import { ChessBoard, type Arrow, type FlashMark, type Mark } from '@/components/chess/board'
 import { findLevel, TIERS } from '@/content/levels'
-import type { ExerciseStep, LessonStep } from '@/content/schema'
+import type { ExerciseStep, GtmStep, LessonStep } from '@/content/schema'
 import { useApp } from '@/lib/store'
 import { engine } from '@/lib/chess/engine-client'
 import { playSound } from '@/lib/chess/sounds'
@@ -255,6 +255,16 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           showLegal={profile?.showLegal ?? true}
           theme={profile?.theme ?? 'green'}
         />
+      ) : step.type === 'gtm' ? (
+        <GtmStepView
+          key={stepIdx}
+          step={step}
+          coach={coach}
+          onPass={() => setCanAdvance(true)}
+          soundEnabled={profile?.soundEnabled ?? true}
+          showLegal={profile?.showLegal ?? true}
+          theme={profile?.theme ?? 'green'}
+        />
       ) : step.type === 'exercise' ? (
         <ExerciseView
           key={stepIdx}
@@ -304,9 +314,11 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
             <Button variant="secondary" disabled className="h-12 flex-1 text-sm font-bold">
               {step.type === 'exercise' || step.type === 'playout'
                 ? 'Solve it to continue'
-                : step.type === 'quiz'
-                  ? 'Answer to continue'
-                  : '…'}
+                : step.type === 'gtm'
+                  ? 'Guess the move to continue'
+                  : step.type === 'quiz'
+                    ? 'Answer to continue'
+                    : '…'}
             </Button>
           )}
         </div>
@@ -317,7 +329,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         onOpenChange={setCoachOpen}
         context={{
           lessonTitle: lesson.title,
-          fen: step.type === 'demo' || step.type === 'exercise' || step.type === 'playout' ? step.fen : undefined,
+          fen: step.type === 'demo' || step.type === 'exercise' || step.type === 'playout' || step.type === 'gtm' ? step.fen : undefined,
           stepHint: step.type === 'exercise' ? `${step.goal}. Do not reveal the solution move directly.` : undefined,
           skillLevel: profile?.skillLevel ?? 'beginner',
         }}
@@ -922,6 +934,309 @@ function ExerciseView({
               <CoachBubble tone="hint" coach={coach} speakText={step.hint}>{step.hint}</CoachBubble>
             </div>
           )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* Guess the move: play through a real master game (or a labeled composed
+   study) one guess at a time. Full credit for the master move or an equal
+   alternative, half credit for the playable second best, and a miss shows
+   the idea instead of scolding. Guided, never punishing. */
+function GtmStepView({
+  step,
+  coach,
+  onPass,
+  soundEnabled,
+  showLegal,
+  theme,
+}: {
+  step: GtmStep
+  coach?: Coach
+  onPass: () => void
+  soundEnabled: boolean
+  showLegal: boolean
+  theme: string
+}) {
+  const startFen = useMemo(() => {
+    const g = new Chess(step.fen)
+    for (const san of step.prelude ?? []) {
+      try {
+        g.move(san)
+      } catch {
+        /* validated content */
+      }
+    }
+    return g.fen()
+  }, [step])
+  const guessSide = useMemo(() => new Chess(startFen).turn(), [startFen])
+
+  const gameRef = useRef(new Chess(startFen))
+  const [fen, setFen] = useState(startFen)
+  const [idx, setIdx] = useState(0)
+  const [score, setScore] = useState(0)
+  const [misses, setMisses] = useState(0)
+  const [results, setResults] = useState<Array<'full' | 'half' | 'none'>>([])
+  const [feedback, setFeedback] = useState<{ tone: 'praise' | 'guide' | 'hint'; text: string } | null>(null)
+  const [phase, setPhase] = useState<'guess' | 'done'>('guess')
+  const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null)
+  const [flashes, setFlashes] = useState<FlashMark[]>([])
+  const [shake, setShake] = useState(false)
+  const lockedRef = useRef(false)
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([])
+
+  const later = useCallback((fn: () => void, ms: number) => {
+    timers.current.push(setTimeout(fn, ms))
+  }, [])
+
+  useEffect(
+    () => () => {
+      timers.current.forEach(clearTimeout)
+      timers.current = []
+    },
+    [],
+  )
+
+  const flash = useCallback((marks: FlashMark[], ms = 2400) => {
+    setFlashes(marks)
+    timers.current.push(setTimeout(() => setFlashes([]), ms))
+  }, [])
+
+  const game = useMemo(() => new Chess(fen), [fen])
+  const checkSquare = useMemo(() => {
+    if (!game.isCheck()) return null
+    return game.board().flat().find((s) => s && s.type === 'k' && s.color === game.turn())?.square ?? null
+  }, [game])
+
+  const advanceAfter = useCallback(
+    (cur: GtmStep['moves'][number]) => {
+      lockedRef.current = true
+      later(() => {
+        const g = gameRef.current
+        if (cur.reply) {
+          try {
+            const rmv = g.move(cur.reply)
+            if (rmv) {
+              setFen(g.fen())
+              setLastMove({ from: rmv.from, to: rmv.to })
+              playSound(rmv.captured ? 'capture' : 'move', soundEnabled)
+            }
+          } catch {
+            /* validated content */
+          }
+          later(() => {
+            lockedRef.current = false
+            setIdx((i) => i + 1)
+            setMisses(0)
+          }, 650)
+        } else {
+          lockedRef.current = false
+          setPhase('done')
+          onPass()
+        }
+      }, 1150)
+    },
+    [later, onPass, soundEnabled],
+  )
+
+  const applyMasterMove = useCallback(
+    (g: Chess, cur: GtmStep['moves'][number]) => {
+      const master = g.move(cur.san)
+      if (master) {
+        setFen(g.fen())
+        setLastMove({ from: master.from, to: master.to })
+        playSound(master.captured ? 'capture' : 'move', soundEnabled)
+        setFlashes([
+          { square: master.from, color: 'gold' },
+          { square: master.to, color: 'green' },
+        ])
+        timers.current.push(setTimeout(() => setFlashes([]), 900))
+      }
+    },
+    [soundEnabled],
+  )
+
+  function onMove(from: Square, to: Square, promotion?: string) {
+    if (lockedRef.current || phase !== 'guess') return
+    const g = gameRef.current
+    const cur = step.moves[idx]
+    if (!cur) return
+    let mv
+    try {
+      mv = g.move({ from, to, promotion: promotion ?? undefined })
+    } catch {
+      return
+    }
+    if (!mv) return
+
+    const norm = (s: string) => s.replace(/[+#]/g, '')
+    const equalsAny = (list?: string[]) => (list ?? []).some((a) => norm(a) === norm(mv!.san))
+
+    if (norm(mv.san) === norm(cur.san) || equalsAny(cur.alsoGood)) {
+      // full credit: their move stands
+      setFen(g.fen())
+      setLastMove({ from: mv.from, to: mv.to })
+      playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+      setScore((s) => s + 1)
+      setResults((r) => [...r, 'full'])
+      setFeedback({ tone: 'praise', text: cur.why })
+      advanceAfter(cur)
+      return
+    }
+
+    g.undo() // take the guess back; the board returns to the guess position
+
+    if (equalsAny(cur.okay)) {
+      // half credit: playable, but show the stronger idea
+      applyMasterMove(g, cur)
+      setScore((s) => s + 0.5)
+      setResults((r) => [...r, 'half'])
+      setFeedback({ tone: 'hint', text: `Playable, but the master found the stronger idea: ${cur.san}. ${cur.why}` })
+      advanceAfter(cur)
+      return
+    }
+
+    // a miss: guide first, show the move after the third try
+    const n = misses + 1
+    setMisses(n)
+    setShake(true)
+    timers.current.push(setTimeout(() => setShake(false), 420))
+    playSound('wrong', soundEnabled)
+    if (n >= 3) {
+      applyMasterMove(g, cur)
+      setResults((r) => [...r, 'none'])
+      setFeedback({ tone: 'guide', text: `The master played ${cur.san}. ${cur.why}` })
+      advanceAfter(cur)
+    } else if (n === 2) {
+      setFeedback({ tone: 'hint', text: 'Look again. The piece the master moves is glowing on the board.' })
+      try {
+        const probe = new Chess(g.fen())
+        const hintMv = probe.move(cur.san)
+        if (hintMv) flash([{ square: hintMv.from, color: 'gold' }])
+      } catch {
+        /* validated content */
+      }
+    } else {
+      setFeedback({ tone: 'guide', text: 'Not the idea the master had. Check every check, capture and threat, then play your guess.' })
+    }
+  }
+
+  function reset() {
+    timers.current.forEach(clearTimeout)
+    timers.current = []
+    lockedRef.current = false
+    gameRef.current = new Chess(startFen)
+    setFen(startFen)
+    setIdx(0)
+    setScore(0)
+    setMisses(0)
+    setResults([])
+    setFeedback(null)
+    setPhase('guess')
+    setLastMove(null)
+    setFlashes([])
+  }
+
+  const total = step.moves.length
+  const lineSoFar = [...(step.prelude ?? [])]
+  for (let i = 0; i < Math.min(idx + (phase === 'done' ? 1 : 0), total); i++) {
+    lineSoFar.push(step.moves[i].san)
+    if (step.moves[i].reply && (i < idx || phase === 'done')) lineSoFar.push(step.moves[i].reply!)
+  }
+
+  const summary =
+    score >= total * 0.85
+      ? 'You were reading the position the same way the master did.'
+      : score >= total * 0.5
+        ? 'Solid instincts. The ideas you missed are now part of your toolkit.'
+        : 'Now you have seen the full idea once. Play it again, and see how much more you find.'
+
+  return (
+    <div className="grid gap-5 lg:grid-cols-[1fr_400px]">
+      <div>
+        <ChessBoard
+          fen={fen}
+          orientation={guessSide}
+          onMove={onMove}
+          movableSide={phase === 'guess' && !lockedRef.current ? guessSide : undefined}
+          interactive={phase === 'guess' && !lockedRef.current}
+          lastMove={lastMove}
+          checkSquare={checkSquare}
+          showLegal={showLegal && phase === 'guess' && !lockedRef.current}
+          flashes={flashes}
+          theme={theme}
+          shake={shake}
+        />
+      </div>
+      <div className="flex flex-col gap-3">
+        <div className="rounded-lg bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Guess the move</div>
+            <div className="flex items-center gap-1.5">
+              {step.moves.map((_, i) => (
+                <span
+                  key={i}
+                  className={cn(
+                    'h-2.5 w-2.5 rounded-full',
+                    i >= results.length
+                      ? i === idx && phase === 'guess'
+                        ? 'bg-primary ring-2 ring-primary/30'
+                        : 'bg-border'
+                      : results[i] === 'full'
+                        ? 'bg-primary'
+                        : results[i] === 'half'
+                          ? 'bg-[#e6a82c]'
+                          : 'bg-red-400/70',
+                  )}
+                />
+              ))}
+              <span className="ml-1 font-mono text-xs font-bold">
+                {score} / {total}
+              </span>
+            </div>
+          </div>
+          <h2 className="mt-1 font-display text-xl font-bold">{step.title}</h2>
+          {step.body.map((p, i) => (
+            <p key={i} className="mt-2 text-sm text-foreground/90">
+              {p}
+            </p>
+          ))}
+          <div className="mt-2 rounded-md bg-secondary px-3 py-1.5 text-xs font-semibold text-muted-foreground">{step.source}</div>
+
+          <div className="mt-3 rounded-md border border-border/60 bg-background/60 px-3 py-2">
+            {phase === 'guess' ? (
+              <p className="text-sm font-semibold">
+                Move {idx + 1} of {total}. {guessSide === 'w' ? 'White' : 'Black'} to move. What did the master play?
+              </p>
+            ) : (
+              <p className="text-sm font-semibold">Game complete.</p>
+            )}
+            {lineSoFar.length > 0 && (
+              <p className="mt-1 font-mono text-xs text-muted-foreground">{lineSoFar.join(' ')}</p>
+            )}
+          </div>
+
+          {feedback && (
+            <div className="mt-3">
+              <CoachBubble tone={feedback.tone} coach={coach} speakText={feedback.text}>
+                {feedback.text}
+              </CoachBubble>
+            </div>
+          )}
+          {phase === 'done' && (
+            <div className="mt-3">
+              <CoachBubble tone="praise" coach={coach} speakText={`${summary} You scored ${score} out of ${total}.`}>
+                {summary} <span className="font-mono font-bold">({score} / {total})</span>
+              </CoachBubble>
+            </div>
+          )}
+
+          <div className="mt-4">
+            <Button variant="secondary" size="sm" onClick={reset}>
+              <RotateCcw className="h-4 w-4" /> {phase === 'done' ? 'Play it again' : 'Start over'}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

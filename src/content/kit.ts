@@ -3,6 +3,8 @@
 import type {
   DemoStep,
   ExerciseStep,
+  GtmMove,
+  GtmStep,
   LessonStep,
   PlayoutStep,
   QuizOption,
@@ -71,6 +73,25 @@ export function playout(
 ): PlayoutStep {
   return { type: 'playout', title, body: [body], fen, side, goal, engineLevel, success, maxMoves, successText, ...(failText ? { failText } : {}) }
 }
+
+export function gtmStep(
+  title: string,
+  body: string[],
+  source: string,
+  fen: string,
+  prelude: string[],
+  moves: GtmMove[],
+): GtmStep {
+  return { type: 'gtm', title, body, source, fen, ...(prelude.length ? { prelude } : {}), moves }
+}
+
+export const guess = (san: string, why: string, opts: { reply?: string; alsoGood?: string[]; okay?: string[] } = {}): GtmMove => ({
+  san,
+  why,
+  ...(opts.reply ? { reply: opts.reply } : {}),
+  ...(opts.alsoGood ? { alsoGood: opts.alsoGood } : {}),
+  ...(opts.okay ? { okay: opts.okay } : {}),
+})
 
 export function steps(...list: LessonStep[]): LessonStep[] {
   return list
