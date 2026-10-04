@@ -18,6 +18,11 @@ export const master: Tier = {
       subtitle: 'Stop counting. Start comparing.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'From the Advanced tier: when do you trade the last rooks in a won rook ending?', [
+          right('When the resulting pawn endgame is a calculated win', 'Concrete wins only. The final trade must be math, not mood.'),
+          wrong('Always: simplification converts automatically', 'A drawn pawn ending erases the whole game.'),
+          wrong('Never: rooks win endings', 'Rooks win endings when the pawn ending after the trade is WON.'),
+        ]),
         text(
           'The six comparisons',
           [
@@ -49,6 +54,11 @@ export const master: Tier = {
           wrong('Trade two pairs of minor pieces immediately', 'Trades shrink the position. Space wants pieces on the board.'),
           wrong('Attack the enemy king at once', 'Attacks need pieces pointed at the king. Yours are on the other wing.'),
         ]),
+        quiz('The comparison list', 'Which six imbalances does a master compare before every plan?', [
+          right('Material, space, development, king safety, pawn structure, piece activity', 'The six dials. Every position leans one way on some, the other way on the rest.'),
+          wrong('Material, luck, rating, time, style, mood', 'Four of those are not on the board.'),
+          wrong('Material only: the rest is decoration', 'Material is one dial of six. Plans come from the other five.'),
+        ]),
       ],
     },
     {
@@ -58,6 +68,11 @@ export const master: Tier = {
       subtitle: 'Ask what he wants. Take it away first.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'What are the six imbalances worth comparing in every position?', [
+          right('Material, space, development, king safety, structure, activity', 'The six dials of evaluation.'),
+          wrong('Material, center, castling, en passant, promotion, draws', 'Half of that is rules, not evaluation.'),
+          wrong('Whatever the engine says after ten minutes', 'The engine is a check, not the evaluation habit.'),
+        ]),
         text(
           'The master question',
           [
@@ -78,6 +93,14 @@ export const master: Tier = {
           wrong('Never, always push your plan', 'That is how attacks run into counterattacks.'),
           wrong('Only when losing', 'Prophylaxis wins positions, not just saves them.'),
         ]),
+        text(
+          'The list of his plans',
+          [
+            'Before each move, list the enemy\u2019s two or three most concrete ideas: the check he wants, the square he wants, the trade he wants. Ranked by how much they hurt.',
+            'If the top idea hurts more than your own best idea helps, your move is already decided: play the prophylaxis. Only when your idea survives his best answer is it safe to commit.',
+          ],
+          'His best plan, ranked. If it beats yours, take it away first.',
+        ),
       ],
     },
     {
@@ -87,6 +110,11 @@ export const master: Tier = {
       subtitle: 'Spend material. Buy the tempo that mates.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'When is a prophylactic move worth a tempo over your own plan?', [
+          right('When his best idea hurts more than your idea helps', 'Kill the bigger threat first. Then execute yours against a parried defense.'),
+          wrong('Whenever the move looks impressive', 'Prophylaxis is quiet by nature. The effect is what is impressive.'),
+          wrong('Only in lost positions', 'It is a winning habit, not an emergency tool.'),
+        ]),
         text(
           'The only currency that matters',
           [
@@ -105,6 +133,11 @@ export const master: Tier = {
           wrong('The attack is fine, keep going', 'Without checks or threats there is no attack. Only hope.'),
           wrong('Sacrifice more pieces', 'Sacrifices buy tempo only when they force replies. Otherwise they are donations.'),
         ]),
+        quiz('The forcing test', 'Which of these keeps the initiative alive?', [
+          right('A move that gives check or creates an immediate material threat', 'Questions only. Every non-forcing move is a pause, and pauses hand over the baton.'),
+          wrong('A solid developing move', 'Development is for openings. Initiative is kept by threats.'),
+          wrong('A pawn grab two moves deep', 'Two quiet moves to win a pawn is two free tempi for the defense.'),
+        ]),
       ],
     },
     {
@@ -114,6 +147,11 @@ export const master: Tier = {
       subtitle: 'Pawn geography decides plans.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'What keeps an initiative alive, in one sentence?', [
+          right('Checks and threats on every move, never two quiet moves in a row', 'The initiative is the right to keep asking questions.'),
+          wrong('Extra material on the scoreboard', 'Material can BUY the initiative. It is not the initiative itself.'),
+          wrong('More pieces developed', 'Development lead is one source. The initiative lives in forcing moves.'),
+        ]),
         text(
           'Counting pawn armies',
           [
@@ -140,6 +178,11 @@ export const master: Tier = {
           wrong('Trade all pawns on the kingside', 'Trading away the majority donates the endgame.'),
           wrong('Ignore pawns, attack with pieces', 'Pieces plus a passed pawn win games. The pawn is the plan.'),
         ]),
+        quiz('Retrieval first', 'What does the minority attack b4-b5 actually buy?', [
+          right('A fixed weak pawn on c6 and an open b-file for rooks', 'Files and targets, not passers. That is the whole point of playing two against three.'),
+          wrong('A passed b-pawn', 'Three defenders beat two attackers. The passer is the majority\u2019s weapon, not the minority\u2019s.'),
+          wrong('Immediate material', 'It is a positional lever. The loot is squares.'),
+        ]),
       ],
     },
     {
@@ -149,6 +192,11 @@ export const master: Tier = {
       subtitle: 'Which weaknesses can outlive this attack?',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'What does a pawn majority create that a minority attack does not?', [
+          right('A passed pawn', 'Majorities make runners. Minorities make files and fixed targets.'),
+          wrong('Open files for rooks', 'Minority attacks open files. Majorities make runners.'),
+          wrong('Both are identical tools', 'Opposite tools from opposite pawn counts.'),
+        ]),
         text(
           'The mortgage versus the loan',
           [
@@ -174,6 +222,11 @@ export const master: Tier = {
           wrong('Never, structure is everything', 'Structure is a lot, not everything. Initiative can be a bigger deal.'),
           wrong('Whenever you feel aggressive', 'Feelings are not compensation. Concrete lines are.'),
         ]),
+        quiz('Classify the weakness', 'A knight is temporarily misplaced, a pawn is doubled, and a rook hangs. Rank their shelf lives.', [
+          right('The hanging rook dies first (temporary), the misplaced knight heals, the doubled pawn never heals', 'Pieces are loans, structure is a mortgage. Time horizons decide which you attack.'),
+          wrong('All three are permanent', 'Pieces can move. Pawns cannot. That is the whole classification.'),
+          wrong('All three are temporary', 'Doubled pawns never merge back. They age forever.'),
+        ]),
       ],
     },
     {
@@ -183,6 +236,11 @@ export const master: Tier = {
       subtitle: 'Which pieces stay, which pieces go, and why.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'Which weakness heals with one piece move, and which never heals?', [
+          right('A loose piece heals; a doubled or isolated pawn never does', 'Pieces are temporary, structure is permanent. Pawns are the long game.'),
+          wrong('Both heal eventually', 'Pawn structure never moves backward. Ever.'),
+          wrong('Neither heals: chess is static', 'Pieces redeploy every move. That is why tactics exist.'),
+        ]),
         text(
           'The trade interview',
           [
@@ -202,6 +260,11 @@ export const master: Tier = {
           wrong('Trade pawns, keep pieces', 'Open lines favor the side hunting compensation.'),
           wrong('Trade everything, anything', 'Indiscriminate trading is not a policy. Direction is.'),
         ]),
+        quiz('The trade interview', 'What three questions does every candidate trade face?', [
+          right('Whose remaining pieces are better, whose king is safer, whose structure survives the endgame', 'A trade is a vote for the next position. Ask about the position that results.'),
+          wrong('Who is higher rated, who has more time, who is winning', 'The board decides trades. The scoreboard follows.'),
+          wrong('Can I win material with it, is it a check, is it forced', 'Those are tactic questions. Trade questions are positional.'),
+        ]),
       ],
     },
     {
@@ -211,6 +274,11 @@ export const master: Tier = {
       subtitle: 'Deep color complexes: plan by square color.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'What are the three questions of every trade?', [
+          right('Whose pieces are better, whose king is safer, whose structure endures', 'The resulting position is the only thing a trade buys.'),
+          wrong('Is it a capture, is it forced, is it safe', 'That is tactic vocabulary. Trades are positional votes.'),
+          wrong('Who wants it more', 'Neither player. The position wants something. Read it.'),
+        ]),
         text(
           'The board in two colors',
           [
@@ -230,6 +298,14 @@ export const master: Tier = {
           wrong('Trade one bishop early to simplify', 'That donates the very advantage you own.'),
           wrong('Lock the center closed', 'Closed centers mute both bishops. The pair wants air.'),
         ]),
+        drill(
+          'Blind him completely',
+          '4k3/8/8/8/8/8/1P2BPPP/2B1K3 w - - 0 1',
+          ['Bh6'],
+          'Black kept only a light-squared bishop. Put yours where he cannot touch it.',
+          'One of your bishops has a clear road to the dark heart of the kingside.',
+          'Bh6. From the dark squares your bishop attacks g7 and f8 with zero opposition. His light bishop watches from another planet.',
+        ),
       ],
     },
     {
@@ -239,6 +315,11 @@ export const master: Tier = {
       subtitle: 'Passed pawns are prisoners if you hold the square.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'Against a lone light-squared bishop, which squares do you invade?', [
+          right('The dark squares: he is blind to every one of them', 'Attack the color the defender cannot police.'),
+          wrong('The light squares, to challenge his bishop directly', 'Fighting his one defender head on is his plan, not yours.'),
+          wrong('Whatever is closest', 'Color decides. Geography follows.'),
+        ]),
         text(
           'Arrest, then attack elsewhere',
           [
@@ -258,6 +339,11 @@ export const master: Tier = {
           wrong('Capture it immediately with a piece', 'The pieces behind it will recapture. Restraint comes first.'),
           wrong('Ignore it and attack the king', 'Passers promote while you are busy. Restrain it now.'),
         ]),
+        quiz('The jailer\u2019s second job', 'Your knight blockades the enemy passer from a strong square. What else should it be doing?', [
+          right('Attacking: a blockader on an outpost is also an invader', 'One piece, two jobs: jailer on the pawn\u2019s road, attacker on the rest of the board.'),
+          wrong('Nothing: blockading is a full-time job', 'The blockade costs one square, not the whole piece.'),
+          wrong('Guarding your own back rank', 'That is a different piece\u2019s job. The blockader attacks.'),
+        ]),
       ],
     },
     {
@@ -267,6 +353,16 @@ export const master: Tier = {
       subtitle: 'Know when the clock on your advantage expires.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'In Nimzowitsch\u2019s system, what is the order of operations against a passed pawn?', [
+          right('Restrain it, blockade it, destroy it', 'Three steps. Skipping to destruction loses to the pieces behind the pawn.'),
+          wrong('Blockade it immediately with the queen', 'Blockade yes, but with the right piece, and restraint comes first.'),
+          wrong('Attack the king instead: pawns promote by themselves', 'They promote while you attack. The order matters.'),
+        ]),
+        quiz('Retrieval first', 'What is Nimzowitsch\u2019s three-step program against a passed pawn?', [
+          right('Restrain, blockade, destroy', 'Stop the runner, jail the runner, then beat up the defenders.'),
+          wrong('Trade, attack, convert', 'That is endgame conversion vocabulary, not blockade doctrine.'),
+          wrong('Ignore, ignore, ignore', 'Passers do not forgive ignoring.'),
+        ]),
         text(
           'Two currencies, one exchange rate',
           [
@@ -283,6 +379,11 @@ export const master: Tier = {
           right('Open the center immediately with pawn breaks and piece play', 'Development lead has a shelf life of a few moves. Spend it now.'),
           wrong('Slowly improve your worst piece first', 'By then he is developed. The gift expires.'),
           wrong('Trade queens to simplify', 'Simplification is exactly what the undeveloped side dreams of.'),
+        ]),
+        quiz('Spend or invest', 'Your advantage is a permanent weak square in his camp. Your approach?', [
+          right('Invest slowly: improve pieces, plant something on it, build an unanswerable grip', 'Static advantages age well. There is no rush: there is only method.'),
+          wrong('Sacrifice immediately to exploit it', 'Sacrifices buy tempo. Static edges do not need tempo: they need patience.'),
+          wrong('Trade queens and head to the endgame', 'Only if the endgame keeps the weak square relevant. Otherwise the grip is the win.'),
         ]),
         playout(
           'Spend it now',
@@ -304,6 +405,11 @@ export const master: Tier = {
       subtitle: 'Everything from this tier, live.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'Which type of advantage must be spent immediately, and which can be invested?', [
+          right('Dynamic: spent now. Static: invested for the endgame', 'Development leads expire. Broken structures do not.'),
+          wrong('Both keep forever', 'Development leads evaporate while you shuffle.'),
+          wrong('Both expire', 'Weak squares wait for you. Development does not.'),
+        ]),
         text(
           'Five rounds',
           [
@@ -314,7 +420,15 @@ export const master: Tier = {
         drill('Prophylaxis', '4k3/8/8/8/8/8/1q6/R3K3 w - - 0 1', ['Rc1'], 'Kill his idea before it exists', 'b1 is the square he wants.', 'Rc1. First tool of the masters.'),
         drill('Trade vote', '4k3/8/8/8/3b4/5N2/8/4K3 w - - 0 1', ['Nxd4'], 'Trade his best piece', 'f3 to d4.', 'Nxd4. The vote is in.'),
         drill('Color invasion', '6k1/8/8/8/8/8/3B2PP/4B1K1 w - - 0 1', ['Bh6'], 'Drive to the missing color', 'Dark squares all the way.', 'Bh6. Highway open.'),
-        drill('Initiative', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'Force the mate', 'No free moves for him.', 'Three forcing moves. Initiatia paid in full.'),
+        drill('Initiative', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'Force the mate', 'No free moves for him.', 'Three forcing moves. Initiative paid in full.'),
+        drill(
+          'Blockade rep',
+          '4k3/8/8/8/3p4/8/8/2N1K3 w - - 0 1',
+          ['Nd3'],
+          'Name the tool, then play it: the pawn wants to run.',
+          'The knight has one square on the pawn\u2019s road, and it is a great square.',
+          'Nd3. Blockade. The pawn is a prisoner and the knight is the jailer with an outside job.',
+        ),
       ],
     },
     {
@@ -324,6 +438,11 @@ export const master: Tier = {
       subtitle: 'Choose openings by the endgames they promise.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'Name the five master tools: prophylaxis, trade voting, color invasion, blockade and...', [
+          right('The initiative: keeping every move forcing', 'Five tools. Every strong middlegame is one of them running.'),
+          wrong('Castling', 'A rule, not a strategic tool.'),
+          wrong('The en passant capture', 'Also a rule. Also not a plan.'),
+        ]),
         text(
           'Play chess backwards',
           [
@@ -343,6 +462,11 @@ export const master: Tier = {
           wrong('Accept every gambit and out-calculate them', 'You are choosing their favorite game.'),
           wrong('Mirror their style to practice', 'Rated games are not practice arenas. Win the ones that count.'),
         ]),
+        quiz('The steering audit', 'How do you find out which structures YOU should steer into?', [
+          right('Review your own games and find where you actually win', 'Your results are data. Build the repertoire on your own evidence.'),
+          wrong('Copy the world champion\u2019s repertoire', 'His strengths are not yours. His openings serve his skills.'),
+          wrong('Play whatever is fashionable this year', 'Fashion serves nobody\u2019s strengths in particular.'),
+        ]),
       ],
     },
     {
@@ -352,6 +476,11 @@ export const master: Tier = {
       subtitle: 'Short-side defense, checking distance, the active king.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'How do you choose which structures to steer your repertoire toward?', [
+          right('The ones where your own game results say you win', 'Your games are the data. Steer to your evidence.'),
+          wrong('Whatever the strongest engine prefers', 'Engine-best and human-best are different shopping lists.'),
+          wrong('The most theoretical lines, for respect', 'Respect does not score points. Results do.'),
+        ]),
         text(
           'The defender\u2019s masterclass',
           [
@@ -378,6 +507,11 @@ export const master: Tier = {
           wrong('Two squares is illegal', 'It is legal. It is just losing.'),
           wrong('Distance never matters in rook endings', 'Distance is HALF of rook endgame technique.'),
         ]),
+        quiz('Short side, long side', 'Defending a pawn-down rook ending: where do the king and rook belong?', [
+          right('King on the short side (away from the checks), rook checking from the long side', 'The attacker\u2019s king cannot hide from checks that come from maximum distance.'),
+          wrong('Both on the back rank, passive', 'A passive rook defends nothing. Distance is the defense.'),
+          wrong('King in front of the pawn', 'That is the WINNING side\u2019s setup. The defender stands elsewhere.'),
+        ]),
       ],
     },
     {
@@ -387,6 +521,11 @@ export const master: Tier = {
       subtitle: 'Positions that cannot be cracked, no matter what.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'In a pawn-down rook ending, where do the defending king and rook go?', [
+          right('King short side, rook checks from the long side, three files or more away', 'Maximum distance keeps the checks unblockable and the draw alive.'),
+          wrong('Both hug the back rank quietly', 'Passivity loses. The rook must WORK for the draw.'),
+          wrong('The king escorts the enemy pawn', 'That is the attacker\u2019s technique. The defender runs the checking machine.'),
+        ]),
         text(
           'The unbreakable wall',
           [
@@ -412,6 +551,11 @@ export const master: Tier = {
           wrong('Only when the position is already hopeless', 'Hopeless is too late. The wall needs moves to build.'),
           wrong('Never, fortresses are luck', 'Fortresses are technique. Books are written about them.'),
         ]),
+        quiz('Recognize the wall', 'You are up a rook, but the pawns and king form a sheltered wall and nothing else exists. What is the efficient decision?', [
+          right('Accept the draw and save energy for winnable games', 'Recognizing fortresses is a skill. Head-banging against a wall is also a skill: the wrong one.'),
+          wrong('Play on for fifty more moves', 'The wall does not care about your clock.'),
+          wrong('Sacrifice the rook for the pawns to win the king race', 'Without the rook there is no race. The wall holds by design.'),
+        ]),
       ],
     },
     {
@@ -421,6 +565,11 @@ export const master: Tier = {
       subtitle: 'The outside passed pawn doctrine.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'When does fortress thinking begin for the defender?', [
+          right('Before the attackers arrive', 'Walls are built in advance. Improvised ones crumble.'),
+          wrong('When the position is lost', 'Lost is too late. The wall takes moves to construct.'),
+          wrong('Fortresses cannot be planned', 'They are among the most studied structures in endgame theory.'),
+        ]),
         text(
           'Two runners beat one bishop',
           [
@@ -442,6 +591,11 @@ export const master: Tier = {
           wrong('It is worth two pawns', 'Same value. Different geography.'),
           wrong('Bishops cannot capture pawns', 'Bishops capture fine. They just cannot be in two places.'),
         ]),
+        quiz('Where the bishop lives', 'As the DEFENDER with opposite bishops, where does your bishop take up residence?', [
+          right('On the color complex where the dangerous pawn lives, abandoning the other color', 'Half a board is defensible. Trying for all of it loses all of it.'),
+          wrong('Center: it sees everything from there', 'A central bishop defends neither complex fully. Commit to one color.'),
+          wrong('Next to your king', 'King safety is irrelevant when the pawns are the whole war.'),
+        ]),
       ],
     },
     {
@@ -451,6 +605,11 @@ export const master: Tier = {
       subtitle: 'Racing pawns with everything on the line.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'As the defender in an opposite-bishop ending, where does your bishop live?', [
+          right('On the color of the dangerous pawn, abandoning the other color', 'Commit to one complex. Half a board is holdable.'),
+          wrong('Centered, to cover both colors', 'A bishop covering two colors defends neither.'),
+          wrong('Wherever it attacks most pawns', 'Attack is irrelevant. The runner is the whole story.'),
+        ]),
         text(
           'The race doctrine',
           [
@@ -470,6 +629,11 @@ export const master: Tier = {
           wrong('Defending your own king', 'You castled opposite wings. Defense was not the plan.'),
           wrong('In the center', 'The center is a sideshow. The race is on the wings.'),
         ]),
+        quiz('Slowing their storm', 'Their pawn storm is one move faster than yours. Which moves count double now?', [
+          right('Moves that BOTH advance your storm and slow theirs', 'In races, dual-purpose tempi are gold: h4 that hits their h5 pawn beats a quiet rook move.'),
+          wrong('Pure attack moves on your side', 'If they open their file first, your attack never arrives.'),
+          wrong('Defensive king moves', 'The king was castled for a reason. The race decides before he matters.'),
+        ]),
       ],
     },
     {
@@ -479,6 +643,16 @@ export const master: Tier = {
       subtitle: 'Staying alive with activity, not hope.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'Where do the heavy pieces go in an opposite-side castling race?', [
+          right('Behind the storming pawns, ready for the first opened file', 'Pawns open the door. Rooks and queen walk through it.'),
+          wrong('Defending your own king', 'You castled opposite wings. The plan is the race, not the shelter.'),
+          wrong('Maneuvering in the center', 'The center is a sideshow when the wings are racing.'),
+        ]),
+        quiz('Retrieval first', 'In an opposite-wing race, which moves count double?', [
+          right('Moves that advance your storm AND slow theirs', 'Dual-purpose tempi decide sprints.'),
+          wrong('Quiet improving moves', 'Quiet moves are donations in a race.'),
+          wrong('King safety moves', 'The race ends the king\u2019s relevance either way.'),
+        ]),
         text(
           'The active defense doctrine',
           [
@@ -498,6 +672,11 @@ export const master: Tier = {
           wrong('Play sharper to punish his overconfidence', 'Sharpness favors the attacking side. Solid moves punish confidence.'),
           wrong('Resign: he clearly knows what he is doing', 'Rating comes and goes. The position is what it is.'),
         ]),
+        quiz('The one counter-threat', 'You are worse but not lost. How many concrete counter-threats should active defense create?', [
+          right('One: a single real threat forces the attacker to spend tempo deciding', 'One threat is annoying. Five vague ideas are noise the attacker ignores.'),
+          wrong('As many as possible, everywhere', 'Vague multiplicity is passive defense wearing a costume.'),
+          wrong('None: pure defense is stronger', 'Pure defense loses slowly. One threat forces decisions.'),
+        ]),
       ],
     },
     {
@@ -507,6 +686,11 @@ export const master: Tier = {
       subtitle: 'Practical decisions: time, tilt, and tempo bluffs.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'What is the shape of correct active defense?', [
+          right('Trade pieces, create one concrete counter-threat, force him to prove the win', 'Annoying, concrete, alive. Hope is none of those.'),
+          wrong('Defend everything passively and wait', 'Passive defense is a slow resignation.'),
+          wrong('Counterattack everywhere at once', 'Scattered counterplay is ignored. One real threat is not.'),
+        ]),
         text(
           'The invisible pieces',
           [
@@ -515,6 +699,11 @@ export const master: Tier = {
           ],
           'Spend minutes on branches, seconds on forced moves, zero on emotions.',
         ),
+        quiz('The spending rule', 'Which moments earn your clock minutes?', [
+          right('Branching capture decisions, structure commitments, king safety choices', 'Irreversible forks in the road. Everything else gets seconds.'),
+          wrong('Every move equally, for consistency', 'Equal spending is unequal thinking. Critical moves eat the budget.'),
+          wrong('Only when the position looks lost', 'By then the budget is gone. Spend where the branches are.'),
+        ]),
         quiz('Time triage', 'The position just became sharp: three captures available, unclear consequences. The clock shows five minutes for fifteen moves. You should...', [
           right('Spend real time here: this is exactly what the clock is for', 'Critical moments buy more rating per minute than any other investment.'),
           wrong('Play the first capture on instinct', 'Sharp positions punish instinct. That is what makes them sharp.'),
@@ -526,6 +715,11 @@ export const master: Tier = {
           wrong('Resign on the spot', 'Rated players win pieces back every day. Nobody wins resignations.'),
         ]),
         drill('The solid move', '4k3/8/8/2b5/3N4/8/8/4K3 w - - 0 1', ['Nb3'], 'Shaken position. Play the most solid retreat', 'b3 keeps the knight safe and eyeing the center.', 'Nb3. Stabilize first. The position does not know your feelings.'),
+        quiz('Retrieval first', 'What earns the big clock investments?', [
+          right('Irreversible decisions: captures, structures, king safety', 'Forks in the road. Forced and trivial moves get seconds.'),
+          wrong('Every move gets equal time', 'Equal spending means the critical branch ran out of budget.'),
+          wrong('Only endgame technique moves', 'The middlegame branches are where games are decided.'),
+        ]),
       ],
     },
     {
@@ -535,6 +729,11 @@ export const master: Tier = {
       subtitle: 'Deep combinations, verified.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'Which moments justify burning clock minutes?', [
+          right('Irreversible branch points: captures, structures, king safety', 'Everything else runs on seconds.'),
+          wrong('All moves equally', 'Equal spending starves the critical branch.'),
+          wrong('Only the endgame', 'Middlegame branches decide most games.'),
+        ]),
         text(
           'Depth over speed',
           [
@@ -545,6 +744,14 @@ export const master: Tier = {
         drill('Sacrifice to mate', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'Mate in three', 'Sacrifice, forced reply, open file.', 'Three forcing moves. Calculated, not lucky.'),
         drill('Deflection mate', 'r5k1/5ppp/8/8/8/8/3R4/3R2K1 w - - 0 1', ['Rd8+', 'Rxd8', 'Rxd8#'], 'The back rank never had a second defender', 'First rook as bait, second rook as executioner.', 'Rd8 plus check, Rxd8, Rxd8 mate. Deflection at full depth.'),
         drill('Break the chain', '4k3/8/8/2ppp3/8/8/8/K6R w - - 0 1', ['Re1'], 'Structural strike', 'The base of the chain is the target.', 'Re1. Positional pressure with concrete teeth.'),
+        drill(
+          'Skewer to the end of the line',
+          '8/8/8/6kq/8/8/8/R5K1 w - - 0 1',
+          ['Ra5+', 'Kf6', 'Rxh5'],
+          'Calculate the whole line before touching a piece.',
+          'Check along the rank, king steps off, collect what hid behind him.',
+          'Three plies, fully verified before the first move. That is the master habit: finish the line in your head.',
+        ),
       ],
     },
     {
@@ -554,6 +761,11 @@ export const master: Tier = {
       subtitle: 'Multi-motif, full depth.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'What is the master calculation habit this arena trains?', [
+          right('Finishing the entire line in your head before touching a piece', 'The board is for verification, not for discovery.'),
+          wrong('Playing fast and trusting instinct', 'Instinct proposes. Calculation disposes.'),
+          wrong('Counting material after each move on the board', 'Moving to see is how lines get abandoned halfway.'),
+        ]),
         text(
           'One last rep set',
           [
@@ -564,6 +776,14 @@ export const master: Tier = {
         drill('Discovery to mate', '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1', ['Nd6+'], 'The double check that starts everything', 'The knight leaves, two lines open at once.', 'Nd6 plus double check. From here the attack writes itself.'),
         drill('The outpost empire', '4k3/2p1p3/8/8/8/8/8/1N2K3 w - - 0 1', ['Nc3', 'Kd7', 'Nd5'], 'Build the permanent advantage', 'c3, then the square no pawn can reach.', 'Nd5. The knight owns the center for the rest of the game.'),
         drill('Perpetual salvation', '6k1/8/8/8/8/8/8/3Q2K1 w - - 0 1', ['Qd8+', 'Kh7', 'Qd7+', 'Kh6', 'Qd6+', 'Kh5'], 'Find the draw', 'Rank checks, one rank at a time.', 'The queen polices the ranks. Half a point, fully earned.'),
+        drill(
+          'The zwischenzug at depth',
+          'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4',
+          ['Qg5'],
+          'The classic refusal, one more rep. Do not recapture.',
+          'One square hits the e5 knight and the g2 pawn at once.',
+          'Qg5. The zwischenzug is the deepest habit on this list: it lives exactly where attention does not.',
+        ),
       ],
     },
     {
@@ -573,6 +793,11 @@ export const master: Tier = {
       subtitle: 'One exam, one game against the machine.',
       minutes: 15,
       steps: [
+        quiz('Retrieval first', 'Where does the zwischenzug live?', [
+          right('In the moment after a capture, when everyone plays automatically', 'The intermediate move is the deepest practical habit in tactics.'),
+          wrong('Only in opening traps', 'It fires on move 40 as often as move 4.'),
+          wrong('In endgames only', 'It is a forcing-move habit. Every phase has forcing moves.'),
+        ]),
         text(
           'The exam',
           [
