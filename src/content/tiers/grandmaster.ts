@@ -1,7 +1,7 @@
 // Tier 6: Grandmaster. Judgment at full depth: zugzwang, fortresses,
 // exchange sacrifices, preparation, and the capstone game.
 import type { Tier } from '../schema'
-import { text, demo, quiz, drill, right, wrong, playout } from '../kit'
+import { text, demo, quiz, drill, right, wrong, playout, gtmStep, guess } from '../kit'
 
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
@@ -798,8 +798,8 @@ export const grandmaster: Tier = {
       n: 20,
       title: 'Capstone',
       subtitle: 'The final game of the curriculum.',
-      minutes: 20,
-      concepts: ['calculation', 'endgame', 'technique'],
+      minutes: 25,
+      concepts: ['calculation', 'endgame', 'technique', 'famousGame'],
       steps: [
         quiz('Retrieval first', 'What must Black avoid in a winning king-and-pawn versus king duel?', [
           right('Losing a tempo: every king step must keep the pawn guarded and the cage closed', 'One careless step frees the defending king and the win evaporates.'),
@@ -813,6 +813,40 @@ export const grandmaster: Tier = {
             'Open with a plan, convert imbalances, prophylax against counterplay, and finish with technique. Everything the last 120 levels taught, in one board.',
           ],
           'One game. One hundred and twenty levels behind it.',
+        ),
+        text(
+          'Game 6: the strategic masterpiece',
+          [
+            'Reykjavik, 1972. Fischer had never played the Queen\u2019s Gambit in a serious game before this one. Spassky prepared for king pawn attacks and instead got a quiet positional squeeze, the kind of game critics said Fischer could not play. He played it to perfection.',
+            'You play White from the middle game. The queen trip from d1 to a4 to a3 has already started, the c-file is half open, and every White move from here adds one small new problem. No sacrifices in this one: this is what a world championship squeeze looks like from the inside.',
+          ],
+          'Guess Fischer\u2019s moves. The win is patient, not flashy.',
+        ),
+        gtmStep(
+          'The squeeze, move by move',
+          [
+            'The board shows the position after 15...bxc5. Black\u2019s c-pawn is isolated, the d5 square is weak, and White has the healthier king. Castling, a bishop retreat with a threat, and a knight regroup to d4 come first.',
+            'Notice how nothing attacks anything directly for several moves, and Black\u2019s position still gets worse every time. That is the grandmaster skill this tier has been building.',
+          ],
+          'Robert James Fischer v Boris Spassky, World Championship Game 6, Reykjavik 1972',
+          START,
+          ['c4','e6','Nf3','d5','d4','Nf6','Nc3','Be7','Bg5','O-O','e3','h6','Bh4','b6','cxd5','Nxd5','Bxe7','Qxe7','Nxd5','exd5','Rc1','Be6','Qa4','c5','Qa3','Rc8','Bb5','a6','dxc5','bxc5'],
+          [
+            guess('O-O', 'King safety first, always. The king disappears and the rook joins the f-file for the f5 break that comes much later.', { reply: 'Ra7' }),
+            guess('Be2', 'The bishop retreats with a threat: it now aims at the knight on c6 through to the rook, so Black must spend a move on defense instead of generating counterplay.', { reply: 'Nd7' }),
+            guess('Nd4', 'The famous regrouping. The knight heads for d4, where trading it off removes the best defender of the d5 hole. Quiet moves like this win world championships.', { reply: 'Qf8' }),
+            guess('Nxe6', 'The trade the regrouping prepared. After fxe6 the e6 pawn becomes a permanent target and the light squares around Black\u2019s king stay broken.', { reply: 'fxe6' }),
+            guess('e4', 'The central break. It claims space, cuts the d4 pawn off from help, and opens the e-file and the d1-h5 diagonal for White\u2019s heavy pieces.', { reply: 'd4' }),
+            guess('f4', 'Fixing the kingside and preparing f5. Each advance also takes a square away from a black piece, which is how space converts into pressure.', { reply: 'Qe7' }),
+            guess('e5', 'The passed pawn keeps going. It opens the d1-h5 diagonal, cramps Black further, and later the same pawn marches to e6 while the rooks swing to the kingside.', { reply: 'Rb8' }),
+          ],
+        ),
+        text(
+          'How it ended',
+          [
+            'Fischer kept squeezing: 23.Bc4 Kh8 24.Qh3, the break 26.f5, the march 31.e6, and finally 38.Rxf6 smashing the kingside open for the rooks. Spassky resigned after 41.Qf4.',
+            'Then chess history: Spassky joined the audience in applauding. The win put Fischer ahead 3.5 to 2.5, and he never trailed in the match again.',
+          ],
         ),
         text(
           'Where you go from here',

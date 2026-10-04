@@ -400,6 +400,9 @@ export function RushPanel() {
               <div className="h-full bg-primary transition-all" style={{ width: `${(timeLeft / THREE_MIN_SECONDS) * 100}%` }} />
             </div>
           )}
+          <Button variant="outline" className="mt-4 w-full" onClick={() => void finishRun(score, misses)}>
+            End run
+          </Button>
         </div>
         <div className="rounded-lg bg-card p-4 text-xs text-muted-foreground shadow-sm">
           Speed mode: the guided hints are off. A wrong move moves you to the next puzzle right away. In survival, three misses end the run.

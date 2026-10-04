@@ -31,7 +31,16 @@ function expandSan(tok: string): string {
   const m = tok.match(SAN_RE)
   if (!m) return tok
   if (m[1]) return m[2] ? 'castle long' : 'castle short'
-  const [, , piece, fromFile, fromRank, isCapture, dest, promo, suffix] = m
+  // group order: 1 castle, 2 long-castle tail, 3 piece, 4 fromFile, 5 fromRank,
+  // 6 capture, 7 destination, 8 promotion, 9 check/mate suffix
+  const piece = m[3]
+  const fromFile = m[4]
+  const fromRank = m[5]
+  const isCapture = m[6]
+  const dest = m[7]
+  if (!dest) return tok // defensive: group drift must never break speech
+  const promo = m[8]
+  const suffix = m[9]
   const parts: string[] = []
   if (piece && fromFile) parts.push(`${PIECE_WORDS[piece]} from ${fromFile.toUpperCase()}`)
   else if (piece && fromRank) parts.push(`${PIECE_WORDS[piece]} ${rankWord(fromRank)}`)
@@ -218,17 +227,40 @@ export async function speak(opts: SpeakOptions): Promise<void> {
       doneCb = null
       return
     }
-    const u = new SpeechSynthesisUtterance(chunks[idx++])
-    if (picked) u.voice = picked
-    u.pitch = profile.pitch
-    u.rate = Math.min(1.6, Math.max(0.6, opts.speed ?? profile.rate))
-    u.onend = next
-    u.onerror = () => {
-      stateListener?.(false)
-      doneCb?.()
-      doneCb = null
+    const text = chunks[idx++]
+    // Some engines never fire onend (headless previews, a few Linux builds).
+    // Two stopgaps keep every listener honest: if nothing is speaking or
+    // pending a beat after queueing, the engine ignored us; and if a chunk
+    // runs absurdly long it is treated as finished rather than stuck.
+    let settled = false
+    const settle = () => {
+      if (settled) return
+      settled = true
+      window.clearInterval(ignorePoll)
+      window.clearTimeout(stallGuard)
+      next()
     }
-    synth!.speak(u)
+    // started before the try so settle can always clear them
+    const ignorePoll = window.setInterval(() => {
+      if (!synth!.speaking && !synth!.pending) settle()
+    }, 1000)
+    const stallGuard = window.setTimeout(
+      settle,
+      Math.max(6000, (text.length / 9) * 1000 / Math.max(0.5, opts.speed ?? profile.rate)) + 3000,
+    )
+    try {
+      const u = new SpeechSynthesisUtterance(text)
+      if (picked) u.voice = picked
+      u.pitch = profile.pitch
+      u.rate = Math.min(1.6, Math.max(0.6, opts.speed ?? profile.rate))
+      u.onend = settle
+      u.onerror = settle
+      synth!.speak(u)
+    } catch {
+      // an engine that rejects the utterance outright: treat the chunk as
+      // finished so queues and button states never freeze
+      settle()
+    }
   }
   next()
 }

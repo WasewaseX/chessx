@@ -110,7 +110,9 @@ export function GoalCard() {
       <div className="mt-3">
         <StreakCalendar days={data.days} goalMinutes={data.goalMinutes} weeks={5} />
       </div>
-      <div className="mt-2 text-xs text-muted-foreground">Best streak: {data.streaks.best} days</div>
+      <div className="mt-2 text-xs text-muted-foreground">
+        Best streak: {data.streaks.best} {data.streaks.best === 1 ? 'day' : 'days'}
+      </div>
     </button>
   )
 }

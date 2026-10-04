@@ -1,5 +1,5 @@
 // Elo updates and provisional handling.
-// A rating of `null` means "unrated" — we never show invented numbers.
+// A rating of `null` means "unrated": we never show invented numbers.
 
 export function expectedScore(a: number, b: number): number {
   return 1 / (1 + Math.pow(10, (b - a) / 400))
@@ -43,7 +43,7 @@ export function accuracyFromLoss(avgLossCp: number): number {
   return Math.max(0, Math.min(100, Math.round(a * 10) / 10))
 }
 
-// XP titles — purely cosmetic, driven by real XP only.
+// XP titles: purely cosmetic, driven by real XP only.
 export function titleForXp(xp: number): string {
   if (xp >= 15000) return 'Master'
   if (xp >= 8000) return 'Expert'

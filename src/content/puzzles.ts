@@ -99,7 +99,7 @@ const BASE: Puzzle[] = [
     rating: 1400,
     themes: ['mate', 'sacrifice', 'famousGame', 'deflection'],
     title: 'The Opera finish',
-    source: 'Morphy – Duke of Brunswick & Count Isouard, Paris 1858',
+    source: 'Morphy, Duke of Brunswick and Count Isouard, Paris 1858',
   },
 ]
 
@@ -112,6 +112,7 @@ export const PUZZLE_THEMES: Record<string, string> = {
   skewer: 'Skewer',
   discoveredAttack: 'Discovered attack',
   doubleAttack: 'Double attack',
+  deflection: 'Deflection',
   removingDefender: 'Removing the defender',
   promotion: 'Promotion',
   endgame: 'Endgame',

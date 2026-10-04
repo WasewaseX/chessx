@@ -1,6 +1,6 @@
 // Tier 5: Master. Imbalances, prophylaxis, initiative, deep technique.
 import type { Tier } from '../schema'
-import { text, demo, quiz, drill, right, wrong, playout } from '../kit'
+import { text, demo, quiz, drill, right, wrong, playout, gtmStep, guess } from '../kit'
 
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
@@ -809,9 +809,9 @@ export const master: Tier = {
       id: 'ms-20',
       n: 20,
       title: 'Master graduation',
-      subtitle: 'One exam, one game against the machine.',
-      minutes: 15,
-      concepts: ['calculation', 'endgame'],
+      subtitle: 'One famous combination, one exam, one game.',
+      minutes: 20,
+      concepts: ['calculation', 'endgame', 'famousGame'],
       steps: [
         quiz('Retrieval first', 'Where does the zwischenzug live?', [
           right('In the moment after a capture, when everyone plays automatically', 'The intermediate move is the deepest practical habit in tactics.'),
@@ -836,6 +836,41 @@ export const master: Tier = {
           wrong('Keep playing: rooks always win', 'Rooks win positions, not game scores.'),
           wrong('Sacrifice the rook for a pawn attack', 'Sacrifices need follow-up. There is no follow-up against a fortress.'),
         ]),
+        text(
+          'Kasparov\u2019s Immortal',
+          [
+            'Wijk aan Zee, 1999. Kasparov, as White against Topalov, opens with a pawn storm, and on move 24 finds a rook sacrifice that starts one of the longest king hunts ever played. Seven forcing moves in a row, every one of them either a check, a capture, or the only move that keeps the trap closed.',
+            'You play White from the position after 23...Qd6. Topalov\u2019s king sits on a7 behind its own pawns. Each of your moves marches it one square closer to the edge of the board.',
+          ],
+          'Guess the champion\u2019s moves before you play them.',
+        ),
+        gtmStep(
+          'The king hunt',
+          [
+            'The rook on d4 is the famous offer. Take the king\u2019s road seriously: a7, b6, a5, a4, a3. Your checks are not random, they are a fence moving with him.',
+            'Watch for the quiet fifth move: after four checks, the strongest move in the sequence does not check at all.',
+          ],
+          'Garry Kasparov v Veselin Topalov, Wijk aan Zee 1999',
+          START,
+          ['e4','d6','d4','Nf6','Nc3','g6','Be3','Bg7','Qd2','c6','f3','b5','Nge2','Nbd7','Bh6','Bxh6','Qxh6','Bb7','a3','e5','O-O-O','Qe7','Kb1','a6','Nc1','O-O-O','Nb3','exd4','Rxd4','c5','Rd1','Nb6','g3','Kb8','Na5','Ba8','Bh3','d5','Qf4+','Ka7','Rhe1','d4','Nd5','Nbxd5','exd5','Qd6'],
+          [
+            guess('Rxd4', 'The rook offers itself for a pawn. Accepting opens every diagonal and file at once; declining leaves White with Qxf7 ideas and a wrecked kingside. Topalov accepted, and years later called accepting suicide.', { reply: 'cxd4' }),
+            guess('Re7+', 'The rook check that cuts the 7th rank. The king must step toward the open board, and the bishop on b7 stays buried behind its own army.', { reply: 'Kb6' }),
+            guess('Qxd4+', 'Queen check along the 4th rank, and it also eyes the a5 knight, so the king keeps walking.', { reply: 'Kxa5' }),
+            guess('b4+', 'A plain pawn push that checks and fences. The king cannot go back: b6, b5 and a6 are all covered by White\u2019s pieces.', { reply: 'Ka4' }),
+            guess('Qc3', 'The silent star of the combination. No check, but it threatens b3 with mate ideas and forces the black queen to abandon the a8 bishop.', { reply: 'Qxd5' }),
+            guess('Ra7', 'The rook invades the 7th rank, pinning the bishop to its own camp. Black has no time to consolidate.', { reply: 'Bb7' }),
+            guess('Rxb7', 'The bishop falls. Recapturing with the queen runs into Qb3 mate, so the queen must leave the corner for good.', { reply: 'Qc4' }),
+            guess('Qxf6', 'The queen collects the last knight, guards a1 against the rook, and the king runs to a3 to dodge the checks. White has queen for two pieces and a winning attack.', { reply: 'Kxa3' }),
+          ],
+        ),
+        text(
+          'How it ended',
+          [
+            'Kasparov drove the king home: 32.Qxa6+ Kxb4 33.c3+ Kxc3 34.Qa1+ Kd2 35.Qb2+ Kd1 36.Bf1 Rd2, then 37.Rd7 pinned the rook so the queen could be collected: 38.Bxc4 bxc4 39.Qxh8. Topalov resigned on move 44.',
+            'What made it work: every check also captured something or took away the only flight square, so Black never got a free tempo. Forcing does not mean blind. It means each move keeps the fence closed.',
+          ],
+        ),
         playout(
           'Graduation game',
           'Master the machine: 3 points of material within 20 moves against the level 5 engine.',

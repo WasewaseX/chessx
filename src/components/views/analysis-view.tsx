@@ -9,10 +9,12 @@ import { engine } from '@/lib/chess/engine-client'
 import { accuracyFromLoss } from '@/lib/rating'
 import { detectOpening } from '@/lib/chess/openings'
 import { useApp } from '@/lib/store'
+import { hasSpeech, speak, stopSpeaking } from '@/lib/speech'
+import { coachMaybe } from '@/lib/coaches'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { Loader2, Play, Pause, ChevronLeft, ChevronRight, Sparkles, Trash2, Copy, Check } from 'lucide-react'
+import { Loader2, Play, Pause, ChevronLeft, ChevronRight, Sparkles, Trash2, Copy, Check, Volume2, VolumeX, Square } from 'lucide-react'
 
 export type Label = 'best' | 'brilliant' | 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder'
 
@@ -259,6 +261,60 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
   const [pgn, setPgn] = useState(initialPgn)
   // the saved game this review belongs to, when it came from the Play tab
   const gameId = useApp.getState().reviewGameId
+  // coach speech: the player's chosen coach reads the key moments out loud
+  const profile = useApp((s) => s.profile)
+  const coach = coachMaybe(profile?.coach)
+  const speechVoice = coach?.voice ?? 'default'
+  const speechSpeed = coach?.speed ?? 1
+  const soundEnabled = profile?.soundEnabled ?? true
+  const [speechSupported, setSpeechSupported] = useState(false)
+  useEffect(() => setSpeechSupported(hasSpeech()), [])
+  const speechReady = soundEnabled && speechSupported
+  const [speakingId, setSpeakingId] = useState<string | null>(null)
+  const [queueRunning, setQueueRunning] = useState(false)
+  const [queuePos, setQueuePos] = useState(0)
+  // guards the sequential "listen to report" runner against stale callbacks
+  const speechRunRef = useRef(0)
+  const stopSpeech = useCallback(() => {
+    speechRunRef.current += 1
+    stopSpeaking()
+    setSpeakingId(null)
+    setQueueRunning(false)
+    setQueuePos(0)
+  }, [])
+  // leaving the view (or switching tabs) must never leave audio behind
+  useEffect(() => () => {
+    speechRunRef.current += 1
+    stopSpeaking()
+  }, [])
+
+  /** Speak one coach line. Toggling the same line again stops it. */
+  const speakOne = useCallback(
+    (id: string, text: string) => {
+      if (!speechReady) return
+      if (speakingId === id && !queueRunning) {
+        speechRunRef.current += 1
+        stopSpeaking() // its onDone callback clears the id
+        return
+      }
+      speechRunRef.current += 1 // invalidates any running report queue
+      const run = speechRunRef.current
+      setQueueRunning(false)
+      setQueuePos(0)
+      void speak({
+        text,
+        voice: speechVoice,
+        speed: speechSpeed,
+        onDone: () => {
+          if (speechRunRef.current === run) setSpeakingId(null)
+        },
+      }).catch(() => {
+        /* speech is a nicety, never let it break the report view */
+      })
+      setSpeakingId(id)
+    },
+    [speechReady, speakingId, queueRunning, speechVoice, speechSpeed],
+  )
   // one-time parse of the incoming PGN during first render (no effect needed)
   const initialParse = useMemo(() => {
     if (!initialPgn) return { plies: [], error: null as string | null }
@@ -304,18 +360,20 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
       setEvals([])
       setCursor(-1)
       setError(null)
+      stopSpeech()
       return true
     } catch {
       setError('Could not read that PGN.')
       return false
     }
-  }, [])
+  }, [stopSpeech])
 
   const runReview = useCallback(async () => {
     if (plies.length === 0 || analyzing) return
     setAnalyzing(true)
     setProgress(0)
     setSavedToInsights(false)
+    stopSpeech() // fresh numbers make old spoken lines stale
     const depth = reviewDepth(plies.length)
     const results: PlyEval[] = []
     let prevWhitePov = 0
@@ -411,7 +469,7 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
         /* report saving is best effort, the on-screen report still works */
       }
     }
-  }, [plies, analyzing])
+  }, [plies, analyzing, stopSpeech])
 
   // keyboard navigation
   useEffect(() => {
@@ -430,6 +488,51 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
   const opening = useMemo(() => detectOpening(plies.map((p) => p.san)), [plies])
   const result = resultText(headers.result)
   const moments = useMemo(() => keyMoments(evals), [evals])
+
+  /** Read the key moments in display order, one line each, stoppable at any point. */
+  const speakReport = useCallback(() => {
+    if (!speechReady) return
+    if (queueRunning) {
+      stopSpeech()
+      return
+    }
+    const items = moments.map(({ index, eval: e }) => ({
+      id: `m${index}`,
+      text: `${moveNumber(index)}. ${e.san} (${e.color === 'w' ? 'White' : 'Black'}): ${LABEL_META[e.label].text}. ${reasonFor(e)}`,
+    }))
+    if (items.length === 0) return
+    speechRunRef.current += 1
+    const run = speechRunRef.current
+    let i = 0
+    const advance = () => {
+      if (speechRunRef.current !== run) return
+      if (i >= items.length) {
+        setSpeakingId(null)
+        setQueueRunning(false)
+        setQueuePos(0)
+        return
+      }
+      const item = items[i]
+      i += 1
+      setQueuePos(i)
+      setSpeakingId(item.id)
+      // deferred so the previous line's onDone (fired synchronously by
+      // speak()'s internal cancel) cannot re-enter this runner
+      setTimeout(() => {
+        if (speechRunRef.current !== run) return
+        void speak({
+          text: item.text,
+          voice: speechVoice,
+          speed: speechSpeed,
+          onDone: advance,
+        }).catch(() => {
+          /* speech is a nicety, never let it break the report view */
+        })
+      }, 0)
+    }
+    setQueueRunning(true)
+    advance()
+  }, [speechReady, queueRunning, moments, speechVoice, speechSpeed, stopSpeech])
 
   const whiteLosses = evals.filter((e) => e.color === 'w').map((e) => Math.max(0, (e.color === 'w' ? e.before : -e.before) - (e.color === 'w' ? e.after : -e.after)))
   const blackLosses = evals.filter((e) => e.color === 'b').map((e) => Math.max(0, (e.color === 'b' ? -e.before : e.before) - (e.color === 'b' ? -e.after : e.after)))
@@ -625,29 +728,80 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
 
             {moments.length > 0 && (
               <div className="rounded-lg bg-card p-4 shadow-sm">
-                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Key moments</div>
-                <div className="mt-2 space-y-1">
-                  {moments.map(({ index, eval: e }) => (
-                    <button
-                      key={index}
-                      onClick={() => setCursor(index)}
-                      className="pressable flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left hover:bg-accent"
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Key moments</div>
+                  {speechReady && (
+                    <Button
+                      variant={queueRunning ? 'default' : 'secondary'}
+                      size="sm"
+                      className="h-7 px-2.5 text-xs transition-transform active:scale-95"
+                      onClick={speakReport}
+                      aria-pressed={queueRunning}
+                      aria-label={queueRunning ? 'Stop reading the report' : 'Listen to report'}
                     >
-                      <span
-                        className="mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase text-white"
-                        style={{ background: LABEL_META[e.label].bg }}
+                      {queueRunning ? (
+                        <>
+                          <Square className="h-3 w-3" /> Stop
+                          <span className="font-normal text-primary-foreground/80">
+                            {queuePos}/{moments.length}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <Volume2 className="h-3.5 w-3.5" /> Listen to report
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+                <div className="mt-2 space-y-1">
+                  {moments.map(({ index, eval: e }) => {
+                    const momentId = `m${index}`
+                    const line = `${moveNumber(index)}. ${e.san} (${e.color === 'w' ? 'White' : 'Black'}): ${LABEL_META[e.label].text}. ${reasonFor(e)}`
+                    const isSpeaking = speakingId === momentId
+                    return (
+                      <div
+                        key={index}
+                        className={cn(
+                          'flex w-full items-start gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-accent',
+                          isSpeaking && 'bg-primary/10',
+                        )}
                       >
-                        {LABEL_META[e.label].text}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block text-sm font-bold">
-                          {moveNumber(index)}. {e.san}
-                          <span className="ml-1 font-normal text-muted-foreground">({e.color === 'w' ? 'White' : 'Black'})</span>
-                        </span>
-                        <span className="block text-xs leading-snug text-muted-foreground">{reasonFor(e)}</span>
-                      </span>
-                    </button>
-                  ))}
+                        <button
+                          onClick={() => setCursor(index)}
+                          className="pressable flex min-w-0 flex-1 items-start gap-2 rounded-md text-left"
+                          aria-label={`Go to move ${moveNumber(index)}, ${e.san}`}
+                        >
+                          <span
+                            className="mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase text-white"
+                            style={{ background: LABEL_META[e.label].bg }}
+                          >
+                            {LABEL_META[e.label].text}
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block text-sm font-bold">
+                              {moveNumber(index)}. {e.san}
+                              <span className="ml-1 font-normal text-muted-foreground">({e.color === 'w' ? 'White' : 'Black'})</span>
+                            </span>
+                            <span className="block text-xs leading-snug text-muted-foreground">{reasonFor(e)}</span>
+                          </span>
+                        </button>
+                        {speechReady && (
+                          <button
+                            type="button"
+                            onClick={() => speakOne(momentId, line)}
+                            aria-label={isSpeaking ? 'Stop reading this moment' : 'Read this moment aloud'}
+                            className={cn(
+                              'mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition hover:bg-accent active:scale-90',
+                              isSpeaking && 'bg-primary/15 text-primary',
+                            )}
+                          >
+                            {isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}

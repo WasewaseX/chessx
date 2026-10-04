@@ -401,6 +401,12 @@ export function ChessBoard({
               onPointerDown={(e) => onSquarePointerDown(e, square)}
             >
               {isLast && <div className="absolute inset-0" style={{ background: 'rgba(230, 168, 44, 0.42)' }} />}
+              {selected === square && (
+                <div
+                  className="pointer-events-none absolute inset-0"
+                  style={{ boxShadow: 'inset 0 0 0 3px rgba(129,182,76,0.95)' }}
+                />
+              )}
               {checkSquare === square && (
                 <div
                   className="absolute inset-0"

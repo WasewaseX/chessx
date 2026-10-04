@@ -18,7 +18,7 @@ Chess.com spread these over 15 years. The plan below sequences them so the learn
 
 ## Phase 0, Foundations (shipped)
 
-- Six-tier curriculum: Newbie, Beginner, Intermediate, Advanced, Master, Grandmaster. 20 levels per tier, 120 levels, 797 interactive steps (204 exercises, 341 quizzes, 97 demos, 25 engine playouts). Every FEN and line is machine-validated with chess.js (`bun run validate:content`).
+- Six-tier curriculum: Newbie, Beginner, Intermediate, Advanced, Master, Grandmaster. 20 levels per tier, 120 levels, 806 interactive steps (204 exercises, 341 quizzes, 97 demos, 25 engine playouts, 6 guess-the-move master games). Every FEN and line is machine-validated with chess.js (`bun run validate:content`).
 - Science-based lesson loop per level: retrieval recall, micro-teaching with one key idea, worked examples on a live board, unique-solution drills, quizzes, engine playouts, spaced review arenas.
 - Guided-mistake model inspired by Brilliant: a miss never shouts back. Attempt one gets a nudge toward checks, captures and threats, attempt two makes the key piece glow on the board, attempt three shows the idea played out and hands the position back so the student still plays it themselves. Quizzes explain the trap behind each tempting option, then glow the right one. Puzzles allow three guided tries before the line is revealed, and only a revealed miss costs rating.
 - Boards that behave: drag and click-move, legal dots, pulsing hint flashes, promotion picker with cancel, free-exploration demo boards, animated piece identity so every move animates. Verified move by move in a real browser session.
@@ -49,7 +49,7 @@ Goal: learning depth no generic site can copy.
 - Openings program: repertoire trees for White and Black by tier, model games annotated by coaches, move-order traps as drills, spaced repertoire review synced with the skill model.
 - Endgame program: tablebase-verified technique courses (K+P, R+P, Q vs R, Lucena/Philidor family), theoretical win/draw/loss labels from 7-piece Syzygy for exactness.
 - Pattern library: 200+ mate and tactic patterns as flashcards with diagrams, tied into spaced review.
-- Curriculum expansion (shipped): 496 to 797 steps, every level 6 to 9 steps with retrieval openers, more playouts per tier, and a new guess-the-move step type: play through Légal\u2019s mate, the Opera Game and the smothered mate pattern move by move, scored full/half/none against the master\u2019s choices, with guided misses and coach explanations. Still open: one annotated master game per upper tier with deeper commentary.
+- Curriculum expansion (shipped): 496 to 797 steps, every level 6 to 9 steps with retrieval openers, more playouts per tier, and a new guess-the-move step type: play through Légal’s mate, the Opera Game and the smothered mate pattern move by move, scored full/half/none against the master’s choices, with guided misses and coach explanations. Every upper tier now closes with a verified master-game GTM: the Immortal Game in Intermediate, Byrne v Fischer (Game of the Century) in Advanced, Kasparov’s Immortal in Master and Fischer v Spassky Game 6 in Grandmaster, all transcribed against published mainlines and replayed by the content validator.
 - Custom puzzle sets: build a set from themes or from your own game mistakes, share by link.
 - Vision and calculation training: coordinates sprint, blindfold mode, counting exercises (attackers vs defenders), candidate-moves trainer that forces you to list checks/captures/threats before moving.
 

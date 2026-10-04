@@ -1,7 +1,7 @@
 // Tier 4: Advanced. Calculation discipline, combinations, positional depth,
 // and real endgame technique.
 import type { Tier } from '../schema'
-import { text, demo, quiz, drill, right, wrong, playout } from '../kit'
+import { text, demo, quiz, drill, right, wrong, playout, gtmStep, guess } from '../kit'
 
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
@@ -834,9 +834,9 @@ export const advanced: Tier = {
       id: 'adv-20',
       n: 20,
       title: 'Advanced graduation',
-      subtitle: 'One exam, one game, tier cleared.',
-      minutes: 15,
-      concepts: ['endgame', 'calculation', 'technique'],
+      subtitle: 'One exam, one famous game, tier cleared.',
+      minutes: 19,
+      concepts: ['endgame', 'calculation', 'technique', 'famousGame'],
       steps: [
         quiz('Retrieval first', 'When does trading the last rooks pay off in a won rook ending?', [
           right('When the pawn endgame after the trade is a calculated win', 'Concrete wins only. Hopes do not convert.'),
@@ -861,6 +861,35 @@ export const advanced: Tier = {
           wrong('Trade pieces and go to an endgame', 'That is the opponent\u2019s plan, not yours.'),
           wrong('Defend passively behind the pawn', 'The pawn cannot be defended passively. It can only be avenged.'),
         ]),
+        text(
+          'The Game of the Century',
+          [
+            'New York, 1956. A 13-year-old Bobby Fischer sits across from Grandmaster Donald Byrne in the Rosenwald tournament. Byrne plays the opening well, but on move 11 the teenager offers a knight for almost nothing, and from that moment every black piece hunts together.',
+            'The finish is one of the most famous sequences ever played: a queen sacrifice that drags White\u2019s king up the board into a net of knight checks. You play Black from the critical position. Find the moves in order.',
+          ],
+          'Guess the master\u2019s moves. Full credit for the exact move.',
+        ),
+        gtmStep(
+          'Byrne v Fischer, the finish',
+          [
+            'White has just castled long and played 16.Bc5, and 16...Rfe8+ forced 17.Kf1. Now White\u2019s queen sits on a3, the king on f1, and both rooks are still buried on their original files.',
+            'Black to move: first the bishop offer that must be accepted, then the discovered checks that collect the board. Each move in this sequence is either a check or a capture.',
+          ],
+          'Donald Byrne v Bobby Fischer, Rosenwald, New York 1956',
+          START,
+          ['Nf3','Nf6','c4','g6','Nc3','Bg7','d4','O-O','Bf4','d5','Qb3','dxc4','Qxc4','c6','e4','Nbd7','Rd1','Nb6','Qc5','Bg4','Bg5','Na4','Qa3','Nxc3','bxc3','Nxe4','Bxe7','Qb6','Bc4','Nxc3','Bc5','Rfe8+','Kf1'],
+          [
+            guess('Be6', 'The queen offer. White must grab it, because the bishop also attacks the bishop on c4 and every retreat loses the initiative. The bishop cannot be taken safely: 18.Bxe6 Rxe6 and the rook dominates the open file.', { reply: 'Bxb6' }),
+            guess('Bxc4+', 'Capturing the bishop gives check along the c4-d3-e2-f1 diagonal. White must move the king instead of defending anything.', { reply: 'Kg1' }),
+            guess('Ne2+', 'Knight check from c3. It hits the king on g1 and steps onto the same diagonal the bishop uses, so White cannot take it.', { reply: 'Kf1' }),
+            guess('Nxd4+', 'Discovered check: the knight steps off e2 and the bishop on c4 shoots straight at f1 again. The knight also grabs a pawn and threatens Nc2 forking king and rooks.', { reply: 'Kg1' }),
+            guess('Ne2+', 'Same geometry, new move. Check again, and again the bishop behind the knight guards it.', { reply: 'Kf1' }),
+            guess('Nc3+', 'The third fork. The king is dragged back to g1 while the knight now eyes the d1 rook and the b5 square.', { reply: 'Kg1' }),
+            guess('axb6', 'The a-pawn finally collects the queen. Black is a piece behind on the score sheet and completely winning on the board.', { reply: 'Qb4' }),
+            guess('Ra4', 'The rook slides down the open a-file, attacking the queen and preparing to trade into a won endgame.', { reply: 'Qxb6' }),
+            guess('Nxd1', 'The knight eats the last rook. White has given up queen and rook for a bishop and two pawns. Fischer converted with mate on move 41.'),
+          ],
+        ),
         playout(
           'Graduation game',
           'Beat the level 5 engine on material within 20 moves.',
@@ -871,6 +900,7 @@ export const advanced: Tier = {
           'material',
           20,
           'Advanced tier cleared. The Master tier is watching.',
+          'When a position is quiet, remember Byrne v Fischer: every black move did two things at once. Look for moves with a second job.'
         ),
       ],
     },

@@ -47,6 +47,44 @@ export function PuzzlesView() {
   const reviewLoadRef = useRef(false)
   const soundEnabled = profile?.soundEnabled ?? true
 
+  // Theme practice filter. Kept in component state on purpose: persisting it
+  // would need a new profile field and profile API changes, which are outside
+  // this feature's scope.
+  const [themeFilter, setThemeFilter] = useState<string | null>(null)
+  // Real per-theme counts from PuzzleAttempt rows, fetched and refetched after
+  // every attempt. Nothing seeded.
+  const [themeStats, setThemeStats] = useState<Record<string, { attempts: number; solved: number }> | null>(null)
+
+  const refreshThemeStats = useCallback(() => {
+    fetch('/api/puzzles/theme-stats')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d && d.themes) setThemeStats(d.themes)
+      })
+      .catch(() => {
+        /* stats are a nicety, the practice flow works without them */
+      })
+  }, [])
+
+  useEffect(() => {
+    refreshThemeStats()
+  }, [refreshThemeStats])
+
+  // Chips: All plus the themes that actually exist in the pool, with real counts.
+  const themeOptions = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const p of PUZZLES) {
+      for (const t of p.themes) counts.set(t, (counts.get(t) ?? 0) + 1)
+    }
+    const ordered = Object.keys(PUZZLE_THEMES).filter((t) => counts.has(t))
+    const extras = [...counts.keys()].filter((t) => !PUZZLE_THEMES[t]).sort()
+    return [...ordered, ...extras].map((t) => ({
+      key: t,
+      label: PUZZLE_THEMES[t] ?? t,
+      count: counts.get(t) ?? 0,
+    }))
+  }, [])
+
   const flash = useCallback((marks: FlashMark[]) => {
     setFlashes(marks)
     setTimeout(() => setFlashes((cur) => (cur === marks ? [] : cur)), 2900)
@@ -55,14 +93,16 @@ export function PuzzlesView() {
   const loadRated = useCallback(() => {
     if (!profile) return
     const target = profile.puzzleRating ?? 800
+    // theme practice stays inside the chosen theme, otherwise the whole pool
+    const themed = themeFilter ? PUZZLES.filter((p) => p.themes.includes(themeFilter)) : PUZZLES
     // pick a random puzzle among the closest to the target rating, avoiding the current one
-    const pool = [...PUZZLES].sort((a, b) => Math.abs(a.rating - target) - Math.abs(b.rating - target))
+    const pool = [...themed].sort((a, b) => Math.abs(a.rating - target) - Math.abs(b.rating - target))
     const candidates = pool.slice(0, Math.min(5, pool.length)).filter((p) => p.id !== state?.puzzle.id)
     const choices = candidates.length ? candidates : pool.slice(0, 1)
     const best = choices[Math.floor(Math.random() * choices.length)]
     setState({ puzzle: best })
     startPuzzle(best)
-  }, [profile, state?.puzzle.id])
+  }, [profile, state?.puzzle.id, themeFilter])
 
   const loadDaily = useCallback(async () => {
     const dayKey = new Date().toLocaleDateString('sv-SE')
@@ -128,8 +168,20 @@ export function PuzzlesView() {
       else if (tab === 'rated' && state.daily) loadRated()
       else if (tab === 'daily' && state.daily && state.dayKey !== new Date().toLocaleDateString('sv-SE')) void loadDaily()
     }
-     
   }, [tab])
+
+  // Picking a theme chip loads a new puzzle from that theme right away.
+  const themeLoadRef = useRef<string | null | undefined>(undefined)
+  useEffect(() => {
+    if (tab !== 'rated' || !profile) return
+    if (themeLoadRef.current === undefined) {
+      themeLoadRef.current = themeFilter // first mount: the normal load already ran
+      return
+    }
+    if (themeLoadRef.current === themeFilter) return
+    themeLoadRef.current = themeFilter
+    loadRated()
+  }, [themeFilter, tab, profile, loadRated])
 
   const game = useMemo(() => {
     try {
@@ -180,11 +232,12 @@ export function PuzzlesView() {
           setReviewItemId(null)
           if (d.graded?.intervalDays != null) setGraded({ intervalDays: d.graded.intervalDays })
         }
+        refreshThemeStats() // per-theme counters only move from real attempts
       } catch {
         /* offline attempt, ignore */
       }
     },
-    [state, setProfile, reviewItemId],
+    [state, setProfile, reviewItemId, refreshThemeStats],
   )
 
   const engineReply = useCallback(
@@ -376,6 +429,59 @@ export function PuzzlesView() {
         </div>
       </div>
 
+      {tab === 'rated' && (
+        <div className="mb-4">
+          <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Practice a puzzle theme">
+            <button
+              type="button"
+              onClick={() => setThemeFilter(null)}
+              aria-pressed={themeFilter === null}
+              className={cn(
+                'rounded-full px-3 py-1 text-xs font-semibold transition active:scale-95',
+                themeFilter === null
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground',
+              )}
+            >
+              All <span className="ml-0.5 font-normal opacity-70">{PUZZLES.length}</span>
+            </button>
+            {themeOptions.map((t) => {
+              const active = themeFilter === t.key
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => setThemeFilter(active ? null : t.key)}
+                  aria-pressed={active}
+                  title={`${t.count} puzzle${t.count === 1 ? '' : 's'} tagged ${t.label}`}
+                  className={cn(
+                    'rounded-full px-3 py-1 text-xs font-semibold transition active:scale-95',
+                    active
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground',
+                  )}
+                >
+                  {t.label} <span className="ml-0.5 font-normal opacity-70">{t.count}</span>
+                </button>
+              )
+            })}
+          </div>
+          {themeFilter && (
+            <div className="mt-1.5 text-xs text-muted-foreground" aria-live="polite">
+              {PUZZLE_THEMES[themeFilter] ?? themeFilter} practice ·{' '}
+              {themeStats?.[themeFilter] && themeStats[themeFilter].attempts > 0 ? (
+                <>
+                  solved <span className="font-bold text-foreground">{themeStats[themeFilter].solved}</span> of{' '}
+                  {themeStats[themeFilter].attempts} attempt{themeStats[themeFilter].attempts === 1 ? '' : 's'} on this theme
+                </>
+              ) : (
+                'no attempts on this theme yet'
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {tab === 'rush' && <RushPanel />}
 
       {tab !== 'rush' && phase === 'loading' && (
@@ -409,6 +515,8 @@ export function PuzzlesView() {
                     </span>
                   ) : state?.daily ? (
                     'Daily puzzle'
+                  ) : themeFilter ? (
+                    'Theme practice'
                   ) : (
                     'Rated puzzle'
                   )}
@@ -501,6 +609,11 @@ export function PuzzlesView() {
               )}
               {hintShown && phase === 'solving' && (
                 <p className="mt-2 text-sm text-muted-foreground">The glowing piece is the one that moves. It is up to you to find where.</p>
+              )}
+              {showSolution && state && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">Solution:</span> {state.puzzle.solution.split(' ').filter(Boolean).join(' ')}
+                </p>
               )}
             </div>
 
