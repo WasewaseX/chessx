@@ -845,6 +845,26 @@ export const beginner: Tier = {
           wrong('Attack h7 with the bishop immediately', 'The bishop is a pointer, not a lone attacker. Build first.'),
           wrong('Trade the bishop for the c6 knight right away', 'The f7-diagonal bishop is the soul of the position. Keep it until there is a reason.'),
         ]),
+        gtmStep(
+          'Play like Morphy',
+          [
+            'Paris, 1858. Morphy, sitting in a box at the Italian Opera, finishes a game in 17 moves while chatting about the performance. It is the most famous attacking game ever played, and it starts exactly like your Italian.',
+            'You will play White from move 10. In each position, find Morphy\u2019s move. He gives up a knight, then a whole piece more, then his queen, and mates with a rook.',
+          ],
+          'Paul Morphy vs Duke Karl of Brunswick and Count Isouard, Paris 1858',
+          START,
+          ['e4', 'e5', 'Nf3', 'd6', 'd4', 'Bg4', 'dxe5', 'Bxf3', 'Qxf3', 'dxe5', 'Bc4', 'Nf6', 'Qb3', 'Qe7', 'Nc3', 'c6', 'Bg5', 'b5'],
+          [
+            guess('Nxb5', 'Morphy opens lines with a piece sacrifice. Taking the pawn threatens Bxb5+ and every Black reply wastes a tempo while the attack grows.', { reply: 'cxb5' }),
+            guess('Bxb5+', 'Check along the long diagonal, forcing the block. The knight on d7 gets in the way of its own king\u2019s defense.', { reply: 'Nbd7' }),
+            guess('O-O-O', 'Castling counts as one move that brings the king to safety AND the rook to the open d-file with tempo. Every White piece now attacks.', { reply: 'Rd8' }),
+            guess('Rxd7', 'White is a whole piece down, and destroys the last defender of the black king anyway. Development beats material in Morphy\u2019s hands.', { reply: 'Rxd7' }),
+            guess('Rd1', 'The quiet move. Instead of grabbing material, the last rook joins the file against the pinned knight. Black cannot untangle.', { reply: 'Qe6' }),
+            guess('Bxd7+', 'Trading defenders: after this capture the black knight must recapture and abandon the b8 square.', { reply: 'Nxd7' }),
+            guess('Qb8+', 'The queen sacrifice: the knight must take, and it blocks its own king\u2019s last escape.', { reply: 'Nxb8' }),
+            guess('Rd8#', 'Mate with the rook: the knight on b8 smothers its own king. The opera game is over in 17 moves.'),
+          ],
+        ),
       ],
     },
     {

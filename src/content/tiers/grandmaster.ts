@@ -19,6 +19,11 @@ export const grandmaster: Tier = {
       subtitle: 'Prune branches, finish lines, trust only the end.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'From the Master tier: what is the single habit that separates master play from club play?', [
+          right('Asking what the opponent wants before every move', 'Prophylaxis first. Tactics serve the plan.'),
+          wrong('Longer opening memorization', 'Lines end. Judgment does not.'),
+          wrong('Faster play', 'Speed without accuracy donates material.'),
+        ]),
         text(
           'Depth with discipline',
           [
@@ -45,6 +50,11 @@ export const grandmaster: Tier = {
           wrong('Calculates the opponent\u2019s likely (weaker) reply', 'The tree must survive the strongest attack. Everything else is decoration.'),
           wrong('Plays it for complications', 'Complications favor the prepared mind, not the hopeful one.'),
         ]),
+        quiz('Training the tree', 'How do you train calculation depth away from the board?', [
+          right('Replay finished lines with your eyes closed until the positions stay solid', 'Visualization is a muscle. Finished lines are the weights.'),
+          wrong('Solve thousands of one-move mates', 'One-move reps train the scan. Depth needs line-holding.'),
+          wrong('Trust the board: glance at every branch there', 'The board is a crutch. Games are played in the head.'),
+        ]),
       ],
     },
     {
@@ -54,6 +64,11 @@ export const grandmaster: Tier = {
       subtitle: 'Activity, counterplay, and the perpetual threat.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'What is the right way to train deep calculation?', [
+          right('Hold finished lines in your head, eyes closed, until they stop dissolving', 'Visualization holds the tree together under time pressure.'),
+          wrong('Memorize famous combinations from books', 'Recognition helps. The TREE must be built live, branch by branch.'),
+          wrong('Let the engine show you the branches', 'Engine lines are answers. Calculation is the question-asking skill.'),
+        ]),
         text(
           'Compensation is a resource',
           [
@@ -72,6 +87,11 @@ export const grandmaster: Tier = {
           wrong('Trade into a pure pawn endgame', 'Two pawns down in a pawn ending is resignable.'),
           wrong('Wait passively behind your walls', 'Passivity converts a worse position into a lost one.'),
         ]),
+        quiz('The one asset', 'What is the first step of defending any worse position?', [
+          right('Identify your single concrete asset and build the defense around it', 'A passer, an open file, a perpetual: one real asset beats five vague hopes.'),
+          wrong('Defend everything equally', 'Equal defense defends nothing. Resources need a focal point.'),
+          wrong('Look for cheap traps', 'Traps are one-move assets. The position needs a durable one.'),
+        ]),
       ],
     },
     {
@@ -81,6 +101,11 @@ export const grandmaster: Tier = {
       subtitle: 'The position where any move loses.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'How do you defend a materially worse position?', [
+          right('Find your one concrete asset and ride it relentlessly', 'One real resource is a defense. Five vague hopes are decoration.'),
+          wrong('Trade everything and hope', 'Hope is not a resource. Concrete assets are.'),
+          wrong('Attack the enemy king immediately', 'Attacks need assets. Find yours first.'),
+        ]),
         text(
           'The obligation to move',
           [
@@ -90,15 +115,18 @@ export const grandmaster: Tier = {
           'In pawn endings, having no useful move is the losing side\u2019s whole story.',
         ),
         demo(
-          'Move and lose',
-          ['White to move: Kc1 allows b1=Q, Ka1 allows b1=Q, every move promotes the pawn. Black to move: any king step frees b2 for capture. The side to move loses. Mutual zugzwang.'],
-          '8/8/8/8/1k6/8/1p6/1K6 w - - 0 1',
+          'The turn decides',
+          [
+            'White has the advanced pawn and the king right beside it. It is Black\u2019s move, and the geometry seals every reply: d8 and b8 are covered by the pawn, d7 and d6 by the white king, and every king step on the kingside lets White take the key square first.',
+            'In pawn endings the turn IS the position. The same army with the other side to move plays a completely different duel: that is why strong players map corresponding squares before every king step.',
+          ],
+          '8/2P1k3/2K5/8/8/8/8/8 b - - 0 1',
           {
             marks: [
-              { square: 'b2', color: 'red' },
-              { square: 'b1', color: 'yellow' },
+              { square: 'd8', color: 'red' },
+              { square: 'd7', color: 'yellow' },
             ],
-            caption: 'Red: the pawn. Yellow: the promotion square.',
+            caption: 'Red: sealed by the pawn. Yellow: sealed by the king.',
           },
         ),
         quiz('Zugzwang definition', 'Zugzwang exists most often in which phase?', [
@@ -111,6 +139,11 @@ export const grandmaster: Tier = {
           wrong('Who is closer to the pawn', 'Distance is a detail. The correspondence is the law.'),
           wrong('Whoever has the move at the start', 'The move is a burden in zugzwang, not a gift.'),
         ]),
+        quiz('The spare tempo', 'What decides most zugzwang races between kings?', [
+          right('Whoever holds a spare tempo: a useful pawn move saved for exactly this moment', 'One waiting pawn move flips the correspondence. Spend them carelessly and the duel is lost.'),
+          wrong('Whoever has more material', 'Material cannot move itself. Tempi decide duels.'),
+          wrong('Coincidence: zugzwang is random', 'Corresponding squares are pure geometry. Nothing random.'),
+        ]),
       ],
     },
     {
@@ -120,6 +153,11 @@ export const grandmaster: Tier = {
       subtitle: 'The wall exists before the siege.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'What decides zugzwang duels between kings?', [
+          right('Corresponding squares and spare tempi', 'Arrive on the right square with him to move. One spare pawn move flips everything.'),
+          wrong('Raw calculation depth', 'The geometry is small enough to map by hand. Depth is not the tool.'),
+          wrong('Piece activity', 'There are barely any pieces. Kings and tempi rule.'),
+        ]),
         text(
           'Both sides of the wall',
           [
@@ -145,6 +183,11 @@ export const grandmaster: Tier = {
           wrong('Two knights in front of scattered pawns', 'Scattered pawns are doors. Knights jump but cannot seal files.'),
           wrong('The queen parked on the first rank', 'Queens patrol; they do not build.'),
         ]),
+        quiz('Design the breach', 'You must crack a fortress. Where do you look?', [
+          right('For a design flaw: zugzwang potential or a second front the wall never faced', 'Walls fall from design errors. Force alone bounces off.'),
+          wrong('For the weakest brick to attack with everything', 'The bricks are fine. The DESIGN is the target.'),
+          wrong('For a piece sacrifice to open files', 'Files mean nothing if no invasion square exists at the end of them.'),
+        ]),
       ],
     },
     {
@@ -154,6 +197,11 @@ export const grandmaster: Tier = {
       subtitle: 'Give a good piece for a bad square, on purpose.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'How do fortresses actually fall?', [
+          right('Zugzwang, or a second front the design never faced', 'Flaws, not force.'),
+          wrong('Sustained direct assault', 'The wall was built to absorb exactly that.'),
+          wrong('Material attrition over time', 'Material does not shrink by itself inside a fortress.'),
+        ]),
         text(
           'Trading values, keeping squares',
           [
@@ -179,6 +227,11 @@ export const grandmaster: Tier = {
           wrong('Because doubled pawns are actually good', 'They are a real weakness. Just sometimes a affordable one.'),
           wrong('Because engines recommend it', 'Engines evaluate positions, not philosophies. The human reads the position type.'),
         ]),
+        quiz('Defending the doubles', 'You are the side WITH doubled pawns. What keeps them alive?', [
+          right('Piece control of the front pawn\u2019s squares and a plan that does not need the file behind them', 'The front pawn survives while pieces guard it. The compensation must outlive the defense.'),
+          wrong('Pushing one of them immediately to undouble', 'Undoubling usually surrenders the file AND the square for nothing.'),
+          wrong('Nothing: doubled pawns always fall', 'They fall on a schedule. Good players postpone that schedule forever.'),
+        ]),
       ],
     },
     {
@@ -188,6 +241,11 @@ export const grandmaster: Tier = {
       subtitle: 'g5 and f5: the pawns that start revolutions.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'How does the side holding doubled pawns usually survive?', [
+          right('Piece control of the front pawn\u2019s squares while the compensation lasts', 'The bill is postponed, not canceled. Pieces are the postponement.'),
+          wrong('Quickly undoubling with a pawn capture', 'Undoubling donates squares and file for nothing.'),
+          wrong('They never survive: doubled pawns are fatal', 'Doubled pawns lose endgames, not necessarily the game.'),
+        ]),
         text(
           'Space converted to attacks',
           [
@@ -207,6 +265,11 @@ export const grandmaster: Tier = {
           wrong('Nothing: pawns are free', 'Pawns never move back. Every push is an investment with risk.'),
           wrong('Improved your bishop automatically', 'The g-pawn often BLOCKS its own bishop. Costs and benefits.'),
         ]),
+        quiz('Open center punishment', 'You played g4-g5 but the center was NOT stable. What happens?', [
+          right('The center opens and your advanced pawns become targets for the counterstrike', 'Flank attacks without a closed center are invitations to the middle.'),
+          wrong('Nothing: flank pawns are always safe', 'An open center turns every advanced flank pawn into a hook.'),
+          wrong('The flank attack just fails quietly', 'It fails LOUDLY: the counterstrike hits the king through the center.'),
+        ]),
       ],
     },
     {
@@ -216,6 +279,11 @@ export const grandmaster: Tier = {
       subtitle: 'A rook for structure, squares, and time.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'What must be true before a flank pawn thrust?', [
+          right('The center is stable: it cannot be opened against you', 'Closed center first, flank second. Reverse the order and lose.'),
+          wrong('You have the bishop pair', 'Helpful, but the center\u2019s stability is the precondition.'),
+          wrong('The enemy king is already weak', 'The thrust CREATES the weakness. The center decides whether you live long enough.'),
+        ]),
         text(
           'Minus two, plus forever',
           [
@@ -239,6 +307,11 @@ export const grandmaster: Tier = {
           wrong('f7, where bishops belong', 'f7 is bishop geometry. The exchange sac is knight geometry.'),
           wrong('Wherever the enemy queen sits', 'That would be a queen sacrifice, not an exchange one.'),
         ]),
+        quiz('The permanent audit', 'You played Rxc3 and got doubled pawns, a weak square, and nothing else concrete. Was the sacrifice sound?', [
+          right('Only if the structure damage is permanent and worth more than two points over the rest of the game', 'Permanent purchases only. Activity alone cannot cover a rook.'),
+          wrong('Yes: any exchange sac creates pressure', 'Pressure without permanence is a two-point donation.'),
+          wrong('No: never sacrifice the exchange', 'The exchange sac is a mainline weapon. It just has strict terms.'),
+        ]),
       ],
     },
     {
@@ -248,6 +321,16 @@ export const grandmaster: Tier = {
       subtitle: 'Restrict moves before you make your own.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'Where does the classic exchange sacrifice land, and what does it buy?', [
+          right('On c3/c6: the knight anchoring the enemy structure, buying permanent damage', 'The structural anchor is the rook\u2019s victim.'),
+          wrong('On f7: for an attack', 'f7 is bishop geometry. Exchange sacs are knight geometry.'),
+          wrong('Anywhere: rooks are flexible', 'The sacrifice has one classic purchase: the structure.'),
+        ]),
+        quiz('Retrieval first', 'What does the exchange sacrifice buy, and what must it never buy?', [
+          right('It buys permanent structure damage: never mere activity', 'Activity evaporates. Doubled pawns do not.'),
+          wrong('It buys tempo for an attack', 'That is a piece sac\u2019s job. The exchange sac buys permanence.'),
+          wrong('It buys material safety', 'It COSTS material. That is the whole deal.'),
+        ]),
         text(
           'The invisible squeeze',
           [
@@ -267,6 +350,11 @@ export const grandmaster: Tier = {
           wrong('Blocking the immediate threat', 'That is plain defense. Necessary, but not the art.'),
           wrong('Both are the same thing', 'One is a bandage. The other is the vaccine.'),
         ]),
+        quiz('The squeeze audit', 'Your position is better but your opponent has no weaknesses. What is the master plan?', [
+          right('Restrict his pieces\u2019 best squares until HIS position cracks first', 'No weaknesses means you create the squeeze: deny squares, force bad moves, wait.'),
+          wrong('Sacrifice to create complications', 'Complications favor the squeezed side\u2019s counterplay.'),
+          wrong('Trade into an endgame and hope', 'Endgames need an advantage entering them. Create it first.'),
+        ]),
       ],
     },
     {
@@ -276,6 +364,11 @@ export const grandmaster: Tier = {
       subtitle: 'When the strongest piece changes address mid-game.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'What is the difference between prophylaxis and plain defense?', [
+          right('Prophylaxis kills PLANS before they exist; defense answers THREATS that exist', 'The vaccine versus the bandage.'),
+          wrong('They are identical terms', 'One acts on the future, one on the present.'),
+          wrong('Prophylaxis is passive defense', 'It is offense against the opponent\u2019s future.'),
+        ]),
         text(
           'The rarest luxury',
           [
@@ -301,6 +394,11 @@ export const grandmaster: Tier = {
           wrong('Style points', 'Style does not promote pawns.'),
           wrong('Because queens are about to be traded anyway', 'That is a REASON to be careful, not a reason to walk.'),
         ]),
+        quiz('The walk audit', 'Your king is three squares into a middlegame walk and the center just unlocked. What now?', [
+          right('The permit is revoked: walk the king straight home, immediately', 'One opened line is all it takes. The walk dies the moment the center cracks.'),
+          wrong('Continue: the king is already committed', 'Committed to what? The center changed the rules.'),
+          wrong('Continue but keep the queen defending', 'Queens cannot stop four pieces on an opened file. Turn back.'),
+        ]),
       ],
     },
     {
@@ -310,6 +408,11 @@ export const grandmaster: Tier = {
       subtitle: 'Blockaders, duos, and the far-advanced killer.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'What revokes a middlegame king walk\u2019s permission?', [
+          right('The center opening: even one line against the walking king is fatal', 'Frozen center walks. Open center dies.'),
+          wrong('The opponent\u2019s rating', 'The center decides, not the opponent.'),
+          wrong('Running low on clock', 'Clock pressure is real but secondary. Geometry is primary.'),
+        ]),
         text(
           'Runners with escorts',
           [
@@ -331,6 +434,11 @@ export const grandmaster: Tier = {
           wrong('They are worth more material points', 'Same points. Different teamwork.'),
           wrong('They move faster', 'Pawns all move one square. Speed is geometry, not speed.'),
         ]),
+        quiz('The far-advanced passer', 'Why is a supported passer on the 6th rank worth roughly a piece?', [
+          right('It fixes two enemy pieces on babysitting duty, freeing your whole army', 'The magnet effect: every defender assigned is a defender absent elsewhere.'),
+          wrong('Because it promotes next move no matter what', 'It still needs escorting. The VALUE is the distraction.'),
+          wrong('Pawns are undervalued by the point system only', 'This is a concrete positional fact, not a scoring quirk.'),
+        ]),
       ],
     },
     {
@@ -340,6 +448,11 @@ export const grandmaster: Tier = {
       subtitle: 'Lucena, cutting off, and the wrong rook.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'Why does a far-advanced supported passer play like a piece?', [
+          right('It pins down multiple defenders, and every tempo they spend is yours', 'The magnet effect funds your whole remaining plan.'),
+          wrong('It moves two squares per turn', 'Pawns never do.'),
+          wrong('The point system says so', 'The point system says 1. The board says a piece.'),
+        ]),
         text(
           'The professional toolkit',
           [
@@ -359,6 +472,11 @@ export const grandmaster: Tier = {
           wrong('The defense is now stronger', 'Active rooks defend. Passive rooks decorate.'),
           wrong('Nothing: rooks are rooks', 'Rook ACTIVITY is the whole evaluation of rook endings.'),
         ]),
+        quiz('Reach it early', 'What is the meta-skill behind "technical" endgame wins?', [
+          right('Steering toward the winning position a dozen moves before it exists', 'Technique starts in the transition, not in the endgame itself.'),
+          wrong('Memorizing more tablebase lines', 'The tables cover the last few pieces. The steering is the human skill.'),
+          wrong('Playing faster in endings', 'Speed is irrelevant to reaching the right structure.'),
+        ]),
       ],
     },
     {
@@ -368,6 +486,11 @@ export const grandmaster: Tier = {
       subtitle: 'K+B, K+N, stalemate craft, and the perpetual library.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'What makes an endgame win "technical"?', [
+          right('You recognized and steered toward it many moves before it arrived', 'The professional wins endings in the transition, not at the board of the ending.'),
+          wrong('It requires no calculation', 'It requires calculation, just of a known and drillable kind.'),
+          wrong('The engine confirms the win', 'Engines confirm everything. Steering is the human skill.'),
+        ]),
         text(
           'The library of half points',
           [
@@ -387,6 +510,11 @@ export const grandmaster: Tier = {
           wrong('That the check is with the queen', 'All queen checks matter. The ESCAPE squares matter more.'),
           wrong('Nothing: checks are always safe', 'The stalemate net is woven from careless checks.'),
         ]),
+        quiz('The trade question', 'You can trade queens into K+R vs K. What do you need to know first?', [
+          right('That K+R vs K is a forced win: take the trade and collect', 'The table of ends is the trade filter. Know it before you shake hands.'),
+          wrong('Whether your opponent wants it', 'The table decides, not the opponent\u2019s mood.'),
+          wrong('Nothing: queen endings are always better', 'Queen endings are drawish and tactical. The rook ending is a guaranteed point.'),
+        ]),
       ],
     },
     {
@@ -396,6 +524,11 @@ export const grandmaster: Tier = {
       subtitle: 'One endgame, zero mistakes allowed.',
       minutes: 14,
       steps: [
+        quiz('Retrieval first', 'Which endings are forced wins, and which are forced draws?', [
+          right('K+R and K+Q: won. K+B, K+N, two knights: drawn', 'The table of ends. It filters every trade offer you will ever accept.'),
+          wrong('Everything is won with good technique', 'K+B vs K has no mate in it. No technique reaches what does not exist.'),
+          wrong('Everything is drawn without pawns', 'K+Q vs K is the most basic win in chess.'),
+        ]),
         text(
           'The technique test',
           [
@@ -408,6 +541,11 @@ export const grandmaster: Tier = {
           right('Fewer moves: fewer chances for slips and clock drain', 'Efficiency is correctness with margins.'),
           wrong('More moves: safety first', 'Shuffling gives the opponent resources and yourself doubt.'),
           wrong('Either: the result is the same', 'The result is the same only until a human makes move 23 instead of 14.'),
+        ]),
+        quiz('The slip margin', 'Why does efficiency protect accuracy, not just the clock?', [
+          right('Every extra move is one more chance for a repetition slip, a stalemate trap, or a flag', 'Short technique has fewer doors for disaster. Margin is a chess concept.'),
+          wrong('It does not: correctness is correctness', 'Correct twenty-five times in a row is harder than correct fourteen times.'),
+          wrong('Only the fifty-move rule matters', 'Slips and stalemate traps arrive long before move fifty.'),
         ]),
         drill('First move of the conversion', '4k3/8/8/8/8/8/8/R3K3 w - - 0 1', ['Kd2'], 'The rook endgame begins. Best first move?', 'The king marches. Rook moves can wait.', 'Kd2. King activity is the conversion engine.'),
         playout(
@@ -431,6 +569,11 @@ export const grandmaster: Tier = {
       subtitle: 'Playing well when the position has no answer.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'What does technical efficiency protect beyond the clock?', [
+          right('Accuracy margin: fewer moves, fewer slip chances', 'Every extra move is a door for disaster.'),
+          wrong('Nothing: the result is fixed', 'The result is fixed only if every single move is right.'),
+          wrong('Your rating only', 'It protects the win itself. The rating follows.'),
+        ]),
         text(
           'The fog doctrine',
           [
@@ -456,6 +599,11 @@ export const grandmaster: Tier = {
           wrong('It is the most forcing move available', 'Forcing moves commit. Commitments are for clear positions.'),
           wrong('It has the best engine score at depth one', 'Depth one is a horoscope.'),
         ]),
+        quiz('Flexibility test', 'Which move is the flexible one?', [
+          right('The one that stays useful in three different plausible futures', 'Flexibility is option density. Commitments are option spending.'),
+          wrong('The one your favorite piece wants to make', 'Pieces have dreams. Positions have requirements.'),
+          wrong('The one that wins the most material if it works', 'If it works is doing heavy lifting in that sentence.'),
+        ]),
       ],
     },
     {
@@ -465,6 +613,11 @@ export const grandmaster: Tier = {
       subtitle: 'Building a dossier instead of memorizing lines.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'What makes a move good in an unclear position?', [
+          right('Recoverability and usefulness across multiple futures', 'Flexibility is the fog currency.'),
+          wrong('Maximum forcing power', 'Forcing is commitment. Fog punishes commitment.'),
+          wrong('The strongest engine line at fixed depth', 'Engine lines assume the engine is playing. You are.'),
+        ]),
         text(
           'The preparation method',
           [
@@ -477,6 +630,11 @@ export const grandmaster: Tier = {
           right('The structures where the opponent consistently loses or suffers', 'Routes to their weak structures are worth more than exact lines.'),
           wrong('Their complete game history', 'History is raw data. The dossier is the insight.'),
           wrong('Their favorite first moves', 'Move one tells you almost nothing. Structures tell you everything.'),
+        ]),
+        quiz('Building the dossier', 'How often should a serious competitor update their own leak-pattern dossier?', [
+          right('Every review session: it is a living document, not a one-time project', 'Leak patterns shift as you improve. Yesterday\u2019s fix is today\u2019s strength.'),
+          wrong('Once, before a big tournament', 'One snapshot misses the trend.'),
+          wrong('Never: you know your own style', 'You know your intentions. The games know your habits.'),
         ]),
         quiz('Your own dossier', 'Reviewing your last 20 rated games, the highest-value statistic to track is...', [
           right('The positions or structures where you consistently make your first mistakes', 'Your leak patterns are the map for your next training block.'),
@@ -493,6 +651,11 @@ export const grandmaster: Tier = {
       subtitle: 'The blunder map and the plan audit.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'What is the most valuable item in any preparation dossier?', [
+          right('The structures where the opponent (and you) consistently leak', 'Routes to weak structures beat exact lines every time.'),
+          wrong('Raw game counts', 'Volume is not insight.'),
+          wrong('Engine evaluations of their openings', 'Evaluations say nothing about human leak patterns.'),
+        ]),
         text(
           'Two passes, one method',
           [
@@ -518,6 +681,11 @@ export const grandmaster: Tier = {
           ],
           caption: 'Red: the decision point. Yellow: what it cost.',
         }),
+        quiz('The audit habit', 'At each swing point, what does the professional write down?', [
+          right('What they were thinking versus what the position actually required', 'The gap between intention and position is the training target.'),
+          wrong('The engine\u2019s evaluation at that move', 'Numbers do not fix habits. Named gaps do.'),
+          wrong('Nothing: recognizing it once is enough', 'Habits repeat until they are named and retrained.'),
+        ]),
       ],
     },
     {
@@ -527,6 +695,11 @@ export const grandmaster: Tier = {
       subtitle: 'Mapping clock minutes to position complexity.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'What does the plan audit compare at every swing point?', [
+          right('What you were thinking versus what the position required', 'The intention gap is where improvement lives.'),
+          wrong('Your move versus the engine\u2019s move', 'The engine comparison comes after the habit comparison.'),
+          wrong('Clock usage versus opponent\u2019s', 'Time matters, but the audit is about thinking.'),
+        ]),
         text(
           'Where the minutes go',
           [
@@ -546,6 +719,11 @@ export const grandmaster: Tier = {
           wrong('Offer trades to simplify for both clocks', 'Simplification relieves the player in time trouble.'),
         ]),
         drill('Routine, not ritual', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Time triage in action: this move deserves seconds, not minutes', 'Cutting the king off is routine technique. Play it and bank the time.', 'Ra5 in one glance. The clock goes back in the pocket for the real decisions.'),
+        quiz('The endgame bank', 'Why bank clock for the endgame?', [
+          right('Technique decisions multiply exactly when the clock is thinnest', 'Conversion is where wins are signed. Arrive funded.'),
+          wrong('Endgames are easy and need no time', 'They are easy ONLY with time to verify every tempo.'),
+          wrong('To avoid flagging on the last move', 'Flagging is one risk. Wrong technique is the expensive one.'),
+        ]),
       ],
     },
     {
@@ -555,6 +733,11 @@ export const grandmaster: Tier = {
       subtitle: 'Full depth, full forcing.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'Why does the endgame deserve banked clock time?', [
+          right('Technique decisions multiply while the clock bottoms out', 'Arrive funded or the conversion wobbles.'),
+          wrong('Endgames take no thought', 'They take exact thought: tempo by tempo.'),
+          wrong('The opponent is more tired by then', 'Maybe. The real reason is your own decision load.'),
+        ]),
         text(
           'The deep rep set',
           [
@@ -575,6 +758,11 @@ export const grandmaster: Tier = {
       subtitle: 'Multi-motif, endgame finish.',
       minutes: 12,
       steps: [
+        quiz('Retrieval first', 'What is the calculation habit this rep set drills?', [
+          right('Seeing every line to its end before the first move', 'The board verifies. The head calculates.'),
+          wrong('Speed over depth', 'Speed without certainty is a donation.'),
+          wrong('Pattern memory alone', 'Memory finds candidates. Verification finishes them.'),
+        ]),
         text(
           'The final rep set',
           [
@@ -582,7 +770,7 @@ export const grandmaster: Tier = {
           ],
         ),
         drill('Structure strike', '2r1k3/8/8/8/8/2N5/PPP5/2KR4 b - - 0 1', ['Rxc3', 'bxc3'], 'The exchange sacrifice', 'Rook for knight, structure for keeps.', 'Rxc3. Permanent damage, temporary cost.'),
-        drill('Zugzwang geometry', '8/8/8/8/1k6/8/1p6/1K6 w - - 0 1', [], 'Study: White to move loses, Black to move draws', 'Every white move promotes the pawn. Every black king move frees b2.', 'Mutual zugzwang verified. The side to move inherits the curse.'),
+        drill('Zugzwang geometry', '8/2P1k3/2K5/8/8/8/8/8 b - - 0 1', ['Kf8'], 'You are Black in the sealed duel. Every move loses: play the most resilient one', 'The kingside steps last longest: the white king is farthest from them.', 'Kf8. White still wins with exact play, but the kingside walk makes White earn the whole technique. On the queenside the pawn seals everything instantly.'),
         drill('Perpetual road', '6k1/8/8/8/8/8/8/3Q2K1 w - - 0 1', ['Qd8+', 'Kh7', 'Qd7+', 'Kh6', 'Qd6+', 'Kh5'], 'Salvation by rank checks', 'One file left each check.', 'The eternal checks. Half a point by geometry.'),
       ],
     },
@@ -593,6 +781,11 @@ export const grandmaster: Tier = {
       subtitle: 'The final game of the curriculum.',
       minutes: 20,
       steps: [
+        quiz('Retrieval first', 'What must Black avoid in a winning king-and-pawn versus king duel?', [
+          right('Losing a tempo: every king step must keep the pawn guarded and the cage closed', 'One careless step frees the defending king and the win evaporates.'),
+          wrong('Pushing the pawn as fast as possible', 'The pawn waits. The king escorts. Speed spoils zugzwang nets.'),
+          wrong('Trading into a rook ending', 'There is nothing to trade. This is pure geometry.'),
+        ]),
         text(
           'Everything, one game',
           [
@@ -600,6 +793,14 @@ export const grandmaster: Tier = {
             'Open with a plan, convert imbalances, prophylax against counterplay, and finish with technique. Everything the last 120 levels taught, in one board.',
           ],
           'One game. One hundred and twenty levels behind it.',
+        ),
+        text(
+          'Where you go from here',
+          [
+            'The curriculum is finished, but chess is not. The Analysis tab grades your real games and finds the leak patterns this tier taught you to hunt. The puzzle pool, the bot ladder and the coach chat keep every one of these tools warm.',
+            'Reread levels when a pattern gets rusty: retrieval beats re-reading, so take the quizzes again rather than the text. The tier is yours now.',
+          ],
+          'One hundred and twenty levels done. The board is yours.',
         ),
         drill('One last check', '6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1', ['Re8#'], 'Warm up the forcing-move scan', 'Checks first. One exists.', 'Re8 mate. The scan never retires.'),
         quiz('Curriculum check', 'The single habit that most separates master play from club play is...', [
