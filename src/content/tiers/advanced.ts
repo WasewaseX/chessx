@@ -19,6 +19,11 @@ export const advanced: Tier = {
       subtitle: 'Checks, captures, threats. In that order.',
       minutes: 9,
       steps: [
+        quiz('Retrieval first', 'From the Intermediate tier: which piece blockades a passed pawn best, and why?', [
+          right('The knight: it attacks around the pawn and can never be pushed off', 'The pawn cannot chase it, and the knight still fights while blockading.'),
+          wrong('The bishop: it watches from afar', 'A pawn on the wrong color is invisible to a bishop. Terrible blockader.'),
+          wrong('The queen: strongest piece, best guard', 'A blockading queen does nothing else. The strongest piece watches one pawn.'),
+        ]),
         text(
           'Discipline beats talent',
           [
@@ -34,10 +39,23 @@ export const advanced: Tier = {
           { marks: [{ square: 'e8', color: 'green' }], caption: 'The first candidate you check is the last one you need' },
         ),
         drill('Check first, always', '6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1', ['Re8#'], 'One move ends the game. Find it the disciplined way.', 'Checks first: the rook has exactly one.', 'Re8 mate. The forcing-move scan found it instantly.'),
+        drill(
+          'Two rooks, one scan',
+          '7k/8/8/8/8/8/1R6/R5K1 w - - 0 1',
+          ['Rb7', 'Kg8', 'Ra8#'],
+          'Two rooks, a bare king. Run the scan and finish it.',
+          'One rook fences the rank the king is NOT on, the other mates. Two forcing moves and a king reply.',
+          'Rb7 fences the 7th, the king shuffles, Ra8 is mate. The two-rook ladder: the most reliable finish in chess.',
+        ),
         quiz('Candidate order', 'Why do forcing moves get calculated first?', [
           right('They give the opponent the fewest replies, so the calculation is most reliable', 'Fewer branches, fewer surprises. Certainty is the whole point of calculation.'),
           wrong('They are always the best moves', 'Not always. They are always the most CALCULABLE moves.'),
           wrong('They look impressive', 'Beauty is a byproduct. Reliability is the goal.'),
+        ]),
+        quiz('Shortlist size', 'How many candidate moves should a honest calculation cover?', [
+          right('Three to five, calculated properly rather than twenty glanced at', 'Depth beats breadth. Five honest lines beat a crowd of first impressions.'),
+          wrong('Every legal move, to be safe', 'Forty half-looked moves are worth less than five calculated ones.'),
+          wrong('Only the first good one you see', 'The first move you see is what the position wants YOU to see.'),
         ]),
       ],
     },
@@ -48,6 +66,11 @@ export const advanced: Tier = {
       subtitle: 'Before you move: what is his best reply?',
       minutes: 9,
       steps: [
+        quiz('Retrieval first', 'Why do forcing moves get calculated before quiet ones?', [
+          right('They leave the opponent the fewest choices, so the lines are most certain', 'Certainty is the currency of calculation. Forcing moves buy it.'),
+          wrong('They are always objectively best', 'Sometimes quiet moves win. But forcing lines are the ones you can actually FINISH calculating.'),
+          wrong('Because engines do it', 'Engines do everything first. This is about human reliability.'),
+        ]),
         text(
           'Verify, then commit',
           [
@@ -56,6 +79,11 @@ export const advanced: Tier = {
           ],
           'Best reply, not obvious reply. Every capture, every trade.',
         ),
+        quiz('The geometry warning', 'When are captures most likely to hide a nasty surprise?', [
+          right('When they change the geometry: open a line, empty a square, remove a blocker', 'Discoveries, deflections and clearance all live exactly there. Scan the new board.'),
+          wrong('When they win a lot of material', 'Big captures get scanned out of fear anyway. Geometry changes are the sneaky ones.'),
+          wrong('Never: captures are safe', 'Captures are the most dangerous moves on the board precisely because they feel safe.'),
+        ]),
         drill('Verify the recapture', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'White to move: the obvious capture looks tempting, but there is a check first. Find the forced mate.', 'Qd8+ offers the queen where only the bishop can take. Then the e-file is a highway.', 'Qd8 plus check, Bxd8 forced, Re8 mate. The blunder check found a mate where greedy hands would have grabbed pawns.'),
         quiz('Blunder check scope', 'When does the blunder check run?', [
           right('On every single move, especially captures', 'Captures rearrange the board. Every rearrangement hides a discovery or a deflection.'),
@@ -72,6 +100,11 @@ export const advanced: Tier = {
       subtitle: 'Sacrifice material when the king cannot hide.',
       minutes: 9,
       steps: [
+        quiz('Retrieval first', 'When does the blunder check run, according to the last level?', [
+          right('On every move, with extra attention on captures and trades', 'Captures rearrange geometry. Geometry is where the surprises live.'),
+          wrong('Only in complications', 'Quiet positions produce the biggest unscanned disasters.'),
+          wrong('Only when the engine would flag it', 'The engine is not playing. The scan is.'),
+        ]),
         text(
           'Counting differently',
           [
@@ -90,6 +123,11 @@ export const advanced: Tier = {
           wrong('Will it look brilliant', 'Brilliance is retrospective. Correctness is now.'),
           wrong('Is my rating at stake', 'Irrelevant to the position.'),
         ]),
+        quiz('Sacrifice verification', 'You found a beautiful rook sacrifice. You can calculate eight moves deep, but the position is still unclear at the end. What now?', [
+          right('Keep calculating or refuse the sacrifice: an unclear ending to a sac is a coin flip', 'Sacrifices must reach mate, decisive material, or a clearly winning attack. Almost is the same as nothing.'),
+          wrong('Play it: deep calculation means it works', 'Depth without a verdict is not calculation. It is touring.'),
+          wrong('Play it and trust the attack', 'Trust is not a calculation. Ten clear moves or nothing.'),
+        ]),
       ],
     },
     {
@@ -99,6 +137,11 @@ export const advanced: Tier = {
       subtitle: 'Opening the wall where the king hides.',
       minutes: 9,
       steps: [
+        quiz('Retrieval first', 'What must a sacrifice deliver to be playable?', [
+          right('A nameable return: a line, a tempo, or a removed defender, with a calculated finish', 'Lines, tempo, defenders. No name, no sacrifice.'),
+          wrong('A nice story for the post-mortem', 'Stories are for won games. Calculation is for live ones.'),
+          wrong('At least equal material afterward', 'Many sound sacrifices stay material-down and win by force.'),
+        ]),
         text(
           'Two ways in',
           [
@@ -112,6 +155,14 @@ export const advanced: Tier = {
           caption: 'Rolling pawns, saving tempi',
         }),
         drill('Roll the storm', 'r1bq1rk1/ppp2ppp/2n5/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'Start the pawn storm', 'The h-pawn goes first. The rook follows on h1.', 'h4. The race begins. Every storm is a sequence: pawns first, pieces through the gap.'),
+        drill(
+          'Drive the defender',
+          'r1bq1rk1/ppp2ppp/2n2n2/3p4/3P2PP/2N2N2/PPP2P2/R1BQ1RK1 w - - 0 10',
+          ['g5'],
+          'The pawns are rolling and the f6 knight guards the kingside. Evict him.',
+          'One more pawn step hits the last defender of the wall.',
+          'g5. The knight must move, and with him the kingside loses its keeper. Storms remove guards before they remove kings.',
+        ),
         quiz('Storm priority', 'In an opposite-side castling race, what is the fastest route to the king?', [
           right('Pawn storm to force the defenders away, then heavy pieces on the opened file', 'Pawns clear the road; rooks and queen use it.'),
           wrong('Knight maneuvering in the center', 'The center can wait. The race has a clock.'),
@@ -126,6 +177,11 @@ export const advanced: Tier = {
       subtitle: 'When attacked, ask where THEY are weak.',
       minutes: 9,
       steps: [
+        quiz('Retrieval first', 'What must you do to the f6-style defender before a kingside attack works?', [
+          right('Drive him off, trade him, or deflect him', 'No guard, no wall. Every attack starts with the keeper.'),
+          wrong('Attack the pawns directly', 'Pawns are the wall. The guard in front is the target.'),
+          wrong('Bring the queen first', 'The queen arrives WITH the plan. The defender question comes before the army.'),
+        ]),
         text(
           'Answer force with force',
           [
@@ -135,6 +191,14 @@ export const advanced: Tier = {
           'Counter only with checks or captures. Everything else is a handshake.',
         ),
         drill('Hit back with capture', '4k3/8/8/8/R2q4/8/8/4K3 w - - 0 1', ['Rxd4'], 'Your rook is attacked by the queen. Punch back.', 'The queen is on the same rank and nothing defends her.', 'Rxd4. The attack was answered with a capture. The queen left the board, and with her every threat.'),
+        drill(
+          'Counter with the file',
+          '4k3/8/8/8/8/q7/8/R3K3 w - - 0 1',
+          ['Rxa3'],
+          'The queen came down the a-file to hunt your rook. Answer the question she forgot to ask.',
+          'Is the attacker herself defended? Follow the file.',
+          'Rxa3. The hunter arrived undefended. Counterattacks by capture end the discussion in one move.',
+        ),
         quiz('Counterattack condition', 'Your kingside is under attack. You spot a pawn grab on the queenside that wins a pawn in three quiet moves. Play it?', [
           right('No: it is too slow. Counterattacks must come with check or immediate threat', 'Three quiet moves is three tempi for the attacker. Dead on arrival.'),
           wrong('Yes: material is material', 'Not while your king is being opened up.'),
@@ -154,6 +218,11 @@ export const advanced: Tier = {
       subtitle: 'When one color of squares goes dark.',
       minutes: 9,
       steps: [
+        quiz('Retrieval first', 'Which counterattacks actually work against an ongoing attack?', [
+          right('Ones that come with check or immediate material threat', 'The attacker must be forced to spend a tempo. Slow counterplay is a gift of time.'),
+          wrong('Any material gain on the other wing', 'Three quiet moves to win a pawn is three tempi of free attacking time.'),
+          wrong('Trades, always', 'Trading is gear one of defense. The counterattack question is separate.'),
+        ]),
         text(
           'Squares come in colors',
           [
@@ -185,6 +254,14 @@ export const advanced: Tier = {
           wrong('Push pawns to cover the squares', 'Pawns cannot move backward. Pushing usually opens MORE squares of that color.'),
           wrong('Ignore it, color complexes are a myth', 'Tell that to every game lost on a light-square invasion.'),
         ]),
+        drill(
+          'Invade the dark heart',
+          '5rk1/5p1p/6p1/7Q/8/8/5PPP/6K1 w - - 0 1',
+          ['Qe5'],
+          'Black has no dark-squared bishop and his dark squares are showing. Take the central dark square.',
+          'One queen move lands on the square that controls f6, and everything behind it.',
+          'Qe5. From the heart of the dark complex the queen touches f6 and h8 ideas. Missing bishops mean missing squares: stand on them.',
+        ),
       ],
     },
     {
@@ -194,6 +271,11 @@ export const advanced: Tier = {
       subtitle: 'Some squares are addresses, not stops.',
       minutes: 9,
       steps: [
+        quiz('Retrieval first', 'Your counterattack must come with what, to work against an active attack?', [
+          right('Check or immediate material threat', 'The attacker loses tempo only when forced. Slow plans lose races.'),
+          wrong('At least a pawn of profit', 'Material is not the currency of counterattacks. Tempo is.'),
+          wrong('Queens on the board', 'Even without queens, checks and threats counter.'),
+        ]),
         text(
           'The permanent residence',
           [
@@ -215,6 +297,14 @@ export const advanced: Tier = {
           wrong('The bishop', 'Bishops sit on one color: a pawn on the wrong color is invisible to them.'),
           wrong('The queen', 'A blockading queen is a spectator. The strongest piece wastes its whole life watching one pawn.'),
         ]),
+        drill(
+          'Stop the passer',
+          '4k3/8/8/8/3p4/8/8/2N1K3 w - - 0 1',
+          ['Nd3'],
+          'The black pawn wants to run. Park the blockader in front of it.',
+          'The knight has one square that sits directly on the pawn\u2019s road.',
+          'Nd3. The pawn is furniture now: it cannot advance while the knight attacks everything around it. Nimzowitsch smiled.',
+        ),
       ],
     },
     {
@@ -224,6 +314,11 @@ export const advanced: Tier = {
       subtitle: 'More room, better pieces, no trades.',
       minutes: 9,
       steps: [
+        quiz('Retrieval first', 'What does a knight do best on an advanced outpost?', [
+          right('Attacks pieces that can never chase it away with pawns', 'Pawn-proof squares turn knights into landlords.'),
+          wrong('Defends its own pawns from a distance', 'Knights defend nearby squares, but the outpost value is the ATTACK that cannot be answered.'),
+          wrong('Waits for the endgame', 'The outpost pays rent in the middlegame, where attacks matter.'),
+        ]),
         text(
           'Room to breathe',
           [
@@ -250,6 +345,14 @@ export const advanced: Tier = {
           wrong('Nothing, hold everything', 'Passivity does not uncramp anything.'),
         ]),
         drill('Breathe out', 'r3k2r/ppp2ppp/2n5/8/3P4/8/PPP2PPP/RNBQKB1R w KQkq - 6 7', ['d5'], 'Your center pawn is ready to release the tension', 'd4-d5 frees the c1 bishop and opens lines while you are the one with space.', 'd5. The break: space converts into lines and tempo. Cramped positions hate exactly this.'),
+        drill(
+          'Wake the sleepy piece',
+          'r1bqk2r/pppp1ppp/2n5/8/3P4/2N5/PPP2PPP/R1BQKB1R w KQkq - 4 6',
+          ['Be3'],
+          'One piece is still home. Give it a job.',
+          'The dark-squared bishop has a natural developing square that also fights for d4.',
+          'Be3. Maneuvering chess is one sentence: every piece, one better square per move, no trades you do not want.',
+        ),
       ],
     },
     {
@@ -259,6 +362,11 @@ export const advanced: Tier = {
       subtitle: 'Attack the base. Know when to release.',
       minutes: 9,
       steps: [
+        quiz('Retrieval first', 'You are cramped. What do you trade, and what do you keep?', [
+          right('Trade pieces, keep pawns, and prepare a pawn break', 'Fewer pieces fit in small rooms, and the break is the exit door.'),
+          wrong('Trade pawns to open the position', 'Open lines help the side with MORE room and better pieces.'),
+          wrong('Trade nothing, wait', 'Waiting in a cramped position is how space advantages turn into attacks.'),
+        ]),
         text(
           'Chains point where to play',
           [
@@ -280,6 +388,11 @@ export const advanced: Tier = {
           wrong('The kingside, to keep them guessing', 'Guessing loses to geometry.'),
           wrong('The center, always', 'The center is a habit, not a rule.'),
         ]),
+        quiz('Base or head?', 'In the chain c5-d6-e5 (Black), which pawn is the base and which is the head?', [
+          right('Base: e5, the rearmost. Head: c5, the most advanced', 'The base is where the chain starts; it is the only pawn no other pawn can defend.'),
+          wrong('Base: c5, the front. Head: e5', 'Front pawn is the head. Rearmost is the base. The base is the target.'),
+          wrong('Chains have no base', 'Every chain has both, and the base decides where you strike.'),
+        ]),
       ],
     },
     {
@@ -289,6 +402,11 @@ export const advanced: Tier = {
       subtitle: 'Forcing moves under pressure.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'Which pawn of a chain do you attack, and why?', [
+          right('The base: the rearmost pawn, the only one no other pawn can shield', 'Everything in front of it has neighbors. The base stands alone.'),
+          wrong('The head: the most advanced pawn', 'The head is usually well defended by the chain behind it.'),
+          wrong('Any pawn, they are all equal', 'Structural targets are chosen by geometry, not mood.'),
+        ]),
         text(
           'Calculate like it counts',
           [
@@ -299,6 +417,14 @@ export const advanced: Tier = {
         drill('Mate in one', '6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1', ['Re8#'], 'Checks first.', 'One rook check exists.', 'Re8 mate.'),
         drill('The full calculation', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'Find the forced mate', 'Sacrifice, forced reply, open file.', 'Three forcing moves, one mate. That is calculation.'),
         drill('Hit the base', '4k3/8/8/2ppp3/8/8/8/K6R w - - 0 1', ['Re1'], 'Attack the chain where it hurts', 'Rearmost pawn first.', 'Re1. The base buckles.'),
+        drill(
+          'Battery mate rep',
+          '6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1',
+          ['Ra8#'],
+          'One scan, one rank, one mate.',
+          'The a-file is open and the 8th rank is sealed by his own pawns.',
+          'Ra8 mate. The oldest back-rank story, told by a scan that took three seconds.',
+        ),
         playout(
           'Calculation test',
           'Full game. Run the scan on every move.',
@@ -319,6 +445,11 @@ export const advanced: Tier = {
       subtitle: 'Repertoires are plans, not memorization.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'Which pawn in a chain is the target?', [
+          right('The base, the rearmost one', 'No pawn can defend it. Pieces get tied down for life guarding it.'),
+          wrong('The head, the most advanced one', 'The head has the whole chain behind it.'),
+          wrong('The middle pawn', 'Middle pawns have neighbors on both sides. The base does not.'),
+        ]),
         text(
           'Why you play what you play',
           [
@@ -332,6 +463,14 @@ export const advanced: Tier = {
           caption: 'The Italian Game, fully developed',
         }),
         drill('Play the idea', 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2', ['Nf3'], 'Black took the center. Develop with a threat', 'The g1 knight attacks e5 on the way out.', 'Nf3. Development and tempo in one move: the whole point of 1.e4 openings.'),
+        drill(
+          'Finish the Ruy setup',
+          'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
+          ['O-O'],
+          'The Ruy Lopez bishop is placed and the e-file tension is set. Complete the plan.',
+          'Development job three: the king walks to safety.',
+          'Castled. The Ruy Lopez plan is on the board: bishop on b5, tension on e5, king safe. Ideas, not memory.',
+        ),
         quiz('1.e4 vs 1.d4', 'Which first move leads most directly to open, tactical middlegames?', [
           right('1.e4', 'It frees the bishop and queen immediately and invites central tension.'),
           wrong('1.d4', 'Strong too, but the structures run slower and more closed.'),
@@ -346,6 +485,11 @@ export const advanced: Tier = {
       subtitle: 'The most debated pawn in chess.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'How deep should you know your opening IDEAS versus memorized moves?', [
+          right('Five moves of understanding beat twenty moves of memory', 'Understanding survives every deviation. Memory dies at the first novelty.'),
+          wrong('Twenty memorized moves, no matter what', 'Memorization without plans evaporates the moment you leave the line.'),
+          wrong('No preparation at all', 'Ideas are preparation. You now have them for life.'),
+        ]),
         text(
           'Dynamic versus static',
           [
@@ -366,6 +510,11 @@ export const advanced: Tier = {
           wrong('Avoid all trades', 'Pieces matter in middlegames. Trades are the defender\u2019s friend here.'),
           wrong('Attack the enemy king immediately', 'The IQP holder is usually the better attacker. The defender trades.'),
         ]),
+        quiz('The isolani file', 'When a player holds an isolated queen\u2019s pawn, which file becomes the battlefield?', [
+          right('The c-file, next to the isolani: the holder attacks down it, the defender contests it', 'Open files next to an isolani are where both plans live and die.'),
+          wrong('The h-file, far from the pawn', 'The isolani decides its own neighborhood. The c-file is the front street.'),
+          wrong('No file: the pawn itself is the only factor', 'The pawn comes with a file and an outpost square. The whole structure matters.'),
+        ]),
       ],
     },
     {
@@ -375,6 +524,11 @@ export const advanced: Tier = {
       subtitle: 'The most important winning position in rook endgames.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'What does the defender of an IQP want, in one line?', [
+          right('Trades and an endgame, where the pawn becomes a target', 'Every trade moves the game toward the phase the isolani fears.'),
+          wrong('A wild kingside race', 'The IQP holder usually wins those.'),
+          wrong('Nothing: the pawn defends itself', 'Pawns never defend an isolani. Only pieces can, and only for a while.'),
+        ]),
         text(
           'Build a bridge',
           [
@@ -393,6 +547,19 @@ export const advanced: Tier = {
           wrong('Your rook is stronger', 'Rooks are equal. The PAWN plus the bridge decides.'),
           wrong('The enemy king is far away', 'Distance helps but is not required. The bridge is the mechanism.'),
         ]),
+        quiz('Where the bridge goes', 'The enemy rook checks your king from behind, up the b-file. On which square does the bridge rook interpose?', [
+          right('On the checking file, sheltered next to your king (b4 here)', 'The interposition must absorb the checks: same file, one rank below your king.'),
+          wrong('On the pawn\u2019s file, in front of the pawn', 'The pawn is already escorted by your king. The checks are the enemy.'),
+          wrong('Anywhere on the back rank', 'Only the checking file stops the checks. Everything else loses the race.'),
+        ]),
+        drill(
+          'Cash the promotion',
+          '8/3P2k1/8/8/1K6/8/6r1/8 w - - 0 1',
+          ['d8=Q'],
+          'The bridge is built and the checks are over. Collect.',
+          'The pawn has one step left and the black rook is on the wrong file.',
+          'd8=Q. Lucena ends exactly like every good technique: with a new queen and a handshake.',
+        ),
       ],
     },
     {
@@ -402,6 +569,11 @@ export const advanced: Tier = {
       subtitle: 'The most important drawing position in rook endgames.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'Where does the bridge rook interpose in Lucena?', [
+          right('On the checking file, one rank below your king', 'Same file as the checks, sheltered by the king. The checks are over.'),
+          wrong('On the promotion file', 'The pawn handles that file. The CHECKS decide the bridge square.'),
+          wrong('It does not interpose: the king runs', 'Running loses to endless checks. The bridge is the whole point.'),
+        ]),
         text(
           'Checks from behind',
           [
@@ -420,6 +592,11 @@ export const advanced: Tier = {
           wrong('Immediately, always checking', 'Early checks let the king hide in front of the pawn. Patience first.'),
           wrong('Never, passivity draws', 'Passivity loses. The rear checks ARE the activity.'),
         ]),
+        quiz('Philidor timing', 'The defender\u2019s rook sits on the first rank. When does the switch to rear checks happen?', [
+          right('When the pawn reaches the 6th rank: before that, waiting is correct', 'Early checks push the king forward. The third rank is where the defense begins.'),
+          wrong('From move one: always check', 'Constant checking lets the winning king march up supported.'),
+          wrong('Never: the first-rank rook is already the Philidor defense', 'The first rank is the SETUP. The checks after the pawn\u2019s advance are the DEFENSE.'),
+        ]),
       ],
     },
     {
@@ -429,6 +606,11 @@ export const advanced: Tier = {
       subtitle: 'Cutting off, behind passed pawns, the active king.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'When do Philidor\u2019s rear checks begin?', [
+          right('The moment the pawn steps to the 6th rank', 'Before that, the rook waits on the first rank. Timing is the technique.'),
+          wrong('Immediately after losing the pawn', 'You have not lost the pawn yet. The defense prevents the win.'),
+          wrong('After the fifty-move rule', 'The checks deliver the draw long before move fifty.'),
+        ]),
         text(
           'Three rook rules',
           [
@@ -445,6 +627,11 @@ export const advanced: Tier = {
           wrong('Stay home defending pawns', 'That is how won rook endings become drawn ones.'),
           wrong('Hug the rook', 'They do not defend each other from enemy checks anyway.'),
         ]),
+        quiz('Escort or sheepdog?', 'Rook behind your OWN passed pawn versus rook behind THEIR passed pawn: what is the difference?', [
+          right('Behind yours it escorts the promotion; behind theirs it herds and farms it', 'Same geometry, two jobs: escort your runner, cage theirs.'),
+          wrong('None: behind is behind', 'The pawn\u2019s owner decides whether the rook escorts or polices.'),
+          wrong('The rook should always be in front', 'In front of your own pawn blocks it. Behind is the rule for both owners.'),
+        ]),
       ],
     },
     {
@@ -454,6 +641,11 @@ export const advanced: Tier = {
       subtitle: 'Drawish, until an outside passed pawn changes everything.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'Rook behind your own passed pawn does what, compared to behind theirs?', [
+          right('Yours: escorts the promotion. Theirs: herds and farms it', 'One rook, two jobs, depending on whose pawn it follows.'),
+          wrong('It is useless in both cases', 'The rook behind a passer is the most active rook in chess.'),
+          wrong('It should sit in front instead', 'In front of your own passer blocks it. The rule is behind, always.'),
+        ]),
         text(
           'The missing color strikes',
           [
@@ -480,6 +672,14 @@ export const advanced: Tier = {
           wrong('Trade bishops to race pawns', 'Without bishops the defense gets EASIER: king catches one runner.'),
           wrong('Push the passed pawn alone', 'One runner against a correct bishop is a draw. You need the second front.'),
         ]),
+        drill(
+          'Start the second runner',
+          '8/8/4k3/1P5P/8/8/8/2B1K3 w - - 0 1',
+          ['h6'],
+          'Two outside passers, opposite bishops. Set the far one in motion.',
+          'The h-pawn is the runner the black bishop can never reach in time.',
+          'h6. One bishop, two countries. This is the whole winning recipe of opposite-bishop endings.',
+        ),
       ],
     },
     {
@@ -489,6 +689,11 @@ export const advanced: Tier = {
       subtitle: 'The eternal argument, settled by structure.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'How do you beat a correct opposite-colored bishop with one extra passed pawn?', [
+          right('Create a second passed pawn on the opposite color', 'One bishop stops one runner. Two runners on both colors cannot be stopped.'),
+          wrong('Trade the bishops and race', 'Without bishops the king catches single runners easily.'),
+          wrong('March the king up faster', 'The bishop still stops one pawn. The second front is the win.'),
+        ]),
         text(
           'Structure decides',
           [
@@ -510,6 +715,11 @@ export const advanced: Tier = {
           wrong('The bishop', 'Open diagonals only exist where pawns are not. There are none here.'),
           wrong('They are identical in any structure', 'Structure is the entire verdict.'),
         ]),
+        quiz('The open board verdict', 'Pawns are few and the diagonals are wide open. Knight or bishop?', [
+          right('The bishop: range wins open positions', 'Long diagonals, fast wings, and no walls. The bishop is at home.'),
+          wrong('The knight: always', 'Knights need fixed structures. In open fields, range rules.'),
+          wrong('Whatever the rating says', 'Structure decides. Open structure: bishop.'),
+        ]),
       ],
     },
     {
@@ -519,6 +729,11 @@ export const advanced: Tier = {
       subtitle: 'Checks, forks, and the perpetual road.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'In an open position with few pawns, which minor piece usually wins the argument?', [
+          right('The bishop: long diagonals and range decide open play', 'No walls to jump, all the room to use.'),
+          wrong('The knight: outposts decide everything', 'Outposts need fixed pawns. Open positions rarely offer them.'),
+          wrong('Neither: only rooks matter', 'Minor pieces fight the whole middlegame before rooks inherit.'),
+        ]),
         text(
           'Danger and salvation',
           [
@@ -532,6 +747,11 @@ export const advanced: Tier = {
           caption: 'And so on, forever. Draw.',
         }),
         drill('Run the checks', '6k1/8/8/8/8/8/8/3Q2K1 w - - 0 1', ['Qd8+', 'Kh7', 'Qd7+', 'Kh6', 'Qd6+', 'Kh5'], 'Drive the king with rank checks', 'Every check is one rank lower. The king never reaches shelter.', 'Four checks and counting. The queen owns the ranks. This is the road to half a point.'),
+        quiz('The perpetual recipe', 'What geometry does a perpetual check need?', [
+          right('Your queen on an open line behind or beside the enemy king, with no way to be chased', 'Ranks, files or diagonals: as long as every check can be repeated forever, the draw holds.'),
+          wrong('Two queens on the board', 'One queen checks forever. Two just double the fun.'),
+          wrong('The corner, always', 'Corners are for mates. Perpetuals live on open lines.'),
+        ]),
         playout(
           'Finish with the queen',
           'Queen and king against a lone king. Shrink the box, walk the king in, mate without stalemate.',
@@ -553,6 +773,11 @@ export const advanced: Tier = {
       subtitle: 'King centralization and simplification.',
       minutes: 10,
       steps: [
+        quiz('Retrieval first', 'What is the defender\u2019s lifeline in queen endings?', [
+          right('The perpetual check: an endless series of checks the attacker cannot escape', 'Half a point by repetition. The most common saved draw in queen endings.'),
+          wrong('Trading everything into a pawn race', 'Sometimes, but the perpetual is the tool that needs no cooperation.'),
+          wrong('Hiding the king in the corner', 'Corners are where queen endings get MATED. Kings need air.'),
+        ]),
         text(
           'The conversion checklist',
           [
@@ -565,6 +790,11 @@ export const advanced: Tier = {
           right('2 first, then 3 when safe, never 1', 'King activity is the engine; rook trades reduce counterplay; pawns are the win itself.'),
           wrong('1 first: fewer pawns, less risk', 'Fewer pawns is literally less winning margin.'),
           wrong('3 immediately at any cost', 'Rook trades only help when your king is already active and the pawn structure is safe.'),
+        ]),
+        quiz('When to trade rooks', 'You are up a piece in a rook ending with an active king. When do you trade the last rooks?', [
+          right('When the resulting pawn endgame is a guaranteed win (you can calculate it)', 'The final trade must be a WIN, not a hope. Pawn endings are concrete.'),
+          wrong('Immediately: fewer pieces, fewer problems', 'A wrong rook trade throws away the whole point.'),
+          wrong('Never: keep the rooks forever', 'The rook trade is the finishing move when the math says win.'),
         ]),
         drill('Activate the king', '4k3/8/8/8/8/8/8/R3K3 w - - 0 1', ['Kd2'], 'The rook endgame starts now. Best first move?', 'The king marches to the center. Rook moves can wait.', 'Kd2. The king joins the fight immediately. This is what converting looks like.'),
         playout(
@@ -588,6 +818,11 @@ export const advanced: Tier = {
       subtitle: 'One exam, one game, tier cleared.',
       minutes: 15,
       steps: [
+        quiz('Retrieval first', 'When does trading the last rooks pay off in a won rook ending?', [
+          right('When the pawn endgame after the trade is a calculated win', 'Concrete wins only. Hopes do not convert.'),
+          wrong('Always: simplification is automatic', 'A drawn pawn ending erases everything you did to get there.'),
+          wrong('Never: rooks stay on', 'The final trade is the classic finishing technique when the math is checked.'),
+        ]),
         text(
           'The exam',
           [
