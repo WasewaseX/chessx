@@ -24,11 +24,53 @@ export async function GET(req: NextRequest) {
   const pid = profile.id
 
   const limit = Math.min(50, Number(req.nextUrl.searchParams.get('limit') ?? 20))
-  const games = await db.gameRecord.findMany({
-    where: { profileId: pid },
-    orderBy: { createdAt: 'desc' },
-    take: limit,
+  const [botGames, onlineGames] = await Promise.all([
+    db.gameRecord.findMany({ where: { profileId: pid }, orderBy: { createdAt: 'desc' }, take: limit }),
+    // finished rated/casual online games this account played in
+    db.onlineGame.findMany({
+      where: { OR: [{ whiteId: user.id }, { blackId: user.id }], result: { not: '*' } },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    }),
+  ])
+
+  // one shape for both sources, from the player's perspective
+  const botRows = botGames.map((g) => ({
+    id: g.id,
+    kind: 'bot',
+    pool: null,
+    color: g.color,
+    opponent: g.botName,
+    rated: g.rated,
+    result: g.result,
+    reason: g.reason,
+    ratingDelta: g.ratingDelta,
+    pgn: g.pgn,
+    createdAt: g.createdAt,
+  }))
+  const onlineRows = onlineGames.map((g) => {
+    const iAmWhite = g.whiteId === user.id
+    const myScore =
+      g.result === '1/2-1/2' ? 'draw' : (g.result === '1-0') === iAmWhite ? 'win' : 'loss'
+    return {
+      id: g.id,
+      kind: 'online',
+      pool: g.pool,
+      color: iAmWhite ? 'w' : 'b',
+      opponent: iAmWhite ? g.blackName : g.whiteName,
+      rated: g.rated,
+      result: myScore,
+      reason: g.termination ?? 'finished',
+      ratingDelta: (iAmWhite ? g.whiteDelta : g.blackDelta) ?? null,
+      pgn: g.pgn,
+      createdAt: g.endedAt ?? g.createdAt,
+    }
   })
+
+  const games = [...botRows, ...onlineRows]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, limit)
+
   return NextResponse.json({ games })
 }
 

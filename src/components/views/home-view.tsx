@@ -18,9 +18,10 @@ import {
 
 interface GameRow {
   id: string
+  kind?: 'bot' | 'online'
+  pool?: string | null
   color: string
-  botName: string
-  botLevel: number
+  opponent: string
   result: string
   reason: string
   rated: boolean
@@ -172,9 +173,11 @@ export function HomeView() {
             Rated online games in bullet, blitz and rapid. Or practice casually against fourteen bot characters, est. 350 to 2600.
           </div>
           <div className="mt-3 text-sm font-semibold text-primary">
-            {ratings.length > 0
-              ? `Your blitz: ${ratings.find((r) => r.pool === 'blitz')?.rating ?? 1000} (${ratings.find((r) => r.pool === 'blitz')?.games ?? 0} games)`
-              : 'Play a rated game to start your rating'}
+            {(() => {
+              const blitz = ratings.find((r) => r.pool === 'blitz')
+              if (!blitz || blitz.games === 0) return 'Play a rated game to start your rating'
+              return `Your blitz: ${blitz.rating} (${blitz.games} ${blitz.games === 1 ? 'game' : 'games'})`
+            })()}
           </div>
         </button>
 
@@ -216,8 +219,11 @@ export function HomeView() {
                     }`}
                   />
                   <span className="font-semibold">
-                    {g.result === 'win' ? 'Won' : g.result === 'loss' ? 'Lost' : 'Drew'} vs {g.botName}
+                    {g.result === 'win' ? 'Won' : g.result === 'loss' ? 'Lost' : 'Drew'} vs {g.opponent}
                   </span>
+                  {g.kind === 'online' && g.rated && (
+                    <span className="rounded bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground">rated</span>
+                  )}
                   <span className="text-muted-foreground">{g.reason}</span>
                   {g.rated && g.ratingDelta != null && (
                     <span className={g.ratingDelta >= 0 ? 'text-primary' : 'text-destructive'}>

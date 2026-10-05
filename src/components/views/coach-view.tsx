@@ -227,9 +227,9 @@ export function CoachView() {
 
   const reviewLastGame = useCallback(async () => {
     try {
-      const res = await fetch('/api/games?limit=1')
+      const res = await fetch('/api/games?limit=5')
       const data = await res.json()
-      const g = data.games?.[0] as { pgn?: string; finalFen?: string; botName?: string } | undefined
+      const g = (data.games as Array<{ id: string; pgn?: string; opponent?: string; botName?: string; finalFen?: string }> | undefined)?.[0]
       if (!g?.pgn) {
         setError('No games to review yet. Play one against a bot first.')
         return
@@ -246,8 +246,8 @@ export function CoachView() {
         }
       }
       void send(
-        `Review my game against ${g.botName ?? 'the bot'}. Where did it turn, what were the key mistakes, and what should I work on?`,
-        { pgn: g.pgn, fen: g.finalFen, gameId: (g as { id?: string }).id },
+        `Review my game against ${g.opponent ?? g.botName ?? 'my opponent'}. Where did it turn, what were the key mistakes, and what should I work on?`,
+        { pgn: g.pgn, fen: g.finalFen, gameId: g.id },
       )
     } catch {
       setError('Could not load your games.')

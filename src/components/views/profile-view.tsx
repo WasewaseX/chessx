@@ -11,9 +11,10 @@ import { Zap } from 'lucide-react'
 
 interface GameRow {
   id: string
+  kind?: 'bot' | 'online'
+  pool?: string | null
   color: string
-  botName: string
-  botLevel: number
+  opponent: string
   result: string
   reason: string
   rated: boolean
@@ -266,7 +267,10 @@ export function ProfileView() {
                   <span className="font-semibold">
                     {g.result === 'win' ? 'Won' : g.result === 'loss' ? 'Lost' : 'Drew'} as {g.color === 'w' ? 'White' : 'Black'}
                   </span>
-                  <span className="truncate text-muted-foreground">vs {g.botName}</span>
+                  <span className="truncate text-muted-foreground">vs {g.opponent}</span>
+                  {g.kind === 'online' && g.pool && (
+                    <span className="hidden rounded bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground sm:inline">{g.pool}</span>
+                  )}
                   <span className="hidden text-xs text-muted-foreground sm:inline">by {g.reason}</span>
                   {g.rated && g.ratingDelta != null && (
                     <span className={g.ratingDelta >= 0 ? 'font-semibold text-primary' : 'font-semibold text-destructive'}>
