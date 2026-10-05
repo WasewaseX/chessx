@@ -1,9 +1,19 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+// Lesson player, chess.com-style: a dark charcoal page with the board as the
+// centerpiece. Left column: the coach persona in a speech bubble (live
+// guidance, hints and praise all flow through it) above a step rail of
+// numbered chips (green check done, glowing orange current, dim locked).
+// Center: bold step title above a large board, chunky green action bar below.
+// Slim green progress bar pinned to the top. A rewarding completion screen
+// with real stats closes the lesson. All teaching logic (interactive moves,
+// legal-move flashes, guided mistakes, TTS, sounds, progress reporting) is
+// unchanged; only the presentation was rebuilt.
+
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
 import { ChessBoard, type Arrow, type FlashMark, type Mark } from '@/components/chess/board'
-import { findLevel, TIERS } from '@/content/levels'
+import { findLevel } from '@/content/levels'
 import type { ExerciseStep, GtmStep, LessonStep } from '@/content/schema'
 import { useApp } from '@/lib/store'
 import { engine } from '@/lib/chess/engine-client'
@@ -17,28 +27,116 @@ import { CoachCards, usePickCoach } from '@/components/shell/coach-choice'
 import { cn } from '@/lib/utils'
 import {
   ArrowLeft,
+  Check,
   ChevronLeft,
   ChevronRight,
   Lightbulb,
-  RotateCcw,
   MessageSquareText,
+  RotateCcw,
   CheckCircle2,
   Play,
   Undo2,
   Sparkles,
   CircleAlert,
 } from 'lucide-react'
-/* Coach character bubble: face + speech bubble, with an option to hear it.
-   No coach chosen yet? The bubble becomes the chooser: nothing speaks until
+
+/* ---------------- shared bits ---------------- */
+
+type BubbleTone = 'praise' | 'guide' | 'hint' | 'neutral'
+
+interface BubbleMsg {
+  tone: BubbleTone
+  text: string
+  speak?: string
+  chip?: string
+}
+
+const STEP_LABELS: Record<LessonStep['type'], string> = {
+  text: 'Read',
+  demo: 'Watch',
+  quiz: 'Quiz',
+  exercise: 'Solve',
+  playout: 'Play out',
+  gtm: 'Guess the move',
+}
+
+function chipFor(tone: BubbleTone): string | undefined {
+  if (tone === 'praise') return 'Nice'
+  if (tone === 'guide') return 'Look again'
+  if (tone === 'hint') return 'Hint'
+  return undefined
+}
+
+/** The instruction the coach opens every step with, derived from the step data. */
+function defaultBubbleFor(step: LessonStep): BubbleMsg {
+  switch (step.type) {
+    case 'text':
+      return { tone: 'neutral', text: step.keyIdea ?? step.body[0] ?? step.title }
+    case 'demo':
+      return { tone: 'neutral', text: step.body[0] ?? step.title }
+    case 'quiz':
+      return { tone: 'neutral', text: step.question }
+    case 'exercise':
+      return { tone: 'neutral', text: step.goal }
+    case 'playout':
+      return { tone: 'neutral', text: step.goal }
+    case 'gtm':
+      return { tone: 'neutral', text: step.body[0] ?? step.title }
+  }
+}
+
+function railState(i: number, stepIdx: number, reached: number, lessonDone: boolean): 'done' | 'current' | 'locked' {
+  if (lessonDone) return 'done'
+  if (i === stepIdx) return 'current'
+  if (i <= reached) return 'done'
+  return 'locked'
+}
+
+/** Dark small action button used in toolbars under the board and in the top bar. */
+function ToolButton({
+  onClick,
+  disabled,
+  ariaLabel,
+  className,
+  children,
+}: {
+  onClick: () => void
+  disabled?: boolean
+  ariaLabel?: string
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      className={cn(
+        'border border-white/10 bg-white/10 text-xs font-bold text-white hover:bg-white/20 hover:text-white',
+        className,
+      )}
+    >
+      {children}
+    </Button>
+  )
+}
+
+/* Coach persona panel: face + white speech bubble on the dark page. Every
+   step view reports its live guidance up to the parent so the coach is always
+   in one place, talking while the student works the board.
+   No coach chosen yet? The panel becomes the chooser: nothing speaks until
    the player picks who mentors them. */
-function CoachBubble({
+function CoachPanel({
   tone,
   chip,
   coach,
   speakText,
   children,
 }: {
-  tone: 'praise' | 'guide' | 'hint' | 'neutral'
+  tone: BubbleTone
   chip?: string
   coach?: Coach
   speakText?: string
@@ -47,8 +145,8 @@ function CoachBubble({
   const { pick, busyId } = usePickCoach()
   if (!coach) {
     return (
-      <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-3">
-        <p className="text-sm font-semibold">Pick your coach. Every hint and success message is theirs.</p>
+      <div className="rounded-2xl bg-white p-3.5 shadow-lg">
+        <p className="text-sm font-extrabold text-[#312e2b]">Pick your coach. Every hint and success message is theirs.</p>
         <div className="mt-2.5">
           <CoachCards value={busyId} onChange={(id) => void pick(id)} columns={2} compact />
         </div>
@@ -56,32 +154,34 @@ function CoachBubble({
     )
   }
   return (
-    <div className="flex items-start gap-2.5">
-      <CharacterFace id={coach.id} label={coach.name} className="h-11 w-11 shrink-0 rounded-full border-2 border-primary/60 shadow-sm" />
+    <div className="flex items-start gap-3">
+      <CharacterFace
+        id={coach.id}
+        label={coach.name}
+        className="h-11 w-11 shrink-0 rounded-full border-2 border-[#5d8534] shadow-lg lg:h-14 lg:w-14"
+      />
       <div
         className={cn(
-          'relative flex-1 rounded-xl px-3.5 py-2.5 text-sm font-semibold shadow-sm',
-          tone === 'praise' && 'border border-primary/40 bg-primary/10 text-foreground',
-          tone === 'guide' && 'border border-[#e6a82c]/50 bg-[#e6a82c]/10 text-foreground',
-          tone === 'hint' && 'border border-[#e6a82c]/40 bg-[#e6a82c]/5 text-foreground',
-          tone === 'neutral' && 'bg-secondary text-foreground',
+          'relative min-w-0 flex-1 rounded-2xl bg-white px-4 py-3 text-[#312e2b] shadow-lg',
+          tone === 'guide' && 'ring-2 ring-[#e6a82c]/70',
+          tone === 'hint' && 'ring-2 ring-[#e6a82c]/45',
+          tone === 'praise' && 'ring-2 ring-[#81b64c]/60',
         )}
       >
-        <span
-          aria-hidden
-          className={cn(
-            'absolute left-[-6px] top-4 h-3 w-3 rotate-45 border-l border-b',
-            tone === 'praise' && 'border-primary/40 bg-primary/10',
-            tone === 'guide' && 'border-[#e6a82c]/50 bg-[#e6a82c]/10',
-            tone === 'hint' && 'border-[#e6a82c]/40 bg-[#e6a82c]/5',
-            tone === 'neutral' && 'border-secondary bg-secondary',
-          )}
-        />
-        <div className="flex items-start justify-between gap-2">
-          <span>{children}</span>
-          <div className="flex shrink-0 items-center gap-1">
+        <span aria-hidden className="absolute -left-1 top-5 h-3 w-3 rotate-45 rounded-[2px] bg-white" />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#6f8f42]">
+          {coach.name} · {coach.title}
+        </p>
+        <div className="mt-0.5 flex items-start justify-between gap-2">
+          <p className="text-sm font-semibold leading-snug">{children}</p>
+          <div className="flex shrink-0 items-center gap-1.5">
             {chip && (
-              <span className="rounded-md bg-primary px-2 py-0.5 text-xs font-extrabold text-primary-foreground shadow-sm">
+              <span
+                className={cn(
+                  'rounded-md px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white shadow-sm',
+                  tone === 'praise' ? 'bg-[#81b64c]' : 'bg-[#e6a82c]',
+                )}
+              >
                 {chip}
               </span>
             )}
@@ -93,6 +193,26 @@ function CoachBubble({
   )
 }
 
+/** Numbered rail chip: green check when done, glowing orange when current, dim when locked. */
+function StepChip({ state, index }: { state: 'done' | 'current' | 'locked'; index: number }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        'grid h-8 w-8 shrink-0 place-items-center rounded-full font-display text-xs font-extrabold transition-all',
+        state === 'done' && 'bg-[#81b64c] text-white shadow-[0_2px_0_#5d8534]',
+        state === 'current' &&
+          'bg-[#e8a33d] text-white shadow-[0_0_0_3px_rgba(232,163,61,0.25),0_0_16px_rgba(232,163,61,0.55)]',
+        state === 'locked' && 'bg-white/10 text-white/40',
+      )}
+    >
+      {state === 'done' ? <Check className="h-4 w-4" strokeWidth={3} /> : index + 1}
+    </span>
+  )
+}
+
+/* ---------------- main player ---------------- */
+
 export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const { navigate, profile, setPendingReview } = useApp()
   const coach = coachMaybe(profile?.coach)
@@ -101,7 +221,11 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const [canAdvance, setCanAdvance] = useState(false)
   const [done, setDone] = useState(false)
   const [coachOpen, setCoachOpen] = useState(false)
+  const [bubble, setBubble] = useState<BubbleMsg | null>(null)
+  const [hintsUsed, setHintsUsed] = useState(0)
+  const [maxReached, setMaxReached] = useState(0)
   const savedRef = useRef({ stepsDone: 0, postedDone: false })
+  const mobileChipRefs = useRef<Array<HTMLButtonElement | null>>([])
 
   const tier = found?.tier
   const lesson = found?.level
@@ -164,6 +288,19 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
     }
   }, [done, lesson, saveProgress])
 
+  // hint presses count toward honest spaced review: report each one
+  const handleHintUsed = useCallback(() => {
+    setHintsUsed((n) => n + 1)
+    saveProgress(Math.max(maxReached, stepIdx), false, true)
+  }, [saveProgress, stepIdx, maxReached])
+
+  const handleBubble = useCallback((m: BubbleMsg | null) => setBubble(m), [])
+
+  // keep the current chip of the mobile step strip in view
+  useEffect(() => {
+    mobileChipRefs.current[stepIdx]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+  }, [stepIdx])
+
   const isLastStep = lesson ? stepIdx === lesson.steps.length - 1 : false
   if (lesson && isLastStep && canAdvance && !done) {
     setDone(true)
@@ -171,9 +308,9 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
   if (!lesson || !tier) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <p className="text-muted-foreground">Lesson not found.</p>
-        <Button className="btn-hero mt-4" onClick={() => navigate('lessons')}>
+      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-sidebar px-4 text-center text-sidebar-foreground">
+        <p className="text-sm font-semibold text-white/70">Lesson not found.</p>
+        <Button className="btn-hero mt-4 h-11 px-6" onClick={() => navigate('lessons')}>
           Back to lessons
         </Button>
       </div>
@@ -182,6 +319,11 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
   const step = lesson.steps[stepIdx]
   const last = stepIdx === lesson.steps.length - 1
+  const total = lesson.steps.length
+  const reached = Math.max(stepIdx, maxReached)
+  const completedSteps = done ? total : reached
+  const pct = total > 0 ? Math.round((completedSteps / total) * 100) : 0
+  const shownBubble = bubble ?? defaultBubbleFor(step)
 
   function goNext() {
     if (last && !done) {
@@ -192,7 +334,9 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
       navigate('lessons')
       return
     }
-    setStepIdx((i) => i + 1)
+    const next = stepIdx + 1
+    setStepIdx(next)
+    setMaxReached((m) => Math.max(m, next))
     setCanAdvance(false)
   }
 
@@ -203,134 +347,305 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
     }
   }
 
+  function jumpToStep(i: number) {
+    if (i <= reached) {
+      setStepIdx(i)
+      setMaxReached((m) => Math.max(m, i))
+      setCanAdvance(i < reached)
+    }
+  }
+
   // (completion effect moved above the early return to keep hook order stable)
 
+  const introLines: string[] =
+    step.type === 'gtm'
+      ? step.body
+      : step.type === 'exercise' || step.type === 'playout'
+        ? step.body
+          ? [step.body]
+          : []
+        : []
+
+  const lockLabel =
+    step.type === 'exercise' || step.type === 'playout'
+      ? 'Solve it to continue'
+      : step.type === 'gtm'
+        ? 'Guess the move to continue'
+        : step.type === 'quiz'
+          ? 'Answer to continue'
+          : 'Continue'
+
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-4">
-      {/* header */}
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <button onClick={() => navigate('lessons')} className="flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Lessons
-        </button>
-        <div className="hidden h-4 w-px bg-border sm:block" />
-        <div className="min-w-0">
-          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Tier {tier.n} · {tier.title}
-          </div>
-          <h1 className="truncate font-display text-lg font-bold">{lesson.title}</h1>
-        </div>
-        <Button variant="secondary" size="sm" className="ml-auto" onClick={() => setCoachOpen(true)}>
-          <MessageSquareText className="h-4 w-4" /> Ask the coach
-        </Button>
-      </div>
-
-      {/* progress dots */}
-      <div className="mb-4 flex items-center gap-1.5">
-        {lesson.steps.map((_, i) => (
+    <div className="min-h-screen w-full bg-sidebar text-sidebar-foreground">
+      {/* top bar with slim green progress */}
+      <header className="sticky top-0 z-40 border-b border-sidebar-border/80 bg-sidebar/95 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-5xl items-center gap-2.5 px-4 py-2.5 sm:gap-3">
           <button
-            key={i}
-            aria-label={`Step ${i + 1}`}
-            onClick={() => {
-              if (i <= Math.max(stepIdx, savedRef.current.stepsDone)) {
-                setStepIdx(i)
-                setCanAdvance(i < savedRef.current.stepsDone)
-              }
-            }}
-            className={cn(
-              'h-2 rounded-full transition-all',
-              i === stepIdx ? 'w-6 bg-primary' : i < stepIdx ? 'w-2 bg-primary/60' : 'w-2 bg-border',
-            )}
-          />
-        ))}
-        <span className="ml-2 text-xs font-semibold text-muted-foreground">
-          {stepIdx + 1} / {lesson.steps.length}
-        </span>
-        {xpFlash != null && (
-          <span className="ml-auto inline-flex animate-pulse items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-extrabold text-primary-foreground shadow">
-            <Sparkles className="h-3.5 w-3.5" /> +{xpFlash} XP
+            onClick={() => navigate('lessons')}
+            aria-label="Back to lessons"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">
+              Tier {tier.n} · {tier.title}
+            </div>
+            <h1 className="truncate font-display text-sm font-extrabold text-white sm:text-base">{lesson.title}</h1>
+          </div>
+          {xpFlash != null && (
+            <span className="inline-flex shrink-0 animate-pulse items-center gap-1 rounded-full bg-[#81b64c] px-2.5 py-1 text-xs font-extrabold text-white shadow">
+              <Sparkles className="h-3.5 w-3.5" /> +{xpFlash} XP
+            </span>
+          )}
+          <ToolButton onClick={() => setCoachOpen(true)} ariaLabel="Ask the coach" className="shrink-0">
+            <MessageSquareText className="h-4 w-4" />
+            <span className="hidden sm:inline">Coach</span>
+          </ToolButton>
+          <div className="hidden shrink-0 items-center gap-2.5 sm:flex">
+            <span
+              className="text-xs font-extrabold tabular-nums text-white/60"
+              aria-label={`${completedSteps} of ${total} steps completed`}
+            >
+              {completedSteps}/{total}
+            </span>
+            <div
+              className="h-1.5 w-28 overflow-hidden rounded-full bg-white/10 lg:w-40"
+              role="progressbar"
+              aria-label="Lesson progress"
+              aria-valuemin={0}
+              aria-valuemax={total}
+              aria-valuenow={completedSteps}
+            >
+              <div
+                className="h-full rounded-full bg-[#81b64c] transition-all duration-500"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+          </div>
+        </div>
+        {/* mobile progress strip */}
+        <div className="flex items-center gap-2 px-4 pb-2 sm:hidden">
+          <span className="shrink-0 text-[10px] font-extrabold tabular-nums text-white/50">
+            {completedSteps}/{total} steps
           </span>
-        )}
-      </div>
+          <div
+            className="h-1 flex-1 overflow-hidden rounded-full bg-white/10"
+            role="progressbar"
+            aria-label="Lesson progress"
+            aria-valuemin={0}
+            aria-valuemax={total}
+            aria-valuenow={completedSteps}
+          >
+            <div className="h-full rounded-full bg-[#81b64c] transition-all duration-500" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+      </header>
 
-      {step.type === 'playout' ? (
-        <PlayoutStepView
-          key={stepIdx}
-          step={step}
-          level={globalLevel}
+      {done ? (
+        <CompletionScreen
+          lesson={lesson}
           coach={coach}
-          onPass={() => setCanAdvance(true)}
-          soundEnabled={profile?.soundEnabled ?? true}
-          showLegal={profile?.showLegal ?? true}
-          theme={profile?.theme ?? 'green'}
-        />
-      ) : step.type === 'gtm' ? (
-        <GtmStepView
-          key={stepIdx}
-          step={step}
-          coach={coach}
-          onPass={() => setCanAdvance(true)}
-          soundEnabled={profile?.soundEnabled ?? true}
-          showLegal={profile?.showLegal ?? true}
-          theme={profile?.theme ?? 'green'}
-        />
-      ) : step.type === 'exercise' ? (
-        <ExerciseView
-          key={stepIdx}
-          step={step}
-          lessonTitle={lesson.title}
-          coach={coach}
-          onPass={() => setCanAdvance(true)}
-          soundEnabled={profile?.soundEnabled ?? true}
-          showLegal={profile?.showLegal ?? true}
-          theme={profile?.theme ?? 'green'}
-          onAskCoach={() => setCoachOpen(true)}
+          message={bubble?.text ?? null}
+          hintsUsed={hintsUsed}
+          xpGain={xpFlash}
+          onContinue={() => navigate('lessons')}
         />
       ) : (
-        <div className="grid gap-5 lg:grid-cols-[1fr_420px]">
-          <div className={cn(step.type === 'demo' ? 'order-2 lg:order-1' : 'hidden')}>
-            {step.type === 'demo' && (
-              <DemoBoard
-                key={stepIdx}
-                fen={step.fen}
-                moves={step.moves}
-                marks={step.marks}
-                arrows={step.arrows}
-                caption={step.caption}
-                soundEnabled={profile?.soundEnabled ?? true}
-              />
-            )}
-          </div>
-          <div className={cn('order-1 lg:order-2', step.type !== 'demo' && 'lg:col-span-2')}>
-            {step.type === 'text' && <TextStepView step={step} coach={coach} onReady={() => setCanAdvance(true)} />}
-            {step.type === 'demo' && <DemoTextView step={step} coach={coach} onReady={() => setCanAdvance(true)} />}
-            {step.type === 'quiz' && <QuizStepView key={stepIdx} step={step} onPass={() => setCanAdvance(true)} />}
+        <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-4 sm:pt-6">
+          <div className="grid gap-5 lg:grid-cols-[290px_minmax(0,1fr)] lg:gap-7">
+            {/* coach column: bubble + step rail */}
+            <aside className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
+              <CoachPanel
+                tone={shownBubble.tone}
+                chip={shownBubble.chip}
+                coach={coach}
+                speakText={shownBubble.speak ?? shownBubble.text}
+              >
+                {shownBubble.text}
+              </CoachPanel>
+
+              {/* mobile: horizontal strip of numbered chips */}
+              <ol className="scroll-slim -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:hidden" aria-label="Lesson steps">
+                {lesson.steps.map((s, i) => {
+                  const st = railState(i, stepIdx, reached, done)
+                  return (
+                    <li key={i} className="shrink-0">
+                      <button
+                        ref={(el) => {
+                          mobileChipRefs.current[i] = el
+                        }}
+                        onClick={() => jumpToStep(i)}
+                        disabled={i > reached}
+                        aria-label={`Step ${i + 1}: ${s.title}`}
+                        aria-current={i === stepIdx ? 'step' : undefined}
+                        className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                      >
+                        <StepChip state={st} index={i} />
+                      </button>
+                    </li>
+                  )
+                })}
+              </ol>
+
+              {/* desktop: vertical rail with labels */}
+              <nav aria-label="Lesson steps" className="relative hidden lg:block">
+                <span aria-hidden="true" className="absolute bottom-4 left-[15px] top-4 w-px bg-white/10" />
+                <ol className="relative space-y-1">
+                  {lesson.steps.map((s, i) => {
+                    const st = railState(i, stepIdx, reached, done)
+                    return (
+                      <li key={i}>
+                        <button
+                          onClick={() => jumpToStep(i)}
+                          disabled={i > reached}
+                          aria-current={i === stepIdx ? 'step' : undefined}
+                          className={cn(
+                            'flex w-full items-center gap-3 rounded-xl px-1.5 py-1.5 text-left transition-colors',
+                            st === 'current' ? 'bg-white/5' : st !== 'locked' && 'hover:bg-white/5',
+                            st === 'locked' && 'opacity-60',
+                          )}
+                        >
+                          <StepChip state={st} index={i} />
+                          <span className="min-w-0 flex-1">
+                            <span
+                              className={cn(
+                                'block truncate text-xs font-extrabold',
+                                st === 'current' ? 'text-white' : 'text-white/70',
+                              )}
+                            >
+                              {STEP_LABELS[s.type]}
+                            </span>
+                            <span className="block truncate text-[11px] text-white/40">{s.title}</span>
+                          </span>
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ol>
+              </nav>
+            </aside>
+
+            {/* board column */}
+            <section className="min-w-0">
+              <div className="mb-3 sm:mb-4">
+                <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.22em] text-[#9ecb63]">
+                  <span>{STEP_LABELS[step.type]}</span>
+                  {step.type === 'playout' && (
+                    <span className="rounded-full bg-white/10 px-2 py-0.5 text-[9px] font-bold tracking-normal text-white/60">
+                      Global level {globalLevel}
+                    </span>
+                  )}
+                </div>
+                <h2 className="font-display text-xl font-extrabold text-white sm:text-2xl">{step.title}</h2>
+                {step.type === 'gtm' && <p className="mt-0.5 text-[11px] font-semibold text-white/40">{step.source}</p>}
+                {introLines.length > 0 && (
+                  <div className="mt-1 space-y-1">
+                    {introLines.map((p, i) => (
+                      <p key={i} className="max-w-2xl text-sm leading-relaxed text-white/60">
+                        {p}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {step.type === 'playout' ? (
+                <PlayoutStepView
+                  key={stepIdx}
+                  step={step}
+                  onPass={() => setCanAdvance(true)}
+                  onBubble={handleBubble}
+                  soundEnabled={profile?.soundEnabled ?? true}
+                  showLegal={profile?.showLegal ?? true}
+                  theme={profile?.theme ?? 'green'}
+                />
+              ) : step.type === 'gtm' ? (
+                <GtmStepView
+                  key={stepIdx}
+                  step={step}
+                  onPass={() => setCanAdvance(true)}
+                  onBubble={handleBubble}
+                  soundEnabled={profile?.soundEnabled ?? true}
+                  showLegal={profile?.showLegal ?? true}
+                  theme={profile?.theme ?? 'green'}
+                />
+              ) : step.type === 'exercise' ? (
+                <ExerciseView
+                  key={stepIdx}
+                  step={step}
+                  onPass={() => setCanAdvance(true)}
+                  onBubble={handleBubble}
+                  onHintUsed={handleHintUsed}
+                  soundEnabled={profile?.soundEnabled ?? true}
+                  showLegal={profile?.showLegal ?? true}
+                  theme={profile?.theme ?? 'green'}
+                  onAskCoach={() => setCoachOpen(true)}
+                />
+              ) : step.type === 'demo' ? (
+                <div className="flex flex-col items-center">
+                  <div className="w-full max-w-[620px]">
+                    <DemoBoard
+                      key={stepIdx}
+                      fen={step.fen}
+                      moves={step.moves}
+                      marks={step.marks}
+                      arrows={step.arrows}
+                      caption={step.caption}
+                      soundEnabled={profile?.soundEnabled ?? true}
+                    />
+                  </div>
+                  <DemoTextCard
+                    key={`t${stepIdx}`}
+                    step={step}
+                    coach={coach}
+                    onReady={() => setCanAdvance(true)}
+                    onBubble={handleBubble}
+                  />
+                </div>
+              ) : step.type === 'text' ? (
+                <TextStepView
+                  key={stepIdx}
+                  step={step}
+                  coach={coach}
+                  onReady={() => setCanAdvance(true)}
+                  onBubble={handleBubble}
+                />
+              ) : (
+                <QuizStepView key={stepIdx} step={step} onPass={() => setCanAdvance(true)} onBubble={handleBubble} />
+              )}
+
+              {/* action bar */}
+              <div className="sticky bottom-20 z-30 mt-5 lg:bottom-4">
+                <div className="flex items-center gap-3 rounded-2xl border border-sidebar-border bg-[#262421]/95 p-2.5 shadow-2xl backdrop-blur sm:p-3">
+                  <Button
+                    variant="ghost"
+                    onClick={goPrev}
+                    disabled={stepIdx === 0}
+                    aria-label="Previous step"
+                    className="h-12 shrink-0 border border-white/10 bg-white/5 px-3 font-display text-sm font-bold text-white hover:bg-white/15 hover:text-white sm:px-4"
+                  >
+                    <ChevronLeft className="h-4 w-4" /> Back
+                  </Button>
+                  {canAdvance ? (
+                    <Button className="btn-hero h-12 flex-1 text-base" onClick={goNext}>
+                      {last ? 'Complete lesson' : 'Continue'} <ChevronRight className="h-5 w-5" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      disabled
+                      className="h-12 flex-1 cursor-not-allowed border border-white/10 bg-white/5 text-sm font-bold text-white/45 hover:bg-white/5"
+                    >
+                      {lockLabel}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       )}
-
-      {/* sticky bottom action bar */}
-      <div className="sticky bottom-4 z-30 mt-6 pb-1">
-        <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-background/95 p-2 shadow-lg backdrop-blur">
-          <Button variant="secondary" onClick={goPrev} disabled={stepIdx === 0} className="shrink-0">
-            <ChevronLeft className="h-4 w-4" /> Back
-          </Button>
-          {canAdvance ? (
-            <Button className="btn-hero h-12 flex-1 text-base font-extrabold tracking-wide" onClick={goNext}>
-              {last && done ? 'Finish' : last ? 'Complete lesson' : 'Continue'} <ChevronRight className="h-5 w-5" />
-            </Button>
-          ) : (
-            <Button variant="secondary" disabled className="h-12 flex-1 text-sm font-bold">
-              {step.type === 'exercise' || step.type === 'playout'
-                ? 'Solve it to continue'
-                : step.type === 'gtm'
-                  ? 'Guess the move to continue'
-                  : step.type === 'quiz'
-                    ? 'Answer to continue'
-                    : '…'}
-            </Button>
-          )}
-        </div>
-      </div>
 
       <CoachDrawer
         open={coachOpen}
@@ -346,28 +661,123 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   )
 }
 
+/* ---------------- completion ---------------- */
+
+function CompletionScreen({
+  lesson,
+  coach,
+  message,
+  hintsUsed,
+  xpGain,
+  onContinue,
+}: {
+  lesson: NonNullable<ReturnType<typeof findLevel>['level']>
+  coach?: Coach
+  message: string | null
+  hintsUsed: number
+  xpGain: number | null
+  onContinue: () => void
+}) {
+  return (
+    <div className="mx-auto w-full max-w-xl animate-in fade-in zoom-in-95 px-4 py-8 text-center duration-500 sm:py-12">
+      <div aria-hidden="true" className="relative mx-auto h-28 w-44">
+        <img
+          src="/pieces/wK.svg"
+          alt=""
+          className="absolute left-0 top-1 h-24 w-24 -rotate-6 drop-shadow-[0_10px_14px_rgba(0,0,0,0.5)]"
+        />
+        <img
+          src="/pieces/wQ.svg"
+          alt=""
+          className="absolute right-0 top-3 h-24 w-24 rotate-6 drop-shadow-[0_10px_14px_rgba(0,0,0,0.5)]"
+        />
+      </div>
+      <h2 className="mt-2 font-display text-3xl font-extrabold uppercase tracking-wide text-white sm:text-4xl">
+        Lesson complete
+      </h2>
+      <p className="mt-1 text-sm font-semibold text-white/55">{lesson.title}</p>
+
+      <div className="mx-auto mt-6 flex max-w-md items-start gap-3 rounded-2xl bg-white p-4 text-left shadow-xl">
+        {coach ? (
+          <CharacterFace
+            id={coach.id}
+            label={coach.name}
+            className="h-12 w-12 shrink-0 rounded-full border-2 border-[#5d8534]"
+          />
+        ) : (
+          <img
+            src="/brand.svg"
+            alt="ChessX"
+            className="h-12 w-12 shrink-0 rounded-full border-2 border-sidebar-border bg-black/30 p-1"
+          />
+        )}
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#6f8f42]">{coach ? coach.name : 'ChessX'}</p>
+          <p className="mt-0.5 text-sm font-semibold leading-snug text-[#312e2b]">
+            {message ?? `All ${lesson.steps.length} steps complete. Replay it any time to keep it sharp.`}
+          </p>
+        </div>
+      </div>
+
+      {/* real stats from this session: steps completed, hints used, xp from the server */}
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-extrabold text-white/75">
+          <Check className="h-3.5 w-3.5 text-[#81b64c]" strokeWidth={3} />
+          {lesson.steps.length} of {lesson.steps.length} steps
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-extrabold text-white/75">
+          <Lightbulb className="h-3.5 w-3.5 text-[#e8a33d]" />
+          Hints used: {hintsUsed}
+        </span>
+        {xpGain != null && (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#81b64c]/40 bg-[#81b64c]/15 px-3.5 py-1.5 text-xs font-extrabold text-[#a3d160]">
+            <Sparkles className="h-3.5 w-3.5" />+{xpGain} XP
+          </span>
+        )}
+      </div>
+
+      <Button className="btn-hero mt-8 h-13 w-full max-w-xs text-base" onClick={onContinue}>
+        Continue <ChevronRight className="h-5 w-5" />
+      </Button>
+    </div>
+  )
+}
+
 /* ---------------- step views ---------------- */
 
-function TextStepView({ step, coach, onReady }: { step: Extract<LessonStep, { type: 'text' }>; coach?: Coach; onReady: () => void }) {
+function TextStepView({
+  step,
+  coach,
+  onReady,
+  onBubble,
+}: {
+  step: Extract<LessonStep, { type: 'text' }>
+  coach?: Coach
+  onReady: () => void
+  onBubble: (m: BubbleMsg | null) => void
+}) {
   useEffect(() => {
     onReady()
   }, [onReady, step])
   const spoken = [...step.body, step.keyIdea].filter(Boolean).join(' ')
+  const bubbleText = step.keyIdea ?? step.body[0] ?? step.title
+  useLayoutEffect(() => {
+    onBubble({ tone: 'neutral', text: bubbleText, speak: spoken })
+  }, [onBubble, bubbleText, spoken])
   return (
-    <div className="rounded-lg bg-card p-6 shadow-sm">
-      <div className="flex items-start justify-between gap-2">
-        <h2 className="font-display text-xl font-bold">{step.title}</h2>
+    <div className="mx-auto w-full max-w-2xl rounded-2xl border border-sidebar-border bg-black/25 p-5 shadow-xl sm:p-6">
+      <div className="flex items-start justify-end gap-2">
         {coach && <SpeakButton text={spoken} voice={coach.voice} speed={coach.speed} />}
       </div>
-      <div className="mt-3 space-y-3">
+      <div className="-mt-4 space-y-3">
         {step.body.map((p, i) => (
-          <p key={i} className="leading-relaxed text-foreground/90">
+          <p key={i} className="leading-relaxed text-white/85">
             {p}
           </p>
         ))}
       </div>
       {step.keyIdea && (
-        <div className="mt-4 rounded-md border-l-4 border-primary bg-primary/10 px-4 py-3 text-sm font-semibold">
+        <div className="mt-4 rounded-xl border border-[#81b64c]/30 bg-[#81b64c]/10 px-4 py-3 text-sm font-semibold text-white">
           {step.keyIdea}
         </div>
       )}
@@ -375,22 +785,36 @@ function TextStepView({ step, coach, onReady }: { step: Extract<LessonStep, { ty
   )
 }
 
-function DemoTextView({ step, coach, onReady }: { step: Extract<LessonStep, { type: 'demo' }>; coach?: Coach; onReady: () => void }) {
+function DemoTextCard({
+  step,
+  coach,
+  onReady,
+  onBubble,
+}: {
+  step: Extract<LessonStep, { type: 'demo' }>
+  coach?: Coach
+  onReady: () => void
+  onBubble: (m: BubbleMsg | null) => void
+}) {
   useEffect(() => {
     onReady()
   }, [onReady, step])
+  const spoken = step.body.join(' ')
+  const bubbleText = step.body[0] ?? step.title
+  useLayoutEffect(() => {
+    onBubble({ tone: 'neutral', text: bubbleText, speak: spoken })
+  }, [onBubble, bubbleText, spoken])
   return (
-    <div className="rounded-lg bg-card p-6 shadow-sm">
+    <div className="mt-4 w-full max-w-2xl rounded-2xl border border-sidebar-border bg-black/25 p-5 shadow-xl">
       <div className="flex items-start justify-between gap-2">
-        <h2 className="font-display text-xl font-bold">{step.title}</h2>
-        {coach && <SpeakButton text={step.body.join(' ')} voice={coach.voice} speed={coach.speed} />}
-      </div>
-      <div className="mt-3 space-y-3">
-        {step.body.map((p, i) => (
-          <p key={i} className="leading-relaxed text-foreground/90">
-            {p}
-          </p>
-        ))}
+        <div className="space-y-2.5">
+          {step.body.map((p, i) => (
+            <p key={i} className="leading-relaxed text-white/85">
+              {p}
+            </p>
+          ))}
+        </div>
+        {coach && <SpeakButton text={spoken} voice={coach.voice} speed={coach.speed} />}
       </div>
     </div>
   )
@@ -553,31 +977,37 @@ function DemoBoard({
         )}
       </div>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-        <div className="text-sm text-muted-foreground">{caption ?? ''}</div>
+        <div className="text-xs font-semibold text-white/50">{caption ?? ''}</div>
         <div className="flex flex-wrap gap-1.5">
           {moves && moves.length > 0 && (
-            <Button variant="secondary" size="sm" onClick={() => playLine(150)} disabled={autoplay}>
+            <ToolButton onClick={() => playLine(150)} disabled={autoplay} ariaLabel="Watch the line">
               <Play className="h-4 w-4" /> Watch the line
-            </Button>
+            </ToolButton>
           )}
-          <Button variant="secondary" size="sm" onClick={undo} disabled={autoplay || depth === 0}>
+          <ToolButton onClick={undo} disabled={autoplay || depth === 0} ariaLabel="Undo move">
             <Undo2 className="h-4 w-4" /> Undo
-          </Button>
-          <Button variant="secondary" size="sm" onClick={reset} disabled={autoplay || depth === 0}>
+          </ToolButton>
+          <ToolButton onClick={reset} disabled={autoplay || depth === 0} ariaLabel="Reset board">
             <RotateCcw className="h-4 w-4" /> Reset
-          </Button>
+          </ToolButton>
         </div>
       </div>
       {!autoplay && depth === 0 && (
-        <p className="mt-1 text-xs text-muted-foreground">
-          This board is yours to explore. Pick up any piece and try moves.
-        </p>
+        <p className="mt-1 text-xs text-white/40">This board is yours to explore. Pick up any piece and try moves.</p>
       )}
     </div>
   )
 }
 
-function QuizStepView({ step, onPass }: { step: Extract<LessonStep, { type: 'quiz' }>; onPass: () => void }) {
+function QuizStepView({
+  step,
+  onPass,
+  onBubble,
+}: {
+  step: Extract<LessonStep, { type: 'quiz' }>
+  onPass: () => void
+  onBubble: (m: BubbleMsg | null) => void
+}) {
   const [chosen, setChosen] = useState<number | null>(null)
   const [misses, setMisses] = useState(0)
   const [answeredCorrect, setAnsweredCorrect] = useState(false)
@@ -595,11 +1025,24 @@ function QuizStepView({ step, onPass }: { step: Extract<LessonStep, { type: 'qui
     }
   }
 
+  const bubbleTone: BubbleTone = answeredCorrect
+    ? 'praise'
+    : chosen != null && !step.options[chosen].correct
+      ? 'guide'
+      : 'neutral'
+  const bubbleText = answeredCorrect
+    ? `Correct. ${step.options[correctIdx]?.why ?? ''}`
+    : chosen != null && !step.options[chosen].correct
+      ? `${step.options[chosen].why} Take another look.`
+      : step.question
+  useLayoutEffect(() => {
+    onBubble({ tone: bubbleTone, text: bubbleText, speak: bubbleText, chip: chipFor(bubbleTone) })
+  }, [onBubble, bubbleTone, bubbleText])
+
   return (
-    <div className="rounded-lg bg-card p-6 shadow-sm">
-      <h2 className="font-display text-xl font-bold">{step.title}</h2>
-      {step.body && <p className="mt-2 text-sm text-muted-foreground">{step.body}</p>}
-      <p className="mt-3 font-semibold">{step.question}</p>
+    <div className="mx-auto w-full max-w-2xl rounded-2xl border border-sidebar-border bg-black/25 p-5 shadow-xl sm:p-6">
+      {step.body && <p className="text-sm leading-relaxed text-white/60">{step.body}</p>}
+      <p className="mt-3 font-display text-base font-bold text-white sm:text-lg">{step.question}</p>
       <div className="mt-4 grid gap-2">
         {step.options.map((o, i) => {
           const isChosen = chosen === i
@@ -611,38 +1054,38 @@ function QuizStepView({ step, onPass }: { step: Extract<LessonStep, { type: 'qui
               onClick={() => choose(i)}
               disabled={answeredCorrect}
               className={cn(
-                'flex items-start gap-3 rounded-md border px-4 py-3 text-left text-sm font-medium transition',
-                state === 'idle' && 'border-border hover:border-primary/50 hover:bg-accent/50',
-                state === 'correct' && 'border-primary bg-primary/10',
+                'flex items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold text-white transition',
+                state === 'idle' && 'border-white/10 bg-white/5 hover:border-[#81b64c]/50 hover:bg-white/10',
+                state === 'correct' && 'border-[#81b64c] bg-[#81b64c]/15',
                 state === 'off' && 'border-[#e6a82c]/60 bg-[#e6a82c]/10',
-                revealed && 'animate-pulse border-primary bg-primary/5',
-                answeredCorrect && !isChosen && 'opacity-50',
+                revealed && 'animate-pulse border-[#81b64c] bg-[#81b64c]/10',
+                answeredCorrect && !isChosen && 'opacity-45',
               )}
             >
               {state === 'correct' ? (
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#a3d160]" />
               ) : state === 'off' ? (
-                <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-[#b07f16]" />
+                <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-[#e6a82c]" />
               ) : (
-                <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-muted-foreground/40" />
+                <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-white/30" />
               )}
               <span>
                 {o.text}
-                {isChosen && <span className="mt-1 block text-xs font-normal text-muted-foreground">{o.why}</span>}
+                {isChosen && <span className="mt-1 block text-xs font-normal text-white/60">{o.why}</span>}
               </span>
             </button>
           )
         })}
       </div>
       {answeredCorrect ? (
-        <p className="mt-3 text-sm font-semibold text-primary">Correct. {step.options[correctIdx]?.why}</p>
+        <p className="mt-3 text-sm font-semibold text-[#a3d160]">Correct. {step.options[correctIdx]?.why}</p>
       ) : chosen != null && !step.options[chosen].correct ? (
-        <div className="mt-3 rounded-md border border-[#e6a82c]/50 bg-[#e6a82c]/10 px-3 py-2 text-sm font-semibold text-foreground">
+        <div className="mt-3 rounded-xl border border-[#e6a82c]/50 bg-[#e6a82c]/10 px-3 py-2 text-sm font-semibold text-white">
           Tempting, but not the idea here. {step.options[chosen].why} Take another look.
         </div>
       ) : null}
       {misses >= 2 && !answeredCorrect && (
-        <p className="mt-2 text-sm text-muted-foreground">The right answer is glowing now. Tap it, and keep the why in mind for the board.</p>
+        <p className="mt-2 text-sm text-white/50">The right answer is glowing now. Tap it, and keep the why in mind for the board.</p>
       )}
     </div>
   )
@@ -650,18 +1093,18 @@ function QuizStepView({ step, onPass }: { step: Extract<LessonStep, { type: 'qui
 
 function ExerciseView({
   step,
-  lessonTitle,
-  coach,
   onPass,
+  onBubble,
+  onHintUsed,
   soundEnabled,
   showLegal,
   theme,
   onAskCoach,
 }: {
   step: ExerciseStep
-  lessonTitle: string
-  coach?: Coach
   onPass: () => void
+  onBubble: (m: BubbleMsg | null) => void
+  onHintUsed: () => void
   soundEnabled: boolean
   showLegal: boolean
   theme: string
@@ -699,6 +1142,8 @@ function ExerciseView({
   // squares of the next expected move, used by the hint flash
   const showHint = useCallback(() => {
     setHintShown(true)
+    setGuideMsg(null)
+    onHintUsed()
     const san = step.solution[movesSoFar.length]
     if (!san) return
     try {
@@ -708,7 +1153,7 @@ function ExerciseView({
     } catch {
       /* validator guarantees the line; ignore parse races */
     }
-  }, [step.solution, movesSoFar.length, flash])
+  }, [step.solution, movesSoFar.length, flash, onHintUsed])
 
   // After a few misses, show the idea on the board once, then hand the
   // position back so the student still plays it themselves. Guidance, not
@@ -769,6 +1214,15 @@ function ExerciseView({
     if (!game.isCheck()) return null
     return game.board().flat().find((s) => s && s.type === 'k' && s.color === game.turn())?.square ?? null
   }, [game])
+
+  // live coach guidance flows up to the panel: success first, then the
+  // guided-mistake nudge, then the hint, then the standing goal
+  const bubbleTone: BubbleTone = status === 'done' ? 'praise' : guideMsg ? 'guide' : hintShown ? 'hint' : 'neutral'
+  const bubbleText =
+    status === 'done' ? step.success : guideMsg ?? (hintShown ? step.hint : step.goal)
+  useLayoutEffect(() => {
+    onBubble({ tone: bubbleTone, text: bubbleText, speak: bubbleText, chip: chipFor(bubbleTone) })
+  }, [onBubble, bubbleTone, bubbleText])
 
   function reset() {
     watchTimers.current.forEach(clearTimeout)
@@ -868,8 +1322,8 @@ function ExerciseView({
   const userSideFromFen = useMemo(() => new Chess(step.fen).turn(), [step.fen])
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_400px]">
-      <div>
+    <div className="flex flex-col items-center">
+      <div className="w-full max-w-[620px]">
         <ChessBoard
           fen={fen}
           orientation={userSideFromFen}
@@ -885,65 +1339,34 @@ function ExerciseView({
           shake={shake}
         />
       </div>
-      <div className="flex flex-col gap-3">
-        <div className="rounded-lg bg-card p-5 shadow-sm">
-          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Exercise</div>
-          <h2 className="mt-1 font-display text-xl font-bold">{step.title}</h2>
-          {step.body?.map((p, i) => (
-            <p key={i} className="mt-2 text-sm text-foreground/90">
-              {p}
-            </p>
-          ))}
-          <div className="mt-3 rounded-md bg-secondary px-3 py-2 text-sm font-semibold">{step.goal}</div>
 
-          {status === 'solving' && (
-            <div className="mt-3 text-sm text-muted-foreground">
-              {movesSoFar.length > 0 ? (
-                <>Line so far: <span className="font-mono font-semibold text-foreground">{movesSoFar.join(' ')}</span></>
-              ) : (
-                'Your move.'
-              )}
-            </div>
-          )}
-          {guideMsg && status !== 'done' && (
-            <div className="mt-3">
-              <CoachBubble tone="guide" coach={coach} speakText={guideMsg}>
-                {guideMsg}
-              </CoachBubble>
-            </div>
-          )}
-          {status === 'done' && (
-            <div className="mt-3">
-              <CoachBubble tone="praise" coach={coach} speakText={step.success}>{step.success}</CoachBubble>
-            </div>
-          )}
-          {step.explanation && status === 'done' && (
-            <p className="mt-2 text-sm text-muted-foreground">{step.explanation}</p>
-          )}
-
-          <div className="mt-4 flex gap-2">
-            <Button variant="secondary" size="sm" onClick={reset} disabled={status !== 'solving'}>
-              <RotateCcw className="h-4 w-4" /> Reset
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={showHint}
-              disabled={hintShown || status !== 'solving'}
-            >
-              <Lightbulb className="h-4 w-4" /> Hint
-            </Button>
-            <Button variant="secondary" size="sm" onClick={onAskCoach}>
-              <MessageSquareText className="h-4 w-4" /> Coach
-            </Button>
-          </div>
-          {hintShown && status !== 'done' && (
-            <div className="mt-3">
-              <CoachBubble tone="hint" coach={coach} speakText={step.hint}>{step.hint}</CoachBubble>
-            </div>
-          )}
-        </div>
+      <div className="mt-3 w-full max-w-[620px] text-center text-sm text-white/55">
+        {status === 'done' ? (
+          <span className="font-semibold text-[#a3d160]">Line complete.</span>
+        ) : movesSoFar.length > 0 ? (
+          <>
+            Line so far: <span className="font-mono font-bold text-white">{movesSoFar.join(' ')}</span>
+          </>
+        ) : (
+          'Your move.'
+        )}
       </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+        <ToolButton onClick={reset} disabled={status !== 'solving'} ariaLabel="Reset exercise">
+          <RotateCcw className="h-4 w-4" /> Reset
+        </ToolButton>
+        <ToolButton onClick={showHint} disabled={hintShown || status !== 'solving'} ariaLabel="Show a hint">
+          <Lightbulb className="h-4 w-4" /> Hint
+        </ToolButton>
+        <ToolButton onClick={onAskCoach} ariaLabel="Ask the coach">
+          <MessageSquareText className="h-4 w-4" /> Coach
+        </ToolButton>
+      </div>
+
+      {status === 'done' && step.explanation && (
+        <p className="mt-3 max-w-[620px] text-center text-sm leading-relaxed text-white/60">{step.explanation}</p>
+      )}
     </div>
   )
 }
@@ -954,15 +1377,15 @@ function ExerciseView({
    the idea instead of scolding. Guided, never punishing. */
 function GtmStepView({
   step,
-  coach,
   onPass,
+  onBubble,
   soundEnabled,
   showLegal,
   theme,
 }: {
   step: GtmStep
-  coach?: Coach
   onPass: () => void
+  onBubble: (m: BubbleMsg | null) => void
   soundEnabled: boolean
   showLegal: boolean
   theme: string
@@ -1165,9 +1588,19 @@ function GtmStepView({
         ? 'Solid instincts. The ideas you missed are now part of your toolkit.'
         : 'Now you have seen the full idea once. Play it again, and see how much more you find.'
 
+  const bubbleTone: BubbleTone = phase === 'done' ? 'praise' : feedback?.tone ?? 'neutral'
+  const bubbleText =
+    phase === 'done'
+      ? `${summary} You scored ${score} out of ${total}.`
+      : feedback?.text ??
+        `Move ${idx + 1} of ${total}. ${guessSide === 'w' ? 'White' : 'Black'} to move. What did the master play?`
+  useLayoutEffect(() => {
+    onBubble({ tone: bubbleTone, text: bubbleText, speak: bubbleText, chip: chipFor(bubbleTone) })
+  }, [onBubble, bubbleTone, bubbleText])
+
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_400px]">
-      <div>
+    <div className="flex flex-col items-center">
+      <div className="w-full max-w-[620px]">
         <ChessBoard
           fen={fen}
           orientation={guessSide}
@@ -1182,75 +1615,45 @@ function GtmStepView({
           shake={shake}
         />
       </div>
-      <div className="flex flex-col gap-3">
-        <div className="rounded-lg bg-card p-5 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Guess the move</div>
-            <div className="flex items-center gap-1.5">
-              {step.moves.map((_, i) => (
-                <span
-                  key={i}
-                  className={cn(
-                    'h-2.5 w-2.5 rounded-full',
-                    i >= results.length
-                      ? i === idx && phase === 'guess'
-                        ? 'bg-primary ring-2 ring-primary/30'
-                        : 'bg-border'
-                      : results[i] === 'full'
-                        ? 'bg-primary'
-                        : results[i] === 'half'
-                          ? 'bg-[#e6a82c]'
-                          : 'bg-red-400/70',
-                  )}
-                />
-              ))}
-              <span className="ml-1 font-mono text-xs font-bold">
-                {score} / {total}
-              </span>
-            </div>
-          </div>
-          <h2 className="mt-1 font-display text-xl font-bold">{step.title}</h2>
-          {step.body.map((p, i) => (
-            <p key={i} className="mt-2 text-sm text-foreground/90">
-              {p}
-            </p>
+
+      <div className="mt-3 flex w-full max-w-[620px] flex-wrap items-center justify-center gap-2">
+        <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+          {step.moves.map((_, i) => (
+            <span
+              key={i}
+              aria-hidden="true"
+              className={cn(
+                'h-2 w-2 rounded-full',
+                i >= results.length
+                  ? i === idx && phase === 'guess'
+                    ? 'bg-[#81b64c] ring-2 ring-[#81b64c]/30'
+                    : 'bg-white/15'
+                  : results[i] === 'full'
+                    ? 'bg-[#81b64c]'
+                    : results[i] === 'half'
+                      ? 'bg-[#e6a82c]'
+                      : 'bg-red-400/70',
+              )}
+            />
           ))}
-          <div className="mt-2 rounded-md bg-secondary px-3 py-1.5 text-xs font-semibold text-muted-foreground">{step.source}</div>
-
-          <div className="mt-3 rounded-md border border-border/60 bg-background/60 px-3 py-2">
-            {phase === 'guess' ? (
-              <p className="text-sm font-semibold">
-                Move {idx + 1} of {total}. {guessSide === 'w' ? 'White' : 'Black'} to move. What did the master play?
-              </p>
-            ) : (
-              <p className="text-sm font-semibold">Game complete.</p>
-            )}
-            {lineSoFar.length > 0 && (
-              <p className="mt-1 font-mono text-xs text-muted-foreground">{lineSoFar.join(' ')}</p>
-            )}
-          </div>
-
-          {feedback && (
-            <div className="mt-3">
-              <CoachBubble tone={feedback.tone} coach={coach} speakText={feedback.text}>
-                {feedback.text}
-              </CoachBubble>
-            </div>
-          )}
-          {phase === 'done' && (
-            <div className="mt-3">
-              <CoachBubble tone="praise" coach={coach} speakText={`${summary} You scored ${score} out of ${total}.`}>
-                {summary} <span className="font-mono font-bold">({score} / {total})</span>
-              </CoachBubble>
-            </div>
-          )}
-
-          <div className="mt-4">
-            <Button variant="secondary" size="sm" onClick={reset}>
-              <RotateCcw className="h-4 w-4" /> {phase === 'done' ? 'Play it again' : 'Start over'}
-            </Button>
-          </div>
+          <span className="ml-1 font-mono text-xs font-bold text-white/80">
+            {score} / {total}
+          </span>
         </div>
+        <ToolButton onClick={reset} ariaLabel="Restart the game">
+          <RotateCcw className="h-4 w-4" /> {phase === 'done' ? 'Play it again' : 'Start over'}
+        </ToolButton>
+      </div>
+
+      <div className="mt-2 w-full max-w-[620px] text-center text-sm text-white/55">
+        {phase === 'guess' ? (
+          <p>
+            Move {idx + 1} of {total}. {guessSide === 'w' ? 'White' : 'Black'} to move. What did the master play?
+          </p>
+        ) : (
+          <p className="font-semibold text-[#a3d160]">Game complete.</p>
+        )}
+        {lineSoFar.length > 0 && <p className="mt-1 font-mono text-xs text-white/40">{lineSoFar.join(' ')}</p>}
       </div>
     </div>
   )
@@ -1258,17 +1661,15 @@ function GtmStepView({
 
 function PlayoutStepView({
   step,
-  level,
-  coach,
   onPass,
+  onBubble,
   soundEnabled,
   showLegal,
   theme,
 }: {
   step: Extract<LessonStep, { type: 'playout' }>
-  level: number
-  coach?: Coach
   onPass: () => void
+  onBubble: (m: BubbleMsg | null) => void
   soundEnabled: boolean
   showLegal: boolean
   theme: string
@@ -1333,7 +1734,7 @@ function PlayoutStepView({
       if (step.success === 'material' && materialBalance(g) >= 3 && moves.length >= 2) return 'won'
       return null
     },
-     
+
     [fen, moves],
   )
 
@@ -1397,9 +1798,16 @@ function PlayoutStepView({
     judgedRef.current = false
   }
 
+  const failText = step.failText ?? (status === 'draw' ? 'A draw is not the goal here.' : 'That did not work. Reset and try a different plan.')
+  const bubbleTone: BubbleTone = status === 'won' ? 'praise' : status === 'playing' ? 'neutral' : 'guide'
+  const bubbleText = status === 'won' ? step.successText : status === 'playing' ? step.goal : failText
+  useLayoutEffect(() => {
+    onBubble({ tone: bubbleTone, text: bubbleText, speak: bubbleText, chip: chipFor(bubbleTone) })
+  }, [onBubble, bubbleTone, bubbleText])
+
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_400px]">
-      <div>
+    <div className="flex flex-col items-center">
+      <div className="w-full max-w-[620px]">
         <ChessBoard
           fen={fen}
           orientation={step.side}
@@ -1412,44 +1820,16 @@ function PlayoutStepView({
           theme={theme}
         />
       </div>
-      <div className="rounded-lg bg-card p-5 shadow-sm">
-        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Play it out · Global level {level}</div>
-        <h2 className="mt-1 font-display text-xl font-bold">{step.title}</h2>
-        {step.body?.map((p, i) => (
-          <p key={i} className="mt-2 text-sm text-foreground/90">
-            {p}
-          </p>
-        ))}
-        <div className="mt-3 rounded-md bg-secondary px-3 py-2 text-sm font-semibold">{step.goal}</div>
-        <div className="mt-2 text-xs text-muted-foreground">
-          {thinking ? 'Opponent thinking…' : moves.length > 0 ? `Moves played: ${moves.length}` : 'Your move.'}
-        </div>
 
-        {status === 'won' && (
-          <div className="mt-3">
-            <CoachBubble tone="praise" coach={coach} speakText={step.successText}>{step.successText}</CoachBubble>
-          </div>
-        )}
-        {(status === 'lost' || status === 'draw') && (
-          <div className="mt-3">
-            <CoachBubble
-              tone="guide"
-              coach={coach}
-              speakText={step.failText ?? (status === 'draw' ? 'A draw is not the goal here.' : 'That did not work. Reset and try a different plan.')}
-            >
-              {step.failText ?? (status === 'draw' ? 'A draw is not the goal here.' : 'That did not work. Reset and try a different plan.')}
-            </CoachBubble>
-          </div>
-        )}
+      <div className="mt-3 text-center text-sm text-white/55">
+        {thinking ? 'Opponent thinking…' : moves.length > 0 ? `Moves played: ${moves.length}` : 'Your move.'}
+      </div>
 
-        <div className="mt-4 flex gap-2">
-          <Button variant="secondary" size="sm" onClick={reset} disabled={status === 'playing' && moves.length === 0}>
-            <RotateCcw className="h-4 w-4" /> Reset
-          </Button>
-        </div>
+      <div className="mt-3">
+        <ToolButton onClick={reset} disabled={status === 'playing' && moves.length === 0} ariaLabel="Reset position">
+          <RotateCcw className="h-4 w-4" /> Reset
+        </ToolButton>
       </div>
     </div>
   )
 }
-
-void TIERS
