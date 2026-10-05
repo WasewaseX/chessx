@@ -20,7 +20,7 @@ export const PROVIDERS: Record<
   builtin: { label: 'Built-in (ChessX AI)', kind: 'builtin' },
   openai: { label: 'OpenAI', baseUrl: 'https://api.openai.com/v1', defaultModel: 'gpt-4o-mini', kind: 'openai' },
   anthropic: { label: 'Anthropic', baseUrl: 'https://api.anthropic.com', defaultModel: 'claude-3-5-haiku-latest', kind: 'anthropic' },
-  gemini: { label: 'Google Gemini', baseUrl: 'https://generativelanguage.googleapis.com', defaultModel: 'gemini-2.0-flash', kind: 'gemini' },
+  gemini: { label: 'Google Gemini', baseUrl: 'https://generativelanguage.googleapis.com', defaultModel: 'gemini-3.8-flash', kind: 'gemini' },
   openrouter: { label: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1', defaultModel: 'openai/gpt-4o-mini', kind: 'openai' },
   groq: { label: 'Groq', baseUrl: 'https://api.groq.com/openai/v1', defaultModel: 'llama-3.3-70b-versatile', kind: 'openai' },
   deepseek: { label: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', defaultModel: 'deepseek-chat', kind: 'openai' },

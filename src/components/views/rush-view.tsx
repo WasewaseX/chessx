@@ -287,7 +287,7 @@ export function RushPanel() {
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <button
                 onClick={() => void startRun('threeMin')}
-                className="group rounded-xl border border-border p-5 text-left transition-all duration-150 hover:border-primary/60 hover:shadow-md active:scale-[0.98]"
+                className="group rounded-xl border border-border p-6 text-left transition-all duration-150 hover:border-primary/60 hover:shadow-md active:scale-[0.98]"
               >
                 <div className="flex items-center gap-2 font-display text-lg font-bold">
                   <Timer className="h-5 w-5 text-primary" /> 3 minutes
@@ -297,7 +297,7 @@ export function RushPanel() {
               </button>
               <button
                 onClick={() => void startRun('survival')}
-                className="group rounded-xl border border-border p-5 text-left transition-all duration-150 hover:border-primary/60 hover:shadow-md active:scale-[0.98]"
+                className="group rounded-xl border border-border p-6 text-left transition-all duration-150 hover:border-primary/60 hover:shadow-md active:scale-[0.98]"
               >
                 <div className="flex items-center gap-2 font-display text-lg font-bold">
                   <Swords className="h-5 w-5 text-primary" /> Survival
@@ -373,7 +373,7 @@ export function RushPanel() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <div className="rounded-lg bg-card p-5 shadow-sm">
+        <div className="rounded-lg bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {mode === 'threeMin' ? 'Rush: 3 minutes' : 'Rush: survival'}

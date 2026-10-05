@@ -75,11 +75,7 @@ export async function GET(req: NextRequest) {
         googleId: profile.sub,
         profile: { create: { name: username } },
         ratings: {
-          create: [
-            { pool: 'bullet', rating: 1000, rd: 350 },
-            { pool: 'blitz', rating: 1000, rd: 350 },
-            { pool: 'rapid', rating: 1000, rd: 350 },
-          ],
+          create: { pool: 'overall', rating: 1000, rd: 350 },
         },
       },
     })

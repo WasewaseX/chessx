@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
 import { ChessBoard } from '@/components/chess/board'
 import { useApp } from '@/lib/store'
+import { readJson } from '@/lib/api-client'
 import { PROVIDERS } from '@/lib/ai-providers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -204,8 +205,8 @@ export function CoachView() {
             context: { ...context, skillLevel: profile?.skillLevel ?? 'beginner', coach: coach.id },
           }),
         })
-        const data = await res.json()
-        if (!res.ok) throw new Error(data.error ?? 'The coach could not answer. Try again.')
+        const data = await readJson<{ content?: string; error?: string }>(res)
+        if (!res.ok || !data.content) throw new Error(data.error ?? 'The coach could not answer. Try again.')
         setMessages((m) => [...m, { role: 'assistant', content: data.content }])
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e))

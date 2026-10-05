@@ -20,13 +20,18 @@ export interface ViewState {
 }
 
 export interface PoolRating {
-  pool: string // bullet | blitz | rapid
+  pool: string // 'overall' (one Elo, updated only by rated online games)
   rating: number
   rd: number
   games: number
   wins: number
   losses: number
   draws: number
+}
+
+/** The single account Elo. Null while the account has no rated games yet. */
+export function overallRating(rows: PoolRating[] | undefined | null): PoolRating | null {
+  return rows?.find((r) => r.pool === 'overall') ?? null
 }
 
 export interface AuthUser {

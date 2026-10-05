@@ -91,7 +91,7 @@ export function GoalCard() {
   const pct = Math.min(100, Math.round((minutes / Math.max(1, data.goalMinutes)) * 100))
   return (
     <button
-      className="pressable w-full rounded-lg bg-card p-5 text-left shadow-sm hover:shadow-md"
+      className="pressable w-full rounded-lg bg-card p-6 text-left shadow-sm hover:shadow-md"
       onClick={() => navigate('profile')}
     >
       <div className="mb-3 flex items-center justify-between">

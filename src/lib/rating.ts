@@ -37,6 +37,30 @@ export function isProvisional(gamesPlayed: number): boolean {
   return gamesPlayed < 10
 }
 
+/**
+ * Estimated Elo potential: where the player's online rating would likely
+ * settle, judged only from games already played. Bot games carry most of the
+ * signal (the chess.com-style estimate against each bot's fixed rating) and
+ * rated puzzles add a small correction. Every input is measured, never
+ * invented; with no signal at all the potential is simply unknown.
+ */
+export function potentialElo(input: {
+  botElo: number
+  botGames: number
+  puzzleRating: number | null
+  puzzleCount: number
+}): { value: number; from: 'bots and puzzles' | 'bot games' | 'puzzles' } | null {
+  const hasBot = input.botGames > 0 && input.botElo > 0
+  const hasPuzzle = input.puzzleCount > 0 && input.puzzleRating != null
+  if (hasBot && hasPuzzle && input.puzzleRating != null) {
+    const value = Math.round(input.botElo * 0.8 + input.puzzleRating * 0.2)
+    return { value, from: 'bots and puzzles' }
+  }
+  if (hasBot) return { value: input.botElo, from: 'bot games' }
+  if (hasPuzzle && input.puzzleRating != null) return { value: input.puzzleRating, from: 'puzzles' }
+  return null
+}
+
 // Chess.com-style accuracy approximation from average centipawn loss.
 export function accuracyFromLoss(avgLossCp: number): number {
   const a = 103.1668 * Math.exp(-0.04354 * avgLossCp) - 3.1669

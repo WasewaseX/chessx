@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { COACHES } from '@/lib/coaches'
+import { readJson } from '@/lib/api-client'
 import { CharacterFace } from '@/components/chess/characters'
 import { cn } from '@/lib/utils'
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
@@ -36,12 +37,12 @@ export function SettingsView() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patch),
       })
-      const d = await res.json()
+      const d = await readJson<{ profile?: typeof profile }>(res)
       if (d.profile) patchProfile(d.profile)
       setSaved(true)
       setTimeout(() => setSaved(false), 1500)
     } catch {
-      /* offline */
+      /* offline: the optimistic value stays */
     }
   }
 
@@ -50,7 +51,7 @@ export function SettingsView() {
     setTestMsg('')
     try {
       const res = await fetch('/api/ai/test', { method: 'POST' })
-      const d = await res.json()
+      const d = await readJson<{ ok?: boolean; provider?: string; error?: string }>(res)
       setTestState(d.ok ? 'ok' : 'fail')
       setTestMsg(d.ok ? d.provider ?? 'works' : d.error ?? 'failed')
     } catch (e) {
@@ -66,7 +67,7 @@ export function SettingsView() {
       <h1 className="font-display text-2xl font-extrabold">Settings</h1>
 
       {/* profile */}
-      <section className="mt-6 rounded-lg bg-card p-5 shadow-sm">
+      <section className="mt-6 rounded-lg bg-card p-6 shadow-sm">
         <h2 className="font-display text-lg font-bold">Profile</h2>
         <div className="mt-3 flex flex-wrap items-end gap-3">
           <div className="grow">
@@ -81,7 +82,7 @@ export function SettingsView() {
       </section>
 
       {/* coach */}
-      <section className="mt-4 rounded-lg bg-card p-5 shadow-sm">
+      <section className="mt-6 rounded-lg bg-card p-6 shadow-sm">
         <h2 className="font-display text-lg font-bold">Your coach</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Every coach covers the whole curriculum but each has their own style. They speak their feedback out loud too.
@@ -113,7 +114,7 @@ export function SettingsView() {
       </section>
 
       {/* board */}
-      <section className="mt-4 rounded-lg bg-card p-5 shadow-sm">
+      <section className="mt-6 rounded-lg bg-card p-6 shadow-sm">
         <h2 className="font-display text-lg font-bold">Board</h2>
         <div className="mt-3 flex flex-wrap gap-3">
           {Object.entries(BOARD_THEMES).map(([key, t]) => (
@@ -156,7 +157,7 @@ export function SettingsView() {
       </section>
 
       {/* appearance */}
-      <section className="mt-4 rounded-lg bg-card p-5 shadow-sm">
+      <section className="mt-6 rounded-lg bg-card p-6 shadow-sm">
         <h2 className="font-display text-lg font-bold">Appearance</h2>
         <div className="mt-3 flex overflow-hidden rounded-md border">
           {(['light', 'dark'] as const).map((m) => (
@@ -172,7 +173,7 @@ export function SettingsView() {
       </section>
 
       {/* AI */}
-      <section className="mt-4 rounded-lg bg-card p-5 shadow-sm">
+      <section className="mt-6 rounded-lg bg-card p-6 shadow-sm">
         <h2 className="font-display text-lg font-bold">AI coach</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           The built-in model works out of the box. Prefer your own? Bring an API key. It is stored on this device's database and used server-side only.
@@ -227,6 +228,11 @@ export function SettingsView() {
                   placeholder={selectedProvider?.defaultModel ?? 'model name'}
                   className="mt-1 max-w-md font-mono text-sm"
                 />
+                {provider === 'openrouter' && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    OpenRouter model ids look like openai/gpt-4o-mini or anthropic/claude-3.5-haiku. The full list lives at openrouter.ai/models.
+                  </p>
+                )}
               </div>
               <div>
                 <Label htmlFor="key">API key {profile.hasApiKey ? '(saved, leave blank to keep)' : ''}</Label>
@@ -235,7 +241,7 @@ export function SettingsView() {
                   type="password"
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
-                  placeholder={profile.hasApiKey ? '••••••••' : 'sk-…'}
+                  placeholder={provider === 'openrouter' ? 'sk-or-…' : 'sk-…'}
                   className="mt-1 max-w-md font-mono text-sm"
                 />
               </div>

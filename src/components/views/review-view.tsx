@@ -110,14 +110,14 @@ export function ReviewView() {
       ) : (
         <div className="grid gap-5">
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl bg-card p-5 shadow-sm">
+            <div className="rounded-xl bg-card p-6 shadow-sm">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                 <CalendarClock className="h-4 w-4 text-primary" /> Due now
               </div>
               <div className="mt-1 font-display text-3xl font-extrabold">{dueCount}</div>
               {upcomingCount > 0 && <div className="text-xs text-muted-foreground">{upcomingCount} more scheduled for later</div>}
             </div>
-            <div className="rounded-xl bg-card p-5 shadow-sm">
+            <div className="rounded-xl bg-card p-6 shadow-sm">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                 <Layers className="h-4 w-4 text-primary" /> Weakest concepts
               </div>
@@ -179,7 +179,7 @@ export function ReviewView() {
           )}
 
           {mastery.length > 0 && (
-            <div className="rounded-xl bg-card p-5 shadow-sm">
+            <div className="rounded-xl bg-card p-6 shadow-sm">
               <div className="font-display text-lg font-bold">Concept strength</div>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 {mastery.map((m) => (

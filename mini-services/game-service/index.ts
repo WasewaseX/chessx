@@ -4,7 +4,8 @@
 // same SQLite database the web app reads.
 //
 // Rating math: Glicko-1 exactly like chess.com (see src/lib/rating/glicko.ts
-// for the shared spec). One rating per time pool: bullet, blitz, rapid.
+// for the shared spec). One single Elo per account: every rated online game
+// moves it, no matter the time control. Bot games never touch it.
 //
 // Chess.com behavior this follows:
 //   - bot-free queue: you only get matched with another signed-in account
@@ -149,10 +150,14 @@ function currentUser(socketId: string) {
   return sessions.get(socketId) ?? null
 }
 
-async function ratingFor(userId: string, pool: string) {
-  const r = await prisma.userRating.findUnique({ where: { userId_pool: { userId, pool } } })
+// The one rating row per account. pool is always 'overall': bullet, blitz and
+// rapid all feed the same Elo.
+const RATING_POOL = 'overall'
+
+async function ratingFor(userId: string) {
+  const r = await prisma.userRating.findUnique({ where: { userId_pool: { userId, pool: RATING_POOL } } })
   if (r) return r
-  return prisma.userRating.create({ data: { userId, pool } })
+  return prisma.userRating.create({ data: { userId, pool: RATING_POOL } })
 }
 
 function leaveQueue(userId: string) {
@@ -296,7 +301,7 @@ async function endGame(
     const whiteScore = result === '1-0' ? 1 : result === '0-1' ? 0 : 0.5
     const blackScore = 1 - whiteScore
 
-    const [wRow, bRow] = await Promise.all([ratingFor(g.white.userId, g.pool), ratingFor(g.black.userId, g.pool)])
+    const [wRow, bRow] = await Promise.all([ratingFor(g.white.userId), ratingFor(g.black.userId)])
     const now = Date.now()
     const wIdle = Math.floor((now - (wRow.lastGameAt?.getTime() ?? 0)) / 86_400_000)
     const bIdle = Math.floor((now - (bRow.lastGameAt?.getTime() ?? 0)) / 86_400_000)
@@ -308,7 +313,7 @@ async function endGame(
 
     await Promise.all([
       prisma.userRating.update({
-        where: { userId_pool: { userId: g.white.userId, pool: g.pool } },
+        where: { userId_pool: { userId: g.white.userId, pool: RATING_POOL } },
         data: {
           rating: wRes.rating,
           rd: wRes.rd,
@@ -320,7 +325,7 @@ async function endGame(
         },
       }),
       prisma.userRating.update({
-        where: { userId_pool: { userId: g.black.userId, pool: g.pool } },
+        where: { userId_pool: { userId: g.black.userId, pool: RATING_POOL } },
         data: {
           rating: bRes.rating,
           rd: bRes.rd,
@@ -474,10 +479,10 @@ io.on('connection', (socket) => {
     sessions.set(socket.id, { userId: row.user.id, username: row.user.username })
     byUser.set(row.user.id, socket.id)
 
-    const ratings = await prisma.userRating.findMany({ where: { userId: row.user.id } })
+    const rating = await ratingFor(row.user.id)
     socket.emit('auth:ok', {
       username: row.user.username,
-      ratings: Object.fromEntries(ratings.map((r) => [r.pool, { rating: Math.round(r.rating), rd: Math.round(r.rd), games: r.games }])),
+      rating: { rating: Math.round(rating.rating), rd: Math.round(rating.rd), games: rating.games },
     })
 
     // rejoin a live game after a refresh or reconnect
@@ -532,7 +537,7 @@ io.on('connection', (socket) => {
       socket.emit('queue:error', { error: 'Finish your current game first' })
       return
     }
-    const row = await ratingFor(user.userId, conf.pool)
+    const row = await ratingFor(user.userId)
     queue.set(user.userId, {
       socketId: socket.id,
       userId: user.userId,

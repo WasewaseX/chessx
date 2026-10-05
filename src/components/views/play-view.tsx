@@ -9,7 +9,7 @@ import { BOTS, botForLevel, type Bot } from '@/lib/chess/bots'
 import { CharacterFace } from '@/components/chess/characters'
 import { engine } from '@/lib/chess/engine-client'
 import { playSound } from '@/lib/chess/sounds'
-import { useApp } from '@/lib/store'
+import { useApp, overallRating } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -162,11 +162,7 @@ function OnlineLobby() {
   const [game, setGame] = useState<OnlineGameView | null>(null)
   const [over, setOver] = useState<GameOverView | null>(null)
   const [connectFail, setConnectFail] = useState(false)
-
-  const ratingFor = useCallback(
-    (pool: string) => ratings.find((r) => r.pool === pool) ?? { pool, rating: 1000, rd: 350, games: 0, wins: 0, losses: 0, draws: 0 },
-    [ratings],
-  )
+  const elo = overallRating(ratings)
 
   // one socket per view; server rejoins a live game after refresh
   useEffect(() => {
@@ -267,7 +263,7 @@ function OnlineLobby() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between rounded-lg bg-card px-5 py-3 shadow-sm">
+      <div className="mb-4 flex items-center justify-between gap-4 rounded-lg bg-card px-6 py-3 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-extrabold text-white">
             {initials(user?.username ?? 'You')}
@@ -275,23 +271,20 @@ function OnlineLobby() {
           <div>
             <div className="text-sm font-bold">{user?.username ?? 'You'}</div>
             <div className="text-xs text-muted-foreground">
-              {ratings.length === 0 ? 'No rated games yet, start at 1000' : `Provisional until ratings settle`}
+              {elo && elo.games > 0 ? `${elo.games} rated ${elo.games === 1 ? 'game' : 'games'}` : 'No rated games yet, starts at 1000'}
             </div>
           </div>
         </div>
-        <div className="hidden gap-4 text-center sm:flex">
-          {(['bullet', 'blitz', 'rapid'] as const).map((pool) => {
-            const r = ratingFor(pool)
-            return (
-              <div key={pool} className="min-w-16">
-                <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{pool}</div>
-                <div className="font-display text-lg font-extrabold">{r.rating}</div>
-                <div className="text-[10px] text-muted-foreground">
-                  {r.wins}W {r.losses}L {r.draws}D
-                </div>
-              </div>
-            )
-          })}
+        <div className="text-right">
+          <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Elo</div>
+          <div className="font-display text-2xl font-extrabold leading-6">
+            {elo && elo.games > 0 ? elo.rating : '1000*'}
+          </div>
+          {elo && elo.games > 0 && (
+            <div className="text-[10px] text-muted-foreground">
+              {elo.wins}W {elo.losses}L {elo.draws}D
+            </div>
+          )}
         </div>
       </div>
 
@@ -304,34 +297,26 @@ function OnlineLobby() {
         <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">{queueError}</div>
       )}
 
+      <h2 className="mb-3 font-display text-lg font-bold">Pick a time control</h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {TIME_CARDS.map((c) => {
-          const r = ratingFor(c.pool)
-          return (
-            <button
-              key={c.tc}
-              onClick={() => joinQueue(c.tc)}
-              className="pressable group rounded-xl bg-card p-4 text-left shadow-sm transition-shadow hover:shadow-md"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-display text-3xl font-extrabold">{c.top}</span>
-                <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{c.label}</span>
-              </div>
-              <div className="mt-1 text-xs text-muted-foreground">{c.tc}</div>
-              <div className="mt-2 flex items-baseline gap-1.5">
-                <span className="font-display text-lg font-bold">{r.rating}</span>
-                {r.games === 0 && <span className="rounded bg-secondary px-1 py-0.5 text-[9px] font-bold uppercase text-muted-foreground">New</span>}
-              </div>
-              <div className="mt-0.5 text-[10px] text-muted-foreground">
-                {r.games === 0 ? 'First game sets the rating' : `${r.wins}W ${r.losses}L ${r.draws}D`}
-              </div>
-            </button>
-          )
-        })}
+        {TIME_CARDS.map((c) => (
+          <button
+            key={c.tc}
+            onClick={() => joinQueue(c.tc)}
+            className="pressable group rounded-xl bg-card p-4 text-left shadow-sm transition-shadow hover:shadow-md"
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-display text-3xl font-extrabold">{c.top}</span>
+              <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{c.label}</span>
+            </div>
+            <div className="mt-1 text-xs text-muted-foreground">{c.tc}</div>
+            <div className="mt-2 text-[10px] font-bold uppercase tracking-wide text-primary/80">Rated</div>
+          </button>
+        ))}
       </div>
 
       <p className="mt-4 text-center text-xs text-muted-foreground">
-        Ratings use Glicko, the same system chess.com uses. Quitting a live rated game counts as a loss.
+        One Elo for every time control, updated only by rated online games (Glicko). 1000* is the starting value until your first rated game. Quitting a live game counts as a loss.
       </p>
     </div>
   )
@@ -678,7 +663,7 @@ function BotsLobby({
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-lg bg-card px-5 py-3 shadow-sm">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-lg bg-card px-6 py-3 shadow-sm">
         <div className="flex items-center gap-2">
           <Label className="text-sm font-semibold">Side</Label>
           <div className="flex overflow-hidden rounded-md border">

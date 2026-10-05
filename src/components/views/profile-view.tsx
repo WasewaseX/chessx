@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useApp } from '@/lib/store'
+import { useApp, overallRating } from '@/lib/store'
 import { ALL_LEVELS, TIERS } from '@/content/levels'
-import { titleForXp } from '@/lib/rating'
+import { potentialElo, titleForXp } from '@/lib/rating'
 import { Progress } from '@/components/ui/progress'
 import { useActivity, StreakCalendar } from '@/components/shell/streak'
 import { cn } from '@/lib/utils'
@@ -24,6 +24,7 @@ interface GameRow {
 
 export function ProfileView() {
   const { profile, patchProfile, ratings } = useApp()
+  const elo = overallRating(ratings)
   const [games, setGames] = useState<GameRow[]>([])
   const [progress, setProgress] = useState<{ lessonId: string; completed: boolean; stepsDone: number }[]>([])
   const activity = useActivity()
@@ -66,6 +67,12 @@ export function ProfileView() {
   const totalLessons = ALL_LEVELS.length
   const puzzleTotal = profile.puzzleSolved + profile.puzzleFailed
   const solveRate = puzzleTotal ? Math.round((profile.puzzleSolved / puzzleTotal) * 100) : null
+  const potential = potentialElo({
+    botElo: profile.botElo,
+    botGames: profile.botEloGames,
+    puzzleRating: profile.puzzleRating,
+    puzzleCount: profile.puzzleCount,
+  })
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6">
@@ -84,27 +91,26 @@ export function ProfileView() {
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
+          label="Elo"
+          value={elo && elo.games > 0 ? elo.rating : '1000*'}
+          sub={(() => {
+            if (!elo || elo.games === 0) return 'Rated online games only. Starts at 1000'
+            return `${elo.games} rated ${elo.games === 1 ? 'game' : 'games'} · ${elo.wins}W ${elo.losses}L ${elo.draws}D`
+          })()}
+        />
+        <StatCard
+          label="Potential"
+          value={potential ? `~${potential.value}` : '-'}
+          sub={
+            potential
+              ? `Estimated from ${potential.from}`
+              : 'Play bot games or puzzles to get an estimate'
+          }
+        />
+        <StatCard
           label="Puzzle rating"
           value={profile.puzzleRating ?? '-'}
           sub={profile.puzzleCount < 10 && profile.puzzleRating ? 'Provisional' : profile.puzzleRating ? `${profile.puzzleCount} rated puzzles` : 'Solve a puzzle to get rated'}
-        />
-        <StatCard
-          label="Blitz rating"
-          value={ratings.find((r) => r.pool === 'blitz')?.rating ?? 1000}
-          sub={(() => {
-            const r = ratings.find((x) => x.pool === 'blitz')
-            if (!r || r.games === 0) return 'Starts at 1000. Play online games'
-            return `${r.games} rated games · ${r.wins}W ${r.losses}L ${r.draws}D`
-          })()}
-        />
-        <StatCard
-          label="Bullet rating"
-          value={ratings.find((r) => r.pool === 'bullet')?.rating ?? 1000}
-          sub={(() => {
-            const r = ratings.find((x) => x.pool === 'bullet')
-            if (!r || r.games === 0) return 'Starts at 1000. Play online games'
-            return `${r.games} rated games · ${r.wins}W ${r.losses}L ${r.draws}D`
-          })()}
         />
         <StatCard label="Puzzle streak" value={profile.puzzleStreak} sub={`Best: ${profile.bestPuzzleStreak}`} />
         <StatCard label="Games" value={total} sub={winRate != null ? `${winRate}% won` : 'No games yet'} />
@@ -112,7 +118,7 @@ export function ProfileView() {
 
       {/* Daily goal, streak calendar, rush bests */}
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-lg bg-card p-5 shadow-sm">
+        <div className="rounded-lg bg-card p-6 shadow-sm">
           <h2 className="font-display text-lg font-bold">Daily goal</h2>
           <div className="mt-3 flex items-center gap-3">
             <div className="flex items-center gap-1.5 font-display text-3xl font-extrabold">
@@ -154,7 +160,7 @@ export function ProfileView() {
           </div>
         </div>
 
-        <div className="rounded-lg bg-card p-5 shadow-sm">
+        <div className="rounded-lg bg-card p-6 shadow-sm">
           <h2 className="font-display text-lg font-bold">Puzzle Rush</h2>
           <div className="mt-3 grid grid-cols-2 gap-3 text-center">
             <div className="rounded-md bg-secondary/60 p-4">
@@ -183,7 +189,7 @@ export function ProfileView() {
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-lg bg-card p-5 shadow-sm">
+        <div className="rounded-lg bg-card p-6 shadow-sm">
           <h2 className="font-display text-lg font-bold">Lessons</h2>
           <div className="mt-3">
             <div className="mb-1 flex justify-between text-sm">
@@ -214,7 +220,7 @@ export function ProfileView() {
           </div>
         </div>
 
-        <div className="rounded-lg bg-card p-5 shadow-sm">
+        <div className="rounded-lg bg-card p-6 shadow-sm">
           <h2 className="font-display text-lg font-bold">Puzzles</h2>
           <div className="mt-3 grid grid-cols-3 gap-3 text-center">
             <div>
@@ -248,15 +254,15 @@ export function ProfileView() {
       </div>
 
       <div className="mt-6 rounded-lg bg-card shadow-sm">
-        <div className="border-b border-border px-5 py-3">
+        <div className="border-b border-border px-6 py-3">
           <h2 className="font-display text-lg font-bold">Game history</h2>
         </div>
         {games.length === 0 ? (
-          <div className="px-5 py-6 text-sm text-muted-foreground">No games played yet.</div>
+          <div className="px-6 py-6 text-sm text-muted-foreground">No games played yet.</div>
         ) : (
           <div className="divide-y divide-border">
             {games.map((g) => (
-              <div key={g.id} className="flex items-center justify-between px-5 py-2.5 text-sm">
+              <div key={g.id} className="flex items-center justify-between px-6 py-2.5 text-sm">
                 <div className="flex min-w-0 items-center gap-3">
                   <span
                     className={cn(

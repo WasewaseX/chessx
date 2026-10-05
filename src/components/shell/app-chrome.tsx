@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useApp, type ViewName } from '@/lib/store'
+import { useApp, overallRating, type ViewName } from '@/lib/store'
 import { clearSessionToken } from '@/lib/session'
 import { cn } from '@/lib/utils'
 import {
@@ -35,11 +35,11 @@ const NAV_EXTRA: { name: ViewName; label: string; icon: React.ComponentType<{ cl
 
 export function Sidebar() {
   const { view, navigate, profile, ratings, user } = useApp()
-  const blitz = ratings.find((r) => r.pool === 'blitz')
+  const elo = overallRating(ratings)
   return (
     <aside className="hidden w-56 shrink-0 flex-col bg-sidebar text-sidebar-foreground lg:sticky lg:top-0 lg:flex lg:h-dvh lg:self-start">
       <button
-        className="flex items-center gap-3 px-5 pb-2 pt-5 text-left"
+        className="flex items-center gap-3 px-6 pb-2 pt-5 text-left"
         onClick={() => navigate('home')}
         aria-label="ChessX home"
       >
@@ -66,13 +66,13 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="border-t border-sidebar-border px-5 py-4 text-xs text-sidebar-foreground/70">
+      <div className="border-t border-sidebar-border px-6 py-4 text-xs text-sidebar-foreground/70">
         {profile ? (
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
               <div className="truncate font-bold text-sidebar-foreground">{user?.username ?? profile.name}</div>
               <div className="mt-0.5">
-                {blitz ? `Blitz ${blitz.rating}` : 'No rated games yet'}
+                {elo && elo.games > 0 ? `Elo ${elo.rating}` : 'No Elo yet, play rated online'}
               </div>
             </div>
             <button

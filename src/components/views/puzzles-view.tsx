@@ -506,7 +506,7 @@ export function PuzzlesView() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <div className="rounded-lg bg-card p-5 shadow-sm">
+            <div className="rounded-lg bg-card p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   {reviewItemId ? (

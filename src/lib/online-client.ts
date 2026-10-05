@@ -54,7 +54,7 @@ export interface GameOverView {
   pgn: string
 }
 
-export type PoolRatings = Record<string, { rating: number; rd: number; games: number }>
+export type AccountRating = { rating: number; rd: number; games: number }
 
 let socket: Socket | null = null
 let connecting: Promise<Socket> | null = null

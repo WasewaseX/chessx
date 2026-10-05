@@ -583,7 +583,7 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
 
       <div className="flex flex-col gap-3">
         {plies.length === 0 ? (
-          <div className="rounded-lg bg-card p-5 shadow-sm">
+          <div className="rounded-lg bg-card p-6 shadow-sm">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Load a game</div>
             <p className="mt-1 text-sm text-muted-foreground">
               Finish a game against a bot and press "Game review", or paste a PGN below.

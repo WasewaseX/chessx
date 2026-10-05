@@ -93,8 +93,8 @@ async function main() {
 
   const meA = await (await fetch(`${BASE}/api/auth/me`, { headers: { cookie: COOKIE_A } })).json()
   const meB = await (await fetch(`${BASE}/api/auth/me`, { headers: { cookie: COOKIE_B } })).json()
-  console.log('A blitz:', JSON.stringify(meA.ratings?.find((r: { pool: string }) => r.pool === 'blitz')))
-  console.log('B blitz:', JSON.stringify(meB.ratings?.find((r: { pool: string }) => r.pool === 'blitz')))
+  console.log('A overall:', JSON.stringify(meA.ratings?.find((r: { pool: string }) => r.pool === 'overall')))
+  console.log('B overall:', JSON.stringify(meB.ratings?.find((r: { pool: string }) => r.pool === 'overall')))
 
   // color-aware expectation: white (result 1-0) should gain, black should lose
   const aWhite = ra.color === 'w'

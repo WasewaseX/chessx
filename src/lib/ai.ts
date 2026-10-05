@@ -64,26 +64,55 @@ async function runOpenAICompatible(
   maxTokens: number,
 ): Promise<string> {
   const model = cfg.model || PROVIDERS[cfg.provider]?.defaultModel || 'gpt-4o-mini'
+  // OpenRouter reads these for app attribution; other OpenAI-compatible
+  // endpoints ignore them.
+  const extra = cfg.provider === 'openrouter' ? { 'X-Title': 'ChessX' } : {}
   const res = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${cfg.apiKey}`,
+      ...extra,
     },
     body: JSON.stringify({
       model,
       max_tokens: maxTokens,
       messages: [{ role: 'system', content: system }, ...messages],
     }),
+    signal: AbortSignal.timeout(45_000),
   })
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    throw new Error(`${res.status} from ${cfg.provider}: ${text.slice(0, 300)}`)
-  }
-  const data = await res.json()
-  const content = data.choices?.[0]?.message?.content
+  const data = await parseProviderJson(res, cfg.provider)
+  const content = data?.choices?.[0]?.message?.content
   if (!content) throw new Error('Empty response from provider.')
   return content
+}
+
+/**
+ * Providers answer with JSON when they are happy, but failures can arrive as
+ * HTML (wrong base URL, a captive proxy) or plain text. Parsing blindly turns
+ * that into a cryptic parser error; this turns every case into a readable one.
+ */
+async function parseProviderJson(res: Response, provider: string): Promise<Record<string, unknown>> {
+  const text = await res.text().catch(() => '')
+  let parsed: unknown = null
+  if (text) {
+    try {
+      parsed = JSON.parse(text)
+    } catch {
+      parsed = null
+    }
+  }
+  if (!res.ok) {
+    const detail =
+      parsed && typeof parsed === 'object'
+        ? JSON.stringify(parsed).slice(0, 300)
+        : text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300)
+    throw new Error(`${res.status} from ${provider}${detail ? `: ${detail}` : ''}`)
+  }
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error(`${provider} sent a non-JSON response. Check the base URL.`)
+  }
+  return parsed as Record<string, unknown>
 }
 
 async function runAnthropic(cfg: AiConfig, system: string, messages: ChatMessage[], maxTokens: number): Promise<string> {
@@ -96,13 +125,10 @@ async function runAnthropic(cfg: AiConfig, system: string, messages: ChatMessage
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({ model, max_tokens: maxTokens, system, messages }),
+    signal: AbortSignal.timeout(45_000),
   })
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    throw new Error(`${res.status} from Anthropic: ${text.slice(0, 300)}`)
-  }
-  const data = await res.json()
-  const content = data.content?.[0]?.text
+  const data = await parseProviderJson(res, 'Anthropic')
+  const content = (data as { content?: { text?: string }[] }).content?.[0]?.text
   if (!content) throw new Error('Empty response from Anthropic.')
   return content
 }
@@ -123,14 +149,11 @@ async function runGemini(cfg: AiConfig, system: string, messages: ChatMessage[],
         contents,
         generationConfig: { maxOutputTokens: maxTokens },
       }),
+      signal: AbortSignal.timeout(45_000),
     },
   )
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    throw new Error(`${res.status} from Gemini: ${text.slice(0, 300)}`)
-  }
-  const data = await res.json()
-  const content = data.candidates?.[0]?.content?.parts?.[0]?.text
+  const data = await parseProviderJson(res, 'Gemini')
+  const content = (data as { candidates?: { content?: { parts?: { text?: string }[] }[] } }).candidates?.[0]?.content?.parts?.[0]?.text
   if (!content) throw new Error('Empty response from Gemini.')
   return content
 }
