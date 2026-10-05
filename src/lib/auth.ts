@@ -15,6 +15,22 @@ export interface AuthUser {
   id: string
   email: string
   username: string
+  role: string
+}
+
+/**
+ * Email policy: only established consumer mail providers backed by real
+ * identity are accepted. The message intentionally does not explain why;
+ * unsupported domains all get the same neutral response.
+ */
+const SUPPORTED_EMAIL_DOMAINS = new Set(['gmail.com'])
+export const UNSUPPORTED_ACCOUNT_MSG = 'This account is not supported'
+export const ORIGIN_BLOCKED_MSG = 'Security check failed. Refresh the page and try again.'
+
+export function isSupportedEmail(email: string): boolean {
+  const at = email.lastIndexOf('@')
+  if (at < 1) return false
+  return SUPPORTED_EMAIL_DOMAINS.has(email.slice(at + 1).toLowerCase())
 }
 
 export function hashToken(token: string): string {
@@ -65,7 +81,12 @@ export async function getSessionUser(): Promise<AuthUser | null> {
     await db.session.delete({ where: { id: session.id } }).catch(() => {})
     return null
   }
-  return { id: session.user.id, email: session.user.email, username: session.user.username }
+  return {
+    id: session.user.id,
+    email: session.user.email,
+    username: session.user.username,
+    role: session.user.role,
+  }
 }
 
 export function sessionCookieOptions(expiresAt: Date) {
@@ -100,22 +121,39 @@ export function rateLimit(key: string, limit: number, windowMs: number): boolean
 }
 
 /**
- * Reject cross-site writes: browsers always attach Origin on POST.
- * The gateway may rewrite the Host header (it strips the port), so compare
- * hostnames and also accept a matching x-forwarded-host.
+ * Reject cross-site writes, tolerating the sandbox's proxy stack which may
+ * rewrite Host on its way in.
+ *
+ * Primary signal is Sec-Fetch-Site: the browser sets it on every request it
+ * makes and JavaScript cannot forge it, so "same-origin" vouches for us even
+ * when the proxy chain mangles Host/Origin beyond recognition. When that
+ * header is missing (old browser, curl) we fall back to comparing Origin
+ * against Host and x-forwarded-host, with hostname-only tolerance for
+ * rewritten ports.
  */
 export function originOk(req: Request): boolean {
+  const site = req.headers.get('sec-fetch-site')
+  if (site === 'same-origin' || site === 'same-site' || site === 'none') return true
+
   const origin = req.headers.get('origin')
   if (!origin) return true // server-to-server or curl, no cookie will match anyway
   try {
     const originHost = new URL(origin).host
-    const candidates = [req.headers.get('host'), req.headers.get('x-forwarded-host')]
+    const candidates = [req.headers.get('host'), req.headers.get('x-forwarded-host')].flatMap(
+      (h) => (h ? h.split(',').map((s) => s.trim()) : []),
+    )
     for (const h of candidates) {
       if (!h) continue
       if (h === originHost) return true
       // hostname-only match tolerates a rewritten port
       if (h.split(':')[0] === originHost.split(':')[0]) return true
     }
+    console.warn('[auth] request blocked by origin check', {
+      origin,
+      host: req.headers.get('host'),
+      forwardedHost: req.headers.get('x-forwarded-host'),
+      secFetchSite: site,
+    })
     return false
   } catch {
     return false

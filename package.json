@@ -12,7 +12,8 @@
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
     "validate:content": "bun run src/content/validate.ts",
-    "verify:puzzles": "bun scripts/verify-puzzles.ts"
+    "verify:puzzles": "bun scripts/verify-puzzles.ts",
+    "db:seed-admin": "bun scripts/seed-admin.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

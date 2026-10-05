@@ -5,10 +5,13 @@ import {
   clientIp,
   createSession,
   hashPassword,
+  isSupportedEmail,
+  ORIGIN_BLOCKED_MSG,
   originOk,
   rateLimit,
   sessionCookieOptions,
   SESSION_COOKIE,
+  UNSUPPORTED_ACCOUNT_MSG,
 } from '@/lib/auth'
 
 const bodySchema = z.object({
@@ -23,7 +26,7 @@ const bodySchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
-  if (!originOk(req)) return NextResponse.json({ error: 'Bad origin' }, { status: 403 })
+  if (!originOk(req)) return NextResponse.json({ error: ORIGIN_BLOCKED_MSG }, { status: 403 })
   const ip = clientIp(req)
   if (!rateLimit(`signup:${ip}`, 6, 10 * 60_000)) {
     return NextResponse.json({ error: 'Too many attempts. Wait a few minutes.' }, { status: 429 })
@@ -35,6 +38,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 400 })
   }
   const { email, username, password } = parsed.data
+
+  // Neutral response for unsupported providers; no reason is disclosed.
+  if (!isSupportedEmail(email)) {
+    return NextResponse.json({ error: UNSUPPORTED_ACCOUNT_MSG }, { status: 400 })
+  }
 
   const clash = await db.user.findFirst({
     where: { OR: [{ email }, { usernameLower: username.toLowerCase() }] },

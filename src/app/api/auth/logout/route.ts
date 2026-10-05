@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { destroySession, originOk, SESSION_COOKIE } from '@/lib/auth'
+import { destroySession, ORIGIN_BLOCKED_MSG, originOk, SESSION_COOKIE } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
-  if (!originOk(req)) return NextResponse.json({ error: 'Bad origin' }, { status: 403 })
+  if (!originOk(req)) return NextResponse.json({ error: ORIGIN_BLOCKED_MSG }, { status: 403 })
   const store = await cookies()
   const token = store.get(SESSION_COOKIE)?.value
   if (token) await destroySession(token)

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getSessionUser, originOk } from '@/lib/auth'
+import { getSessionUser, ORIGIN_BLOCKED_MSG, originOk } from '@/lib/auth'
 
 /**
  * Mints a single-use, 60-second ticket the websocket service can verify
@@ -8,7 +8,7 @@ import { getSessionUser, originOk } from '@/lib/auth'
  * game service without exposing the session cookie to JavaScript.
  */
 export async function POST(req: NextRequest) {
-  if (!originOk(req)) return NextResponse.json({ error: 'Bad origin' }, { status: 403 })
+  if (!originOk(req)) return NextResponse.json({ error: ORIGIN_BLOCKED_MSG }, { status: 403 })
   const user = await getSessionUser()
   if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
 

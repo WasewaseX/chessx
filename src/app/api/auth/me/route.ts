@@ -14,7 +14,7 @@ export async function GET() {
   ])
 
   return NextResponse.json({
-    user: { id: user.id, email: user.email, username: user.username },
+    user: { id: user.id, email: user.email, username: user.username, role: user.role },
     profile,
     ratings: ratings.map((r) => ({
       pool: r.pool,

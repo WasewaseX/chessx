@@ -9,12 +9,14 @@ datasource db {
 
 // Registered account. Credentials only; all learning data hangs off Profile.
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique // stored lowercase
-  username     String // display form
-  usernameLower String @unique // case-insensitive uniqueness
-  passwordHash String
-  createdAt    DateTime @default(now())
+  id            String   @id @default(cuid())
+  email         String   @unique // stored lowercase
+  username      String // display form
+  usernameLower String   @unique // case-insensitive uniqueness
+  passwordHash  String // bcrypt for password accounts, "oauth:<random>" for Google-only accounts
+  role          String   @default("user") // user | admin
+  googleId      String?  @unique // Google account subject, set when linked
+  createdAt     DateTime @default(now())
 
   sessions      Session[]
   tickets       SocketTicket[]
