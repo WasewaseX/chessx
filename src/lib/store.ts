@@ -55,6 +55,8 @@ export interface ProfileData {
   puzzleFailed: number
   dailyDoneDate: string | null
   botGames: number
+  botElo: number
+  botEloGames: number
   goalMinutes: number
   rushBest3m: number
   rushBestSurvival: number

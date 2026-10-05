@@ -138,6 +138,8 @@ export function PlayView() {
           setColorChoice={setColorChoice}
           onPlay={startGame}
           botGames={profile?.botGames ?? 0}
+          botElo={profile?.botElo ?? 0}
+          botEloGames={profile?.botEloGames ?? 0}
         />
       )}
     </div>
@@ -632,12 +634,48 @@ function BotsLobby({
   setColorChoice,
   onPlay,
   botGames,
+  botElo,
+  botEloGames,
 }: {
   colorChoice: 'w' | 'b' | 'random'
   setColorChoice: (v: 'w' | 'b' | 'random') => void
   onPlay: (bot: Bot) => void
   botGames: number
+  botElo: number
+  botEloGames: number
 }) {
+  // chess.com-style ladder: the player's estimated Elo card sits in the list
+  // exactly where their number falls between the bots
+  const you: { key: string; rating: number; el: React.ReactNode } = {
+    key: 'you',
+    rating: botElo || 800,
+    el: (
+      <div
+        key="you"
+        className="flex items-center gap-3 rounded-lg border-2 border-primary/60 bg-primary/5 p-4 shadow-sm"
+      >
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary px-1 text-center text-xs font-extrabold uppercase leading-tight text-white">
+          You
+        </span>
+        <div className="min-w-0">
+          <div className="flex items-baseline gap-2">
+            <span className="truncate font-bold">You</span>
+            <span className="whitespace-nowrap text-sm font-semibold text-primary">
+              {botElo ? botElo : 'not rated yet'}
+            </span>
+          </div>
+          <div className="truncate text-xs text-muted-foreground">
+            {botElo
+              ? `Estimated Elo from ${botEloGames} bot game${botEloGames === 1 ? '' : 's'}`
+              : 'Play a bot and your estimated Elo starts there'}
+          </div>
+        </div>
+      </div>
+    ),
+  }
+  const ladder = [...BOTS.map((b) => ({ key: `bot-${b.level}`, rating: b.rating, el: null as React.ReactNode, bot: b })), you]
+    .sort((a, b) => a.rating - b.rating)
+
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-lg bg-card px-5 py-3 shadow-sm">
@@ -659,30 +697,34 @@ function BotsLobby({
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          Bot games are casual and never touch your rating{botGames > 0 ? ` · ${botGames} played` : ''}. Only online games do.
+          Casual games that only move your estimated Elo (K=32){botGames > 0 ? ` · ${botGames} played` : ''}. Online rating stays untouched.
         </p>
       </div>
 
       <h2 className="mb-3 font-display text-lg font-bold">Opponents</h2>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {BOTS.map((bot) => (
-          <button
-            key={bot.level}
-            onClick={() => onPlay(bot)}
-            className="pressable group flex items-center gap-3 rounded-lg bg-card p-4 text-left shadow-sm transition-shadow hover:shadow-md"
-          >
-            <BotFace bot={bot} className="h-12 w-12 shrink-0 border border-border/60 bg-secondary" />
-            <div className="min-w-0">
-              <div className="flex items-baseline gap-2">
-                <span className="truncate font-bold">{bot.name}</span>
-                <span className="whitespace-nowrap text-sm text-muted-foreground">
-                  est. {bot.rating}
-                </span>
+        {ladder.map((row) =>
+          row.el ? (
+            row.el
+          ) : (
+            <button
+              key={row.key}
+              onClick={() => onPlay(row.bot!)}
+              className="pressable group flex items-center gap-3 rounded-lg bg-card p-4 text-left shadow-sm transition-shadow hover:shadow-md"
+            >
+              <BotFace bot={row.bot!} className="h-12 w-12 shrink-0 border border-border/60 bg-secondary" />
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-2">
+                  <span className="truncate font-bold">{row.bot!.name}</span>
+                  <span className="whitespace-nowrap text-sm text-muted-foreground">
+                    est. {row.bot!.rating}
+                  </span>
+                </div>
+                <div className="truncate text-xs text-muted-foreground">{row.bot!.description}</div>
               </div>
-              <div className="truncate text-xs text-muted-foreground">{bot.description}</div>
-            </div>
-          </button>
-        ))}
+            </button>
+          ),
+        )}
       </div>
     </div>
   )
@@ -719,6 +761,8 @@ function GameScreen({
   const [recorded, setRecorded] = useState(false)
   const [savedPgn, setSavedPgn] = useState('')
   const [savedGameId, setSavedGameId] = useState<string | null>(null)
+  // estimated Elo after this casual game (chess.com-style bot rating)
+  const [estAfter, setEstAfter] = useState<{ elo: number; delta: number } | null>(null)
   const [sound, setSound] = useState(soundEnabled)
   // bot personality: speech bubble + material swing tracking
   const [bark, setBark] = useState<string | null>(null)
@@ -765,7 +809,7 @@ function GameScreen({
     return null
   }, [setup.playerColor])
 
-  // record the game once when it ends (bot games are casual, no rating math)
+  // record the game once when it ends; casual, but it moves the est. Elo
   useEffect(() => {
     if (!end || recorded) return
     setRecorded(true)
@@ -778,6 +822,7 @@ function GameScreen({
         color: setup.playerColor,
         botLevel: setup.bot.level,
         botName: setup.bot.name,
+        botRating: setup.bot.rating,
         rated: false,
         result: end.result,
         reason: end.reason,
@@ -791,6 +836,9 @@ function GameScreen({
       .then((d) => {
         if (d.profile) setProfile(d.profile)
         setSavedGameId(d.record?.id ?? null)
+        if (typeof d.estElo === 'number' && typeof d.estDelta === 'number') {
+          setEstAfter({ elo: d.estElo, delta: d.estDelta })
+        }
       })
       .catch(() => {})
     playSound(end.result === 'win' ? 'win' : end.result === 'loss' ? 'lose' : 'gameEnd', sound)
@@ -985,7 +1033,19 @@ function GameScreen({
               {end?.result === 'win' ? 'Won' : end?.result === 'loss' ? 'Lost' : 'Drawn'} by {end?.reason} against {setup.bot.name}.
             </DialogDescription>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">Bot games are casual, ratings are untouched.</p>
+          <p className="text-sm text-muted-foreground">Casual game, online ratings are untouched.</p>
+          {estAfter && (
+            <div className="flex flex-col items-center gap-0.5 rounded-lg bg-secondary/60 px-4 py-3">
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Estimated Elo</span>
+              <span className="flex items-baseline gap-2">
+                <span className="font-display text-2xl font-extrabold">{estAfter.elo}</span>
+                <span className={cn('font-display text-lg font-bold', estAfter.delta >= 0 ? 'text-[#81b64c]' : 'text-destructive')}>
+                  {estAfter.delta >= 0 ? '+' : ''}
+                  {estAfter.delta}
+                </span>
+              </span>
+            </div>
+          )}
           <div className="mt-2 flex flex-col gap-2">
             <Button className="btn-hero w-full py-3" onClick={() => onReview(savedPgn, savedGameId)}>
               <RefreshCw className="h-4 w-4" /> Game review

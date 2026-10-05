@@ -116,8 +116,11 @@ model Profile {
   puzzleSolved   Int      @default(0)
   puzzleFailed   Int      @default(0)
   dailyDoneDate  String?  // yyyy-mm-dd of last completed daily puzzle (user tz)
-  // bot games are casual by design; track play counts only
+  // bot games are casual; they feed an estimated Elo exactly like chess.com
+  // does for bot play: standard Elo (K=32) against each bot's fixed rating.
   botGames       Int      @default(0)
+  botElo         Int      @default(0) // 0 until the first bot game seeds it
+  botEloGames    Int      @default(0)
   // daily goal + rush bests
   goalMinutes    Int      @default(15)
   rushBest3m     Int      @default(0)

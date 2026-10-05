@@ -4,13 +4,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { useApp } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { ALL_LEVELS } from '@/content/levels'
-import { PUZZLES } from '@/content/puzzles'
 import { titleForXp } from '@/lib/rating'
 import { GoalCard } from '@/components/shell/streak'
 import {
   Swords,
   GraduationCap,
-  Puzzle,
   MessageSquareText,
   Flame,
   Target,
@@ -141,7 +139,7 @@ export function HomeView() {
 
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {/* Daily puzzle */}
         <button
           className="pressable rounded-lg bg-card p-5 text-left shadow-sm hover:shadow-md"
@@ -191,21 +189,6 @@ export function HomeView() {
           </div>
           <div className="text-sm text-muted-foreground">
             Ask anything about your games and positions. Works with the built-in model or your own API key.
-          </div>
-        </button>
-
-        {/* Puzzles */}
-        <button
-          className="pressable rounded-lg bg-card p-5 text-left shadow-sm hover:shadow-md"
-          onClick={() => navigate('puzzles')}
-        >
-          <div className="mb-3 flex items-center gap-2">
-            <Puzzle className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-lg font-bold">Puzzles</h2>
-          </div>
-          <div className="text-sm text-muted-foreground">{PUZZLES.length} rated puzzles, every one verified by the engine.</div>
-          <div className="mt-3 text-sm font-semibold text-primary">
-            {profile.puzzleRating ? `Rating: ${profile.puzzleRating}` : 'Rating starts after your first solve'}
           </div>
         </button>
       </div>
