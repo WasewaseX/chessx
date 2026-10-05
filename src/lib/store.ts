@@ -19,6 +19,22 @@ export interface ViewState {
   lessonId?: string
 }
 
+export interface PoolRating {
+  pool: string // bullet | blitz | rapid
+  rating: number
+  rd: number
+  games: number
+  wins: number
+  losses: number
+  draws: number
+}
+
+export interface AuthUser {
+  id: string
+  email: string
+  username: string
+}
+
 export interface ProfileData {
   name: string
   skillLevel: string
@@ -38,8 +54,7 @@ export interface ProfileData {
   puzzleSolved: number
   puzzleFailed: number
   dailyDoneDate: string | null
-  ladderRating: number | null
-  ladderCount: number
+  botGames: number
   goalMinutes: number
   rushBest3m: number
   rushBestSurvival: number
@@ -52,6 +67,10 @@ export interface ProfileData {
 interface AppState {
   view: ViewState
   navigate: (name: ViewName, lessonId?: string) => void
+  user: AuthUser | null
+  setUser: (u: AuthUser | null) => void
+  ratings: PoolRating[]
+  setRatings: (r: PoolRating[]) => void
   profile: ProfileData | null
   setProfile: (p: ProfileData) => void
   patchProfile: (p: Partial<ProfileData>) => void
@@ -82,6 +101,10 @@ export const useApp = create<AppState>((set) => ({
     window.location.hash = lessonId ? `/${name}/${lessonId}` : `/${name}`
     set({ view: { name, lessonId } })
   },
+  user: null,
+  setUser: (u) => set({ user: u }),
+  ratings: [],
+  setRatings: (r) => set({ ratings: r }),
   profile: null,
   setProfile: (p) => set({ profile: p }),
   patchProfile: (p) =>

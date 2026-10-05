@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useApp, useHashSync, type ProfileData } from '@/lib/store'
+import { useCallback, useEffect, useState } from 'react'
+import { useApp, useHashSync, type ProfileData, type PoolRating } from '@/lib/store'
 import { Sidebar, MobileNav, AppFooter } from '@/components/shell/app-chrome'
 import { Onboarding } from '@/components/shell/onboarding'
+import { AuthScreen } from '@/components/views/auth-view'
 import { HomeView } from '@/components/views/home-view'
 import { PlayView } from '@/components/views/play-view'
 import { LessonsView } from '@/components/views/lessons-view'
@@ -45,24 +46,42 @@ function ViewRouter() {
 
 export default function Page() {
   useHashSync()
-  const { setProfile, profile } = useApp()
+  const { setProfile, setUser, setRatings, profile } = useApp()
   const [loaded, setLoaded] = useState(false)
+  const [signedIn, setSignedIn] = useState(false)
 
   useActivityHeartbeat(Boolean(profile?.onboarded))
 
+  const loadSession = useCallback(async () => {
+    try {
+      const res = await fetch('/api/auth/me', { cache: 'no-store' })
+      if (!res.ok) {
+        setSignedIn(false)
+        setLoaded(true)
+        return
+      }
+      const d = await res.json()
+      setUser(d.user)
+      setSignedIn(true)
+      if (d.profile) setProfile(d.profile as ProfileData)
+      if (Array.isArray(d.ratings)) setRatings(d.ratings as PoolRating[])
+      setLoaded(true)
+    } catch {
+      setSignedIn(false)
+      setLoaded(true)
+    }
+  }, [setProfile, setRatings, setUser])
+
   useEffect(() => {
     let alive = true
-    fetch('/api/profile')
-      .then((r) => r.json())
-      .then((d) => {
-        if (alive && d.profile) setProfile(d.profile as ProfileData)
-      })
-      .catch(() => {})
-      .finally(() => alive && setLoaded(true))
+    // /api/auth/me returns user, profile and pool ratings in one call
+    Promise.resolve().then(() => {
+      if (alive) void loadSession()
+    })
     return () => {
       alive = false
     }
-  }, [setProfile])
+  }, [loadSession])
 
   // apply stored dark mode preference
   useEffect(() => {
@@ -75,9 +94,18 @@ export default function Page() {
   if (!loaded) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-sidebar">
-        { }
         <img src="/brand.svg" alt="ChessX" className="h-14 w-14 animate-pulse rounded-xl" />
       </div>
+    )
+  }
+
+  if (!signedIn) {
+    return (
+      <AuthScreen
+        onAuthed={() => {
+          void loadSession()
+        }}
+      />
     )
   }
 

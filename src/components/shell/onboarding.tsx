@@ -113,7 +113,7 @@ export function Onboarding() {
                   ))}
                 </div>
                 <p className="mt-2 text-xs text-sidebar-foreground/60">
-                  This sets your starting ratings and where lessons begin. Ratings stay provisional for your first 10 games.
+                  This sets where lessons begin. Online ratings start at 1000 for everyone, like chess.com, and settle as you play.
                 </p>
               </div>
 

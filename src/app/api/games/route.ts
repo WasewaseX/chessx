@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { newRating, seedForSkill } from '@/lib/rating'
+import { getSessionUser } from '@/lib/auth'
 import { bumpActivity } from '@/lib/server/skill'
 import { dayKeyLocal } from '@/lib/day'
 
 export async function GET(req: NextRequest) {
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
+  const pid = profile.id
+
   const limit = Math.min(50, Number(req.nextUrl.searchParams.get('limit') ?? 20))
   const games = await db.gameRecord.findMany({
+    where: { profileId: pid },
     orderBy: { createdAt: 'desc' },
     take: limit,
   })
@@ -14,6 +21,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
+  const pid = profile.id
+
   const body = await req.json().catch(() => ({}))
   const color = body.color === 'b' ? 'b' : 'w'
   const botLevel = Math.max(1, Math.min(10, Number(body.botLevel ?? 1)))
@@ -26,32 +39,11 @@ export async function POST(req: NextRequest) {
   const moveCount = Math.max(0, Math.min(1000, Number(body.moveCount ?? 0)))
   const dayKey = /^\d{4}-\d{2}-\d{2}$/.test(String(body.dayKey ?? '')) ? String(body.dayKey) : dayKeyLocal()
 
-  const profile = await db.profile.findUnique({ where: { id: 'me' } })
-  if (!profile) return NextResponse.json({ error: 'no profile' }, { status: 400 })
-
-  let ratingDelta: number | null = null
-  if (rated) {
-    const oppRating = Math.round(100 + botLevel * 210) // bot ladder strength anchor
-    const current = profile.ladderRating ?? seedForSkill(profile.skillLevel)
-    const score = result === 'win' ? 1 : result === 'draw' ? 0.5 : 0
-    const { rating, delta } = newRating(current, oppRating, score, profile.ladderCount, 24, 48)
-    ratingDelta = delta
-    await db.profile.update({
-      where: { id: 'me' },
-      data: { ladderRating: rating, ladderCount: profile.ladderCount + 1 },
-    })
-  }
-
-  // XP for playing: modest, win-weighted
-  let xpGain = 0
-  if (result === 'win') xpGain = 20
-  else if (result === 'draw') xpGain = 10
-  if (xpGain > 0) {
-    await db.profile.update({ where: { id: 'me' }, data: { xp: profile.xp + xpGain } })
-  }
-
+  // Bot games are casual and unrated by design: no rating math, the profile
+  // only counts how many were played.
   const record = await db.gameRecord.create({
     data: {
+      profileId: pid,
       color,
       botLevel,
       botName,
@@ -61,12 +53,20 @@ export async function POST(req: NextRequest) {
       pgn,
       finalFen,
       moveCount,
-      ratingDelta,
+      ratingDelta: null,
     },
   })
 
-  await bumpActivity(dayKey, 'gamesPlayed', 1)
+  // XP for playing: modest, win-weighted
+  let xpGain = 0
+  if (result === 'win') xpGain = 20
+  else if (result === 'draw') xpGain = 10
+  const data: { botGames: number; xp?: number } = { botGames: profile.botGames + 1 }
+  if (xpGain > 0) data.xp = profile.xp + xpGain
+  await db.profile.update({ where: { id: pid }, data })
 
-  const updated = await db.profile.findUnique({ where: { id: 'me' } })
+  await bumpActivity(pid, dayKey, 'gamesPlayed', 1)
+
+  const updated = await db.profile.findUnique({ where: { id: pid } })
   return NextResponse.json({ record, profile: updated, xpGain })
 }

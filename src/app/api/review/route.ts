@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { PUZZLES } from '@/content/puzzles'
 import { findLevel } from '@/content/levels'
+import { getSessionUser } from '@/lib/auth'
 import { gradeReview, sanitizeConcepts, updateMastery } from '@/lib/server/skill'
 
 /**
@@ -9,8 +10,17 @@ import { gradeReview, sanitizeConcepts, updateMastery } from '@/lib/server/skill
  * the weakest concepts from the skill model.
  */
 export async function GET() {
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
+  const pid = profile.id
+
   const now = new Date()
-  const items = await db.reviewItem.findMany({ orderBy: { dueAt: 'asc' } })
+  const items = await db.reviewItem.findMany({
+    where: { profileId: pid },
+    orderBy: { dueAt: 'asc' },
+  })
   const due = items.filter((i) => i.dueAt <= now)
   const upcoming = items.filter((i) => i.dueAt > now)
 
@@ -41,7 +51,10 @@ export async function GET() {
     }
   })
 
-  const mastery = await db.skillMastery.findMany({ orderBy: { mastery: 'asc' } })
+  const mastery = await db.skillMastery.findMany({
+    where: { profileId: pid },
+    orderBy: { mastery: 'asc' },
+  })
   const touched = mastery.filter((m) => m.attempts > 0)
 
   return NextResponse.json({
@@ -60,15 +73,21 @@ export async function GET() {
 
 /** POST: grade a review item from the client after the student faced it. */
 export async function POST(req: NextRequest) {
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
+  const pid = profile.id
+
   const body = await req.json().catch(() => ({}))
   const itemId = String(body.itemId ?? '')
   if (!itemId) return NextResponse.json({ error: 'itemId required' }, { status: 400 })
   const success = Boolean(body.success)
   const concepts = sanitizeConcepts(body.concepts)
 
-  const graded = await gradeReview(itemId, success)
+  const graded = await gradeReview(pid, itemId, success)
   if (!graded) return NextResponse.json({ error: 'item not found' }, { status: 404 })
-  if (concepts.length > 0) await updateMastery(concepts, success)
+  if (concepts.length > 0) await updateMastery(pid, concepts, success)
 
   return NextResponse.json({ item: graded })
 }

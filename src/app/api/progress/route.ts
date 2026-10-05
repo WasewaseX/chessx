@@ -1,15 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
+import type { Profile } from '@prisma/client'
 import { db } from '@/lib/db'
+import { getSessionUser } from '@/lib/auth'
 import { XP_STEP, XP_LESSON_DONE } from '@/lib/rating'
 import { bumpActivity, gradeReview, missReview, sanitizeConcepts, updateMastery } from '@/lib/server/skill'
 import { dayKeyLocal } from '@/lib/day'
 
 export async function GET() {
-  const progress = await db.lessonProgress.findMany()
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
+  const progress = await db.lessonProgress.findMany({
+    where: { profileId: profile.id },
+  })
   return NextResponse.json({ progress })
 }
 
 export async function POST(req: NextRequest) {
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
+  const pid = profile.id
+
   const body = await req.json().catch(() => ({}))
   const lessonId = String(body.lessonId ?? '')
   if (!lessonId) return NextResponse.json({ error: 'lessonId required' }, { status: 400 })
@@ -22,7 +36,7 @@ export async function POST(req: NextRequest) {
   const concepts = sanitizeConcepts(body.concepts)
   const dayKey = /^\d{4}-\d{2}-\d{2}$/.test(String(body.dayKey ?? '')) ? String(body.dayKey) : dayKeyLocal()
 
-  const existing = await db.lessonProgress.findUnique({ where: { lessonId } })
+  const existing = await db.lessonProgress.findUnique({ where: { profileId_lessonId: { profileId: pid, lessonId } } })
   const wasDone = existing?.completed ?? false
 
   let xpGain = 0
@@ -32,7 +46,7 @@ export async function POST(req: NextRequest) {
 
   const hintsTotal = (existing?.hintsUsed ?? 0) + (body.hintNow ? 1 : 0)
   const progress = await db.lessonProgress.upsert({
-    where: { lessonId },
+    where: { profileId_lessonId: { profileId: pid, lessonId } },
     update: {
       stepsDone: Math.max(stepsDone, prevSteps),
       totalSteps,
@@ -41,6 +55,7 @@ export async function POST(req: NextRequest) {
       completedAt: wasDone ? existing?.completedAt : done ? new Date() : null,
     },
     create: {
+      profileId: pid,
       lessonId,
       stepsDone,
       totalSteps,
@@ -51,32 +66,32 @@ export async function POST(req: NextRequest) {
   })
 
   if (stepsDone > prevSteps) {
-    await bumpActivity(dayKey, 'lessonSteps', stepsDone - prevSteps)
+    await bumpActivity(pid, dayKey, 'lessonSteps', stepsDone - prevSteps)
   }
 
   // First-time completion: feed the skill model and the review queue.
   if (done && !wasDone && concepts.length > 0) {
     const strong = hintsTotal === 0
-    await updateMastery(concepts, true)
-    const pending = await db.reviewItem.findUnique({ where: { kind_refId: { kind: 'lesson', refId: lessonId } } })
+    await updateMastery(pid, concepts, true)
+    const pending = await db.reviewItem.findUnique({ where: { profileId_kind_refId: { profileId: pid, kind: 'lesson', refId: lessonId } } })
     if (pending) {
       // This completion answers a scheduled review of the lesson.
-      await gradeReview(pending.id, strong)
-      await updateMastery(pending.concept ? [pending.concept] : [], strong)
+      await gradeReview(pid, pending.id, strong)
+      await updateMastery(pid, pending.concept ? [pending.concept] : [], strong)
     } else if (!strong) {
       // Completed with hints: schedule a revisit so it sticks.
-      await missReview('lesson', lessonId, concepts[0])
+      await missReview(pid, 'lesson', lessonId, concepts[0])
     }
   }
 
-  let updated = null
+  let updated: Profile | null = null
   if (xpGain > 0) {
-    const p = await db.profile.findUnique({ where: { id: 'me' } })
-    if (p) updated = await db.profile.update({ where: { id: 'me' }, data: { xp: p.xp + xpGain } })
+    const p = await db.profile.findUnique({ where: { id: pid } })
+    if (p) updated = await db.profile.update({ where: { id: pid }, data: { xp: p.xp + xpGain } })
   }
 
   let payload: Record<string, unknown> = { progress, xpGain }
-  const full = updated ?? (await db.profile.findUnique({ where: { id: 'me' } }))
+  const full = updated ?? (await db.profile.findUnique({ where: { id: pid } }))
   if (full) {
     const { aiApiKey, ...safe } = full as Record<string, unknown>
     payload = { ...payload, profile: { ...safe, hasApiKey: Boolean(aiApiKey) } }

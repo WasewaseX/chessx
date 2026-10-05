@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { getSessionUser } from '@/lib/auth'
 
 // Insights v1: everything here is aggregated from real game reports saved by
 // the game review. No seeding, no filler. Games without a report stay out.
@@ -20,8 +21,14 @@ function bucketFor(hour: number): string {
 }
 
 export async function GET() {
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
+  const pid = profile.id
+
   const games = await db.gameRecord.findMany({
-    where: { playerAcc: { not: null } },
+    where: { profileId: pid, playerAcc: { not: null } },
     orderBy: { createdAt: 'asc' },
     take: 200,
   })
@@ -84,8 +91,9 @@ export async function GET() {
   // time of day, from the hour the client recorded at game end (browser clock)
   const buckets = TIME_BUCKETS.map((b) => ({ bucket: b.bucket, games: 0, wins: 0, accSum: 0, accN: 0 }))
   for (const g of games) {
-    if (g.localHour == null) continue
-    const row = buckets.find((b) => b.bucket === bucketFor(g.localHour))
+    const hour = g.localHour
+    if (hour == null) continue
+    const row = buckets.find((b) => b.bucket === bucketFor(hour))
     if (!row) continue
     row.games += 1
     if (g.result === 'win') row.wins += 1

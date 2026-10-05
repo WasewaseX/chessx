@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { getSessionUser } from '@/lib/auth'
 import { accuracyFromLoss } from '@/lib/rating'
 import { detectOpening } from '@/lib/chess/openings'
 
@@ -15,6 +16,12 @@ interface PlyIn {
 }
 
 export async function POST(req: NextRequest) {
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
+  const pid = profile.id
+
   const body = await req.json().catch(() => null)
   const gameId = typeof body?.gameId === 'string' ? body.gameId : null
   const plies: PlyIn[] = Array.isArray(body?.plies) ? body.plies : []
@@ -22,7 +29,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'gameId and plies required' }, { status: 400 })
   }
 
-  const game = await db.gameRecord.findUnique({ where: { id: gameId } })
+  // only the owner of the game may generate its report
+  const game = await db.gameRecord.findFirst({ where: { id: gameId, profileId: pid } })
   if (!game) return NextResponse.json({ error: 'no such game' }, { status: 404 })
 
   // keep only what the client actually evaluated, with sane numbers
@@ -65,7 +73,7 @@ export async function POST(req: NextRequest) {
   const localHour = Number.isInteger(body?.localHour) ? Math.max(0, Math.min(23, Number(body.localHour))) : null
 
   const updated = await db.gameRecord.update({
-    where: { id: gameId },
+    where: { id: game.id },
     data: {
       opening,
       whiteAcc,

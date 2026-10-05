@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Chess } from 'chess.js'
+import { db } from '@/lib/db'
+import { getSessionUser } from '@/lib/auth'
 import { runChat, getAiConfig, type ChatMessage } from '@/lib/ai'
 import { coachById } from '@/lib/coaches'
 
@@ -84,6 +86,11 @@ function describeFen(fen: string): string | null {
 }
 
 export async function POST(req: NextRequest) {
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
+
   const body = await req.json().catch(() => ({}))
   const messages: ChatMessage[] = Array.isArray(body.messages)
     ? body.messages
@@ -128,7 +135,7 @@ export async function POST(req: NextRequest) {
   ].join('\n')
 
   try {
-    const cfg = await getAiConfig()
+    const cfg = await getAiConfig(profile.id)
     const content = await runChat(cfg, system, messages)
     return NextResponse.json({ content, provider: cfg.provider })
   } catch (e) {

@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { ALL_LEVELS } from '@/content/levels'
 import { PUZZLES } from '@/content/puzzles'
 import { titleForXp } from '@/lib/rating'
-import { BOTS } from '@/lib/chess/bots'
 import { GoalCard } from '@/components/shell/streak'
 import {
   Swords,
@@ -39,7 +38,7 @@ function nextLessonId(completed: Set<string>): string | null {
 }
 
 export function HomeView() {
-  const { navigate, profile } = useApp()
+  const { navigate, profile, ratings } = useApp()
   const [progress, setProgress] = useState<{ lessonId: string; completed: boolean; stepsDone: number; totalSteps: number }[]>([])
   const [games, setGames] = useState<GameRow[]>([])
   const [dailyDone, setDailyDone] = useState<boolean | null>(null)
@@ -91,15 +90,15 @@ export function HomeView() {
         <div className="flex gap-2 text-center">
           <div className="rounded-md bg-card px-4 py-2 shadow-sm">
             <div className="text-lg font-extrabold leading-5">
-              {profile.puzzleRating ?? '-'}
+              {(ratings.find((r) => r.pool === 'blitz')?.rating ?? 1000).toString()}
             </div>
-            <div className="text-[11px] text-muted-foreground">Puzzle rating</div>
+            <div className="text-[11px] text-muted-foreground">Blitz rating</div>
           </div>
           <div className="rounded-md bg-card px-4 py-2 shadow-sm">
             <div className="text-lg font-extrabold leading-5">
-              {profile.ladderRating ?? '-'}
+              {profile.puzzleRating ?? '-'}
             </div>
-            <div className="text-[11px] text-muted-foreground">Bot ladder</div>
+            <div className="text-[11px] text-muted-foreground">Puzzle rating</div>
           </div>
           <div className="rounded-md bg-card px-4 py-2 shadow-sm">
             <div className="flex items-center justify-center gap-1 text-lg font-extrabold leading-5">
@@ -132,7 +131,7 @@ export function HomeView() {
             </>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Every lesson is done. Review any of them from the Lessons tab, or go chase the ladder.
+              Every lesson is done. Replay any of them from the Lessons tab, or test yourself online.
             </p>
           )}
         </div>
@@ -169,10 +168,12 @@ export function HomeView() {
             <h2 className="font-display text-lg font-bold">Play</h2>
           </div>
           <div className="text-sm text-muted-foreground">
-            Fourteen engine opponents with faces and attitudes, from {BOTS[0].name} ({BOTS[0].rating}) to {BOTS[BOTS.length - 1].name} ({BOTS[BOTS.length - 1].rating}).
+            Rated online games in bullet, blitz and rapid. Or practice casually against fourteen bot characters, est. 350 to 2600.
           </div>
           <div className="mt-3 text-sm font-semibold text-primary">
-            {profile.ladderRating ? `Ladder rating: ${profile.ladderRating}` : 'Ladder: unrated. Play your first game'}
+            {ratings.length > 0
+              ? `Your blitz: ${ratings.find((r) => r.pool === 'blitz')?.rating ?? 1000} (${ratings.find((r) => r.pool === 'blitz')?.games ?? 0} games)`
+              : 'Play a rated game to start your rating'}
           </div>
         </button>
 

@@ -1,12 +1,18 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { PUZZLES } from '@/content/puzzles'
+import { getSessionUser } from '@/lib/auth'
 
 // Per-theme practice stats, counted only from PuzzleAttempt rows that the
 // player actually created. Nothing is seeded or projected: a theme with no
 // attempts is simply absent from the response.
 export async function GET() {
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
   const attempts = await db.puzzleAttempt.findMany({
+    where: { profileId: profile.id },
     select: { puzzleId: true, solved: true },
   })
   const themesByPuzzle = new Map(PUZZLES.map((p) => [p.id, p.themes]))

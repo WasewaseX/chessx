@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { useApp, type ViewName } from '@/lib/store'
 import { cn } from '@/lib/utils'
 import {
@@ -16,18 +15,17 @@ import {
   History,
   LayoutGrid,
 } from 'lucide-react'
-import { titleForXp } from '@/lib/rating'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 
 const NAV: { name: ViewName; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { name: 'home', label: 'Home', icon: Home },
+  { name: 'lessons', label: 'Learn', icon: GraduationCap },
   { name: 'play', label: 'Play', icon: Swords },
-  { name: 'lessons', label: 'Lessons', icon: GraduationCap },
-  { name: 'puzzles', label: 'Puzzles', icon: Puzzle },
   { name: 'coach', label: 'Coach', icon: MessageSquareText },
+  { name: 'puzzles', label: 'Puzzles', icon: Puzzle },
 ]
 
 const NAV_EXTRA: { name: ViewName; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { name: 'home', label: 'Home', icon: Home },
   { name: 'review', label: 'Review', icon: History },
   { name: 'analysis', label: 'Analysis', icon: LineChart },
   { name: 'profile', label: 'Profile', icon: UserRound },
@@ -35,7 +33,8 @@ const NAV_EXTRA: { name: ViewName; label: string; icon: React.ComponentType<{ cl
 ]
 
 export function Sidebar() {
-  const { view, navigate, profile } = useApp()
+  const { view, navigate, profile, ratings, user } = useApp()
+  const blitz = ratings.find((r) => r.pool === 'blitz')
   return (
     <aside className="hidden w-56 shrink-0 flex-col bg-sidebar text-sidebar-foreground lg:flex">
       <button
@@ -43,7 +42,6 @@ export function Sidebar() {
         onClick={() => navigate('home')}
         aria-label="ChessX home"
       >
-        { }
         <img src="/brand.svg" alt="ChessX" className="h-9 w-9 rounded-lg transition-transform duration-200 active:scale-90" />
         <div>
           <div className="font-display text-xl font-extrabold tracking-tight">ChessX</div>
@@ -69,12 +67,24 @@ export function Sidebar() {
 
       <div className="border-t border-sidebar-border px-5 py-4 text-xs text-sidebar-foreground/70">
         {profile ? (
-          <>
-            <div className="font-bold text-sidebar-foreground">{profile.name}</div>
-            <div className="mt-0.5">
-              {titleForXp(profile.xp)} · {profile.xp} XP
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <div className="truncate font-bold text-sidebar-foreground">{user?.username ?? profile.name}</div>
+              <div className="mt-0.5">
+                {blitz ? `Blitz ${blitz.rating}` : 'No rated games yet'}
+              </div>
             </div>
-          </>
+            <button
+              onClick={async () => {
+                await fetch('/api/auth/logout', { method: 'POST' })
+                window.location.reload()
+              }}
+              className="rounded px-2 py-1 text-[11px] font-semibold text-sidebar-foreground/60 transition-colors hover:bg-white/5 hover:text-white"
+              aria-label="Sign out"
+            >
+              Sign out
+            </button>
+          </div>
         ) : null}
       </div>
     </aside>

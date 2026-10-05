@@ -7,8 +7,94 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Registered account. Credentials only; all learning data hangs off Profile.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique // stored lowercase
+  username     String // display form
+  usernameLower String @unique // case-insensitive uniqueness
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  sessions      Session[]
+  tickets       SocketTicket[]
+  ratings       UserRating[]
+  gamesAsWhite  OnlineGame[]   @relation("gameWhite")
+  gamesAsBlack  OnlineGame[]   @relation("gameBlack")
+  profile       Profile?
+}
+
+// Server-side session store. The cookie holds a random token; the DB holds
+// its SHA-256 hash, so a DB leak never yields usable cookies.
+model Session {
+  id        String   @id // sha256(token)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Short-lived single-use credential that lets the websocket service confirm
+// who is connecting without ever exposing the session cookie to JS.
+model SocketTicket {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// One Glicko-1 rating per time class, exactly like chess.com pools.
+model UserRating {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pool       String // bullet | blitz | rapid
+  rating     Float     @default(1000)
+  rd         Float     @default(350)
+  wins       Int       @default(0)
+  losses     Int       @default(0)
+  draws      Int       @default(0)
+  games      Int       @default(0)
+  lastGameAt DateTime?
+
+  @@unique([userId, pool])
+}
+
+// A real online game between two accounts.
+model OnlineGame {
+  id          String    @id
+  whiteId     String?
+  white       User?     @relation("gameWhite", fields: [whiteId], references: [id], onDelete: SetNull)
+  blackId     String?
+  black       User?     @relation("gameBlack", fields: [blackId], references: [id], onDelete: SetNull)
+  whiteName   String
+  blackName   String
+  pool        String // bullet | blitz | rapid
+  initialSec  Int
+  incSec      Int
+  rated       Boolean   @default(true)
+  result      String    @default("*") // "1-0" | "0-1" | "1/2-1/2" | "*"
+  termination String? // checkmate | resignation | timeout | stalemate | agreement | repetition | insufficient | fifty | abandonment
+  whiteDelta  Int?
+  blackDelta  Int?
+  whiteRating Float? // after the game
+  blackRating Float?
+  pgn         String    @default("")
+  createdAt   DateTime  @default(now())
+  endedAt     DateTime?
+
+  @@index([whiteId])
+  @@index([blackId])
+}
+
 model Profile {
-  id             String   @id @default("me")
+  id             String   @id @default(cuid())
+  userId         String?  @unique
+  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   name           String   @default("Player")
   skillLevel     String   @default("beginner") // new | beginner | intermediate | advanced | expert
   coach          String   @default("") // chosen coach id, empty until the player picks one themselves
@@ -28,9 +114,8 @@ model Profile {
   puzzleSolved   Int      @default(0)
   puzzleFailed   Int      @default(0)
   dailyDoneDate  String?  // yyyy-mm-dd of last completed daily puzzle (user tz)
-  // bot ladder rating (rated bot games)
-  ladderRating   Int?
-  ladderCount    Int      @default(0)
+  // bot games are casual by design; track play counts only
+  botGames       Int      @default(0)
   // daily goal + rush bests
   goalMinutes    Int      @default(15)
   rushBest3m     Int      @default(0)
@@ -46,8 +131,9 @@ model Profile {
 
 model GameRecord {
   id          String   @id @default(cuid())
+  profileId   String   @default("me")
   color       String // w | b
-  botLevel    Int // 1-10
+  botLevel    Int // 1-14
   botName     String
   rated       Boolean  @default(false)
   result      String // win | loss | draw
@@ -70,17 +156,21 @@ model GameRecord {
 
 model LessonProgress {
   id            String   @id @default(cuid())
-  lessonId      String   @unique
+  profileId     String   @default("me")
+  lessonId      String
   completed     Boolean  @default(false)
   stepsDone     Int      @default(0)
   totalSteps    Int      @default(0)
   hintsUsed     Int      @default(0)
   completedAt   DateTime?
   updatedAt     DateTime @updatedAt
+
+  @@unique([profileId, lessonId])
 }
 
 model PuzzleAttempt {
   id         String   @id @default(cuid())
+  profileId  String   @default("me")
   puzzleId   String
   kind       String   @default("rated") // rated | daily | review
   solved     Boolean
@@ -89,9 +179,11 @@ model PuzzleAttempt {
   createdAt  DateTime @default(now())
 }
 
-// One row per calendar day the player was active. id is the dayKey itself.
+// One row per calendar day the player was active. id is (profileId + dayKey).
 model ActivityDay {
-  id            String   @id // yyyy-mm-dd (user tz)
+  id            String   @id // profileId:yyyy-mm-dd (user tz)
+  profileId     String   @default("me")
+  dayKey        String   // yyyy-mm-dd (user tz)
   minutes       Int      @default(0) // active minutes, heartbeats from the client
   puzzlesSolved Int      @default(0)
   lessonSteps   Int      @default(0)
@@ -103,6 +195,7 @@ model ActivityDay {
 // Completed Puzzle Rush runs.
 model RushRun {
   id        String   @id @default(cuid())
+  profileId String   @default("me")
   mode      String // threeMin | survival
   score     Int
   total     Int
@@ -112,9 +205,10 @@ model RushRun {
 }
 
 // Spaced-repetition queue (SM-2 derived): missed puzzles and lessons that
-// deserve a revisit. One row per (kind, refId).
+// deserve a revisit. One row per (profileId, kind, refId).
 model ReviewItem {
   id           String   @id @default(cuid())
+  profileId    String   @default("me")
   kind         String // puzzle | lesson
   refId        String
   concept      String?
@@ -126,16 +220,19 @@ model ReviewItem {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  @@unique([kind, refId])
+  @@unique([profileId, kind, refId])
 }
 
 // Per-concept mastery for the skill model. Concepts use the shared taxonomy
 // in src/content/schema.ts (CONCEPTS).
 model SkillMastery {
   id        String   @id @default(cuid())
-  concept   String   @unique
+  profileId String   @default("me")
+  concept   String
   mastery   Float    @default(0) // 0..1
   attempts  Int      @default(0)
   correct   Int      @default(0)
   updatedAt DateTime @updatedAt
+
+  @@unique([profileId, concept])
 }

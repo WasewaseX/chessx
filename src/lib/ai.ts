@@ -6,8 +6,8 @@ import { PROVIDERS, type AiConfig, type ChatMessage } from '@/lib/ai-providers'
 export { PROVIDERS }
 export type { AiConfig, ChatMessage }
 
-export async function getAiConfig(): Promise<AiConfig> {
-  const p = await db.profile.findUnique({ where: { id: 'me' } })
+export async function getAiConfig(profileId: string): Promise<AiConfig> {
+  const p = await db.profile.findUnique({ where: { id: profileId } })
   return {
     provider: p?.aiProvider ?? 'builtin',
     baseUrl: p?.aiBaseUrl ?? null,

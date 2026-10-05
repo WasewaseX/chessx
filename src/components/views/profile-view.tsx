@@ -22,7 +22,7 @@ interface GameRow {
 }
 
 export function ProfileView() {
-  const { profile, patchProfile } = useApp()
+  const { profile, patchProfile, ratings } = useApp()
   const [games, setGames] = useState<GameRow[]>([])
   const [progress, setProgress] = useState<{ lessonId: string; completed: boolean; stepsDone: number }[]>([])
   const activity = useActivity()
@@ -88,9 +88,22 @@ export function ProfileView() {
           sub={profile.puzzleCount < 10 && profile.puzzleRating ? 'Provisional' : profile.puzzleRating ? `${profile.puzzleCount} rated puzzles` : 'Solve a puzzle to get rated'}
         />
         <StatCard
-          label="Bot ladder"
-          value={profile.ladderRating ?? '-'}
-          sub={profile.ladderCount < 10 && profile.ladderRating ? 'Provisional' : profile.ladderRating ? `${profile.ladderCount} rated games` : 'Unrated. Play a ladder game'}
+          label="Blitz rating"
+          value={ratings.find((r) => r.pool === 'blitz')?.rating ?? 1000}
+          sub={(() => {
+            const r = ratings.find((x) => x.pool === 'blitz')
+            if (!r || r.games === 0) return 'Starts at 1000. Play online games'
+            return `${r.games} rated games · ${r.wins}W ${r.losses}L ${r.draws}D`
+          })()}
+        />
+        <StatCard
+          label="Bullet rating"
+          value={ratings.find((r) => r.pool === 'bullet')?.rating ?? 1000}
+          sub={(() => {
+            const r = ratings.find((x) => x.pool === 'bullet')
+            if (!r || r.games === 0) return 'Starts at 1000. Play online games'
+            return `${r.games} rated games · ${r.wins}W ${r.losses}L ${r.draws}D`
+          })()}
         />
         <StatCard label="Puzzle streak" value={profile.puzzleStreak} sub={`Best: ${profile.bestPuzzleStreak}`} />
         <StatCard label="Games" value={total} sub={winRate != null ? `${winRate}% won` : 'No games yet'} />

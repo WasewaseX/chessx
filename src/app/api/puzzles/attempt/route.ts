@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
+import type { ReviewItem } from '@prisma/client'
 import { db } from '@/lib/db'
+import { getSessionUser } from '@/lib/auth'
 import { newRating, seedForSkill } from '@/lib/rating'
 import { bumpActivity, gradeReview, missReview, sanitizeConcepts, updateMastery } from '@/lib/server/skill'
 import { PUZZLES } from '@/content/puzzles'
 import { dayKeyLocal } from '@/lib/day'
 
 export async function POST(req: NextRequest) {
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
+  const pid = profile.id
+
   const body = await req.json().catch(() => ({}))
   const puzzleId = String(body.puzzleId ?? '').slice(0, 60)
   const kindRaw = String(body.kind ?? 'rated')
@@ -20,18 +28,15 @@ export async function POST(req: NextRequest) {
   const puzzle = PUZZLES.find((p) => p.id === puzzleId)
   const themes = sanitizeConcepts(puzzle?.themes)
 
-  const profile = await db.profile.findUnique({ where: { id: 'me' } })
-  if (!profile) return NextResponse.json({ error: 'no profile' }, { status: 400 })
-
   // Review attempts never move the puzzle rating, the streak or XP.
   if (kind === 'review') {
-    await db.puzzleAttempt.create({ data: { puzzleId, kind, solved, ratingDelta: null, dayKey } })
-    await updateMastery(themes, solved)
-    let graded = null
-    if (reviewItemId) graded = await gradeReview(reviewItemId, solved)
-    else if (!solved) await missReview('puzzle', puzzleId)
-    if (solved) await bumpActivity(dayKey, 'puzzlesSolved', 1)
-    const updated = await db.profile.findUnique({ where: { id: 'me' } })
+    await db.puzzleAttempt.create({ data: { profileId: pid, puzzleId, kind, solved, ratingDelta: null, dayKey } })
+    await updateMastery(pid, themes, solved)
+    let graded: ReviewItem | null = null
+    if (reviewItemId) graded = await gradeReview(pid, reviewItemId, solved)
+    else if (!solved) await missReview(pid, 'puzzle', puzzleId)
+    if (solved) await bumpActivity(pid, dayKey, 'puzzlesSolved', 1)
+    const updated = await db.profile.findUnique({ where: { id: pid } })
     return NextResponse.json({ attempt: { kind, solved }, profile: updated, ratingDelta: 0, xpGain: 0, graded })
   }
 
@@ -43,7 +48,7 @@ export async function POST(req: NextRequest) {
   const xpGain = solved ? 10 + Math.min(streak, 10) : 0
 
   await db.profile.update({
-    where: { id: 'me' },
+    where: { id: pid },
     data: {
       puzzleRating: rating,
       puzzleCount: profile.puzzleCount + 1,
@@ -57,22 +62,22 @@ export async function POST(req: NextRequest) {
   })
 
   const attempt = await db.puzzleAttempt.create({
-    data: { puzzleId, kind, solved, ratingDelta: delta, dayKey },
+    data: { profileId: pid, puzzleId, kind, solved, ratingDelta: delta, dayKey },
   })
 
   // Skill model + spaced repetition bookkeeping.
-  await updateMastery(themes, solved)
+  await updateMastery(pid, themes, solved)
   if (solved) {
-    await bumpActivity(dayKey, 'puzzlesSolved', 1)
+    await bumpActivity(pid, dayKey, 'puzzlesSolved', 1)
     // If this puzzle was waiting in the review queue, facing it here counts.
-    const pending = await db.reviewItem.findUnique({ where: { kind_refId: { kind: 'puzzle', refId: puzzleId } } })
+    const pending = await db.reviewItem.findUnique({ where: { profileId_kind_refId: { profileId: pid, kind: 'puzzle', refId: puzzleId } } })
     if (pending && pending.dueAt <= new Date(Date.now() + 36 * 60 * 60 * 1000)) {
-      await gradeReview(pending.id, true)
+      await gradeReview(pid, pending.id, true)
     }
   } else {
-    await missReview('puzzle', puzzleId)
+    await missReview(pid, 'puzzle', puzzleId)
   }
 
-  const updated = await db.profile.findUnique({ where: { id: 'me' } })
+  const updated = await db.profile.findUnique({ where: { id: pid } })
   return NextResponse.json({ attempt, profile: updated, ratingDelta: delta, xpGain })
 }

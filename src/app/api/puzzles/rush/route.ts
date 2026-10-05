@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { PUZZLES } from '@/content/puzzles'
 import type { Puzzle } from '@/content/schema'
+import { getSessionUser } from '@/lib/auth'
 import { bumpActivity } from '@/lib/server/skill'
 import { dayKeyLocal } from '@/lib/day'
 
@@ -29,6 +30,12 @@ export async function GET() {
 
 /** POST: record a finished run, update bests, award capped XP. */
 export async function POST(req: NextRequest) {
+  const user = await getSessionUser()
+  if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
+  const pid = profile.id
+
   const body = await req.json().catch(() => ({}))
   const mode = body.mode === 'survival' ? 'survival' : 'threeMin'
   const score = Math.max(0, Math.min(200, Number(body.score ?? 0)))
@@ -36,21 +43,18 @@ export async function POST(req: NextRequest) {
   const seconds = Math.max(0, Math.min(3600, Number(body.seconds ?? 0)))
   const dayKey = /^\d{4}-\d{2}-\d{2}$/.test(String(body.dayKey ?? '')) ? String(body.dayKey) : dayKeyLocal()
 
-  const profile = await db.profile.findUnique({ where: { id: 'me' } })
-  if (!profile) return NextResponse.json({ error: 'no profile' }, { status: 400 })
-
   const previousBest = mode === 'survival' ? profile.rushBestSurvival : profile.rushBest3m
   const isNewBest = score > previousBest
 
   const run = await db.rushRun.create({
-    data: { mode, score, total, seconds, dayKey },
+    data: { profileId: pid, mode, score, total, seconds, dayKey },
   })
 
   // Rush rewards solving volume, capped so grinding stays honest.
   const xpGain = Math.min(score * 4, 120)
 
   await db.profile.update({
-    where: { id: 'me' },
+    where: { id: pid },
     data: {
       xp: profile.xp + xpGain,
       ...(mode === 'survival'
@@ -59,8 +63,8 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  await bumpActivity(dayKey, 'puzzlesSolved', score)
+  await bumpActivity(pid, dayKey, 'puzzlesSolved', score)
 
-  const updated = await db.profile.findUnique({ where: { id: 'me' } })
+  const updated = await db.profile.findUnique({ where: { id: pid } })
   return NextResponse.json({ run, profile: updated, xpGain, isNewBest, previousBest })
 }
