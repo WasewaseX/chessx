@@ -88,6 +88,28 @@ export const newbie: Tier = {
           wrong('The knights', 'Knights are one step in from the corners, right next to the rooks.'),
           wrong('The bishops', 'Bishops are two steps in. They sit beside the knights.'),
         ]),
+        demo(
+          'The center fight begins',
+          [
+            'Almost every serious game starts the same way: both players race a pawn to the center.',
+            'e4 takes space and opens lines for the bishop and queen. e5 answers it the same way. Nobody hands over the center for free.',
+          ],
+          START,
+          { moves: ['e4', 'e5'], caption: '1.e4 e5: the classical start' },
+        ),
+        quiz('Light or dark?', 'The square e4, where White\'s pawn lands after 1.e4: light or dark?', [
+          right('Light', 'e4 is a light square. Trick: a1 is dark, and colors alternate like a checkerboard as you step toward e4.'),
+          wrong('Dark', 'Step it out: a1 dark, a2 light, a3 dark, a4 light... by e4 you land on a light square.'),
+          wrong('e4 changes color during the game', 'Square colors never change. A square is light or dark for the whole game.'),
+        ]),
+        text(
+          'Why the center is worth fighting for',
+          [
+            'A piece in the center controls more squares than the same piece on the edge. A knight on e4 attacks 8 squares. The same knight on a1 attacks 2.',
+            'Pieces in the center can also switch sides of the board fast. From e4 a knight can go to attack kingside or queenside in two moves.',
+          ],
+          'Center = more squares controlled = more choices every move.',
+        ),
       ],
     },
     {
@@ -147,6 +169,20 @@ export const newbie: Tier = {
           wrong('An even trade', 'Count it again: knight for pawn is not even. The pawn that recaptured only evened the pawn count.'),
           wrong('You lose material', 'You gave a pawn and got a knight. That is winning material.'),
         ]),
+        demo(
+          'Pawns cannot go home',
+          [
+            'This pawn marches to d5 and from now on it only ever moves forward.',
+            'Every pawn push is permanent. Push pawns that gain space or open lines for your pieces, never on a whim.',
+          ],
+          '4k3/8/8/8/3P4/8/8/4K3 w - - 0 1',
+          { moves: ['d5'], caption: 'One way: forward' },
+        ),
+        quiz('Stuck face to face', 'A white pawn sits on d3, a black pawn on d4, nothing else nearby. Can either pawn capture the other?', [
+          right('No: pawns capture only diagonally forward', 'The two pawns stare straight ahead. Capturing straight ahead is illegal for a pawn.'),
+          wrong('Yes: the pawn behind can take the one in front', 'Straight-ahead capture does not exist. Someone must attack this pair from the side with a piece.'),
+          wrong('Yes: the pawn in front captures backward', 'Pawns never move or capture backward. Black\'s d4 pawn attacks c3 and e3 only.'),
+        ]),
       ],
     },
     {
@@ -203,6 +239,19 @@ export const newbie: Tier = {
           wrong('The bishop', 'Bishops slide along clear diagonals. Blockers stop them.'),
           wrong('The queen', 'The queen slides too. Blockers stop her.'),
         ]),
+        drill(
+          'March to the center',
+          '4k3/8/8/8/8/5N2/8/4K3 w - - 0 1',
+          ['Ne5'],
+          'Move the knight to the square where it attacks the most',
+          'From f3 the knight can jump to e5, d4, g5 or h4. Which of those is most central?',
+          'Ne5: from the center this knight attacks 8 squares instead of 4.',
+        ),
+        quiz('Rim dim', 'Which knight is doing more work?', [
+          right('The one on e4, attacking 8 squares', 'Central knights control the board. Edge knights watch the wall.'),
+          wrong('The one on a3, it is closer to the corner', 'Corner squares are the worst home for a knight: 2 to 4 squares controlled at most.'),
+          wrong('They are equal, knights are the same everywhere', 'Knight power depends entirely on where it stands. The rim is dim.'),
+        ]),
       ],
     },
     {
@@ -252,6 +301,19 @@ export const newbie: Tier = {
           wrong('Bishops cannot capture pawns', 'Bishops capture anything on their diagonal, including pawns. The issue is the blockers.'),
           wrong('The king has no escape square', 'This is a bishop problem, not a king safety problem. Yet.'),
         ]),
+        quiz('Color-blind by design', 'The enemy bishop lives on dark squares, currently sitting on c5. Which of your pieces can it NEVER capture?', [
+          right('Your bishop on f1', 'f1 is a light square. A dark-square bishop can never touch it, this game or any other.'),
+          wrong('Your pawn on d4', 'd4 is a dark square: exactly the color that enemy bishop patrols.'),
+          wrong('Both are in equal danger', 'One of them is permanently out of reach. Square color decides.'),
+        ]),
+        text(
+          'Snipers, not sprinters',
+          [
+            'A bishop is slow to join the game from its home square, but once a long diagonal opens it acts from corner to corner in a single move.',
+            'That is why opening plans often aim a bishop at the longest clear diagonal available, like the f1 bishop aiming through to b7 or h6.',
+          ],
+          'Bishops trade short-term speed for huge long-range power. Open their diagonal.',
+        ),
       ],
     },
     {
@@ -296,6 +358,19 @@ export const newbie: Tier = {
           wrong('A file with only your pawns', 'Your own pawns block your own rook just as well as enemy ones.'),
           wrong('The a-file and h-file', 'Those are just the edge files. Open is about pawns, not location.'),
         ], 'An open file is any file with no pawns on it.'),
+        quiz('The 7th rank', 'Which rank do rooks dream about, full of weak enemy pawns?', [
+          right('The 7th', 'Enemy pawns start the game on the 7th rank. A rook parked there eats them for breakfast.'),
+          wrong('The 1st, for safety', 'Rooks on their own first rank do nothing. They are waiting for files and ranks to open.'),
+          wrong('The 4th, the middle of the board', 'The middle matters for pieces. For rooks, the enemy\'s home ranks are the prize.'),
+        ]),
+        drill(
+          'Claim the open file',
+          '4k3/8/8/8/8/8/8/R3K2R w - - 0 1',
+          ['Rd1'],
+          'Both center files are empty. Park a rook where it controls the most',
+          'The d-file runs straight at the black king. A rook on d1 owns it.',
+          'Rd1. Open files are rook highways: own them early.',
+        ),
       ],
     },
     {
@@ -339,6 +414,20 @@ export const newbie: Tier = {
           right('A fork, and you win at least a rook', 'One attacker, two targets: the fork. Take the bigger prize.'),
           wrong('A pin', 'A pin freezes a piece in front of a more valuable one. This is different.'),
           wrong('Nothing: Black saves both', 'One move cannot defend two unrelated pieces. One of them falls.'),
+        ]),
+        demo(
+          'Check first, grab second',
+          [
+            'The queen can hit two targets in sequence: check the king, and while he steps aside, the rook on a8 is caught.',
+            'Checks make the best forks: the defender never gets a free move to save the second target.',
+          ],
+          'r3k3/8/8/8/8/8/8/Q3K3 w - - 0 1',
+          { moves: ['Qa4+', 'Kf7', 'Qxa8'], caption: 'Check, then collect the rook' },
+        ),
+        quiz('Queen safety', 'Your queen is deep in enemy territory and a lowly pawn attacks her square. What now?', [
+          right('Move her to safety or defend her: losing her for nothing decides the game', 'A 9-point piece caught by a 1-point piece is the most expensive mistake in chess.'),
+          wrong('Ignore it: pawns can never capture backward or sideways much', 'A pawn attacks one diagonal square. If that square is yours, you are in trouble right now.'),
+          wrong('Attack something even bigger with her', 'The enemy just takes the queen. Value does not protect her, defenders do.'),
         ]),
       ],
     },
@@ -391,6 +480,19 @@ export const newbie: Tier = {
           wrong('Nothing changes: he still hides', 'Hiding kings lose endgames. The danger is over once the queens are off.'),
           wrong('He may now move two squares at a time', 'The king always steps one square. His power is his activity, not his speed.'),
         ]),
+        drill(
+          'The king captures too',
+          '7k/8/8/8/8/8/4r3/4K3 w - - 0 1',
+          ['Kxe2'],
+          'The rook just checked you at point blank range. Nothing defends it.',
+          'A king may never step onto an attacked square, but a defended attacker is fair game. Is e2 attacked by anyone else?',
+          'Kxe2. The king is a fighter: in the endgame he captures, guards and attacks.',
+        ),
+        quiz('King time-off', 'When is it safe for the king to walk toward the center?', [
+          right('When the queens and most pieces have left the board', 'Fewer attackers means fewer ways to be checked. Then the king becomes the strongest attacker around.'),
+          wrong('Right after castling, always head out', 'Early middlegames are full of enemy pieces. An exposed king gets hunted.'),
+          wrong('Never: a king may never cross the 3rd rank', 'There is no such rule. Kings may go anywhere legal, when it is safe.'),
+        ]),
       ],
     },
     {
@@ -428,6 +530,15 @@ export const newbie: Tier = {
         drill('Capture the attacker', 'k7/8/8/8/8/8/5PPP/3Rr1K1 w - - 0 1', ['Rxe1'], 'Black checked you with the rook. Remove it.', 'The king has no safe square. Can one of your pieces reach the attacker on e1?', 'Rxe1. Your rook removed the attacker, the simplest and best answer to check.'),
         demo('Block the line', ['The rook on e8 checks the king on e1. The bishop slides to e2 and shuts the door.'], '4r2k/8/8/8/8/8/8/4KB2 w - - 0 1', { moves: ['Be2'], caption: 'Blocking the check' }),
         drill('Block the check', '4r2k/8/8/8/8/8/8/4KB2 w - - 0 1', ['Be2'], 'Stop the check by blocking', 'A sliding check can be blocked by any piece that reaches the line between attacker and king.', 'Be2. The bishop parks on the e-file and the check is gone.'),
+        text(
+          'Do not panic',
+          [
+            'A check arrives. The worst response is grabbing the first legal move you see.',
+            'Instead, run the list calmly: can I capture the attacker? Can I block? Where can the king go? One of the three answers is usually good, sometimes two are, and then you get to pick the better one.',
+            'Players who answer checks calmly keep their positions. Players who flinch start losing pieces.',
+          ],
+          'Checks are forcing but finite: three answers, choose calmly.',
+        ),
       ],
     },
     {
@@ -475,6 +586,14 @@ export const newbie: Tier = {
           wrong('They can: pawns defend every nearby square', 'Pawns are one-way pieces. They never defend anything behind them.'),
           wrong('Only the king can defend squares', 'Any piece can defend a square. Pawns just have this one-way limit.'),
         ]),
+        drill(
+          'Queen finishes it',
+          '6k1/5ppp/8/8/8/8/8/3Q2K1 w - - 0 1',
+          ['Qd8#'],
+          'The back rank is open. End the game with the queen',
+          'The d-file is clear and the 8th rank is empty. Where does a queen mate from here?',
+          'Qd8 is mate: the queen covers the whole rank and the king is sealed behind his own pawns.',
+        ),
       ],
     },
     {
@@ -531,6 +650,20 @@ export const newbie: Tier = {
           wrong('It wins material', 'Castling captures nothing. Its value is safety and activity.'),
           wrong('Castled kings may move twice per turn', 'Kings always move one square. Castling is the single exception: two squares, once a game.'),
         ]),
+        quiz('Where does the king land?', 'After White castles short (0-0), which squares do the king and rook occupy?', [
+          right('King g1, rook f1', 'The king steps two squares toward the rook, and the rook hops over him.'),
+          wrong('King f1, rook g1', 'Close, but the rook is the one that jumps around. The king takes the bigger step.'),
+          wrong('King g1, rook h1', 'The rook moves too. It lands right next to the king on f1.'),
+        ]),
+        text(
+          'Which side to castle?',
+          [
+            'Both sides are usually legal early on, so choose on purpose.',
+            'Castle away from the opponent\'s attacking pieces and toward the side where your own pawns are healthiest. If their knights and bishops point at your kingside, going long can dodge the whole assault.',
+            'Most of all: castle early rather than perfectly. A castled king at move 8 beats a central king at move 20.',
+          ],
+          'Castle away from danger, toward healthy pawns. Early beats perfect.',
+        ),
       ],
     },
     {
@@ -570,6 +703,11 @@ export const newbie: Tier = {
           right('Only a pawn, only one that stands beside the landing square', 'The capture is a pawn capture: diagonally forward, one square, right now.'),
           wrong('Any piece that attacks the landing square', 'En passant is a pawn privilege. Rooks and queens cannot do it.'),
           wrong('Only the pawn that never moved', 'Any of your pawns beside the landing square may do it, as long as it is their immediate next move.'),
+        ]),
+        quiz('Before you jump', 'You are about to play a two-square pawn jump. What danger should you check first?', [
+          right('An enemy pawn standing beside the landing square can capture you en passant', 'The two-square jump is exactly what en passant punishes. Glance at the neighboring files first.'),
+          wrong('Your own king might be in check', 'You cannot move any piece while your king is in check. That is settled before you pick a move.'),
+          wrong('Nothing: the two-square jump is always safe', 'It is the single most surprising way to lose a pawn. Check the neighbors.'),
         ]),
       ],
     },
@@ -618,6 +756,11 @@ export const newbie: Tier = {
           wrong('Count total material before moving', 'Material counts are for slow positions. In a race, speed is the whole story.'),
           wrong('The game is automatically a draw', 'Draws need a reason. A promotion race has a clear winner: whoever moves first.'),
         ]),
+        quiz('Who stops a passed pawn?', 'Your pawn just became passed: no enemy pawns ahead of it or beside it. What can still stop it?', [
+          right('Enemy pieces: a rook or bishop can halt it from far away', 'Passed pawns fear pieces, not pawns. That is why you trade enemy rooks before racing.'),
+          wrong('Nothing: passed pawns always promote', 'Pieces still patrol the last ranks. A passed pawn is a threat, not a guarantee.'),
+          wrong('Any enemy pawn can still take it', 'That is exactly what passed means: no enemy pawn can ever block or capture it.'),
+        ]),
       ],
     },
     {
@@ -664,6 +807,14 @@ export const newbie: Tier = {
           wrong('King and queen versus king', 'Queen against king is a basic win. Learn it once, use it forever.'),
           wrong('King and rook versus king', 'Rook against king is also a basic win with a simple method.'),
         ]),
+        drill(
+          'Finish clean',
+          '7k/8/5K2/8/8/8/8/6Q1 w - - 0 1',
+          ['Qg7#'],
+          'Mate in one, with no stalemate traps',
+          'Your king already guards g7. Put the queen there, protected.',
+          'Qg7, protected by the king, is mate. Protected checks against a lone king end games.',
+        ),
       ],
     },
     {
@@ -720,6 +871,11 @@ export const newbie: Tier = {
           wrong('Yes: the queen is the strongest piece', 'Strongest single piece, yes. But two rooks together are a genuine match for her.'),
           wrong('Material comparisons never matter', 'Values are the first tool every player needs. Exceptions come later, on top of the basics.'),
         ]),
+        quiz('Order by value', 'Which list orders the pieces from weakest to strongest?', [
+          right('Pawn, knight and bishop, rook, queen', '1, 3, 3, 5, 9. The two minor pieces are equal in points, different in style.'),
+          wrong('Pawn, rook, knight and bishop, queen', 'Rooks outrank the minor pieces: 5 beats 3.'),
+          wrong('Knight and bishop, pawn, rook, queen', 'No piece is worth less than a pawn in normal situations.'),
+        ]),
       ],
     },
     {
@@ -763,6 +919,11 @@ export const newbie: Tier = {
           right('Checks, captures, threats: first for the opponent, then for you', 'Defense before dreams. Survive their forcing moves, then play your own.'),
           wrong('Captures only, on both sides', 'Checks come first: they override everything else on the board.'),
           wrong('Only your own attacking ideas', 'Tunnel vision is how hanging pieces happen. Look both ways.'),
+        ]),
+        quiz('What defended means', 'When is a piece considered defended?', [
+          right('When a friendly piece could recapture if it were taken', 'Defended means protected by your own army. Enemy captures then cost them material back.'),
+          wrong('When it stands behind its own pawns', 'Pawns in front shield a piece, but only a friendly recapturer defends it.'),
+          wrong('When it has already moved at least once', 'Movement history means nothing. Location and defenders mean everything.'),
         ]),
       ],
     },

@@ -60,6 +60,11 @@ export const master: Tier = {
           wrong('Material, luck, rating, time, style, mood', 'Four of those are not on the board.'),
           wrong('Material only: the rest is decoration', 'Material is one dial of six. Plans come from the other five.'),
         ]),
+        quiz('Picking your imbalance', 'The opponent has the better structure. You have better piece activity and more space. What is the master\u2019s plan?', [
+          right('Keep pieces on the board and amplify activity and space before the structure grinds you down', 'Play on YOUR dials. Trades shrink the position and hand the verdict to structure.'), 
+          wrong('Trade everything into a peaceful endgame', 'That is playing their game: static positions let structure speak loudest.'),
+          wrong('Ignore both and attack randomly', 'Random attacks are not an imbalance. Point your real advantages somewhere concrete.'),
+        ]),
       ],
     },
     {
@@ -103,6 +108,11 @@ export const master: Tier = {
           ],
           'His best plan, ranked. If it beats yours, take it away first.',
         ),
+        quiz('Prophylaxis tempo', 'You spot the enemy\u2019s dangerous plan, but your own attack is also one move from landing. Which do you play?', [
+          right('Whichever threat arrives FIRST: count the moves on both clocks honestly', 'Prophylaxis is tempo math, not paranoia. If your hit lands a move sooner, hit first.'), 
+          wrong('Always defend: safety over everything', 'Over-defending loses games that one forward move would have won.'),
+          wrong('Always attack: the defender must lose eventually', 'Attacks that ignore the counter-threat are how attackers get mated.'),
+        ]),
       ],
     },
     {
@@ -140,6 +150,11 @@ export const master: Tier = {
           right('A move that gives check or creates an immediate material threat', 'Questions only. Every non-forcing move is a pause, and pauses hand over the baton.'),
           wrong('A solid developing move', 'Development is for openings. Initiative is kept by threats.'),
           wrong('A pawn grab two moves deep', 'Two quiet moves to win a pawn is two free tempi for the defense.'),
+        ]),
+        quiz('Spending the initiative', 'You can win a clean pawn OR keep a dangerous initiative by spending two pawns. When is the pawn the right call?', [
+          right('When the initiative fades after one solid defensive move and the position has no follow-up', 'Initiative is a currency with an expiry date. If the attack dies anyway, take the money and simplify.'), 
+          wrong('Never: the initiative is priceless', 'Initiative is worth exactly as much as the threats it creates. No threats, no value.'),
+          wrong('Always take the pawn: material is permanent', 'Permanent material behind a shattered kingside is how won games get mated.'),
         ]),
       ],
     },
@@ -187,6 +202,11 @@ export const master: Tier = {
           wrong('A passed b-pawn', 'Three defenders beat two attackers. The passer is the majority\u2019s weapon, not the minority\u2019s.'),
           wrong('Immediate material', 'It is a positional lever. The loot is squares.'),
         ]),
+        quiz('Majority efficiency', 'Why is a 3 versus 2 kingside majority often SLOWER to produce a passer than the queenside majority?', [
+          right('It must advance three pawns in a row, spending three tempi and exposing each one to attack', 'The majority\u2019s own pawns shield the enemy pieces from each other. Space and support decide its speed.'), 
+          wrong('It cannot ever create a passed pawn', 'It can, and often does: the f and h pawns storm ahead in many endings.'),
+          wrong('Because the king cannot support three pawns', 'Kings herd majorities fine. The cost is the tempo count, not the support.'),
+        ]),
       ],
     },
     {
@@ -232,6 +252,11 @@ export const master: Tier = {
           wrong('All three are permanent', 'Pieces can move. Pawns cannot. That is the whole classification.'),
           wrong('All three are temporary', 'Doubled pawns never merge back. They age forever.'),
         ]),
+        quiz('Attacking the right weakness', 'The enemy has a temporary weakness you can win material from, and a permanent one worth nothing right now. Which do you hit?', [
+          right('The temporary one, on your clock: permanent weaknesses do not run away', 'Temporary weaknesses expire when the pieces regroup. Harvest them while they are fresh.'), 
+          wrong('The permanent one: it is guaranteed to stay weak', 'Staying weak is not the same as being exploitable. Watch the clock.'), 
+          wrong('Neither: look for a mating attack instead', 'Mating attacks are one type of temporary opportunity, not the only one.'),
+        ]),
       ],
     },
     {
@@ -270,6 +295,11 @@ export const master: Tier = {
           right('Whose remaining pieces are better, whose king is safer, whose structure survives the endgame', 'A trade is a vote for the next position. Ask about the position that results.'),
           wrong('Who is higher rated, who has more time, who is winning', 'The board decides trades. The scoreboard follows.'),
           wrong('Can I win material with it, is it a check, is it forced', 'Those are tactic questions. Trade questions are positional.'),
+        ]),
+        quiz('The bad trade habit', 'You are better on the kingside; the enemy owns the only open file with doubled rooks. Your knight can take a rook for a bishop there. Correct?', [
+          right('No: every trade feeds their only real asset and dries out yours', 'Trading INTO the opponent\u2019s strength is donating. Trade on your terms, on your side.'), 
+          wrong('Yes: even trades are always fine when better', 'Even trades are not neutral: they change which assets remain on the board.'), 
+          wrong('Yes, because bishop for rook wins the exchange', 'Winning the exchange on their terms can still lose the game. Read the position, not just the values.'), 
         ]),
       ],
     },
@@ -313,6 +343,11 @@ export const master: Tier = {
           'One of your bishops has a clear road to the dark heart of the kingside.',
           'Bh6. From the dark squares your bishop attacks g7 and f8 with zero opposition. His light bishop watches from another planet.',
         ),
+        quiz('Trading into the complex', 'You own the bishop pair; the enemy kingside is dark-squared weak. Which bishop do you offer to trade?', [
+          right('Your light-squared one, keeping your dark bishop as the sole ruler of the complex', 'Keep the piece that feeds on the weakness. Trade away the one with no targets.'), 
+          wrong('Your dark-squared one, to prove it is stronger', 'Trading your best piece for their worst hands the dark squares back.'), 
+          wrong('Neither: bishops should never be traded', 'The bishop pair is great, but one good bishop beats two unemployed ones.'), 
+        ]),
       ],
     },
     {
@@ -351,6 +386,11 @@ export const master: Tier = {
           right('Attacking: a blockader on an outpost is also an invader', 'One piece, two jobs: jailer on the pawn\u2019s road, attacker on the rest of the board.'),
           wrong('Nothing: blockading is a full-time job', 'The blockade costs one square, not the whole piece.'),
           wrong('Guarding your own back rank', 'That is a different piece\u2019s job. The blockader attacks.'),
+        ]),
+        quiz('Lifting the blockade', 'The enemy passer sits on d3, your knight blockades on d3. When is it right to abandon the blockade?', [
+          right('When your counterattack mates first or wins more than the promoted queen', 'The blockade serves a plan. When a faster plan exists, the square can fend for itself.'), 
+          wrong('Never: a blockade, once set, is permanent', 'Blockades are commitments, not contracts. Re-evaluate every move.'), 
+          wrong('Whenever the knight has a better square', 'Better square for WHAT? Without a concrete plan, leaving the passer is suicide.'), 
         ]),
       ],
     },

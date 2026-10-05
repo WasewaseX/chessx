@@ -56,6 +56,11 @@ export const grandmaster: Tier = {
           wrong('Solve thousands of one-move mates', 'One-move reps train the scan. Depth needs line-holding.'),
           wrong('Trust the board: glance at every branch there', 'The board is a crutch. Games are played in the head.'),
         ]),
+        quiz('Pruning discipline', 'You calculated a pretty 7-move line for one candidate and it works. Two other candidates were never looked at. What is the error?', [
+          right('Verification bias: a working line does not make this candidate the best move', 'The best move is the best of ALL candidates, not the first one that survived.'), 
+          wrong('None: a working line means the move is playable', 'Playable is not optimal. Strong players finish the scan before committing.'), 
+          wrong('You should calculate all 40 moves equally deep', 'Prune by pattern to a shortlist first, then calculate the shortlist honestly. Skipping the shortlist is the crime.'), 
+        ]),
       ],
     },
     {
@@ -93,6 +98,11 @@ export const grandmaster: Tier = {
           right('Identify your single concrete asset and build the defense around it', 'A passer, an open file, a perpetual: one real asset beats five vague hopes.'),
           wrong('Defend everything equally', 'Equal defense defends nothing. Resources need a focal point.'),
           wrong('Look for cheap traps', 'Traps are one-move assets. The position needs a durable one.'),
+        ]),
+        quiz('The perpetual checklist', 'Down material and under attack, what must you actively hunt every move?', [
+          right('Any square your pieces can hit from that forces the attacker to stop and think', 'Counterplay is oxygen. Checks, threats and passed pawns make the attacker defend instead of push.'), 
+          wrong('The fastest square to hide the king', 'Hiding alone loses slowly. Active defense actually saves positions.'), 
+          wrong('Trading every piece you can', 'Trades reduce counterplay first. The weaker side usually wants pieces ON.'), 
         ]),
       ],
     },
@@ -147,6 +157,11 @@ export const grandmaster: Tier = {
           wrong('Whoever has more material', 'Material cannot move itself. Tempi decide duels.'),
           wrong('Coincidence: zugzwang is random', 'Corresponding squares are pure geometry. Nothing random.'),
         ]),
+        quiz('Creating zugzwang', 'The enemy king and pawns have several useful waiting moves. How do you turn a static advantage into zugzwang?', [
+          right('Restrict the waiting moves first: fix the pawns, cut the king\u2019s squares, THEN count tempi', 'Zugzwang needs zero useful moves. Restriction creates the zero; the tempo count cashes it.'), 
+          wrong('Attack the king with everything immediately', 'Forcing play RELEASES the defender from waiting. Zugzwang needs quiet pressure.'), 
+          wrong('It cannot be created, only stumbled into', 'Strong players build zugzwang on purpose, one restriction at a time.'), 
+        ]),
       ],
     },
     {
@@ -191,6 +206,11 @@ export const grandmaster: Tier = {
           right('For a design flaw: zugzwang potential or a second front the wall never faced', 'Walls fall from design errors. Force alone bounces off.'),
           wrong('For the weakest brick to attack with everything', 'The bricks are fine. The DESIGN is the target.'),
           wrong('For a piece sacrifice to open files', 'Files mean nothing if no invasion square exists at the end of them.'),
+        ]),
+        quiz('Building your own fortress', 'You are worse with an unbreakable-looking enemy attack coming. When do you START thinking about a fortress?', [
+          right('Immediately: trade into the structure where your pawns and king form a wall, before the pieces arrive', 'Fortresses need the right structure. Building it under fire is far harder.'), 
+          wrong('Only when the attack has fully arrived', 'By then every wall square is watched. The window closes early.'), 
+          wrong('Fortresses are only for endgames', 'The best fortresses are set up while queens still hover: the structure does the defending.'), 
         ]),
       ],
     },
@@ -237,6 +257,11 @@ export const grandmaster: Tier = {
           wrong('Pushing one of them immediately to undouble', 'Undoubling usually surrenders the file AND the square for nothing.'),
           wrong('Nothing: doubled pawns always fall', 'They fall on a schedule. Good players postpone that schedule forever.'),
         ]),
+        quiz('Structural exchange targets', 'Which enemy piece is the classic target of a structural exchange sacrifice (Rook for Bishop or Knight)?', [
+          right('The key defender of the weak squares your rook sacrifice is buying', 'The sacrifice is real when it removes the ONE piece holding the position together.'), 
+          wrong('Any enemy piece, for the material count', 'Rooks are worth five. Structure alone rarely pays for a full five points without a target.'), 
+          wrong('The enemy king, somehow', 'The king cannot be captured. The defender AROUND him is the target.'), 
+        ]),
       ],
     },
     {
@@ -275,6 +300,11 @@ export const grandmaster: Tier = {
           right('The center opens and your advanced pawns become targets for the counterstrike', 'Flank attacks without a closed center are invitations to the middle.'),
           wrong('Nothing: flank pawns are always safe', 'An open center turns every advanced flank pawn into a hook.'),
           wrong('The flank attack just fails quietly', 'It fails LOUDLY: the counterstrike hits the king through the center.'),
+        ]),
+        quiz('Flank pawn hooks', 'Why is an advanced flank pawn (like a black g-pawn on g4) strategically valuable even when the attack fails?', [
+          right('It is a hook: your own pawn or piece can hit it to open lines for your attack', 'Hooks justify flank pushes even in failure: the weaknesses remain as future targets.'),
+          wrong('Advanced pawns are always assets', 'They are hooks for BOTH sides. Whoever attacks the hook first usually profits.'),
+          wrong('Hooks only matter in pawn endings', 'Opening a file with a pawn trade matters most with heavy pieces still on.'),
         ]),
       ],
     },
@@ -319,6 +349,11 @@ export const grandmaster: Tier = {
           wrong('Yes: any exchange sac creates pressure', 'Pressure without permanence is a two-point donation.'),
           wrong('No: never sacrifice the exchange', 'The exchange sac is a mainline weapon. It just has strict terms.'),
         ]),
+        quiz('Timing the exchange sac', 'When does an exchange sacrifice on c3 or f6 lose its power?', [
+          right('When the attacker can trade off the pieces that would exploit the new weak squares', 'The sac buys structure damage. If the exploiters get traded, the damage is harmless.'), 
+          wrong('When it is played early, before move 20', 'Early exchange sacs are common and strong when the structure fits.'), 
+          wrong('When the defender has not castled yet', 'Unmixed kings can be MORE vulnerable: the sac may deflect before castling.'), 
+        ]),
       ],
     },
     {
@@ -362,6 +397,11 @@ export const grandmaster: Tier = {
           right('Restrict his pieces\u2019 best squares until HIS position cracks first', 'No weaknesses means you create the squeeze: deny squares, force bad moves, wait.'),
           wrong('Sacrifice to create complications', 'Complications favor the squeezed side\u2019s counterplay.'),
           wrong('Trade into an endgame and hope', 'Endgames need an advantage entering them. Create it first.'),
+        ]),
+        quiz('The waiting move', 'In a squeeze, you found a good square for each piece. What role do quiet waiting moves still play?', [
+          right('They transfer the turn so the opponent must weaken his position first', 'Zugzwang lives inside squeezes. Waiting moves are weapons, not passivity.'), 
+          wrong('None: always improve a piece every single move', 'Once every piece stands at its best, further moves only create weaknesses. Waiting takes over.'), 
+          wrong('Waiting moves are only for time trouble', 'Grandmasters spend many moves a game doing exactly nothing, on purpose.'), 
         ]),
       ],
     },

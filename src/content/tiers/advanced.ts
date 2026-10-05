@@ -58,6 +58,11 @@ export const advanced: Tier = {
           wrong('Every legal move, to be safe', 'Forty half-looked moves are worth less than five calculated ones.'),
           wrong('Only the first good one you see', 'The first move you see is what the position wants YOU to see.'),
         ]),
+        quiz('The forcing filter', 'Why do strong players generate checks and captures FIRST when listing candidates?', [
+          right('Forcing moves constrain the reply, so their lines calculate to a clear verdict fastest', 'The fewer replies a move allows, the fewer branches your tree has. Forcing first is just efficient calculation.'),
+          wrong('Because quiet moves are always bad', 'Quiet moves win plenty of games. They simply branch more, so they come after the forcing scan.'),
+          wrong('Checks and captures are worth extra points', 'Nothing is worth points for being forcing. They are worth CLARITY.'),
+        ]),
       ],
     },
     {
@@ -93,6 +98,11 @@ export const advanced: Tier = {
           wrong('Only when short on time', 'Time pressure makes it harder, not less necessary.'),
         ]),
         drill('Retreat with purpose', '4k3/8/8/2b5/3N4/8/8/4K3 w - - 0 1', ['Nb3'], 'The bishop on c5 attacks your knight. Move it to the square that also eyes d4.', 'b3 keeps the knight flexible and out of the bishop\u2019s diagonal.', 'Nb3. Safe AND aiming back at the center. Retreats should always have a second job.'),
+        quiz('The second job', 'Your attacked piece must move. What separates a good retreat from a bare escape?', [
+          right('The retreat square keeps the piece useful: covering a key square or keeping a plan alive', 'A retreat is a move like any other. Spend it on something.'),
+          wrong('There is no difference: attacked pieces just need to run', 'Running to a dead square is half a blunder. The best escape squares work.'),
+          wrong('Good retreats always go backward, toward your own side', 'Sideways and forward retreats exist. The test is usefulness, not direction.'),
+        ]),
       ],
     },
     {
@@ -130,6 +140,11 @@ export const advanced: Tier = {
           right('Keep calculating or refuse the sacrifice: an unclear ending to a sac is a coin flip', 'Sacrifices must reach mate, decisive material, or a clearly winning attack. Almost is the same as nothing.'),
           wrong('Play it: deep calculation means it works', 'Depth without a verdict is not calculation. It is touring.'),
           wrong('Play it and trust the attack', 'Trust is not a calculation. Ten clear moves or nothing.'),
+        ]),
+        quiz('The race clock', 'Both kings are under storm, opposite sides. What is the key count before every move?', [
+          right('Who is closer to opening a file against the enemy king: count the tempos both ways', 'Opposite-side castling is a tempo sprint. The count, not the material, decides when to give.'),
+          wrong('The material balance: never sacrifice while ahead', 'Material evaporates in races. Whoever opens first usually collects everything anyway.'),
+          wrong('Nothing: just push your pawns in order', 'The opponent also gets a vote every move. Track their progress, not just yours.'),
         ]),
       ],
     },
@@ -171,6 +186,11 @@ export const advanced: Tier = {
           right('Pawn storm to force the defenders away, then heavy pieces on the opened file', 'Pawns clear the road; rooks and queen use it.'),
           wrong('Knight maneuvering in the center', 'The center can wait. The race has a clock.'),
           wrong('Trading queens early', 'Queens mate. Trading them usually calms the race down.'),
+        ]),
+        quiz('The rook lift', 'What is a rook lift and when does it shine?', [
+          right('Walking a rook up and across (like Rf3-g3 or Re1-e3-h3) to redeploy it to the attacking wing', 'A rook on its first rank attacks nothing. Lifts move the firepower to the storm.'),
+          wrong('Lifting the rook over a pawn like a knight jump', 'Rooks never jump. A lift is just two or three quiet rook moves along open ranks.'),
+          wrong('A type of sacrifice', 'Lifts lose nothing. They are quiet maneuvering moves with attacking intent.'),
         ]),
       ],
     },
@@ -214,6 +234,14 @@ export const advanced: Tier = {
           wrong('Joining a pawn storm on the other wing', 'Two races, one clock: theirs is faster.'),
           wrong('On its best attacking square anyway', 'Best square for WHO? The attacker’s threats set the agenda.'),
         ]),
+        text(
+          'Trade the big mouth',
+          [
+            'Every attack has a mouthpiece: usually the queen, sometimes a rook on the open file. As a defender, offer trades of the biggest attacker at every chance.',
+            'Each attacker that leaves the board lowers the temperature. Defenders do not need to win material: they need to drain the attack.',
+          ],
+          'Defense by subtraction: remove attackers, not just threats.',
+        ),
       ],
     },
     {
@@ -268,6 +296,11 @@ export const advanced: Tier = {
           'One queen move lands on the square that controls f6, and everything behind it.',
           'Qe5. From the heart of the dark complex the queen touches f6 and h8 ideas. Missing bishops mean missing squares: stand on them.',
         ),
+        quiz('Where complexes come from', 'How does a weak square complex usually get created?', [
+          right('The pawns that guarded those squares get traded or pushed away, and never come back', 'Pawn moves are permanent. When the dark-square pawns vanish, the dark squares stay dark forever.'),
+          wrong('The enemy bishop paints them dark', 'Pieces come and go. Only pawn structure can create permanent holes.'),
+          wrong('Weak squares appear only in endgames', 'They are created in the middlegame, and usually exploited there too.'),
+        ]),
       ],
     },
     {
@@ -312,6 +345,11 @@ export const advanced: Tier = {
           'The knight has one square that sits directly on the pawn\u2019s road.',
           'Nd3. The pawn is furniture now: it cannot advance while the knight attacks everything around it. Nimzowitsch smiled.',
         ),
+        quiz('The ideal blockader', 'Which piece blockades best, and why?', [
+          right('The knight: it attacks from IN FRONT of the pawn instead of being blocked by it', 'Sliding pieces stop dead behind or on a pawn’s square. The knight controls eight squares while it sits.'),
+          wrong('The bishop: it can never be chased', 'A blockading bishop is stuck on one color and blind to the pawn’s color anyway.'),
+          wrong('The queen: too valuable to be traded off the blockade', 'A big blockader is a big target: everything piles onto it.'),
+        ]),
       ],
     },
     {
@@ -361,6 +399,11 @@ export const advanced: Tier = {
           'The dark-squared bishop has a natural developing square that also fights for d4.',
           'Be3. Maneuvering chess is one sentence: every piece, one better square per move, no trades you do not want.',
         ),
+        quiz('Maneuvering trades', 'You own more space and better pieces. Which trades serve you?', [
+          right('Almost none: trade only when your worst piece meets their best one', 'Space and harmony evaporate with every trade. Keep the tension on.'),
+          wrong('Any even trade: simplicity favors the better position', 'Simplicity favors the side WITHOUT the advantage. Crowded boards bury defenders.'),
+          wrong('Trades never matter', 'They matter enormously: each one changes which side has the fighters left.'),
+        ]),
       ],
     },
     {
@@ -402,6 +445,14 @@ export const advanced: Tier = {
           wrong('Base: c5, the front. Head: e5', 'Front pawn is the head. Rearmost is the base. The base is the target.'),
           wrong('Chains have no base', 'Every chain has both, and the base decides where you strike.'),
         ]),
+        drill(
+          'Strike the base',
+          '4k3/3p4/2p5/3p4/4P3/8/8/4K3 w - - 0 1',
+          ['exd5', 'cxd5'],
+          'The chain c6-d5 guards Black’s whole queenside. Trade on the head and leave the base stranded',
+          'Trade pawns on d5: the c6 pawn recaptures and finds itself isolated, no longer a chain.',
+          'After the trade, the former base pawn on c6 stands alone: the chain is broken into a target. Chains die at the base or not at all.',
+        ),
       ],
     },
     {

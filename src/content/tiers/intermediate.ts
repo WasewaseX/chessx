@@ -51,6 +51,14 @@ export const intermediate: Tier = {
           wrong('Only that the move looks aggressive', 'Aggressive moves that lose material are just fast losses.'),
           wrong('That your pieces are on good squares', 'Piece placement helps, but the double attack question is about the two targets and the follow-up.'),
         ]),
+        drill(
+          'The queen double hit',
+          'r5k1/8/8/3Q4/8/8/8/4K3 w - - 0 1',
+          ['Qd8+', 'Kf7', 'Qxa8'],
+          'One queen move hits the king and the rook',
+          'The queen and both black pieces share a rank. Walk onto it with check.',
+          'Qd8+ forks king and rook along the 8th rank: after the king steps, the rook falls. One move, two jobs.',
+        ),
       ],
     },
     {
@@ -101,6 +109,11 @@ export const intermediate: Tier = {
           wrong('Block with a piece', 'You would need to block two lines at once. Impossible with one piece.'),
           wrong('Capture the piece that moved', 'The other checker still checks. Only the king move survives.'),
         ]),
+        quiz('Who moves, who stays', 'In a discovered attack, which piece should make the move?', [
+          right('The front piece, ideally to a square that adds a second threat', 'The rear piece does the damage by staying put. The mover should grab something too if possible.'),
+          wrong('The rear piece: it does the hitting', 'The rear piece never moves in a discovered attack. Its power comes from being revealed.'),
+          wrong('It makes no difference which one moves', 'The mover is your extra move: use it to attack, capture or improve something.'),
+        ]),
       ],
     },
     {
@@ -146,6 +159,11 @@ export const intermediate: Tier = {
           right('Qg5, attacking the e5 knight and the g2 pawn in one move', 'Two threats from one queen. White could not parry both and lost material hand over fist.'),
           wrong('Qxe4, taking the pawn immediately', 'That is the automatic move the trap exists to punish. The queen move came first.'),
           wrong('Nxc2+, grabbing a fork', 'The knight was on d4 and never moved. The queen did all the work.'),
+        ]),
+        quiz('When to just recapture', 'When is immediate recapture the right choice after a capture?', [
+          right('When no intermediate move wins material or forces mate', 'The zwischenzug needs a REAL second threat. Without one, plain recapture is best.'),
+          wrong('Never: always play something in between first', 'Random in-between moves hang material. The zwischenzug must be calculated, not guessed.'),
+          wrong('Whenever you are the stronger player', 'Strength does not change the math. A false zwischenzug just loses material.'),
         ]),
       ],
     },
@@ -193,6 +211,14 @@ export const intermediate: Tier = {
           wrong('A buried rook on h1', 'Passive pieces often have zero jobs. Nothing to deflect.'),
           wrong('The king in the endgame', 'The king is usually the protected object, not the guard.'),
         ]),
+        text(
+          'The overload test',
+          [
+            'When one enemy piece defends two things, ask which job you can make it quit. Deflection works because the guard must choose.',
+            'The trick is calculating which job it hates leaving more: if the sacrifice does not win material by force, it is just a gift.',
+          ],
+          'Every overloaded guard is one deflection away from quitting a job.',
+        ),
       ],
     },
     {
@@ -297,6 +323,14 @@ export const intermediate: Tier = {
           wrong('The queen', 'The queen is strong everywhere. Outposts fix the knight\'s weakness: its short reach.'),
           wrong('The king', 'Kings visit outposts in endgames, but the classic outpost resident is the knight.'),
         ]),
+        text(
+          'Outposts are built, not found',
+          [
+            'Outposts appear when pawns disappear. Advance a pawn to drive away a defender, trade the defender off, then plant the knight on the abandoned square.',
+            'Strong players plan this three moves ahead: they see the outpost before it exists and build toward it on purpose.',
+          ],
+          'Trade the guards first, then plant the flag.',
+        ),
       ],
     },
     {
@@ -343,6 +377,14 @@ export const intermediate: Tier = {
           wrong('A file with no pawns at all', 'That is a fully open file: even better, but not the question.'),
           wrong('A file blocked by your own pawns', 'That is a closed file: the rook is trapped behind its own army.'),
         ]),
+        drill(
+          'Seize the file with check',
+          '4k3/5ppp/8/8/8/8/8/RR2K3 w - - 0 1',
+          ['Ra8+'],
+          'Both rooks own the a-file already? No: they own it together. Enter the 8th rank with check',
+          'The a-file is clear. Land the leading rook on a8 and the king must react.',
+          'Ra8 with check drives the king into the open, where the second rook is already waiting.',
+        ),
       ],
     },
     {
@@ -402,6 +444,11 @@ export const intermediate: Tier = {
           wrong('You: your own file gets stronger', 'Your rook attacks your OWN pawn? The pressure works the other way.'),
           wrong('Nobody: files do not change', 'Captures open files instantly. The isolani always comes with a road for the enemy rook.'),
         ]),
+        quiz('Structure or activity?', 'You may choose: keep healthy but passive pawns, or accept an isolated pawn for very active pieces. What is the classic verdict?', [
+          right('Activity can fully compensate an isolani, but only if you keep the pieces rolling', 'An isolated pawn is a long-term debt. Active pieces are the income that pays it off.'),
+          wrong('Never accept any structural damage for any reason', 'Great players accept isolanis all the time: for space and piece activity.'),
+          wrong('Structure always beats activity', 'Static weaknesses only decide when the dynamics are gone. Active pieces fight back.'),
+        ]),
       ],
     },
     {
@@ -451,6 +498,11 @@ export const intermediate: Tier = {
           right('Leave it home and hope the pawns move by themselves', 'Pawns never go back. A bad bishop that waits stays bad forever.'),
           wrong('Trade it for an enemy piece', 'Trading the worst piece for any useful enemy piece is a real fix.'),
           wrong('Reroute it outside the pawn chain', 'The classic maneuver: give the jailer the slip and re-enter the game on the other side.'),
+        ]),
+        quiz('The bishop pair bonus', 'Why do strong players count the bishop pair as worth about half a point extra?', [
+          right('Two bishops cover both square colors, so the opponent must answer threats on every shade', 'One bishop can be dodged on the other color. The pair hunts everywhere.'),
+          wrong('Bishops are simply always stronger than knights', 'Individually they are equal. The bonus is about the TEAM of two.'),
+          wrong('The pair can defend each other like doubled rooks', 'Bishops on opposite colors can never defend each other. The bonus is coverage, not protection.'),
         ]),
       ],
     },
@@ -544,6 +596,14 @@ export const intermediate: Tier = {
           wrong('The enemy queen, always', 'The queen is dangerous but rarely the wall. The knight is the classic keeper.'),
           wrong('The h7 pawn itself', 'Pawns are the wall, not the guard. Attack the guards first.'),
         ]),
+        text(
+          'Storms need closed centers',
+          [
+            'The classic pawn storm (g4, g5, h4, h5 against a castled king) works when the center is closed: nobody can open lines against your own king while you push.',
+            'With an open center, storming pawns open YOUR king first. Check the center before you push a single storm pawn.',
+          ],
+          'Open center: attack with pieces. Closed center: storm with pawns.',
+        ),
       ],
     },
     {
@@ -688,6 +748,11 @@ export const intermediate: Tier = {
           wrong('The corner where the enemy king sits', 'Corner trips waste time. The pawn\'s path is the highway.'),
           wrong('His own first rank', 'A defensive king loses pawn endings. March forward.'),
         ]),
+        quiz('The turn decides', 'In king-and-pawn endings, why does whose turn it is matter so much?', [
+          right('Kings cannot wait in place: the side to move must often give ground first', 'Two kings facing each other create a waiting problem. Whoever must move, loses ground.'),
+          wrong('Because pawn moves are always forced', 'Pawns usually have choices. The kings are the ones running out of moves.'),
+          wrong('The turn only matters when rooks are on the board', 'The turn decides pure king duels. Rooks make it messier, not more important.'),
+        ]),
       ],
     },
     {
@@ -738,6 +803,11 @@ export const intermediate: Tier = {
           right('Yes: if the defender moves first and can enter the square this move, he catches the pawn', 'The rule assumes it is the pawn\'s move. If the king moves first, he gets a free step into the box.'),
           wrong('No: the square rule ignores the turn', 'The turn is exactly what the rule measures. King-first changes the verdict.'),
           wrong('Only in queen endings', 'The square rule is a king-and-pawn tool, and the turn is part of it.'),
+        ]),
+        quiz('Racing math', 'Your pawn runs for the last rank while the enemy king is far away. What exactly do you check?', [
+          right('Whether the enemy king can step inside the square of the pawn', 'Inside the square means the king catches it. Outside means the pawn promotes.'),
+          wrong('The total number of pawns left on the board', 'Pawn counts do not stop runners. Geometry does.'),
+          wrong('Whether the enemy rook is active', 'There is no rook in a pure pawn race. The king and the square are the whole story.'),
         ]),
       ],
     },
