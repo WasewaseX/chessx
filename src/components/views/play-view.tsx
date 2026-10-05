@@ -851,9 +851,12 @@ function GameScreen({
     )
   }, [end, recorded, setup, moves.length, playerName, setProfile, sound, sayBark])
 
+  const botBusyRef = useRef(false)
   const botMove = useCallback(async () => {
+    if (botBusyRef.current) return
     const g = gameRef.current
     if (g.isGameOver()) return
+    botBusyRef.current = true
     setEngineThinking(true)
     try {
       const { uci } = await engine.bestMove({
@@ -879,9 +882,28 @@ function GameScreen({
         }
       }
     } finally {
+      botBusyRef.current = false
       setEngineThinking(false)
     }
   }, [setup.bot, setup.playerColor, evaluateEnd, sound, sayBark])
+
+  // Sole driver of bot moves: whenever it is the bot's turn and the game is
+  // live, ask the engine. This covers the player choosing Black (the bot must
+  // open the game) as well as replying after every player move. The effect
+  // re-runs after each fen change and stops once it is the player's turn; the
+  // per-position attempt cap keeps an engine failure from looping forever.
+  const botAttemptsRef = useRef(new Map<string, number>())
+  useEffect(() => {
+    if (end) return
+    const g = gameRef.current
+    if (g.isGameOver() || g.turn() === setup.playerColor) return
+    const key = g.fen()
+    const tries = botAttemptsRef.current.get(key) ?? 0
+    if (tries >= 2) return
+    if (botAttemptsRef.current.size > 32) botAttemptsRef.current.clear()
+    botAttemptsRef.current.set(key, tries + 1)
+    void botMove()
+  }, [fen, end, setup.playerColor, botMove])
 
   const onPlayerMove = useCallback(
     (from: Square, to: Square, promotion?: string) => {
@@ -898,16 +920,12 @@ function GameScreen({
         playSound(mv.captured ? 'capture' : mv.san.startsWith('O-O') ? 'castle' : mv.promotion ? 'promote' : 'move', sound)
         if (g.isCheck()) playSound('check', sound)
         const ended = evaluateEnd(g)
-        if (ended) {
-          setEnd(ended)
-        } else {
-          void botMove()
-        }
+        if (ended) setEnd(ended)
       } catch {
         /* illegal */
       }
     },
-    [setup.playerColor, evaluateEnd, botMove, sound],
+    [setup.playerColor, evaluateEnd, sound],
   )
 
   const takeback = useCallback(() => {

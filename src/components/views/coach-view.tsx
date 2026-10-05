@@ -35,6 +35,7 @@ interface SendCtx {
   fen?: string
   moves?: string
   pgn?: string
+  gameId?: string
 }
 
 const SUGGESTIONS = [
@@ -75,6 +76,51 @@ export function CoachView() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
   }, [messages, busy])
+
+  // A game handed over from the Game review tab: walk through it here, with
+  // the stored engine report facts attached server-side via gameId.
+  // The flag is read inside the effect on purpose: clearing it re-renders the
+  // component, and a dep change here would cancel the in-flight handoff.
+  useEffect(() => {
+    const pendingGame = useApp.getState().pendingCoachGame
+    if (!pendingGame) return
+    useApp.getState().setPendingCoachGame(null)
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch('/api/games?limit=50')
+        const data = await res.json()
+        const g = (data.games as Array<{ id: string; pgn?: string; finalFen?: string; botName?: string }> | undefined)?.find(
+          (x) => x.id === pendingGame,
+        )
+        if (cancelled) return
+        if (!g) {
+          setError('Could not load that game.')
+          return
+        }
+        if (g.finalFen) {
+          try {
+            const check = new Chess(g.finalFen)
+            gameRef.current = check
+            setFen(check.fen())
+            setHistory([check.fen()])
+            setSans([])
+          } catch {
+            /* keep the current board */
+          }
+        }
+        void send(
+          `Walk me through this game. Where did it turn, what were the key moments, and what should I work on?`,
+          { pgn: g.pgn, fen: g.finalFen, gameId: g.id },
+        )
+      } catch {
+        if (!cancelled) setError('Could not load your games.')
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const provider = profile?.aiProvider ?? 'builtin'
   const providerLabel =
@@ -201,7 +247,7 @@ export function CoachView() {
       }
       void send(
         `Review my game against ${g.botName ?? 'the bot'}. Where did it turn, what were the key mistakes, and what should I work on?`,
-        { pgn: g.pgn, fen: g.finalFen },
+        { pgn: g.pgn, fen: g.finalFen, gameId: (g as { id?: string }).id },
       )
     } catch {
       setError('Could not load your games.')

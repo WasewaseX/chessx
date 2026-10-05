@@ -117,6 +117,42 @@ export async function POST(req: NextRequest) {
   if (ctx.pgn) contextLines.push(`Game so far (PGN):\n${String(ctx.pgn).slice(0, 3000)}`)
   if (ctx.moves) contextLines.push(`Moves played so far: ${ctx.moves}`)
 
+  // A saved game the student wants to talk about. The report facts come straight
+  // from this app's stored analysis, never from the client, so the coach can
+  // only quote numbers the engine actually produced.
+  if (typeof ctx.gameId === 'string' && ctx.gameId.length > 5 && ctx.gameId.length < 64) {
+    const saved = await db.gameRecord.findFirst({
+      where: { id: ctx.gameId, profileId: profile.id },
+    })
+    if (saved) {
+      contextLines.push(
+        `Saved game: the student played ${saved.color === 'w' ? 'White' : 'Black'} against ${saved.botName}, a ChessX practice bot. Result: ${saved.result} by ${saved.reason}, ${saved.moveCount} moves.`,
+      )
+      if (saved.analyzedAt && saved.whiteAcc != null && saved.blackAcc != null) {
+        let countsLine = ''
+        try {
+          const counts = JSON.parse(saved.labelsJson ?? '{}') as Record<string, { w: number; b: number }>
+          const side = (c: 'w' | 'b') =>
+            (['brilliant', 'best', 'excellent', 'good', 'inaccuracy', 'mistake', 'blunder'] as const)
+              .filter((l) => (counts[l]?.[c] ?? 0) > 0)
+              .map((l) => `${counts[l][c]} ${l}${counts[l][c] === 1 ? '' : 's'}`)
+              .join(', ')
+          const w = side('w')
+          const b = side('b')
+          countsLine = ` White moves: ${w || 'all clean'}. Black moves: ${b || 'all clean'}.`
+        } catch {
+          // malformed counts stay out; accuracy lines below are still real
+        }
+        contextLines.push(
+          `Engine report stored by this app (quote these numbers as facts): Opening: ${saved.opening ?? 'not identified'}. Accuracy: White ${saved.whiteAcc}%, Black ${saved.blackAcc}%. The student's accuracy: ${saved.playerAcc ?? saved.whiteAcc ?? '?'}%.${countsLine}`,
+        )
+      } else {
+        contextLines.push('This game has not been run through the engine report yet, so no accuracy numbers exist. Do not invent any; analyze the moves directly.')
+      }
+      if (saved.pgn) contextLines.push(`Full game PGN:\n${saved.pgn.slice(0, 3000)}`)
+    }
+  }
+
   const system = [
     `You are ${coach.name}, the coach inside ChessX, a chess training app. You talk to one student.`,
     coach.systemLine,

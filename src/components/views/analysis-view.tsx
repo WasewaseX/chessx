@@ -14,7 +14,7 @@ import { coachMaybe } from '@/lib/coaches'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { Loader2, Play, Pause, ChevronLeft, ChevronRight, Sparkles, Trash2, Copy, Check, Volume2, VolumeX, Square } from 'lucide-react'
+import { Loader2, Play, Pause, ChevronLeft, ChevronRight, Sparkles, Trash2, Copy, Check, Volume2, VolumeX, Square, MessageSquareText } from 'lucide-react'
 
 export type Label = 'best' | 'brilliant' | 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder'
 
@@ -675,6 +675,18 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
                 <p className="mt-2 text-xs text-muted-foreground">
                   Insights only collect games you play here. Paste a PGN from somewhere else and it stays out.
                 </p>
+              )}
+              {gameId && evals.length > 0 && (
+                <Button
+                  variant="secondary"
+                  className="mt-3 w-full"
+                  onClick={() => {
+                    useApp.getState().setPendingCoachGame(gameId)
+                    useApp.getState().navigate('coach')
+                  }}
+                >
+                  <MessageSquareText className="h-4 w-4" /> Ask the coach about this game
+                </Button>
               )}
             </div>
 

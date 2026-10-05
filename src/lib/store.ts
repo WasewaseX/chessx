@@ -85,6 +85,9 @@ interface AppState {
   /** A spaced-repetition item launched from the Review view. */
   pendingReview: { itemId: string; kind: 'puzzle' | 'lesson'; refId: string } | null
   setPendingReview: (item: AppState['pendingReview']) => void
+  /** Saved game id waiting for the coach to walk through it (set by Analysis). */
+  pendingCoachGame: string | null
+  setPendingCoachGame: (id: string | null) => void
 }
 
 function viewFromHash(): ViewState {
@@ -117,6 +120,8 @@ export const useApp = create<AppState>((set) => ({
   setReviewGameId: (id) => set({ reviewGameId: id }),
   pendingReview: null,
   setPendingReview: (item) => set({ pendingReview: item }),
+  pendingCoachGame: null,
+  setPendingCoachGame: (id) => set({ pendingCoachGame: id }),
 }))
 
 /** Keeps the hash and the store in sync (deep links, back button). */
