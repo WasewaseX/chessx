@@ -39,7 +39,7 @@ export const intermediate: Tier = {
           '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1',
           { marks: [{ square: 'd5', color: 'green' }], caption: 'Qd5 hits both pieces at once' },
         ),
-        drill('Hit them both', '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1', ['Qd5+'], 'Attack the rook and the bishop in one move', 'The middle of rank 5 does the job.', 'Qd5 with check. Two loose pieces, one move. One of them falls next turn no matter what Black saves.'),
+        drill('Hit them both', '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1', ['Qd5+'], 'Attack the rook and the bishop in one move', 'The queen rides to d5: rank 5 hits both pieces, and the diagonal checks the king.', 'Qd5 with check. Two loose pieces, one move. One of them falls next turn no matter what Black saves.'),
         drill('Rook double attack', '3r2k1/8/8/8/8/8/5K2/R6b w - - 0 1', ['Rd1'], 'The bishop on h1 and the rook on d8 are both in reach. Find the square.', 'd1 sits on the d-file and the first rank at the same time.', 'Rd1. The bishop on h1 and the rook on d8 are both under fire. Only one can be saved.'),
         quiz('Choosing targets', 'What makes the best double attack?', [
           right('Two targets that are both undefended or worth more than your attacker', 'Then whatever your opponent saves, you win material.'),
@@ -90,12 +90,12 @@ export const intermediate: Tier = {
         ),
         demo(
           'The queen behind the knight',
-          ['Same geometry, bigger engine: the queen on e2 waits behind the knight. The knight hops out with check and the queen fires down the whole e-file at the same time.'],
+          ['More firepower: the queen on e2 waits behind the knight. The knight hops out with check, and the queen fires down the whole e-file at the same time.'],
           '4k3/8/8/8/4N3/8/4Q3/4R1K1 w - - 0 1',
           { moves: ['Nd6+'], caption: 'Queen and knight battery: double check again' },
         ),
-        drill('Open the file', '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1', ['Nd6+'], 'Attack the king with the rook by moving the knight', 'The e-file is the line. The knight must land somewhere useful on its way out.', 'Nd6 plus check, twice over. The king must run; the knight also eyes e8.'),
-        drill('Unleash the bishop', 'k7/6pp/8/4N3/8/8/8/1B4K1 w - - 0 1', ['Nf7'], 'The bishop on b2 is tired of waiting behind the knight', 'Any knight move opens the b2 to g7 diagonal. Choose one that also helps.', 'Nf7. The knight hops toward the king side while the bishop suddenly stares at g7. The pawn is doomed.'),
+        drill('Open the file', '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1', ['Nd6+'], 'Attack the king with the rook by moving the knight', 'The e-file is the line. The knight hops to d6, which also checks.', 'Nd6 plus check, twice over. The king must run; the knight also eyes e8.'),
+        drill('Unleash the bishop', 'k7/6pp/8/4N3/8/8/8/1B4K1 w - - 0 1', ['Nf7'], 'The bishop on b2 is tired of waiting behind the knight', 'Any knight move opens the b2-g7 diagonal. Pick the jump that lands next to the king: f7.', 'Nf7. The knight hops toward the king side while the bishop suddenly stares at g7. The pawn is doomed.'),
         quiz('Blocking a check', 'Your opponent delivers a double check (two pieces checking at once). Your options are...', [
           right('Move the king. That is all.', 'Against a double check, blocking and capturing are impossible: two different attackers must both be stopped.'),
           wrong('Block with a piece', 'You would need to block two lines at once. Impossible with one piece.'),
@@ -120,7 +120,7 @@ export const intermediate: Tier = {
           'The move in between',
           [
             'A zwischenzug (German for intermediate move) is the habit of refusing the obvious reply. Before recapturing, check whether a check, a threat or a bigger capture comes first.',
-            'The most famous beginner trap in chess works because of a zwischenzug: after 1.e4 e5 2.Nf3 Nc6 3.Bc4 Nd4?! 4.Nxe5??, Black does NOT recapture. Qg5 hits the knight on e5 and the g2 pawn at the same time. White grabs material and loses the queen.',
+            'The most famous beginner trap in chess works because of a zwischenzug: after 1.e4 e5 2.Nf3 Nc6 3.Bc4 Nd4?! 4.Nxe5??, Black does NOT recapture. Qg5 hits the knight on e5 and the g2 pawn at the same time. White grabs material, and Black builds a winning attack on the exposed king.',
           ],
           'Capture, then pause: what is stronger than my recapture?',
         ),
@@ -128,15 +128,15 @@ export const intermediate: Tier = {
           'When attention drops',
           [
             'Exchanges are the most dangerous moments on the board, because both players run on autopilot. The recapture feels automatic, and automatic is where zwischenzugs live.',
-            'The trigger phrase: after a capture, ask "what ELSE can I do?" If the answer is a check, a fork or a bigger prize, do that first. The board will still be there for the recapture.',
+            'The trigger phrase: after a capture, ask "what else can I do?" If the answer is a check, a fork or a bigger prize, do that first. The board will still be there for the recapture.',
           ],
           'The moment after a capture is the moment to think twice.',
         ),
-        demo('The famous refusal', ['Instead of recapturing the knight, Black inserts Qg5: attacking the knight on e5 and the g2 pawn together. Watch the whole trap unfold.'], START, {
+        demo('The famous refusal', ['Black skips any thought of the knight and inserts Qg5, attacking the knight on e5 and the g2 pawn together. Watch the whole trap unfold.'], START, {
           moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Nd4', 'Nxe5', 'Qg5', 'Nxf7', 'Qxg2', 'Rf1', 'Qxe4+'],
-          caption: 'Black never recaptured, and won the queen',
+          caption: 'Black never recaptured, and White is the one losing material',
         }),
-        drill('Refuse the recapture', 'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4', ['Qg5'], 'Your knight on d4 was just traded? No: White took the e5 pawn with the knight. Do NOT take the knight.', 'Find the square that attacks the knight on e5 and the pawn on g2 at once.', 'Qg5. The zwischenzug. White must lose material because he was greedy on move four.'),
+        drill('Refuse the recapture', 'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4', ['Qg5'], 'White just took the e5 pawn with his knight. Punish the greed instead of chasing the knight.', 'Find the square that attacks the knight on e5 and the pawn on g2 at once. The queen lands there in one move: g5.', 'Qg5. The zwischenzug. The knight on e5 is attacked, the g2 pawn hangs, and White cannot hold both.'),
         quiz('Zwischenzug trigger', 'When is the zwischenzug most likely to work?', [
           right('Right after a capture or exchange, when attention drops', 'Exchanges are the moment everyone plays automatically. That is where the extra check or threat lands.'),
           wrong('Only in the opening', 'It happens in every phase, especially in tactics-rich middlegames.'),
@@ -173,7 +173,7 @@ export const intermediate: Tier = {
         text(
           'Deflection vs removal',
           [
-            'Removal captures the defender outright; deflection CHASES it off its post. Removal costs material (you give something for the defender). Deflection often costs nothing at all, because the defender must move or be lost.',
+            'Removal captures the defender outright; deflection chases it off its post. Removal costs material: you give something for the defender. Deflection often costs nothing at all, because the defender must move or be lost.',
             'Ask about every enemy piece: how many jobs does it have? A piece with two jobs can be deflected off either one. A piece with one job must be removed.',
           ],
           'Two jobs: deflect. One job: remove.',
@@ -182,7 +182,7 @@ export const intermediate: Tier = {
           moves: ['Rd8+', 'Rxd8', 'Rxd8#'],
           caption: 'The rook was bait. The twin rook finished.',
         }),
-        drill('Bait the rook', 'r5k1/5ppp/8/8/8/8/3R4/3R2K1 w - - 0 1', ['Rd8+', 'Rxd8', 'Rxd8#'], 'Mate in three by deflecting the a8 rook', 'Offer the first rook on the back rank with check. The twin rook is waiting behind it.', 'Rd8 plus check, rook takes, rook recaptures: mate. This is deflection in its purest form.'),
+        drill('Bait the rook', 'r5k1/5ppp/8/8/8/8/3R4/3R2K1 w - - 0 1', ['Rd8+', 'Rxd8', 'Rxd8#'], 'Mate in three by deflecting the a8 rook', 'Offer the d2 rook on d8 with check. The a8 rook must take, and the d1 rook recaptures with mate.', 'Rd8 plus check, rook takes, rook recaptures: mate. This is deflection in its purest form.'),
         quiz('Spotting deflection', 'An enemy rook guards both its king on the back rank and a knight on b2. What is the plan?', [
           right('Attack one duty so hard the rook must abandon the other', 'Deflection wins wherever a piece has two jobs.'),
           wrong('Attack the king directly', 'The rook guards it. Remove the guard first.'),
@@ -223,7 +223,7 @@ export const intermediate: Tier = {
         drill('Clear with tempo', '4r1k1/5p2/5p2/4P3/8/8/8/4R1K1 w - - 0 1', ['exf6', 'Rd8'], 'Open the e-file by capturing', 'The pawn takes f6 and stops blocking the rook behind it.', 'exf6. The e-file is open and the pawn attacks g7 as a bonus. Clearance moves that also threaten are gold.'),
         quiz('Decoy target', 'Which square is the classic decoy destination for a king?', [
           right('A square where a knight fork or a mating net is waiting', 'Lure the king to the geometry that kills him.'),
-          wrong('The center, always', 'The center is often the SAFEST place for a king in an endgame.'),
+          wrong('The center, always', 'The center is often the safest place for a king in an endgame.'),
           wrong('A defended square', 'A decoy must move the king somewhere WORSE. Defended squares rarely qualify.'),
         ]),
         quiz('Clearance math', 'A clearance capture gives up your pawn (1). Behind it, your rook will win a bishop (3) on the opened line. Was the clearance worth it?', [
@@ -278,13 +278,13 @@ export const intermediate: Tier = {
           'r1bqk2r/pppp1ppp/2n5/4N3/2B1P3/8/PPPP1PPP/R1BQK2R w KQkq - 6 6',
           { marks: [{ square: 'e5', color: 'green' }], caption: 'The knight grows a point in value by standing still' },
         ),
-        drill('Establish the outpost', 'r1bqk2r/pppp1ppp/8/8/2B1P3/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 6 6', ['Ne5'], 'Plant the knight on the square Black can never attack', 'The c3 knight hops to the center outpost.', 'Ne5. Untouchable by pawns, attacking c6 and g6. The knight grows a point in value just by standing there.'),
+        drill('Establish the outpost', 'r1bqk2r/pppp1ppp/8/8/2B1P3/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 6 6', ['Ne5'], 'Plant the knight on the square Black can never attack', 'The c3 knight hops to e5, a square no black pawn can ever attack.', 'Ne5. Untouchable by pawns, attacking c6 and g6. The knight grows a point in value just by standing there.'),
         drill(
           'Anchor it',
           'r1b1k2r/pppp1ppp/8/4N3/2B1P3/8/PPPP1PPP/R1BQK2R w KQkq - 6 6',
           ['f4'],
           'The outpost knight needs a bodyguard. Give him one.',
-          'A pawn push that defends the knight turns a visit into a residence.',
+          'f2-f4 defends the knight on e5 and turns a visit into a residence.',
           'f4. The pawn guards e5, so no enemy piece can trade itself favorably for the knight. An anchored outpost is worth a piece.',
         ),
         quiz('Outpost definition', 'What makes a square an outpost?', [
@@ -339,7 +339,7 @@ export const intermediate: Tier = {
           wrong('Defending a corner', 'Passive rooks lose endgames by themselves.'),
         ]),
         quiz('Half-open file', 'What is a half-open file?', [
-          right('A file with only ENEMY pawns on it: your rook attacks it for free', 'The rook presses the pawn while nothing presses back. It is the cheapest pressure in chess.'),
+          right('A file with only enemy pawns on it: your rook attacks it for free', 'The rook presses the pawn while nothing presses back. It is the cheapest pressure in chess.'),
           wrong('A file with no pawns at all', 'That is a fully open file: even better, but not the question.'),
           wrong('A file blocked by your own pawns', 'That is a closed file: the rook is trapped behind its own army.'),
         ]),
@@ -362,7 +362,7 @@ export const intermediate: Tier = {
           'Pawns do not go back',
           [
             'Doubled pawns (two on one file) cannot defend each other. Sometimes their open file compensates; usually they are a long-term hangover.',
-            'An isolated pawn has no neighbors, so no pawn can ever defend it. It must be guarded by pieces, and the square IN FRONT of it becomes an enemy outpost. That is the real cost: the isolani is a target AND a parking spot for the opponent.',
+            'An isolated pawn has no neighbors, so no pawn can ever defend it. It must be guarded by pieces, and the square in front of it becomes an enemy outpost. That is the real cost: the isolani is a target and a parking spot for the opponent.',
             'A backward pawn trails its neighbors and gets parked on. It blocks the file behind it too.',
           ],
           'Every pawn move trades a square for a weakness. Choose consciously.',
@@ -383,7 +383,7 @@ export const intermediate: Tier = {
           '4k3/8/8/8/8/1p6/1p6/4K3 w - - 0 1',
           { marks: [{ square: 'b3', color: 'red' }, { square: 'b2', color: 'red' }], caption: 'Two pawns, zero mutual defense' },
         ),
-        drill('Attack the isolani', '3k4/8/8/3p4/8/8/8/R3K3 w - - 0 1', ['Rd1', 'Kd7'], 'Attack the isolated pawn with the rook', 'The d-file is the direct road.', 'Rd1 hits the pawn. Black\u2019s king must baby-sit it forever, and the rook owns the file.'),
+        drill('Attack the isolani', '3k4/8/8/3p4/8/8/8/R3K3 w - - 0 1', ['Rd1', 'Kd7'], 'Attack the isolated pawn with the rook', 'The d-file is the direct road: Rd1 hits the pawn at once.', 'Rd1 hits the pawn. Black\u2019s king must baby-sit it forever, and the rook owns the file.'),
         drill(
           'Collect the isolani',
           '3k4/8/8/3p4/8/2N5/8/3RK3 w - - 0 1',
@@ -433,7 +433,7 @@ export const intermediate: Tier = {
           ],
           caption: 'Red: the bad bishop. Yellow: its jailer.',
         }),
-        drill('Free the prisoner', '4k3/8/8/8/8/1p6/1P1B4/4K3 w - - 0 1', ['Bg5'], 'Activate the bishop to its best diagonal', 'The long dark diagonal is waiting.', 'Bg5. The bishop is out of jail and eyeing the whole kingside.'),
+        drill('Free the prisoner', '4k3/8/8/8/8/1p6/1P1B4/4K3 w - - 0 1', ['Bg5'], 'Activate the bishop to its best diagonal', 'The long dark diagonal is waiting: g5 puts the bishop in the open.', 'Bg5. The bishop is out of jail and eyeing the whole kingside.'),
         drill(
           'Trade the liability',
           '4k3/8/8/8/8/1p2b3/1P1B4/4K3 w - - 0 1',
@@ -465,7 +465,7 @@ export const intermediate: Tier = {
         quiz('Retrieval first', 'How do you fix a bad bishop most cheaply?', [
           right('Trade it for the enemy\'s best piece, or reroute it outside the pawn wall', 'Either the bad bishop leaves or the diagonals open. Both are wins.'),
           wrong('Promote a pawn to get a new bishop', 'There is no new bishop coming. Work with the army you have.'),
-          wrong('Trade the pawns instead', 'Trading the WRONG pawns can entomb the bishop even deeper.'),
+          wrong('Trade the pawns instead', 'Some pawn trades wall the bishop in even deeper.'),
         ]),
         text(
           'Everything you own',
@@ -474,16 +474,16 @@ export const intermediate: Tier = {
             'If one repeats an earlier position, that is the point: retrieval practice is what makes patterns permanent.',
           ],
         ),
-        drill('Double attack', '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1', ['Qd5+'], 'Hit two pieces with one move', 'Rank 5 is the shared line.', 'Qd5 with check. Same weapon, second rep.'),
-        drill('Discovered check', '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1', ['Nd6+'], 'Open the e-file with a bang', 'The knight leaves, the rook fires.', 'Nd6 plus double check. Unstoppable by definition.'),
-        drill('Zwischenzug', 'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4', ['Qg5'], 'Do not recapture. Do something stronger.', 'Two targets, one diagonal.', 'Qg5. The trap that eats greedy knights.'),
-        drill('Clearance', '4r1k1/5p2/5p2/4P3/8/8/8/4R1K1 w - - 0 1', ['exf6', 'Rd8'], 'Open the line with tempo', 'Capture, clear, threaten.', 'exf6. Rook road opened, g7 harassed.'),
+        drill('Double attack', '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1', ['Qd5+'], 'Hit two pieces with one move', 'Rank 5 is the shared line, and d5 also checks. Ride to d5.', 'Qd5 with check. Same weapon, second rep.'),
+        drill('Discovered check', '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1', ['Nd6+'], 'Open the e-file with a bang', 'The knight hops to d6, and the rook fires down the e-file.', 'Nd6 plus double check. Unstoppable by definition.'),
+        drill('Zwischenzug', 'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4', ['Qg5'], 'White\'s knight just grabbed a pawn. Punish the greed in one move.', 'Two targets, one diagonal: the queen lands on g5.', 'Qg5. The trap that eats greedy knights.'),
+        drill('Clearance', '4r1k1/5p2/5p2/4P3/8/8/8/4R1K1 w - - 0 1', ['exf6', 'Rd8'], 'Open the line with tempo', 'The e5 pawn takes f6, the e-file opens, and Black\'s rook must leave.', 'exf6. Rook road opened, g7 harassed.'),
         drill(
           'Skewer rep',
           '8/8/8/6kq/8/8/8/R5K1 w - - 0 1',
           ['Ra5+'],
           'King and queen share a rank. One check decides it.',
-          'Bring the rook to their rank. The queen stands behind the king.',
+          'Bring the rook to a5 with check. The king steps, the queen falls.',
           'Ra5 with check, and the queen falls after the king steps. Skewer: the pin in reverse.',
         ),
         playout(
@@ -515,7 +515,7 @@ export const intermediate: Tier = {
         text(
           'Storms and breakers',
           [
-            'A castled king hides behind three pawns. To reach him, either march pawns at him (a pawn storm, best when kings are castled on opposite sides) or break the wall with piece pressure (best against a slow, undeveloped attacker\u2019s defense).',
+            'A castled king hides behind three pawns. To reach him, march pawns at him or break the wall with pieces. Pawn storms work best when the kings sit on opposite wings. Piece pressure works best against a defense that never finished developing.',
             'The g- and h-pawns lead the storm: g4-g5 chases the f6 knight, the last defender of the kingside. Once the defender moves, the wall has a door.',
             'Every attacking piece should arrive with tempo. An attack with two pieces loses to a defense with four.',
           ],
@@ -568,12 +568,12 @@ export const intermediate: Tier = {
           ],
           'Trade, consolidate, counter. In that order of desperation.',
         ),
-        drill('Trade the attacker', '4k3/8/8/8/8/2r5/8/2R1K3 w - - 0 1', ['Rxc3'], 'The black rook is the attacker. Remove it.', 'Two rooks, one file. Take.', 'Rxc3. The attack is gone. Defense by simplification.'),
-        drill('Counterattack', '4k3/8/8/8/R2q4/8/8/4K3 w - - 0 1', ['Rxd4'], 'Your rook on a4 is attacked by the queen. Answer with force.', 'The queen is on the same rank, undefended by anything but her pride.', 'Rxd4. The best defense here is a capture. Nine points of attacker, gone.'),
+        drill('Trade the attacker', '4k3/8/8/8/8/2r5/8/2R1K3 w - - 0 1', ['Rxc3'], 'The black rook is the attacker. Remove it.', 'Two rooks share the c-file. Take on c3, and the attack is gone.', 'Rxc3. The attack is gone. Defense by simplification.'),
+        drill('Counterattack', '4k3/8/8/8/R2q4/8/8/4K3 w - - 0 1', ['Rxd4'], 'Your rook on a4 is attacked by the queen. Answer with force.', 'The queen on d4 is undefended. Your rook on a4 sees her along the rank.', 'Rxd4. The best defense here is a capture. Nine points of attacker, gone.'),
         quiz('Defensive trade', 'You are under attack by a queen and a knight. What is the best defensive move usually?', [
           right('Offer a trade of one of the attackers', 'Each trade shrinks the attack until it is harmless.'),
-          wrong('Push more pawns', 'Pawns do not defend an attack. They open lines FOR it.'),
-          wrong('Ignore it and attack too', 'Sometimes right, but only when your counterattack comes FIRST. Otherwise trade.'),
+          wrong('Push more pawns', 'Pawns do not defend an attack. They open lines for it.'),
+          wrong('Ignore it and attack too', 'Sometimes right, but only when your counterattack comes first. Otherwise trade.'),
         ]),
         quiz('Luft under fire', 'You are being attacked. Should you spend a move making luft (h3 or g3)?', [
           right('Only when back-rank tricks are the actual threat', 'Every tempo under attack is precious. Luft buys safety only if the back rank is where the attack lands.'),
@@ -658,7 +658,7 @@ export const intermediate: Tier = {
           'The king walks out',
           [
             'Once the queens are off, the king marches to the center. In endgames, king activity is worth more than a pawn in most positions.',
-            'Opposition: when kings face each other with exactly one square between, the side NOT to move controls the squares the other king wants. Taking the opposition is how you push a pawn through or win the key squares.',
+            'Opposition: when the kings face each other with exactly one square between them, the side not to move owns the crossing squares. Win the opposition, and your pawn walks through.',
           ],
           'Centralize the king, win the opposition, promote the pawn.',
         ),
@@ -669,17 +669,17 @@ export const intermediate: Tier = {
           ],
           caption: 'Direct opposition: one square between',
         }),
-        drill('Take the opposition', '8/8/8/3k4/8/8/3K4/8 w - - 0 1', ['Kd3'], 'Face the black king with one square between', 'The d-file connects the kings. Step to the square that opposes him.', 'Kd3. Direct opposition. If Black steps aside, your king eats the key squares.'),
+        drill('Take the opposition', '8/8/8/3k4/8/8/3K4/8 w - - 0 1', ['Kd3'], 'Face the black king with one square between', 'The d-file connects the kings. Kd3 faces him with one square between.', 'Kd3. Direct opposition. If Black steps aside, your king eats the key squares.'),
         drill(
           'Escort with opposition',
           '8/8/8/4k3/8/4K3/4P3/8 w - - 0 1',
           ['Kd3'],
           'Gain space with the king while keeping the pawn safe',
-          'Step aside toward the pawn side. The opposition dance favors the side that keeps the pawn protected.',
+          'Step aside to d3: the pawn stays protected, and the kings keep their duel.',
           'Kd3. Black must choose between opposition and space, and both choices lose the key squares. King dances win pawn endings.',
         ),
         quiz('Opposition rule', 'Kings face each other with one square between. Who is in control?', [
-          right('The side NOT to move', 'The side to move must give way. The other side owns the opposition.'),
+          right('The side not to move', 'The side to move must give way. The other side owns the opposition.'),
           wrong('The side to move', 'Moving is exactly the problem: you must step aside first.'),
           wrong('Nobody, kings are equal', 'The turn decides everything in king duels.'),
         ]),
@@ -720,13 +720,13 @@ export const intermediate: Tier = {
           ],
           caption: 'The square of the pawn',
         }),
-        drill('Catch the runner', '8/8/8/3p4/8/8/6K1/7k w - - 0 1', ['Kf3'], 'Step into the square and stop the pawn', 'The king on g2 is outside the box. One step toward the center enters it.', 'Kf3. Inside the square now. The pawn cannot run away from you anymore.'),
+        drill('Catch the runner', '8/8/8/3p4/8/8/6K1/7k w - - 0 1', ['Kf3'], 'Step into the square and stop the pawn', 'The king on g2 is outside the box. Kf3 steps inside it.', 'Kf3. Inside the square now. The pawn cannot run away from you anymore.'),
         drill(
           'Sit in the square',
           '6k1/8/8/7p/8/7K/8/8 w - - 0 1',
           ['Kh4'],
           'The black h-pawn is thinking about running. End the discussion.',
-          'The king is already inside the square. Step forward and the pawn is stuck forever.',
+          'The king is already inside the square. Kh4 parks on the pawn\'s file, and the pawn is stuck forever.',
           'Kh4. The pawn cannot advance past a king parked on its file. Being inside the square is a lifetime pass.',
         ),
         quiz('Square rule', 'A black pawn on a5 runs to a1. The white king stands on e4. Can he catch it?', [
@@ -757,7 +757,7 @@ export const intermediate: Tier = {
         text(
           'The active rook wins',
           [
-            'In rook endgames the attacking rook belongs BEHIND a passed pawn (yours or theirs). Behind your own pawn it pushes it; behind theirs it farms it from the side.',
+            'In rook endgames the attacking rook belongs behind a passed pawn, yours or theirs. Behind your own pawn it escorts the pawn. Behind theirs it attacks the pawn from a square the pawn can never fight back from.',
             'Cutting off: park the rook on a rank or file in front of the enemy king and he is locked out of the game. A cut-off king cannot defend pawns or fight for promotion squares.',
           ],
           'Rook behind the pawn, king out of the game.',
@@ -766,10 +766,10 @@ export const intermediate: Tier = {
           moves: ['Ra5'],
           caption: 'The king is cut off from the lower ranks',
         }),
-        drill('Build the wall', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Cut the black king off with the rook', 'The 5th rank is the fence.', 'Ra5. The king is a spectator now. Your own king walks in freely and takes over.'),
+        drill('Build the wall', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Cut the black king off with the rook', 'The 5th rank is the fence: Ra5 locks the king on the 8th.', 'Ra5. The king is a spectator now. Your own king walks in freely and takes over.'),
         quiz('Rook placement', 'Where does the attacking rook belong relative to a passed pawn?', [
           right('Behind it, whoever the pawn belongs to', 'Behind your pawn it escorts. Behind theirs it herds.'),
-          wrong('In front of it, blocking', 'A rook in front of its OWN pawn blocks it. In front of theirs, it gets attacked by the king.'),
+          wrong('In front of it, blocking', 'A rook in front of its own pawn blocks it. In front of theirs, it gets attacked by the king.'),
           wrong('On the first rank, defending', 'Passive rooks lose rook endgames. Activity is the whole story.'),
         ]),
         quiz('Behind your own passer', 'Your rook sits behind your own passed pawn. What does it do from there?', [
@@ -854,9 +854,9 @@ export const intermediate: Tier = {
             'In every drill, ask about the kings first. Endgames are king duels with pawns as the stakes.',
           ],
         ),
-        drill('Opposition rep', '8/8/8/3k4/8/8/3K4/8 w - - 0 1', ['Kd3'], 'Take the direct opposition', 'One square between the kings.', 'Kd3. The opposition is yours.'),
-        drill('Square rule rep', '8/8/8/3p4/8/8/6K1/7k w - - 0 1', ['Kf3'], 'Catch the running pawn', 'Enter the square.', 'Kf3. Caught. Geometry beats hope.'),
-        drill('Cut off rep', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Fence the king out', 'One rank, one wall.', 'Ra5. The wall holds.'),
+        drill('Opposition rep', '8/8/8/3k4/8/8/3K4/8 w - - 0 1', ['Kd3'], 'Take the direct opposition', 'One square between the kings: Kd3 faces him on the d-file.', 'Kd3. The opposition is yours.'),
+        drill('Square rule rep', '8/8/8/3p4/8/8/6K1/7k w - - 0 1', ['Kf3'], 'Catch the running pawn', 'Kf3 steps inside the square.', 'Kf3. Caught. Geometry beats hope.'),
+        drill('Cut off rep', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Fence the king out', 'The 5th rank is the wall: Ra5.', 'Ra5. The wall holds.'),
         drill(
           'Promote with tempo rep',
           '4k3/6P1/8/8/8/8/8/4K3 w - - 0 1',
@@ -872,7 +872,7 @@ export const intermediate: Tier = {
         ]),
         playout(
           'Pawn ending duel',
-          'King and pawn against king and king. Push the pawn with the king in front. Win material or promote.',
+          'King and pawn against a lone king. Push the pawn with the king in front. Win material or promote.',
           '8/8/8/3k4/8/3K4/4P3/8 w - - 0 1',
           'w',
           'Win the pawn race or promote within 15 moves',
@@ -899,13 +899,13 @@ export const intermediate: Tier = {
         text(
           'Interleaving test',
           [
-            'Mixed reps: you will not be told which skill each drill needs. Recognizing WHICH tool applies is the actual skill.',
+            'Mixed reps: you will not be told which skill each drill needs. Recognizing which tool applies is the actual skill.',
             'Scan order: checks first, then captures, then threats.',
           ],
         ),
-        drill('Unknown 1', '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1', ['Qd5+'], 'White to move: find the strong move', 'Two black pieces share a rank.', 'Qd5 with check. Double attack.'),
+        drill('Unknown 1', '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1', ['Qd5+'], 'White to move: find the strong move', 'Two black pieces share rank 5, and d5 also checks the king.', 'Qd5 with check. Double attack.'),
         drill('Unknown 2', '4k3/8/8/8/R2q4/8/8/4K3 w - - 0 1', ['Rxd4'], 'White to move: deal with the queen', 'The rook is attacked. So is she.', 'Rxd4. Counterattack by capture.'),
-        drill('Unknown 3', 'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4', ['Qg5'], 'Black to move: the knight on e5 looks tasty to capture', 'Is there something better than recapturing?', 'Qg5. The zwischenzug strikes again.'),
+        drill('Unknown 3', 'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4', ['Qg5'], 'Black to move: White\'s knight sits on e5, loose and greedy. Find the punishing move.', 'Is there something better than recapturing?', 'Qg5. The zwischenzug strikes again.'),
         drill(
           'Unknown 4',
           '8/8/8/6kq/8/8/8/R5K1 w - - 0 1',
@@ -947,7 +947,7 @@ export const intermediate: Tier = {
           'The smothered mate pattern',
           [
             'The most famous finish in chess needs no introduction: a knight checks, a queen sacrifices itself, and the king is buried by its own pieces. Philidor wrote the pattern down in 1749 and it has decided thousands of games since.',
-            'You play White. Find the four moves of the pattern in order. Two of them are checks, one is a double check, and the third is a queen sacrifice Black is forced to accept.',
+            'You play White. Find the four moves of the pattern in order. Three of them give check, one is a double check, the queen move is a sacrifice Black is forced to accept, and the last one is mate.',
           ],
           'The classic smothered mate pattern, after Philidor',
           '5r1k/6pp/8/6N1/8/1Q6/8/6K1 w - - 0 1',
@@ -965,7 +965,7 @@ export const intermediate: Tier = {
           wrong('Deep opening preparation', 'The fork happens on move 30, not move 10.'),
         ]),
         quiz('The smothered idea', 'Why does the queen sacrifice on g8 work at all?', [
-          right('The rook must capture, and its own rook then smothers the king', 'Black trades the last escape square for the queen. The knight finishes in the exact spot the rook just vacated... and re-occupied.'),
+          right('The rook must capture, and its own rook then smothers the king', 'The rook has no choice: it lands on g8, the king\'s last escape square. The knight then mates on f7, protected by its twin on h6.'),
           wrong('The queen was trapped and lost anyway', 'The queen had many squares. The sacrifice was the fastest road to mate.'),
           wrong('Because the knight on h6 protects g8', 'The knight protects f7, its landing square. The g8 rook is the real smotherer.'),
         ]),

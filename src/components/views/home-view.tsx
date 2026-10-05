@@ -139,6 +139,9 @@ export function HomeView() {
         {/* Daily goal + streak */}
         <GoalCard />
 
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {/* Daily puzzle */}
         <button
           className="pressable rounded-lg bg-card p-5 text-left shadow-sm hover:shadow-md"

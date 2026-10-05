@@ -36,7 +36,7 @@ export function Sidebar() {
   const { view, navigate, profile, ratings, user } = useApp()
   const blitz = ratings.find((r) => r.pool === 'blitz')
   return (
-    <aside className="hidden w-56 shrink-0 flex-col bg-sidebar text-sidebar-foreground lg:flex">
+    <aside className="hidden w-56 shrink-0 flex-col bg-sidebar text-sidebar-foreground lg:sticky lg:top-0 lg:flex lg:h-dvh lg:self-start">
       <button
         className="flex items-center gap-3 px-5 pb-2 pt-5 text-left"
         onClick={() => navigate('home')}
@@ -164,7 +164,7 @@ export function MobileNav() {
 export function AppFooter() {
   return (
     <footer className="mt-auto border-t border-border px-4 py-3 text-center text-[11px] text-muted-foreground">
-      ChessX · Not affiliated with chess.com or Lichess. Piece set: cburnett (CC BY-SA 3.0). Engine: Stockfish.
+      ChessX v0.3.0 · Not affiliated with chess.com or Lichess. Piece set: cburnett (CC BY-SA 3.0). Engine: Stockfish.
     </footer>
   )
 }
