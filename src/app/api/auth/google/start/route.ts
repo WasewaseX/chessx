@@ -21,8 +21,10 @@ export async function GET(req: NextRequest) {
   const res = NextResponse.json({ url: googleAuthUrl(req, state.value) })
   res.cookies.set(OAUTH_STATE_COOKIE, state.value, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    // None + Secure so the cookie survives the iframe -> Google -> iframe round
+    // trip; CSRF is covered by the state value itself.
+    secure: true,
+    sameSite: 'none',
     path: '/',
     maxAge: state.maxAge,
   })

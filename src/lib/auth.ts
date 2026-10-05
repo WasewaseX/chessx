@@ -92,8 +92,12 @@ export async function getSessionUser(): Promise<AuthUser | null> {
 export function sessionCookieOptions(expiresAt: Date) {
   return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
+    // The app regularly runs inside the preview panel's cross-site iframe,
+    // where SameSite=Lax cookies are stored but never sent back. SameSite=None
+    // keeps the session alive there; Secure is required for None. CSRF stays
+    // covered by the originOk check on every state-changing route.
+    secure: true,
+    sameSite: 'none' as const,
     path: '/',
     expires: expiresAt,
   }
