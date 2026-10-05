@@ -10,6 +10,7 @@ import { CharacterFace } from '@/components/chess/characters'
 import { engine } from '@/lib/chess/engine-client'
 import { playSound } from '@/lib/chess/sounds'
 import { useApp, overallRating } from '@/lib/store'
+import { tcLabel } from '@/lib/rating'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -467,7 +468,7 @@ function OnlineGameScreen({
                   {opp.username} <span className="font-normal text-muted-foreground">({opp.rating}{opp.provisional ? '?' : ''})</span>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {oppGone ? 'Disconnected, may claim win' : game.pool}
+                  {oppGone ? 'Disconnected, may claim win' : `${tcLabel(game.initialSec, game.incSec)} · Rated`}
                 </div>
               </div>
             </div>
@@ -525,7 +526,7 @@ function OnlineGameScreen({
           <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
             <span className="font-display text-sm font-bold uppercase tracking-wide text-muted-foreground">Moves</span>
             <span className="rounded bg-secondary px-2 py-0.5 text-[10px] font-bold uppercase text-muted-foreground">
-              {game.pool} · {game.incSec ? `+${game.incSec}` : 'no inc'}
+              {tcLabel(game.initialSec, game.incSec)} · rated
             </span>
           </div>
           <MoveList moves={moves} maxHeightClass="max-h-[380px]" />

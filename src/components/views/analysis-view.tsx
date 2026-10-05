@@ -53,7 +53,7 @@ export function AnalysisView() {
   }, [incomingPgn, setReviewPgn])
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-4">
+    <div className="mx-auto w-full max-w-6xl px-4 py-6">
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <h1 className="font-display text-2xl font-extrabold">Analysis</h1>
         <div className="flex overflow-hidden rounded-md border">

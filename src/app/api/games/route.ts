@@ -56,6 +56,8 @@ export async function GET(req: NextRequest) {
       id: g.id,
       kind: 'online',
       pool: g.pool,
+      initialSec: g.initialSec,
+      incSec: g.incSec,
       color: iAmWhite ? 'w' : 'b',
       opponent: iAmWhite ? g.blackName : g.whiteName,
       rated: g.rated,

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useApp, overallRating } from '@/lib/store'
 import { ALL_LEVELS, TIERS } from '@/content/levels'
-import { potentialElo, titleForXp } from '@/lib/rating'
+import { potentialElo, tcLabel, titleForXp } from '@/lib/rating'
 import { Progress } from '@/components/ui/progress'
 import { useActivity, StreakCalendar } from '@/components/shell/streak'
 import { cn } from '@/lib/utils'
@@ -13,6 +13,8 @@ interface GameRow {
   id: string
   kind?: 'bot' | 'online'
   pool?: string | null
+  initialSec?: number | null
+  incSec?: number | null
   color: string
   opponent: string
   result: string
@@ -274,8 +276,10 @@ export function ProfileView() {
                     {g.result === 'win' ? 'Won' : g.result === 'loss' ? 'Lost' : 'Drew'} as {g.color === 'w' ? 'White' : 'Black'}
                   </span>
                   <span className="truncate text-muted-foreground">vs {g.opponent}</span>
-                  {g.kind === 'online' && g.pool && (
-                    <span className="hidden rounded bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground sm:inline">{g.pool}</span>
+                  {g.kind === 'online' && g.rated && g.initialSec != null && (
+                    <span className="hidden rounded bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground sm:inline">
+                      {tcLabel(g.initialSec, g.incSec ?? 0)}
+                    </span>
                   )}
                   <span className="hidden text-xs text-muted-foreground sm:inline">by {g.reason}</span>
                   {g.rated && g.ratingDelta != null && (

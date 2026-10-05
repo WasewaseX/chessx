@@ -61,6 +61,14 @@ export function potentialElo(input: {
   return null
 }
 
+// Label for a time control, e.g. 180+2 -> "3+2". Used anywhere a game needs
+// a short human name; the old per-time-class rating pools are gone, so this
+// describes the clock only, never a rating.
+export function tcLabel(initialSec: number, incSec: number): string {
+  const minutes = Math.round(initialSec / 60)
+  return incSec > 0 ? `${minutes}+${incSec}` : `${minutes}+0`
+}
+
 // Chess.com-style accuracy approximation from average centipawn loss.
 export function accuracyFromLoss(avgLossCp: number): number {
   const a = 103.1668 * Math.exp(-0.04354 * avgLossCp) - 3.1669

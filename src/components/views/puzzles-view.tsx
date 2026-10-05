@@ -410,7 +410,7 @@ export function PuzzlesView() {
   const puzzle = state?.puzzle
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-4">
+    <div className="mx-auto w-full max-w-6xl px-4 py-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-extrabold">Puzzles</h1>

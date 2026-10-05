@@ -95,7 +95,7 @@ export function ReviewView() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-4">
+    <div className="mx-auto w-full max-w-4xl px-4 py-6">
       <div className="mb-4">
         <h1 className="font-display text-2xl font-extrabold">Review</h1>
         <div className="text-sm text-muted-foreground">

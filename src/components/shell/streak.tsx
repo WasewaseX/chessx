@@ -91,10 +91,10 @@ export function GoalCard() {
   const pct = Math.min(100, Math.round((minutes / Math.max(1, data.goalMinutes)) * 100))
   return (
     <button
-      className="pressable w-full rounded-lg bg-card p-6 text-left shadow-sm hover:shadow-md"
+      className="pressable flex h-full w-full flex-col rounded-lg bg-card p-6 text-left shadow-sm hover:shadow-md"
       onClick={() => navigate('profile')}
     >
-      <div className="mb-3 flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <h2 className="font-display text-lg font-bold">Daily goal</h2>
         <div className="flex items-center gap-1.5 text-lg font-extrabold">
           <Flame className="h-5 w-5 text-[#e6a82c]" />
@@ -107,7 +107,7 @@ export function GoalCard() {
         {minutes} of {data.goalMinutes} active minutes today
         {today?.goalMet ? ' · goal met' : ''}
       </div>
-      <div className="mt-3">
+      <div className="mt-auto pt-3">
         <StreakCalendar days={data.days} goalMinutes={data.goalMinutes} weeks={5} />
       </div>
       <div className="mt-2 text-xs text-muted-foreground">

@@ -80,16 +80,3 @@ export function inflateRd(rd: number, idleDays: number): number {
 export function isProvisional(games: number, rd: number): boolean {
   return games < 5 || rd > 110
 }
-
-export type TimePool = 'bullet' | 'blitz' | 'rapid'
-
-export function poolForTimeControl(initialSec: number, incSec: number): TimePool {
-  const estimated = initialSec + incSec * 40
-  if (estimated < 179) return 'bullet'
-  if (estimated < 479) return 'blitz'
-  return 'rapid'
-}
-
-export function poolLabel(pool: TimePool): string {
-  return pool.charAt(0).toUpperCase() + pool.slice(1)
-}

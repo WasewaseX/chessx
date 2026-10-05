@@ -49,12 +49,14 @@ model SocketTicket {
   createdAt DateTime @default(now())
 }
 
-// One Glicko-1 rating per time class, exactly like chess.com pools.
+// The single account Elo. Every rated online game moves it, whatever the
+// time control; bot play and puzzles never touch it (they feed the separate
+// potential estimate on Profile instead).
 model UserRating {
   id         String    @id @default(cuid())
   userId     String
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  pool       String // bullet | blitz | rapid
+  pool       String // always 'overall'
   rating     Float     @default(1000)
   rd         Float     @default(350)
   wins       Int       @default(0)
