@@ -57,7 +57,7 @@ model UserRating {
   userId     String
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   pool       String // always 'overall'
-  rating     Float     @default(1000)
+  rating     Float     @default(400)
   rd         Float     @default(350)
   wins       Int       @default(0)
   losses     Int       @default(0)

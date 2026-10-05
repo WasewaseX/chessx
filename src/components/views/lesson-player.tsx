@@ -115,7 +115,7 @@ function ToolButton({
       disabled={disabled}
       aria-label={ariaLabel}
       className={cn(
-        'border border-white/10 bg-white/10 text-xs font-bold text-white hover:bg-white/20 hover:text-white',
+        'border border-[#262421]/10 bg-[#262421]/10 text-xs font-bold text-[#262421] hover:bg-[#262421]/15 hover:text-[#262421]',
         className,
       )}
     >
@@ -145,7 +145,7 @@ function CoachPanel({
   const { pick, busyId } = usePickCoach()
   if (!coach) {
     return (
-      <div className="rounded-2xl bg-white p-3.5 shadow-lg">
+      <div className="rounded-2xl bg-[#fdfbf5] p-4 shadow-lg">
         <p className="text-sm font-extrabold text-[#312e2b]">Pick your coach. Every hint and success message is theirs.</p>
         <div className="mt-2.5">
           <CoachCards value={busyId} onChange={(id) => void pick(id)} columns={2} compact />
@@ -162,13 +162,13 @@ function CoachPanel({
       />
       <div
         className={cn(
-          'relative min-w-0 flex-1 rounded-2xl bg-white px-4 py-3 text-[#312e2b] shadow-lg',
+          'relative min-w-0 flex-1 rounded-2xl bg-[#fdfbf5] px-4 py-3 text-[#312e2b] shadow-lg',
           tone === 'guide' && 'ring-2 ring-[#e6a82c]/70',
           tone === 'hint' && 'ring-2 ring-[#e6a82c]/45',
           tone === 'praise' && 'ring-2 ring-[#81b64c]/60',
         )}
       >
-        <span aria-hidden className="absolute -left-1 top-5 h-3 w-3 rotate-45 rounded-[2px] bg-white" />
+        <span aria-hidden className="absolute -left-1 top-5 h-3 w-3 rotate-45 rounded-[2px] bg-[#fdfbf5]" />
         <p className="text-[10px] font-bold uppercase tracking-widest text-[#6f8f42]">
           {coach.name} · {coach.title}
         </p>
@@ -203,12 +203,39 @@ function StepChip({ state, index }: { state: 'done' | 'current' | 'locked'; inde
         state === 'done' && 'bg-[#81b64c] text-white shadow-[0_2px_0_#5d8534]',
         state === 'current' &&
           'bg-[#e8a33d] text-white shadow-[0_0_0_3px_rgba(232,163,61,0.25),0_0_16px_rgba(232,163,61,0.55)]',
-        state === 'locked' && 'bg-white/10 text-white/40',
+        state === 'locked' && 'bg-[#262421]/10 text-[#262421]/40',
       )}
     >
       {state === 'done' ? <Check className="h-4 w-4" strokeWidth={3} /> : index + 1}
     </span>
   )
+}
+
+/** The figure plate: every board sits on a deep ink frame with a bookish
+    italic caption, like a printed diagram in a chess book. This is the
+    visual signature of the Study: paper page, ink plate, living board. */
+function BoardPlate({ label, children }: { label?: string; children: React.ReactNode }) {
+  return (
+    <div className="w-full max-w-[620px]">
+      <div className="rounded-2xl bg-[#262421] p-2.5 shadow-[0_16px_40px_rgba(38,36,33,0.25)] sm:p-3">
+        {children}
+        {label && (
+          <div className="mt-2.5 flex items-center justify-between px-1">
+            <span className="font-book text-[12px] italic text-[#f4f1e8]/75">{label}</span>
+            <span className="text-[9px] font-extrabold uppercase tracking-[0.24em] text-[#f4f1e8]/35">
+              ChessX study
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function sideToPlayLabel(fen: string): string {
+  const side = fen.split(' ')[1] === 'b' ? 'Black to play' : 'White to play'
+  const move = Number(fen.split(' ')[5] ?? 1)
+  return `${side}, move ${move}`
 }
 
 /* ---------------- main player ---------------- */
@@ -308,8 +335,8 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
   if (!lesson || !tier) {
     return (
-      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-sidebar px-4 text-center text-sidebar-foreground">
-        <p className="text-sm font-semibold text-white/70">Lesson not found.</p>
+      <div className="flex min-h-screen w-full flex-col items-center justify-center paper px-4 text-center text-[#262421]">
+        <p className="text-sm font-semibold text-[#262421]/70">Lesson not found.</p>
         <Button className="btn-hero mt-4 h-11 px-6" onClick={() => navigate('lessons')}>
           Back to lessons
         </Button>
@@ -376,22 +403,22 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           : 'Continue'
 
   return (
-    <div className="min-h-screen w-full bg-sidebar text-sidebar-foreground">
+    <div className="min-h-screen w-full paper text-[#262421]">
       {/* top bar with slim green progress */}
-      <header className="sticky top-0 z-40 border-b border-sidebar-border/80 bg-sidebar/95 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-[#262421]/10 bg-[#f4f1e8]/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-5xl items-center gap-2.5 px-4 py-2.5 sm:gap-3">
           <button
             onClick={() => navigate('lessons')}
             aria-label="Back to lessons"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#262421]/70 transition hover:bg-[#262421]/10 hover:text-[#262421]"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">
+            <div className="truncate text-[10px] font-bold uppercase tracking-[0.18em] text-[#262421]/45">
               Tier {tier.n} · {tier.title}
             </div>
-            <h1 className="truncate font-display text-sm font-extrabold text-white sm:text-base">{lesson.title}</h1>
+            <h1 className="truncate font-book text-base font-semibold text-[#262421] sm:text-lg">{lesson.title}</h1>
           </div>
           {xpFlash != null && (
             <span className="inline-flex shrink-0 animate-pulse items-center gap-1 rounded-full bg-[#81b64c] px-2.5 py-1 text-xs font-extrabold text-white shadow">
@@ -404,13 +431,13 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           </ToolButton>
           <div className="hidden shrink-0 items-center gap-2.5 sm:flex">
             <span
-              className="text-xs font-extrabold tabular-nums text-white/60"
+              className="text-xs font-extrabold tabular-nums text-[#262421]/60"
               aria-label={`${completedSteps} of ${total} steps completed`}
             >
               {completedSteps}/{total}
             </span>
             <div
-              className="h-1.5 w-28 overflow-hidden rounded-full bg-white/10 lg:w-40"
+              className="h-1.5 w-28 overflow-hidden rounded-full bg-[#262421]/10 lg:w-40"
               role="progressbar"
               aria-label="Lesson progress"
               aria-valuemin={0}
@@ -426,11 +453,11 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         </div>
         {/* mobile progress strip */}
         <div className="flex items-center gap-2 px-4 pb-2 sm:hidden">
-          <span className="shrink-0 text-[10px] font-extrabold tabular-nums text-white/50">
+          <span className="shrink-0 text-[10px] font-extrabold tabular-nums text-[#262421]/50">
             {completedSteps}/{total} steps
           </span>
           <div
-            className="h-1 flex-1 overflow-hidden rounded-full bg-white/10"
+            className="h-1 flex-1 overflow-hidden rounded-full bg-[#262421]/10"
             role="progressbar"
             aria-label="Lesson progress"
             aria-valuemin={0}
@@ -452,8 +479,8 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           onContinue={() => navigate('lessons')}
         />
       ) : (
-        <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-4 sm:pt-6">
-          <div className="grid gap-5 lg:grid-cols-[290px_minmax(0,1fr)] lg:gap-7">
+        <div className="mx-auto w-full max-w-5xl px-4 pb-10 pt-6">
+          <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8">
             {/* coach column: bubble + step rail */}
             <aside className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
               <CoachPanel
@@ -479,7 +506,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                         disabled={i > reached}
                         aria-label={`Step ${i + 1}: ${s.title}`}
                         aria-current={i === stepIdx ? 'step' : undefined}
-                        className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                        className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#262421]/40"
                       >
                         <StepChip state={st} index={i} />
                       </button>
@@ -490,7 +517,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
               {/* desktop: vertical rail with labels */}
               <nav aria-label="Lesson steps" className="relative hidden lg:block">
-                <span aria-hidden="true" className="absolute bottom-4 left-[15px] top-4 w-px bg-white/10" />
+                <span aria-hidden="true" className="absolute bottom-4 left-[15px] top-4 w-px bg-[#262421]/10" />
                 <ol className="relative space-y-1">
                   {lesson.steps.map((s, i) => {
                     const st = railState(i, stepIdx, reached, done)
@@ -502,7 +529,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                           aria-current={i === stepIdx ? 'step' : undefined}
                           className={cn(
                             'flex w-full items-center gap-3 rounded-xl px-1.5 py-1.5 text-left transition-colors',
-                            st === 'current' ? 'bg-white/5' : st !== 'locked' && 'hover:bg-white/5',
+                            st === 'current' ? 'bg-[#262421]/5' : st !== 'locked' && 'hover:bg-[#262421]/5',
                             st === 'locked' && 'opacity-60',
                           )}
                         >
@@ -511,12 +538,12 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                             <span
                               className={cn(
                                 'block truncate text-xs font-extrabold',
-                                st === 'current' ? 'text-white' : 'text-white/70',
+                                st === 'current' ? 'text-[#262421]' : 'text-[#262421]/70',
                               )}
                             >
                               {STEP_LABELS[s.type]}
                             </span>
-                            <span className="block truncate text-[11px] text-white/40">{s.title}</span>
+                            <span className="block truncate text-[11px] text-[#262421]/40">{s.title}</span>
                           </span>
                         </button>
                       </li>
@@ -528,21 +555,21 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
             {/* board column */}
             <section className="min-w-0">
-              <div className="mb-3 sm:mb-4">
-                <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.22em] text-[#9ecb63]">
+              <div className="mb-4">
+                <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.22em] text-[#4a6b28]">
                   <span>{STEP_LABELS[step.type]}</span>
                   {step.type === 'playout' && (
-                    <span className="rounded-full bg-white/10 px-2 py-0.5 text-[9px] font-bold tracking-normal text-white/60">
+                    <span className="rounded-full bg-[#262421]/10 px-2 py-0.5 text-[9px] font-bold tracking-normal text-[#262421]/60">
                       Global level {globalLevel}
                     </span>
                   )}
                 </div>
-                <h2 className="font-display text-xl font-extrabold text-white sm:text-2xl">{step.title}</h2>
-                {step.type === 'gtm' && <p className="mt-0.5 text-[11px] font-semibold text-white/40">{step.source}</p>}
+                <h2 className="font-book text-2xl font-semibold text-[#262421] sm:text-[1.7rem]">{step.title}</h2>
+                {step.type === 'gtm' && <p className="mt-0.5 text-[11px] font-semibold text-[#262421]/40">{step.source}</p>}
                 {introLines.length > 0 && (
                   <div className="mt-1 space-y-1">
                     {introLines.map((p, i) => (
-                      <p key={i} className="max-w-2xl text-sm leading-relaxed text-white/60">
+                      <p key={i} className="max-w-2xl text-sm leading-relaxed text-[#262421]/60">
                         {p}
                       </p>
                     ))}
@@ -584,7 +611,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                 />
               ) : step.type === 'demo' ? (
                 <div className="flex flex-col items-center">
-                  <div className="w-full max-w-[620px]">
+                  <BoardPlate>
                     <DemoBoard
                       key={stepIdx}
                       fen={step.fen}
@@ -594,7 +621,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                       caption={step.caption}
                       soundEnabled={profile?.soundEnabled ?? true}
                     />
-                  </div>
+                  </BoardPlate>
                   <DemoTextCard
                     key={`t${stepIdx}`}
                     step={step}
@@ -616,14 +643,14 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
               )}
 
               {/* action bar */}
-              <div className="sticky bottom-20 z-30 mt-5 lg:bottom-4">
-                <div className="flex items-center gap-3 rounded-2xl border border-sidebar-border bg-[#262421]/95 p-2.5 shadow-2xl backdrop-blur sm:p-3">
+              <div className="sticky bottom-20 z-30 mt-6 lg:bottom-4">
+                <div className="flex items-center gap-3 rounded-2xl border border-[#262421]/10 bg-[#fdfbf5]/95 p-3 shadow-[0_8px_30px_rgba(38,36,33,0.12)] backdrop-blur sm:p-4">
                   <Button
                     variant="ghost"
                     onClick={goPrev}
                     disabled={stepIdx === 0}
                     aria-label="Previous step"
-                    className="h-12 shrink-0 border border-white/10 bg-white/5 px-3 font-display text-sm font-bold text-white hover:bg-white/15 hover:text-white sm:px-4"
+                    className="h-12 shrink-0 border border-[#262421]/15 bg-transparent px-3 font-display text-sm font-bold text-[#262421] hover:bg-[#262421]/10 hover:text-[#262421] sm:px-4"
                   >
                     <ChevronLeft className="h-4 w-4" /> Back
                   </Button>
@@ -635,7 +662,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                     <Button
                       variant="ghost"
                       disabled
-                      className="h-12 flex-1 cursor-not-allowed border border-white/10 bg-white/5 text-sm font-bold text-white/45 hover:bg-white/5"
+                      className="h-12 flex-1 cursor-not-allowed border border-[#262421]/15 bg-transparent text-sm font-bold text-[#262421]/40 hover:bg-transparent"
                     >
                       {lockLabel}
                     </Button>
@@ -692,12 +719,12 @@ function CompletionScreen({
           className="absolute right-0 top-3 h-24 w-24 rotate-6 drop-shadow-[0_10px_14px_rgba(0,0,0,0.5)]"
         />
       </div>
-      <h2 className="mt-2 font-display text-3xl font-extrabold uppercase tracking-wide text-white sm:text-4xl">
+      <h2 className="mt-2 font-book text-4xl font-semibold text-[#262421] sm:text-5xl">
         Lesson complete
       </h2>
-      <p className="mt-1 text-sm font-semibold text-white/55">{lesson.title}</p>
+      <p className="mt-1 text-sm font-semibold text-[#262421]/55">{lesson.title}</p>
 
-      <div className="mx-auto mt-6 flex max-w-md items-start gap-3 rounded-2xl bg-white p-4 text-left shadow-xl">
+      <div className="mx-auto mt-6 flex max-w-md items-start gap-3 rounded-2xl bg-[#fdfbf5] p-4 text-left shadow-xl">
         {coach ? (
           <CharacterFace
             id={coach.id}
@@ -708,7 +735,7 @@ function CompletionScreen({
           <img
             src="/brand.svg"
             alt="ChessX"
-            className="h-12 w-12 shrink-0 rounded-full border-2 border-sidebar-border bg-black/30 p-1"
+            className="h-12 w-12 shrink-0 rounded-full border-2 border-[#262421]/10 bg-[#f4f1e8] p-1"
           />
         )}
         <div className="min-w-0">
@@ -721,16 +748,16 @@ function CompletionScreen({
 
       {/* real stats from this session: steps completed, hints used, xp from the server */}
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-extrabold text-white/75">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#262421]/10 bg-[#262421]/5 px-3.5 py-1.5 text-xs font-extrabold text-[#262421]/75">
           <Check className="h-3.5 w-3.5 text-[#81b64c]" strokeWidth={3} />
           {lesson.steps.length} of {lesson.steps.length} steps
         </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-extrabold text-white/75">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#262421]/10 bg-[#262421]/5 px-3.5 py-1.5 text-xs font-extrabold text-[#262421]/75">
           <Lightbulb className="h-3.5 w-3.5 text-[#e8a33d]" />
           Hints used: {hintsUsed}
         </span>
         {xpGain != null && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#81b64c]/40 bg-[#81b64c]/15 px-3.5 py-1.5 text-xs font-extrabold text-[#a3d160]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#81b64c]/40 bg-[#81b64c]/15 px-3.5 py-1.5 text-xs font-extrabold text-[#4a6b28]">
             <Sparkles className="h-3.5 w-3.5" />+{xpGain} XP
           </span>
         )}
@@ -765,7 +792,7 @@ function TextStepView({
     onBubble({ tone: 'neutral', text: bubbleText, speak: spoken })
   }, [onBubble, bubbleText, spoken])
   return (
-    <div className="mx-auto w-full max-w-2xl rounded-2xl border border-sidebar-border bg-black/25 p-5 shadow-xl sm:p-6">
+    <div className="mx-auto w-full max-w-2xl rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)] sm:p-6">
       {/* float the speaker so the first lines wrap around it instead of hiding under it */}
       <div className="space-y-3">
         {coach && (
@@ -774,13 +801,13 @@ function TextStepView({
           </span>
         )}
         {step.body.map((p, i) => (
-          <p key={i} className="leading-relaxed text-white/85">
+          <p key={i} className="leading-relaxed text-[#262421]/85">
             {p}
           </p>
         ))}
       </div>
       {step.keyIdea && (
-        <div className="mt-4 rounded-xl border border-[#81b64c]/30 bg-[#81b64c]/10 px-4 py-3 text-sm font-semibold text-white">
+        <div className="mt-4 rounded-xl border border-[#81b64c]/30 bg-[#81b64c]/10 px-4 py-3 text-sm font-semibold text-[#262421]">
           {step.keyIdea}
         </div>
       )}
@@ -808,11 +835,11 @@ function DemoTextCard({
     onBubble({ tone: 'neutral', text: bubbleText, speak: spoken })
   }, [onBubble, bubbleText, spoken])
   return (
-    <div className="mt-4 w-full max-w-2xl rounded-2xl border border-sidebar-border bg-black/25 p-5 shadow-xl">
+    <div className="mt-4 w-full max-w-2xl rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)]">
       <div className="flex items-start justify-between gap-2">
         <div className="space-y-2.5">
           {step.body.map((p, i) => (
-            <p key={i} className="leading-relaxed text-white/85">
+            <p key={i} className="leading-relaxed text-[#262421]/85">
               {p}
             </p>
           ))}
@@ -973,14 +1000,14 @@ function DemoBoard({
         />
         {autoplay && (
           <div className="absolute inset-0 z-40 flex items-end justify-center bg-transparent">
-            <div className="mb-3 rounded-full bg-black/70 px-4 py-1.5 text-xs font-semibold text-white shadow-lg">
+            <div className="mb-3 rounded-full bg-black/70 px-4 py-1.5 text-xs font-semibold text-[#f4f1e8] shadow-lg">
               Playing the line…
             </div>
           </div>
         )}
       </div>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-        <div className="text-xs font-semibold text-white/50">{caption ?? ''}</div>
+        <div className="text-xs font-semibold text-[#262421]/50">{caption ?? ''}</div>
         <div className="flex flex-wrap gap-1.5">
           {moves && moves.length > 0 && (
             <ToolButton onClick={() => playLine(150)} disabled={autoplay} ariaLabel="Watch the line">
@@ -996,7 +1023,7 @@ function DemoBoard({
         </div>
       </div>
       {!autoplay && depth === 0 && (
-        <p className="mt-1 text-xs text-white/40">This board is yours to explore. Pick up any piece and try moves.</p>
+        <p className="mt-1 text-xs text-[#262421]/40">This board is yours to explore. Pick up any piece and try moves.</p>
       )}
     </div>
   )
@@ -1043,9 +1070,9 @@ function QuizStepView({
   }, [onBubble, bubbleTone, bubbleText])
 
   return (
-    <div className="mx-auto w-full max-w-2xl rounded-2xl border border-sidebar-border bg-black/25 p-5 shadow-xl sm:p-6">
-      {step.body && <p className="text-sm leading-relaxed text-white/60">{step.body}</p>}
-      <p className="mt-3 font-display text-base font-bold text-white sm:text-lg">{step.question}</p>
+    <div className="mx-auto w-full max-w-2xl rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)] sm:p-6">
+      {step.body && <p className="text-sm leading-relaxed text-[#262421]/60">{step.body}</p>}
+      <p className="mt-3 font-book text-lg font-semibold text-[#262421] sm:text-xl">{step.question}</p>
       <div className="mt-4 grid gap-2">
         {step.options.map((o, i) => {
           const isChosen = chosen === i
@@ -1057,8 +1084,8 @@ function QuizStepView({
               onClick={() => choose(i)}
               disabled={answeredCorrect}
               className={cn(
-                'flex items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold text-white transition',
-                state === 'idle' && 'border-white/10 bg-white/5 hover:border-[#81b64c]/50 hover:bg-white/10',
+                'flex items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold text-[#262421] transition',
+                state === 'idle' && 'border-[#262421]/10 bg-[#262421]/5 hover:border-[#81b64c]/50 hover:bg-[#262421]/10',
                 state === 'correct' && 'border-[#81b64c] bg-[#81b64c]/15',
                 state === 'off' && 'border-[#e6a82c]/60 bg-[#e6a82c]/10',
                 revealed && 'animate-pulse border-[#81b64c] bg-[#81b64c]/10',
@@ -1066,29 +1093,29 @@ function QuizStepView({
               )}
             >
               {state === 'correct' ? (
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#a3d160]" />
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#4a6b28]" />
               ) : state === 'off' ? (
                 <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-[#e6a82c]" />
               ) : (
-                <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-white/30" />
+                <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-[#262421]/30" />
               )}
               <span>
                 {o.text}
-                {isChosen && <span className="mt-1 block text-xs font-normal text-white/60">{o.why}</span>}
+                {isChosen && <span className="mt-1 block text-xs font-normal text-[#262421]/60">{o.why}</span>}
               </span>
             </button>
           )
         })}
       </div>
       {answeredCorrect ? (
-        <p className="mt-3 text-sm font-semibold text-[#a3d160]">Correct. {step.options[correctIdx]?.why}</p>
+        <p className="mt-3 text-sm font-semibold text-[#4a6b28]">Correct. {step.options[correctIdx]?.why}</p>
       ) : chosen != null && !step.options[chosen].correct ? (
-        <div className="mt-3 rounded-xl border border-[#e6a82c]/50 bg-[#e6a82c]/10 px-3 py-2 text-sm font-semibold text-white">
+        <div className="mt-3 rounded-xl border border-[#e6a82c]/50 bg-[#e6a82c]/10 px-3 py-2 text-sm font-semibold text-[#262421]">
           Tempting, but not the idea here. {step.options[chosen].why} Take another look.
         </div>
       ) : null}
       {misses >= 2 && !answeredCorrect && (
-        <p className="mt-2 text-sm text-white/50">The right answer is glowing now. Tap it, and keep the why in mind for the board.</p>
+        <p className="mt-2 text-sm text-[#262421]/50">The right answer is glowing now. Tap it, and keep the why in mind for the board.</p>
       )}
     </div>
   )
@@ -1326,7 +1353,7 @@ function ExerciseView({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="w-full max-w-[620px]">
+      <BoardPlate label={status === 'solving' ? sideToPlayLabel(step.fen) : undefined}>
         <ChessBoard
           fen={fen}
           orientation={userSideFromFen}
@@ -1341,14 +1368,14 @@ function ExerciseView({
           theme={theme}
           shake={shake}
         />
-      </div>
+      </BoardPlate>
 
-      <div className="mt-3 w-full max-w-[620px] text-center text-sm text-white/55">
+      <div className="mt-4 w-full max-w-[620px] text-center text-sm text-[#262421]/55">
         {status === 'done' ? (
-          <span className="font-semibold text-[#a3d160]">Line complete.</span>
+          <span className="font-semibold text-[#4a6b28]">Line complete.</span>
         ) : movesSoFar.length > 0 ? (
           <>
-            Line so far: <span className="font-mono font-bold text-white">{movesSoFar.join(' ')}</span>
+            Line so far: <span className="font-mono font-bold text-[#262421]">{movesSoFar.join(' ')}</span>
           </>
         ) : (
           'Your move.'
@@ -1368,7 +1395,7 @@ function ExerciseView({
       </div>
 
       {status === 'done' && step.explanation && (
-        <p className="mt-3 max-w-[620px] text-center text-sm leading-relaxed text-white/60">{step.explanation}</p>
+        <p className="mt-3 max-w-[620px] text-center text-sm leading-relaxed text-[#262421]/60">{step.explanation}</p>
       )}
     </div>
   )
@@ -1603,7 +1630,7 @@ function GtmStepView({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="w-full max-w-[620px]">
+      <BoardPlate label={phase === 'guess' ? sideToPlayLabel(fen) : undefined}>
         <ChessBoard
           fen={fen}
           orientation={guessSide}
@@ -1617,10 +1644,10 @@ function GtmStepView({
           theme={theme}
           shake={shake}
         />
-      </div>
+      </BoardPlate>
 
       <div className="mt-3 flex w-full max-w-[620px] flex-wrap items-center justify-center gap-2">
-        <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+        <div className="flex items-center gap-1.5 rounded-full border border-[#262421]/10 bg-[#262421]/5 px-3 py-1.5">
           {step.moves.map((_, i) => (
             <span
               key={i}
@@ -1630,7 +1657,7 @@ function GtmStepView({
                 i >= results.length
                   ? i === idx && phase === 'guess'
                     ? 'bg-[#81b64c] ring-2 ring-[#81b64c]/30'
-                    : 'bg-white/15'
+                    : 'bg-[#262421]/15'
                   : results[i] === 'full'
                     ? 'bg-[#81b64c]'
                     : results[i] === 'half'
@@ -1639,7 +1666,7 @@ function GtmStepView({
               )}
             />
           ))}
-          <span className="ml-1 font-mono text-xs font-bold text-white/80">
+          <span className="ml-1 font-mono text-xs font-bold text-[#262421]/80">
             {score} / {total}
           </span>
         </div>
@@ -1648,15 +1675,15 @@ function GtmStepView({
         </ToolButton>
       </div>
 
-      <div className="mt-2 w-full max-w-[620px] text-center text-sm text-white/55">
+      <div className="mt-2 w-full max-w-[620px] text-center text-sm text-[#262421]/55">
         {phase === 'guess' ? (
           <p>
             Move {idx + 1} of {total}. {guessSide === 'w' ? 'White' : 'Black'} to move. What did the master play?
           </p>
         ) : (
-          <p className="font-semibold text-[#a3d160]">Game complete.</p>
+          <p className="font-semibold text-[#4a6b28]">Game complete.</p>
         )}
-        {lineSoFar.length > 0 && <p className="mt-1 font-mono text-xs text-white/40">{lineSoFar.join(' ')}</p>}
+        {lineSoFar.length > 0 && <p className="mt-1 font-mono text-xs text-[#262421]/40">{lineSoFar.join(' ')}</p>}
       </div>
     </div>
   )
@@ -1810,7 +1837,7 @@ function PlayoutStepView({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="w-full max-w-[620px]">
+      <BoardPlate label={status === 'playing' ? sideToPlayLabel(fen) : undefined}>
         <ChessBoard
           fen={fen}
           orientation={step.side}
@@ -1822,9 +1849,9 @@ function PlayoutStepView({
           showLegal={showLegal && status === 'playing'}
           theme={theme}
         />
-      </div>
+      </BoardPlate>
 
-      <div className="mt-3 text-center text-sm text-white/55">
+      <div className="mt-3 text-center text-sm text-[#262421]/55">
         {thinking ? 'Opponent thinking…' : moves.length > 0 ? `Moves played: ${moves.length}` : 'Your move.'}
       </div>
 

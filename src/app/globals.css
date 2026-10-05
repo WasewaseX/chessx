@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/montserrat";
+@import "@fontsource-variable/lora";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -109,6 +110,18 @@
   }
   h1, h2, h3, .font-display {
     font-family: "Montserrat Variable", ui-sans-serif, system-ui, sans-serif;
+  }
+  /* Book serif for lesson titles: the study reads like a well-set chess
+     book, not a gaming dashboard. Lora pairs with Inter at small sizes. */
+  .font-book {
+    font-family: "Lora Variable", Georgia, "Times New Roman", serif;
+  }
+  /* Warm paper page with a faint grain. The Study identity: lessons feel
+     like printed diagrams on a desk, the exact opposite of a dark arcade. */
+  .paper {
+    background-color: #f4f1e8;
+    background-image: radial-gradient(rgba(38, 36, 33, 0.028) 1px, transparent 1px);
+    background-size: 22px 22px;
   }
 }
 

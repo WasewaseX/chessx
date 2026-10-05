@@ -81,17 +81,17 @@ export function LessonsView() {
   const tierDone = (tier: Tier) => tier.levels.filter((l) => doneSet.has(l.id)).length
 
   return (
-    <div className="w-full bg-sidebar text-sidebar-foreground">
+    <div className="w-full paper text-[#262421]">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 lg:flex-row lg:items-start lg:justify-center lg:gap-10">
         {/* left context column on desktop, page header on mobile */}
         <header className="lg:sticky lg:top-6 lg:w-72 lg:shrink-0">
-          <h1 className="font-display text-3xl font-extrabold text-white">Lessons</h1>
-          <p className="mt-2 text-sm leading-relaxed text-sidebar-foreground/70">
+          <h1 className="font-book text-3xl font-semibold text-[#262421]">Lessons</h1>
+          <p className="mt-2 text-sm leading-relaxed text-[#262421]/70">
             {doneCount} of {totalLessons} levels complete. Six tiers, twenty levels each: every level is a short
             interactive workout, not a textbook.
           </p>
           <div
-            className="mt-4 h-2 w-full max-w-xs overflow-hidden rounded-full bg-white/10"
+            className="mt-4 h-2 w-full max-w-xs overflow-hidden rounded-full bg-[#262421]/10"
             role="progressbar"
             aria-label="Course progress"
             aria-valuemin={0}
@@ -110,19 +110,19 @@ export function LessonsView() {
                   key={tier.id}
                   onClick={() => jumpToTier(tier.id)}
                   aria-label={`Jump to the ${tier.title} tier, ${d} of ${tier.levels.length} levels complete`}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-white/5"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-[#262421]/5"
                 >
                   <span
-                    className="grid h-6 w-6 shrink-0 place-items-center rounded text-[11px] font-extrabold text-white"
+                    className="grid h-6 w-6 shrink-0 place-items-center rounded text-[11px] font-extrabold text-[#262421]"
                     style={{ background: tier.color }}
                   >
                     {tier.n}
                   </span>
-                  <span className="flex-1 truncate text-sm font-semibold text-sidebar-foreground/85">{tier.title}</span>
-                  <span className="text-xs font-bold tabular-nums text-sidebar-foreground/50">
+                  <span className="flex-1 truncate text-sm font-semibold text-[#262421]/85">{tier.title}</span>
+                  <span className="text-xs font-bold tabular-nums text-[#262421]/50">
                     {d}/{tier.levels.length}
                   </span>
-                  <span aria-hidden="true" className="h-1 w-10 shrink-0 overflow-hidden rounded-full bg-white/10">
+                  <span aria-hidden="true" className="h-1 w-10 shrink-0 overflow-hidden rounded-full bg-[#262421]/10">
                     <span className="block h-full rounded-full" style={{ width: `${tp}%`, background: tier.color }} />
                   </span>
                 </button>
@@ -134,7 +134,7 @@ export function LessonsView() {
         {/* the path panel */}
         <section
           aria-label="Lesson path"
-          className="mx-auto flex w-full max-w-[420px] flex-col overflow-hidden rounded-2xl border border-sidebar-border bg-black/20 shadow-2xl lg:h-[calc(100dvh-7rem)]"
+          className="mx-auto flex w-full max-w-[420px] flex-col overflow-hidden rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] shadow-[0_8px_30px_rgba(38,36,33,0.1)] lg:h-[calc(100dvh-7rem)]"
         >
           {/* coach speech bubble */}
           <div className="flex items-start gap-3 p-4 pb-3">
@@ -148,11 +148,11 @@ export function LessonsView() {
               <img
                 src="/brand.svg"
                 alt="ChessX"
-                className="h-14 w-14 shrink-0 rounded-xl border-2 border-sidebar-border bg-black/30 p-1"
+                className="h-14 w-14 shrink-0 rounded-xl border-2 border-[#262421]/10 bg-[#f4f1e8] p-1"
               />
             )}
-            <div className="relative min-w-0 flex-1 rounded-2xl bg-white px-4 py-3 text-[#312e2b] shadow-lg">
-              <span aria-hidden="true" className="absolute -left-1 top-5 h-3 w-3 rotate-45 rounded-[2px] bg-white" />
+            <div className="relative min-w-0 flex-1 rounded-2xl bg-[#f4f1e8] px-4 py-3 text-[#262421] shadow-sm">
+              <span aria-hidden="true" className="absolute -left-1 top-5 h-3 w-3 rotate-45 rounded-[2px] bg-[#f4f1e8]" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#6f8f42]">
                 {coach ? `${coach.name} · ${coach.title}` : 'ChessX'}
               </p>
@@ -183,7 +183,7 @@ export function LessonsView() {
           <div ref={scrollRef} className="scroll-slim lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
             {loading ? (
               <div className="flex h-40 items-center justify-center" aria-label="Loading progress">
-                <Loader2 className="h-6 w-6 animate-spin text-sidebar-foreground/50" />
+                <Loader2 className="h-6 w-6 animate-spin text-[#262421]/50" />
               </div>
             ) : showList ? (
               <LessonList tiers={TIERS} done={doneSet} nextId={nextId} onSelect={(id) => navigate('lesson', id)} />
@@ -199,7 +199,7 @@ export function LessonsView() {
               onClick={() => setShowList((v) => !v)}
               aria-expanded={showList}
               aria-controls="lessons-list"
-              className="mb-2 flex w-full items-center justify-center gap-2 rounded-md py-2 text-xs font-bold uppercase tracking-wide text-sidebar-foreground/60 transition-colors hover:bg-white/5 hover:text-sidebar-foreground"
+              className="mb-2 flex w-full items-center justify-center gap-2 rounded-md py-2 text-xs font-bold uppercase tracking-wide text-[#262421]/60 transition-colors hover:bg-[#262421]/5 hover:text-[#262421]"
             >
               <List className="h-4 w-4" />
               {showList ? 'Show the path' : 'All lessons'}
@@ -243,16 +243,16 @@ function LessonList({
           <div key={tier.id}>
             <div className="flex items-center gap-2 px-1 pb-1.5">
               <span
-                className="grid h-5 w-5 shrink-0 place-items-center rounded text-[10px] font-extrabold text-white"
+                className="grid h-5 w-5 shrink-0 place-items-center rounded text-[10px] font-extrabold text-[#262421]"
                 style={{ background: tier.color }}
               >
                 {tier.n}
               </span>
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-sidebar-foreground/80">{tier.title}</h3>
-              <span className="text-[11px] font-bold tabular-nums text-sidebar-foreground/40">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-[#262421]/80">{tier.title}</h3>
+              <span className="text-[11px] font-bold tabular-nums text-[#262421]/40">
                 {d}/{tier.levels.length}
               </span>
-              <span aria-hidden="true" className="h-px flex-1 bg-sidebar-border/70" />
+              <span aria-hidden="true" className="h-px flex-1 bg-[#262421]/15" />
             </div>
             <ul className="space-y-1">
               {tier.levels.map((level) => {
@@ -266,28 +266,28 @@ function LessonList({
                         'grid h-6 w-6 shrink-0 place-items-center rounded-full',
                         state === 'done' && 'bg-[#81b64c]',
                         state === 'current' && 'bg-[#e8a33d]',
-                        locked && 'bg-white/10',
+                        locked && 'bg-[#262421]/10',
                       )}
                     >
                       {state === 'done' && <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
                       {state === 'current' && <Play className="h-3 w-3 fill-white text-white" />}
-                      {locked && <Lock className="h-3 w-3 text-white/40" />}
+                      {locked && <Lock className="h-3 w-3 text-[#262421]/40" />}
                     </span>
-                    <span className="w-5 shrink-0 text-right text-xs font-bold tabular-nums text-sidebar-foreground/45">
+                    <span className="w-5 shrink-0 text-right text-xs font-bold tabular-nums text-[#262421]/45">
                       {level.n}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span
                         className={cn(
                           'block truncate text-sm font-bold',
-                          locked ? 'text-sidebar-foreground/50' : 'text-white',
+                          locked ? 'text-[#262421]/50' : 'text-[#262421]',
                         )}
                       >
                         {level.title}
                       </span>
-                      <span className="block truncate text-xs text-sidebar-foreground/45">{level.subtitle}</span>
+                      <span className="block truncate text-xs text-[#262421]/45">{level.subtitle}</span>
                     </span>
-                    <span className="shrink-0 text-[11px] font-semibold text-sidebar-foreground/40">
+                    <span className="shrink-0 text-[11px] font-semibold text-[#262421]/40">
                       {level.minutes} min
                     </span>
                   </>
@@ -309,7 +309,7 @@ function LessonList({
                         aria-label={`Level ${level.n}: ${level.title}. ${state === 'done' ? 'Completed. Select to replay.' : 'Current lesson.'}`}
                         aria-current={state === 'current' ? 'step' : undefined}
                         className={cn(
-                          'flex min-h-[44px] w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70',
+                          'flex min-h-[44px] w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-[#262421]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#262421]/40',
                           state === 'current' && 'bg-[#e8a33d]/10 ring-1 ring-[#e8a33d]/30 hover:bg-[#e8a33d]/15',
                         )}
                       >

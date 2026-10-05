@@ -94,9 +94,9 @@ export function ProfileView() {
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Elo"
-          value={elo && elo.games > 0 ? elo.rating : '1000*'}
+          value={elo ? `${elo.rating}${elo.games < 5 ? '?' : ''}` : '-'}
           sub={(() => {
-            if (!elo || elo.games === 0) return 'Rated online games only. Starts at 1000'
+            if (!elo || elo.games === 0) return 'Rated online games only. Seeded from your level'
             return `${elo.games} rated ${elo.games === 1 ? 'game' : 'games'} · ${elo.wins}W ${elo.losses}L ${elo.draws}D`
           })()}
         />

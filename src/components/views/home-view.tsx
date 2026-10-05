@@ -103,7 +103,14 @@ export function HomeView() {
         <div className="flex gap-2 text-center">
           <div className="min-w-20 rounded-lg bg-card px-4 py-2 shadow-sm">
             <div className="text-lg font-extrabold leading-6 tabular-nums">
-              {elo && elo.games > 0 ? elo.rating : '1000*'}
+              {elo ? (
+                <>
+                  {elo.rating}
+                  {elo.games < 5 && <span className="text-muted-foreground">?</span>}
+                </>
+              ) : (
+                '-'
+              )}
             </div>
             <div className="text-[11px] leading-4 text-muted-foreground">Elo</div>
           </div>

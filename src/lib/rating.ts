@@ -19,14 +19,17 @@ export function newRating(
   return { rating: Math.max(100, rating + delta), delta }
 }
 
-// Seed used the first time someone plays a rated game, based on the
-// self-assessed level from onboarding. Shown as "provisional" until 10 games.
+// Seed used the first time someone plays a rated game, from the
+// self-assessed level picked during onboarding. Same ladder chess.com offers
+// at signup: a 1100 chess.com player self-selects "intermediate" and starts
+// at 1200 with RD 350, then Glicko-1 pulls them to their true strength.
+// Shown as "provisional" (rating + ?) until the RD settles.
 export const SKILL_SEEDS: Record<string, number> = {
-  new: 500,
+  new: 400,
   beginner: 800,
-  intermediate: 1100,
-  advanced: 1400,
-  expert: 1700,
+  intermediate: 1200,
+  advanced: 1600,
+  expert: 2000,
 }
 
 export function seedForSkill(skill: string): number {

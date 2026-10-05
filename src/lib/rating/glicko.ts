@@ -1,15 +1,19 @@
 // Glicko-1, the rating system chess.com uses. Implemented to spec from
 // Glickman's paper (www.glicko.net/glicko/glicko.pdf) so numbers move the
 // same way they do on chess.com:
-//   - new accounts start at 1000 with RD 350 (provisional)
+//   - accounts start at 400 with RD 350 (provisional)
 //   - few games or high RD means huge swings, established means small
 //   - playing opponents with high RD moves you less (g() shrinks their weight)
 //   - RD shrinks toward a floor of 30 with every game
 //   - inactivity inflates RD back toward 350 (~100 idle days from RD 50)
 // Bot games are never rated, bots only carry an "estimated" Elo badge.
+// Because the math is the same Glicko-1 chess.com runs with the same start
+// RD and floors, a 1100 chess.com player converges to ~1100 here too: the
+// only thing that can push someone far from their true strength is playing
+// opponents far from it, exactly like chess.com.
 
 export const GLICKO_Q = 0.0057565
-export const START_RATING = 1000
+export const START_RATING = 400
 export const START_RD = 350
 export const RD_FLOOR = 30
 export const RD_MAX = 350

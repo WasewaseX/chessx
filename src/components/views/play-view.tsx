@@ -272,14 +272,21 @@ function OnlineLobby() {
           <div>
             <div className="text-sm font-bold">{user?.username ?? 'You'}</div>
             <div className="text-xs text-muted-foreground">
-              {elo && elo.games > 0 ? `${elo.games} rated ${elo.games === 1 ? 'game' : 'games'}` : 'No rated games yet, starts at 1000'}
+              {elo && elo.games > 0 ? `${elo.games} rated ${elo.games === 1 ? 'game' : 'games'}` : 'Only rated online games move it'}
             </div>
           </div>
         </div>
         <div className="text-right">
           <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Elo</div>
           <div className="font-display text-2xl font-extrabold leading-6">
-            {elo && elo.games > 0 ? elo.rating : '1000*'}
+            {elo ? (
+              <>
+                {elo.rating}
+                {elo.games < 5 && <span className="text-muted-foreground">?</span>}
+              </>
+            ) : (
+              '-'
+            )}
           </div>
           {elo && elo.games > 0 && (
             <div className="text-[10px] text-muted-foreground">

@@ -1,8 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
+import { seedForSkill } from '@/lib/rating'
 
 export const dynamic = 'force-dynamic'
+
+// One Elo row per account (pool 'overall'). Created the moment the player
+// picks a level during onboarding so the account carries its starting rating
+// from day one, exactly like chess.com shows a rating after signup.
+export async function ensureRatingRow(userId: string, skillLevel: string) {
+  const existing = await db.userRating.findUnique({
+    where: { userId_pool: { userId, pool: 'overall' } },
+  })
+  if (existing) return existing
+  return db.userRating.create({
+    data: { userId, pool: 'overall', rating: seedForSkill(skillLevel) },
+  })
+}
 
 export async function GET() {
   const user = await getSessionUser()
@@ -49,6 +63,10 @@ export async function PATCH(req: NextRequest) {
   } else {
     profile = await db.profile.update({ where: { id: profile.id }, data })
   }
+  // the level pick during onboarding seeds the account Elo (400 / 800 / 1200
+  // / 1600 / 2000, the chess.com ladder); only runs if no row exists yet
+  const skill = (data.skillLevel as string | undefined) ?? profile.skillLevel
+  await ensureRatingRow(user.id, skill)
   const ratings = await db.userRating.findMany({ where: { userId: user.id } })
   return NextResponse.json({
     profile: publicProfile(profile),

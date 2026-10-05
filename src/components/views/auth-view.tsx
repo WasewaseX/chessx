@@ -189,7 +189,7 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
           </div>
 
           <h1 className="mt-8 max-w-md font-display text-5xl font-extrabold leading-[1.05] tracking-tight text-white">
-            Learn. Play. Climb.
+            The study. Not the arcade.
           </h1>
           <p className="mt-4 max-w-md text-base leading-relaxed text-sidebar-foreground/75">
             A coach who speaks walks you through every lesson. Character bots spar with you for
@@ -198,9 +198,18 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
           </p>
 
           <ul className="mt-6 max-w-md space-y-3">
-            <Feature>120 interactive lessons across 6 tiers, from first move to master plans</Feature>
-            <Feature>Rated online games with chess.com-style Glicko ratings</Feature>
-            <Feature>14 character bots for casual practice, each with an estimated Elo</Feature>
+            <Feature>
+              All 120 lessons free and open, no weekly cap. chess.com keeps most of its lesson
+              library behind a paid plan.
+            </Feature>
+            <Feature>
+              Every lesson plays out on a real board, move by move, with a coach who corrects each
+              step as you go. Not videos to sit through.
+            </Feature>
+            <Feature>
+              One Elo, started at 400, moved only by rated games, using the same Glicko math
+              chess.com runs. A 1100 there is a 1100 here.
+            </Feature>
           </ul>
 
           <div className="mt-10 flex items-center gap-8">
