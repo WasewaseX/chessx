@@ -766,10 +766,13 @@ function TextStepView({
   }, [onBubble, bubbleText, spoken])
   return (
     <div className="mx-auto w-full max-w-2xl rounded-2xl border border-sidebar-border bg-black/25 p-5 shadow-xl sm:p-6">
-      <div className="flex items-start justify-end gap-2">
-        {coach && <SpeakButton text={spoken} voice={coach.voice} speed={coach.speed} />}
-      </div>
-      <div className="-mt-4 space-y-3">
+      {/* float the speaker so the first lines wrap around it instead of hiding under it */}
+      <div className="space-y-3">
+        {coach && (
+          <span className="float-right ml-3 mb-1 leading-none">
+            <SpeakButton text={spoken} voice={coach.voice} speed={coach.speed} />
+          </span>
+        )}
         {step.body.map((p, i) => (
           <p key={i} className="leading-relaxed text-white/85">
             {p}
