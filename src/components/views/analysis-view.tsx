@@ -160,17 +160,21 @@ function FreeAnalysis() {
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
-      <div className="flex gap-2">
-        <EvalBar score={info?.score ?? 0} mateFor={info?.mate ?? null} className="hidden sm:block" />
-        <div className="min-w-0 flex-1">
-          <ChessBoard
-            fen={fen}
-            onMove={onMove}
-            lastMove={lastMove}
-            checkSquare={checkSquare}
-            arrows={bestArrow ? [bestArrow] : []}
-          />
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+      <div>
+        {/* bar + board share one stretch row so the bar matches the board exactly */}
+        <div className="flex gap-2">
+          <EvalBar score={info?.score ?? 0} mateFor={info?.mate ?? null} className="hidden sm:block" />
+          <div className="min-w-0 flex-1">
+            <ChessBoard
+              fen={fen}
+              onMove={onMove}
+              lastMove={lastMove}
+              checkSquare={checkSquare}
+              arrows={bestArrow ? [bestArrow] : []}
+            />
+          </div>
+        </div>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
             <Button variant="secondary" size="sm" onClick={() => setMoves((m) => { gameRef.current.undo(); setFen(gameRef.current.fen()); setLastMove(null); return m.slice(0, -1) })} disabled={moves.length === 0}>
               <ChevronLeft className="h-4 w-4" /> Undo
             </Button>
@@ -194,7 +198,6 @@ function FreeAnalysis() {
               {analyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {info ? `depth ${info.depth} · ${info.score > 0 ? '+' : ''}${info.score.toFixed(1)}` : 'analyzing…'}
             </div>
-          </div>
         </div>
       </div>
 
@@ -548,6 +551,7 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
       <div className="min-w-0">
+        {/* bar + board share one stretch row so the bar matches the board exactly */}
         <div className="flex gap-2">
           <EvalBar score={plyEval?.after ?? 0} className="hidden sm:block" />
           <div className="min-w-0 flex-1">
@@ -556,7 +560,9 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
               interactive={false}
               lastMove={lastPly ? extractLastMove(plies, cursor) : null}
             />
-            <div className="mt-2 flex items-center justify-center gap-2">
+          </div>
+        </div>
+        <div className="mt-2 flex items-center justify-center gap-2">
               <Button variant="secondary" size="sm" onClick={() => setCursor(-1)} disabled={cursor === -1}>
                 Start
               </Button>
@@ -569,8 +575,6 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
               <Button variant="secondary" size="sm" onClick={() => setCursor(plies.length - 1)} disabled={plies.length === 0}>
                 End
               </Button>
-            </div>
-          </div>
         </div>
 
         {/* eval graph */}
