@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { CharacterFace } from '@/components/chess/characters'
 import { cn } from '@/lib/utils'
+import { saveSessionToken } from '@/lib/session'
 import { Check, Loader2, Lock, Mail, UserRound } from 'lucide-react'
 
 type Mode = 'login' | 'signup'
@@ -126,11 +127,17 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       })
-      const data = (await res.json().catch(() => ({}))) as { error?: string }
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string
+        token?: string
+      }
       if (!res.ok) {
         setError(data.error ?? 'Something went wrong. Try again.')
         return
       }
+      // Mirror the session token for browsers that block cookies in the
+      // preview iframe. The cookie (when allowed) keeps working in parallel.
+      if (data.token) saveSessionToken(data.token)
       onAuthed()
     } catch {
       setError('Network error. Check your connection and try again.')

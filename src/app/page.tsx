@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useApp, useHashSync, type ProfileData, type PoolRating } from '@/lib/store'
+import { consumeSessionFragment, clearSessionToken } from '@/lib/session'
 import { Sidebar, MobileNav, AppFooter } from '@/components/shell/app-chrome'
 import { Onboarding } from '@/components/shell/onboarding'
 import { AuthScreen } from '@/components/views/auth-view'
@@ -54,8 +55,14 @@ export default function Page() {
 
   const loadSession = useCallback(async () => {
     try {
+      // OAuth callbacks deliver the token in the URL fragment when cookies
+      // are blocked; consume it before the first /api call.
+      consumeSessionFragment()
       const res = await fetch('/api/auth/me', { cache: 'no-store' })
       if (!res.ok) {
+        // A stored token that no longer resolves is dead weight; drop it so
+        // the next attempt is clean.
+        if (res.status === 401) clearSessionToken()
         setSignedIn(false)
         setLoaded(true)
         return

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useApp, type ViewName } from '@/lib/store'
+import { clearSessionToken } from '@/lib/session'
 import { cn } from '@/lib/utils'
 import {
   Home,
@@ -77,6 +78,7 @@ export function Sidebar() {
             <button
               onClick={async () => {
                 await fetch('/api/auth/logout', { method: 'POST' })
+                clearSessionToken()
                 window.location.reload()
               }}
               className="rounded px-2 py-1 text-[11px] font-semibold text-sidebar-foreground/60 transition-colors hover:bg-white/5 hover:text-white"

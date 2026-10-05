@@ -13,17 +13,20 @@ export async function GET() {
     db.userRating.findMany({ where: { userId: user.id } }),
   ])
 
-  return NextResponse.json({
-    user: { id: user.id, email: user.email, username: user.username, role: user.role },
-    profile,
-    ratings: ratings.map((r) => ({
-      pool: r.pool,
-      rating: Math.round(r.rating),
-      rd: Math.round(r.rd),
-      games: r.games,
-      wins: r.wins,
-      losses: r.losses,
-      draws: r.draws,
-    })),
-  })
+  return NextResponse.json(
+    {
+      user: { id: user.id, email: user.email, username: user.username, role: user.role },
+      profile,
+      ratings: ratings.map((r) => ({
+        pool: r.pool,
+        rating: Math.round(r.rating),
+        rd: Math.round(r.rd),
+        games: r.games,
+        wins: r.wins,
+        losses: r.losses,
+        draws: r.draws,
+      })),
+    },
+    { headers: { 'cache-control': 'no-store' } },
+  )
 }

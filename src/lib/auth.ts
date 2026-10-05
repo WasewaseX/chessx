@@ -3,7 +3,7 @@
 // stores only its SHA-256, so neither the DB nor the cookie alone is enough.
 import 'server-only'
 import { createHash, randomBytes, timingSafeEqual } from 'crypto'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import bcrypt from 'bcryptjs'
 import { db } from '@/lib/db'
 
@@ -67,11 +67,29 @@ export async function destroySession(token: string): Promise<void> {
   await db.session.deleteMany({ where: { id: hashToken(token) } })
 }
 
-/** Resolve the signed-in user from the request cookies, or null. */
-export async function getSessionUser(): Promise<AuthUser | null> {
+/**
+ * The preview panel embeds the app in a cross-site iframe, and some browsers
+ * block third-party cookies there entirely, which makes SameSite=None useless.
+ * Sessions therefore travel two ways: the httpOnly cookie when the browser
+ * allows it, or an Authorization: Bearer header backed by localStorage when it
+ * does not. Both carry the same raw token; the DB only stores its SHA-256.
+ */
+export async function requestSessionToken(): Promise<string | null> {
+  const h = await headers()
+  const auth = h.get('authorization')
+  if (auth?.startsWith('Bearer ')) {
+    const t = auth.slice(7).trim()
+    if (t.length >= 20) return t
+  }
   const store = await cookies()
-  const token = store.get(SESSION_COOKIE)?.value
-  if (!token || token.length < 20) return null
+  const t = store.get(SESSION_COOKIE)?.value
+  return t && t.length >= 20 ? t : null
+}
+
+/** Resolve the signed-in user from the request, or null. */
+export async function getSessionUser(): Promise<AuthUser | null> {
+  const token = await requestSessionToken()
+  if (!token) return null
   const session = await db.session.findUnique({
     where: { id: hashToken(token) },
     include: { user: true },

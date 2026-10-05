@@ -91,6 +91,10 @@ export async function GET(req: NextRequest) {
   const target = new URL(externalUrl(req, '/'))
   // never land on a stale authError from a previous attempt
   target.search = ''
+  // The token rides in the URL fragment as well: browsers that block
+  // third-party cookies never store the session cookie, so the client
+  // consumes #session=... and mirrors it into localStorage instead.
+  target.hash = `session=${token}`
   const res = NextResponse.redirect(target.toString())
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(expiresAt))
   res.cookies.set(OAUTH_STATE_COOKIE, '', { httpOnly: true, path: '/', maxAge: 0 })

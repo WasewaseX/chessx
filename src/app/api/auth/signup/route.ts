@@ -74,7 +74,12 @@ export async function POST(req: NextRequest) {
   })
 
   const { token, expiresAt } = await createSession(user.id)
-  const res = NextResponse.json({ user: { id: user.id, email: user.email, username: user.username } })
+  // Token in the body as well, for browsers that block cookies in the preview
+  // iframe; the client mirrors it into localStorage (see src/lib/session.ts).
+  const res = NextResponse.json(
+    { user: { id: user.id, email: user.email, username: user.username }, token, expiresAt: expiresAt.toISOString() },
+    { headers: { 'cache-control': 'no-store' } },
+  )
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(expiresAt))
   return res
 }
