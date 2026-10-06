@@ -1,4 +1,5 @@
 'use client'
+import { readJson } from '@/lib/api-client'
 
 // Lesson player, chess.com-style: a dark charcoal page with the board as the
 // centerpiece. Left column: the coach persona in a speech bubble (live
@@ -283,7 +284,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           dayKey: new Date().toLocaleDateString('sv-SE'),
         }),
       })
-        .then((r) => r.json())
+        .then((r) => readJson<unknown>(r))
         .then((d) => {
           if (d.profile) useApp.getState().setProfile(d.profile)
           if (reviewItemId) setPendingReview(null)
@@ -416,7 +417,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           </button>
           <div className="min-w-0 flex-1">
             <div className="truncate text-[10px] font-bold uppercase tracking-[0.18em] text-[#262421]/45">
-              Tier {tier.n} · {tier.title}
+              Chapter {tier.n} · {tier.title}
             </div>
             <h1 className="truncate font-book text-base font-semibold text-[#262421] sm:text-lg">{lesson.title}</h1>
           </div>

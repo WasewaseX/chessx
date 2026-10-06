@@ -103,6 +103,9 @@ export async function POST(req: NextRequest) {
   const est = botRating > 0
     ? nextBotElo(profile.botElo, profile.botEloGames, seedForSkill(profile.skillLevel), botRating, score)
     : null
+  // the estimate lives in the same band as every real rating; a value past
+  // 3500 is corrupt, never a real result
+  const estClamped = est ? { rating: Math.min(3500, Math.max(100, est.rating)), delta: est.delta } : null
 
   const record = await db.gameRecord.create({
     data: {
@@ -116,7 +119,7 @@ export async function POST(req: NextRequest) {
       pgn,
       finalFen,
       moveCount,
-      ratingDelta: est ? est.delta : null,
+      ratingDelta: est ? estClamped!.delta : null,
     },
   })
 
@@ -132,7 +135,7 @@ export async function POST(req: NextRequest) {
   } = { botGames: profile.botGames + 1 }
   if (xpGain > 0) data.xp = profile.xp + xpGain
   if (est) {
-    data.botElo = est.rating
+    data.botElo = estClamped!.rating
     data.botEloGames = profile.botEloGames + 1
   }
   await db.profile.update({ where: { id: pid }, data })
@@ -140,5 +143,5 @@ export async function POST(req: NextRequest) {
   await bumpActivity(pid, dayKey, 'gamesPlayed', 1)
 
   const updated = await db.profile.findUnique({ where: { id: pid } })
-  return NextResponse.json({ record, profile: updated, xpGain, estElo: est?.rating ?? null, estDelta: est?.delta ?? null })
+  return NextResponse.json({ record, profile: updated, xpGain, estElo: estClamped?.rating ?? null, estDelta: estClamped?.delta ?? null })
 }

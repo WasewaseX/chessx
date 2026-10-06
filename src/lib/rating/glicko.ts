@@ -18,6 +18,9 @@ export const START_RD = 350
 export const RD_FLOOR = 30
 export const RD_MAX = 350
 export const RATING_FLOOR = 100
+// chess.com's strongest accounts sit far below this; a value past it is
+// corrupt data, never a real result
+export const RATING_CEILING = 3500
 
 // c so that RD 50 reaches 350 after 100 idle days: sqrt((350^2 - 50^2)/100)
 export const RD_INACTIVITY_C = 34.65
@@ -65,7 +68,7 @@ export function applyGame(player: { rating: number; rd: number }, opponents: Gli
   const newRating = player.rating + (GLICKO_Q / denom) * sum
   const newRd = Math.sqrt(1 / denom)
 
-  const clamped = Math.max(RATING_FLOOR, newRating)
+  const clamped = Math.min(RATING_CEILING, Math.max(RATING_FLOOR, newRating))
   return {
     rating: clamped,
     rd: Math.max(RD_FLOOR, Math.min(RD_MAX, newRd)),

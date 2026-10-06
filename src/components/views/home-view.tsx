@@ -1,4 +1,5 @@
 'use client'
+import { readJson } from '@/lib/api-client'
 
 import { useEffect, useMemo, useState } from 'react'
 import { useApp, overallRating } from '@/lib/store'
@@ -64,15 +65,15 @@ export function HomeView() {
 
   useEffect(() => {
     fetch('/api/progress')
-      .then((r) => r.json())
+      .then((r) => readJson<unknown>(r))
       .then((d) => setProgress(d.progress ?? []))
       .catch(() => {})
     fetch('/api/games?limit=5')
-      .then((r) => r.json())
+      .then((r) => readJson<unknown>(r))
       .then((d) => setGames(d.games ?? []))
       .catch(() => {})
     fetch(`/api/puzzles/daily?day=${dayKey}`)
-      .then((r) => r.json())
+      .then((r) => readJson<unknown>(r))
       .then((d) => setDailyDone(Boolean(d.completed)))
       .catch(() => {})
   }, [])

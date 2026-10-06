@@ -1,4 +1,5 @@
 'use client'
+import { readJson } from '@/lib/api-client'
 
 import { io, type Socket } from 'socket.io-client'
 

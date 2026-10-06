@@ -1,4 +1,5 @@
 'use client'
+import { readJson } from '@/lib/api-client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
@@ -185,7 +186,7 @@ function OnlineLobby() {
           setQueueTc(null)
           setOver(d as GameOverView)
           fetch('/api/auth/me')
-            .then((r) => r.json())
+            .then((r) => readJson<unknown>(r))
             .then((me) => {
               if (Array.isArray(me.ratings)) setRatings(me.ratings)
             })
@@ -825,7 +826,7 @@ function GameScreen({
         dayKey: new Date().toLocaleDateString('sv-SE'),
       }),
     })
-      .then((r) => r.json())
+      .then((r) => readJson<unknown>(r))
       .then((d) => {
         if (d.profile) setProfile(d.profile)
         setSavedGameId(d.record?.id ?? null)

@@ -1,4 +1,5 @@
 'use client'
+import { readJson } from '@/lib/api-client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
@@ -57,7 +58,7 @@ export function PuzzlesView() {
 
   const refreshThemeStats = useCallback(() => {
     fetch('/api/puzzles/theme-stats')
-      .then((r) => r.json())
+      .then((r) => readJson<unknown>(r))
       .then((d) => {
         if (d && d.themes) setThemeStats(d.themes)
       })

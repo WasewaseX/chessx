@@ -1,5 +1,6 @@
-// Shared activity pieces: the daily-goal card and the streak calendar.
 'use client'
+import { readJson } from '@/lib/api-client'
+// Shared activity pieces: the daily-goal card and the streak calendar.
 
 import { useEffect, useState } from 'react'
 import { useApp } from '@/lib/store'
@@ -30,7 +31,7 @@ export function useActivity(enabled = true): ActivityData | null {
   useEffect(() => {
     if (!enabled) return
     fetch(`/api/activity?day=${dayKeyLocal()}`)
-      .then((r) => r.json())
+      .then((r) => readJson<unknown>(r))
       .then(setData)
       .catch(() => {})
   }, [enabled, view.name])

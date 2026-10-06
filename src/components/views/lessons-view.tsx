@@ -1,19 +1,21 @@
 'use client'
+import { readJson } from '@/lib/api-client'
 
-// Lessons view: the chess.com-style dark learn page. A winding Duolingo
-// path in a tall panel (coach bubble on top, Next Lesson button pinned at
-// the bottom), with an accessible flat list one toggle away. Progress
-// loads exactly as before from /api/progress; only the presentation changed.
+// The Study: the learn page. A chess workbook, not a game map. Course
+// contents read like a printed book's table of contents (chapters, ledger
+// rows, dotted leaders), the coach leaves a margin note, and one honest
+// sentence up top says why this teaches better than watching videos.
+// Progress loads exactly as before from /api/progress; only presentation.
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { TIERS, findLevel } from '@/content/levels'
 import type { Tier } from '@/content/schema'
 import { useApp } from '@/lib/store'
 import { coachMaybe } from '@/lib/coaches'
 import { CharacterFace } from '@/components/chess/characters'
-import { LessonMap } from '@/components/learn/lesson-map'
+import { LessonContents } from '@/components/learn/lesson-contents'
 import { cn } from '@/lib/utils'
-import { Check, Loader2, List, Lock, Play } from 'lucide-react'
+import { Check, Loader2, Play } from 'lucide-react'
 
 interface ProgressRow {
   lessonId: string
@@ -22,24 +24,14 @@ interface ProgressRow {
   totalSteps: number
 }
 
-type NodeState = 'done' | 'current' | 'locked'
-
-function stateFor(levelId: string, done: Set<string>, nextId: string | null): NodeState {
-  if (done.has(levelId)) return 'done'
-  if (levelId === nextId) return 'current'
-  return 'locked'
-}
-
 export function LessonsView() {
   const { navigate, profile } = useApp()
   const [progress, setProgress] = useState<ProgressRow[]>([])
   const [loading, setLoading] = useState(true)
-  const [showList, setShowList] = useState(false)
-  const scrollRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     fetch('/api/progress')
-      .then((r) => r.json())
+      .then((r) => readJson<unknown>(r))
       .then((d) => setProgress(d.progress ?? []))
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -65,14 +57,14 @@ export function LessonsView() {
   const nextRef = nextId ? (findLevel(nextId) ?? null) : null
   const coach = coachMaybe(profile?.coach)
 
-  // bring the current node into view once progress (or the path) is showing
+  // bring the current row into view once progress is showing
   useEffect(() => {
-    if (loading || showList) return
+    if (loading) return
     const t = window.setTimeout(() => {
       document.getElementById('current-lesson-node')?.scrollIntoView({ block: 'center', behavior: 'smooth' })
     }, 80)
     return () => window.clearTimeout(t)
-  }, [loading, showList])
+  }, [loading])
 
   function jumpToTier(id: string) {
     document.getElementById(`tier-anchor-${id}`)?.scrollIntoView({ block: 'start', behavior: 'smooth' })
@@ -82,247 +74,134 @@ export function LessonsView() {
 
   return (
     <div className="w-full paper text-[#262421]">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 lg:flex-row lg:items-start lg:justify-center lg:gap-10">
-        {/* left context column on desktop, page header on mobile */}
-        <header className="lg:sticky lg:top-6 lg:w-72 lg:shrink-0">
-          <h1 className="font-book text-3xl font-semibold text-[#262421]">Lessons</h1>
-          <p className="mt-2 text-sm leading-relaxed text-[#262421]/70">
-            {doneCount} of {totalLessons} levels complete. Six tiers, twenty levels each: every level is a short
-            interactive workout, not a textbook.
+      <div className="mx-auto w-full max-w-3xl px-4 pb-32 pt-6 sm:px-6 sm:pt-8">
+        {/* page head: title, the honest difference, progress */}
+        <header>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.24em] text-[#6f8f42]">ChessX course</p>
+          <h1 className="mt-1 font-book text-3xl font-semibold text-[#262421] sm:text-4xl">The Study</h1>
+          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-[#262421]/70">
+            Video lessons have you watch. Every level here has you play: you make the moves, and when you slip,
+            your coach shows why before you go on. That correction loop is the whole reason this works.
           </p>
-          <div
-            className="mt-4 h-2 w-full max-w-xs overflow-hidden rounded-full bg-[#262421]/10"
-            role="progressbar"
-            aria-label="Course progress"
-            aria-valuemin={0}
-            aria-valuemax={totalLessons}
-            aria-valuenow={doneCount}
-          >
-            <div className="h-full rounded-full bg-[#81b64c] transition-all" style={{ width: `${pct}%` }} />
+
+          <div className="mt-5 flex items-center gap-3">
+            <div
+              className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-[#262421]/10"
+              role="progressbar"
+              aria-label="Course progress"
+              aria-valuemin={0}
+              aria-valuemax={totalLessons}
+              aria-valuenow={doneCount}
+            >
+              <div className="h-full rounded-full bg-[#81b64c] transition-all duration-500" style={{ width: `${pct}%` }} />
+            </div>
+            <span className="shrink-0 text-xs font-extrabold tabular-nums text-[#262421]/55">
+              {doneCount}/{totalLessons}
+            </span>
           </div>
 
-          <nav aria-label="Jump to tier" className="mt-6 hidden space-y-1 lg:block">
+          {/* chapter quick links */}
+          <nav aria-label="Jump to chapter" className="scroll-slim -mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-1">
             {TIERS.map((tier) => {
               const d = tierDone(tier)
-              const tp = Math.round((d / tier.levels.length) * 100)
               return (
                 <button
                   key={tier.id}
                   onClick={() => jumpToTier(tier.id)}
-                  aria-label={`Jump to the ${tier.title} tier, ${d} of ${tier.levels.length} levels complete`}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-[#262421]/5"
+                  aria-label={`Jump to chapter ${tier.title}, ${d} of ${tier.levels.length} levels complete`}
+                  className={cn(
+                    'flex shrink-0 items-center gap-1.5 rounded-full border border-[#262421]/12 bg-[#fdfbf5] py-1.5 pl-1.5 pr-3 text-xs font-bold text-[#262421]/70 transition-colors hover:border-[#262421]/25 hover:text-[#262421]',
+                    d === tier.levels.length && 'border-[#81b64c]/40 text-[#4a6b28]',
+                  )}
                 >
                   <span
-                    className="grid h-6 w-6 shrink-0 place-items-center rounded text-[11px] font-extrabold text-[#262421]"
+                    aria-hidden="true"
+                    className="grid h-5 w-5 place-items-center rounded-full text-[10px] font-extrabold text-[#262421]"
                     style={{ background: tier.color }}
                   >
-                    {tier.n}
+                    {d === tier.levels.length ? <Check className="h-3 w-3" strokeWidth={3} /> : tier.n}
                   </span>
-                  <span className="flex-1 truncate text-sm font-semibold text-[#262421]/85">{tier.title}</span>
-                  <span className="text-xs font-bold tabular-nums text-[#262421]/50">
-                    {d}/{tier.levels.length}
-                  </span>
-                  <span aria-hidden="true" className="h-1 w-10 shrink-0 overflow-hidden rounded-full bg-[#262421]/10">
-                    <span className="block h-full rounded-full" style={{ width: `${tp}%`, background: tier.color }} />
-                  </span>
+                  {tier.title}
                 </button>
               )
             })}
           </nav>
         </header>
 
-        {/* the path panel */}
-        <section
-          aria-label="Lesson path"
-          className="mx-auto flex w-full max-w-[420px] flex-col overflow-hidden rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] shadow-[0_8px_30px_rgba(38,36,33,0.1)] lg:h-[calc(100dvh-7rem)]"
-        >
-          {/* coach speech bubble */}
-          <div className="flex items-start gap-3 p-4 pb-3">
-            {coach ? (
-              <CharacterFace
-                id={coach.id}
-                label={coach.name}
-                className="h-14 w-14 shrink-0 rounded-full border-2 border-[#5d8534] shadow-md"
-              />
-            ) : (
-              <img
-                src="/brand.svg"
-                alt="ChessX"
-                className="h-14 w-14 shrink-0 rounded-xl border-2 border-[#262421]/10 bg-[#f4f1e8] p-1"
-              />
-            )}
-            <div className="relative min-w-0 flex-1 rounded-2xl bg-[#f4f1e8] px-4 py-3 text-[#262421] shadow-sm">
-              <span aria-hidden="true" className="absolute -left-1 top-5 h-3 w-3 rotate-45 rounded-[2px] bg-[#f4f1e8]" />
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#6f8f42]">
-                {coach ? `${coach.name} · ${coach.title}` : 'ChessX'}
-              </p>
-              {loading ? (
-                <p className="mt-0.5 text-xs text-[#8a8580]">Loading your progress.</p>
-              ) : nextRef ? (
-                <>
-                  <p className="mt-0.5 truncate font-display text-sm font-extrabold">{nextRef.level.title}</p>
-                  <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-[#57534e]">{nextRef.level.subtitle}</p>
-                </>
-              ) : (
-                <>
-                  <p className="mt-0.5 font-display text-sm font-extrabold">Every level complete</p>
-                  <p className="mt-0.5 text-xs leading-snug text-[#57534e]">
-                    All {totalLessons} levels finished. Replay any green node, or take your skills to Play.
-                  </p>
-                </>
-              )}
-              {!coach && !loading && (
-                <p className="mt-1 text-[11px] font-semibold text-[#8a8580]">
-                  Pick a coach in the Coach tab for guided lessons.
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* scrolling path or list */}
-          <div ref={scrollRef} className="scroll-slim lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+        {/* coach margin note */}
+        <aside className="mt-6 flex items-start gap-3 rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] p-4 shadow-sm">
+          {coach ? (
+            <CharacterFace
+              id={coach.id}
+              label={coach.name}
+              className="h-12 w-12 shrink-0 rounded-full border-2 border-[#5d8534] shadow-sm"
+            />
+          ) : (
+            <img
+              src="/brand.svg"
+              alt="ChessX"
+              className="h-12 w-12 shrink-0 rounded-xl border-2 border-[#262421]/10 bg-[#f4f1e8] p-1"
+            />
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#6f8f42]">
+              {coach ? `${coach.name} · ${coach.title}` : 'Your coach'}
+            </p>
             {loading ? (
-              <div className="flex h-40 items-center justify-center" aria-label="Loading progress">
-                <Loader2 className="h-6 w-6 animate-spin text-[#262421]/50" />
-              </div>
-            ) : showList ? (
-              <LessonList tiers={TIERS} done={doneSet} nextId={nextId} onSelect={(id) => navigate('lesson', id)} />
+              <p className="mt-0.5 text-sm text-[#8a8580]">Loading your progress.</p>
+            ) : nextRef ? (
+              <>
+                <p className="mt-0.5 font-display text-sm font-extrabold text-[#262421]">{nextRef.level.title}</p>
+                <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-[#57534e]">{nextRef.level.subtitle}</p>
+              </>
             ) : (
-              <LessonMap tiers={TIERS} done={doneSet} nextId={nextId} onSelect={(id) => navigate('lesson', id)} />
+              <>
+                <p className="mt-0.5 font-display text-sm font-extrabold text-[#262421]">Every level complete</p>
+                <p className="mt-0.5 text-xs leading-snug text-[#57534e]">
+                  All {totalLessons} levels finished. Replay any row, or take your skills to Play.
+                </p>
+              </>
+            )}
+            {!coach && !loading && (
+              <button
+                type="button"
+                onClick={() => navigate('coach')}
+                className="mt-1.5 text-[11px] font-bold text-[#4a6b28] underline underline-offset-2 hover:text-[#3a5520]"
+              >
+                Choose a coach so every hint and correction is theirs.
+              </button>
             )}
           </div>
+        </aside>
 
-          {/* pinned footer */}
-          <div className="border-t border-sidebar-border/70 p-4">
-            <button
-              type="button"
-              onClick={() => setShowList((v) => !v)}
-              aria-expanded={showList}
-              aria-controls="lessons-list"
-              className="mb-2 flex w-full items-center justify-center gap-2 rounded-md py-2 text-xs font-bold uppercase tracking-wide text-[#262421]/60 transition-colors hover:bg-[#262421]/5 hover:text-[#262421]"
-            >
-              <List className="h-4 w-4" />
-              {showList ? 'Show the path' : 'All lessons'}
-            </button>
-            <button
-              type="button"
-              className="btn-hero h-12 w-full text-base"
-              disabled={loading || !nextId}
-              onClick={() => {
-                if (nextId) navigate('lesson', nextId)
-              }}
-            >
-              <Play className="h-5 w-5" />
-              {nextId ? 'Next Lesson' : 'Course complete'}
-            </button>
-          </div>
-        </section>
-      </div>
-    </div>
-  )
-}
-
-/* ---------- accessible flat list of every lesson ---------- */
-
-function LessonList({
-  tiers,
-  done,
-  nextId,
-  onSelect,
-}: {
-  tiers: Tier[]
-  done: Set<string>
-  nextId: string | null
-  onSelect: (levelId: string) => void
-}) {
-  return (
-    <div id="lessons-list" className="space-y-4 px-3 pb-4 pt-1">
-      {tiers.map((tier) => {
-        const d = tier.levels.filter((l) => done.has(l.id)).length
-        return (
-          <div key={tier.id}>
-            <div className="flex items-center gap-2 px-1 pb-1.5">
-              <span
-                className="grid h-5 w-5 shrink-0 place-items-center rounded text-[10px] font-extrabold text-[#262421]"
-                style={{ background: tier.color }}
-              >
-                {tier.n}
-              </span>
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-[#262421]/80">{tier.title}</h3>
-              <span className="text-[11px] font-bold tabular-nums text-[#262421]/40">
-                {d}/{tier.levels.length}
-              </span>
-              <span aria-hidden="true" className="h-px flex-1 bg-[#262421]/15" />
+        {/* the workbook contents */}
+        <main className="mt-8">
+          {loading ? (
+            <div className="flex h-40 items-center justify-center" aria-label="Loading progress">
+              <Loader2 className="h-6 w-6 animate-spin text-[#262421]/50" />
             </div>
-            <ul className="space-y-1">
-              {tier.levels.map((level) => {
-                const state = stateFor(level.id, done, nextId)
-                const locked = state === 'locked'
-                const row = (
-                  <>
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        'grid h-6 w-6 shrink-0 place-items-center rounded-full',
-                        state === 'done' && 'bg-[#81b64c]',
-                        state === 'current' && 'bg-[#e8a33d]',
-                        locked && 'bg-[#262421]/10',
-                      )}
-                    >
-                      {state === 'done' && <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
-                      {state === 'current' && <Play className="h-3 w-3 fill-white text-white" />}
-                      {locked && <Lock className="h-3 w-3 text-[#262421]/40" />}
-                    </span>
-                    <span className="w-5 shrink-0 text-right text-xs font-bold tabular-nums text-[#262421]/45">
-                      {level.n}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span
-                        className={cn(
-                          'block truncate text-sm font-bold',
-                          locked ? 'text-[#262421]/50' : 'text-[#262421]',
-                        )}
-                      >
-                        {level.title}
-                      </span>
-                      <span className="block truncate text-xs text-[#262421]/45">{level.subtitle}</span>
-                    </span>
-                    <span className="shrink-0 text-[11px] font-semibold text-[#262421]/40">
-                      {level.minutes} min
-                    </span>
-                  </>
-                )
-                return (
-                  <li key={level.id} className="list-none">
-                    {locked ? (
-                      <div
-                        aria-disabled="true"
-                        aria-label={`Level ${level.n}: ${level.title}. Locked. Finish the earlier levels first.`}
-                        className="flex min-h-[44px] w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left opacity-70"
-                      >
-                        {row}
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => onSelect(level.id)}
-                        aria-label={`Level ${level.n}: ${level.title}. ${state === 'done' ? 'Completed. Select to replay.' : 'Current lesson.'}`}
-                        aria-current={state === 'current' ? 'step' : undefined}
-                        className={cn(
-                          'flex min-h-[44px] w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-[#262421]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#262421]/40',
-                          state === 'current' && 'bg-[#e8a33d]/10 ring-1 ring-[#e8a33d]/30 hover:bg-[#e8a33d]/15',
-                        )}
-                      >
-                        {row}
-                      </button>
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        )
-      })}
+          ) : (
+            <LessonContents tiers={TIERS} done={doneSet} nextId={nextId} onSelect={(id) => navigate('lesson', id)} />
+          )}
+        </main>
+      </div>
+
+      {/* pinned primary action */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-16 z-30 px-4 lg:bottom-6">
+        <div className="pointer-events-auto mx-auto w-full max-w-3xl">
+          <button
+            type="button"
+            className="btn-hero h-12 w-full text-base shadow-[0_10px_30px_rgba(38,36,33,0.25)]"
+            disabled={loading || !nextId}
+            onClick={() => {
+              if (nextId) navigate('lesson', nextId)
+            }}
+          >
+            <Play className="h-5 w-5" />
+            {nextId ? 'Continue: pick up where you left off' : 'Course complete'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

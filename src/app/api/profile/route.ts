@@ -29,6 +29,18 @@ export async function GET() {
     })
   }
   const ratings = await db.userRating.findMany({ where: { userId: user.id } })
+  // self-heal: a rating outside 100..3500 is corrupt data from an older build,
+  // never a real result. Repair to the skill seed instead of showing an
+  // impossible number.
+  for (const r of ratings) {
+    if (r.rating > 3500 || r.rating < 100) {
+      const fixed = await db.userRating.update({
+        where: { id: r.id },
+        data: { rating: seedForSkill(profile.skillLevel), rd: 350 },
+      })
+      Object.assign(r, fixed)
+    }
+  }
   return NextResponse.json({
     profile: publicProfile(profile),
     ratings: ratings.map(publicRating),

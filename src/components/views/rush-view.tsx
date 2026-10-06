@@ -1,5 +1,6 @@
-// Puzzle Rush: speed solving against the clock or survival with 3 strikes.
 'use client'
+import { readJson } from '@/lib/api-client'
+// Puzzle Rush: speed solving against the clock or survival with 3 strikes.
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'

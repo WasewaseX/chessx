@@ -1,4 +1,5 @@
 'use client'
+import { readJson } from '@/lib/api-client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
@@ -1057,7 +1058,7 @@ function InsightsPanel() {
 
   useEffect(() => {
     fetch('/api/insights')
-      .then((r) => r.json())
+      .then((r) => readJson<unknown>(r))
       .then((d) => {
         setData(d)
         setLoaded(true)

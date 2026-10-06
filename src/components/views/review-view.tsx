@@ -1,6 +1,7 @@
+'use client'
+import { readJson } from '@/lib/api-client'
 // Spaced-repetition Review: missed puzzles and shaky lessons resurface here
 // on an SM-2 derived schedule, next to the weakest concepts from the skill model.
-'use client'
 
 import { useEffect, useState } from 'react'
 import { useApp } from '@/lib/store'
@@ -74,7 +75,7 @@ export function ReviewView() {
 
   useEffect(() => {
     fetch('/api/review')
-      .then((r) => r.json())
+      .then((r) => readJson<unknown>(r))
       .then((d) => {
         setQueue(d.queue ?? [])
         setDueCount(d.dueCount ?? 0)

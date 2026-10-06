@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import type { ReviewItem } from '@prisma/client'
 import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
-import { newRating, seedForSkill } from '@/lib/rating'
+import { newRating, seedForSkill, clampRating } from '@/lib/rating'
 import { bumpActivity, gradeReview, missReview, sanitizeConcepts, updateMastery } from '@/lib/server/skill'
 import { PUZZLES } from '@/content/puzzles'
 import { dayKeyLocal } from '@/lib/day'
@@ -43,6 +43,8 @@ export async function POST(req: NextRequest) {
   const current = profile.puzzleRating ?? seedForSkill(profile.skillLevel)
   const score = solved ? 1 : 0
   const { rating, delta } = newRating(current, puzzleRating, score, profile.puzzleCount, 32, 64)
+  // every rating lives in the 100..3500 band; anything else is corrupt
+  const ratingSafe = clampRating(rating)
 
   const streak = solved ? profile.puzzleStreak + 1 : 0
   const xpGain = solved ? 10 + Math.min(streak, 10) : 0
@@ -50,7 +52,7 @@ export async function POST(req: NextRequest) {
   await db.profile.update({
     where: { id: pid },
     data: {
-      puzzleRating: rating,
+      puzzleRating: ratingSafe,
       puzzleCount: profile.puzzleCount + 1,
       puzzleStreak: streak,
       bestPuzzleStreak: Math.max(profile.bestPuzzleStreak, streak),

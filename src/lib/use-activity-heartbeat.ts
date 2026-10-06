@@ -1,6 +1,6 @@
+'use client'
 // Active-minute heartbeat. While the player is actually interacting with the
 // app the client posts one minute at a time; idle time never counts.
-'use client'
 
 import { useEffect, useRef } from 'react'
 import { dayKeyLocal } from '@/lib/day'

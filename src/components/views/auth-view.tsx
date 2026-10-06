@@ -1,4 +1,5 @@
 'use client'
+import { readJson } from '@/lib/api-client'
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -207,8 +208,8 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
               step as you go. Not videos to sit through.
             </Feature>
             <Feature>
-              One Elo, started at 400, moved only by rated games, using the same Glicko math
-              chess.com runs. A 1100 there is a 1100 here.
+              One Elo, seeded at the level you pick, moved only by rated games, with the same Glicko
+              math chess.com runs. A 1100 there is a 1100 here, not a 700 and not a 1600.
             </Feature>
           </ul>
 

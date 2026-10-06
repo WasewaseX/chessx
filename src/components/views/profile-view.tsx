@@ -1,4 +1,5 @@
 'use client'
+import { readJson } from '@/lib/api-client'
 
 import { useEffect, useState } from 'react'
 import { useApp, overallRating } from '@/lib/store'
@@ -33,11 +34,11 @@ export function ProfileView() {
 
   useEffect(() => {
     fetch('/api/games?limit=50')
-      .then((r) => r.json())
+      .then((r) => readJson<unknown>(r))
       .then((d) => setGames(d.games ?? []))
       .catch(() => {})
     fetch('/api/progress')
-      .then((r) => r.json())
+      .then((r) => readJson<unknown>(r))
       .then((d) => setProgress(d.progress ?? []))
       .catch(() => {})
   }, [])

@@ -1,6 +1,16 @@
 // Elo updates and provisional handling.
 // A rating of `null` means "unrated": we never show invented numbers.
 
+// Hard band for every stored or displayed rating. chess.com's live pools top
+// out far below 3500, so anything outside this band is corrupted data from an
+// older build, never a real result. Writers clamp, readers repair.
+export const RATING_MIN = 100
+export const RATING_MAX = 3500
+
+export function clampRating(value: number): number {
+  return Math.min(RATING_MAX, Math.max(RATING_MIN, value))
+}
+
 export function expectedScore(a: number, b: number): number {
   return 1 / (1 + Math.pow(10, (b - a) / 400))
 }
@@ -16,7 +26,8 @@ export function newRating(
   const k = gamesPlayed < 10 ? provisionalK : baseK
   const exp = expectedScore(rating, opponent)
   const delta = Math.round(k * (score - exp))
-  return { rating: Math.max(100, rating + delta), delta }
+  const next = Math.min(RATING_MAX, Math.max(RATING_MIN, rating + delta))
+  return { rating: next, delta: Math.round(next - rating) }
 }
 
 // Seed used the first time someone plays a rated game, from the
@@ -56,11 +67,11 @@ export function potentialElo(input: {
   const hasBot = input.botGames > 0 && input.botElo > 0
   const hasPuzzle = input.puzzleCount > 0 && input.puzzleRating != null
   if (hasBot && hasPuzzle && input.puzzleRating != null) {
-    const value = Math.round(input.botElo * 0.8 + input.puzzleRating * 0.2)
+    const value = clampRating(Math.round(input.botElo * 0.8 + input.puzzleRating * 0.2))
     return { value, from: 'bots and puzzles' }
   }
-  if (hasBot) return { value: input.botElo, from: 'bot games' }
-  if (hasPuzzle && input.puzzleRating != null) return { value: input.puzzleRating, from: 'puzzles' }
+  if (hasBot) return { value: clampRating(input.botElo), from: 'bot games' }
+  if (hasPuzzle && input.puzzleRating != null) return { value: clampRating(input.puzzleRating), from: 'puzzles' }
   return null
 }
 

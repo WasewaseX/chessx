@@ -1,4 +1,5 @@
 'use client'
+import { readJson } from '@/lib/api-client'
 
 // Coach selection: nothing in ChessX picks a coach for you. Every surface that
 // needs a coach renders a chooser until the player has picked one.

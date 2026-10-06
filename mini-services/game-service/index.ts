@@ -30,7 +30,24 @@ const Q = 0.0057565
 const RD_FLOOR = 30
 const RD_MAX = 350
 const RATING_FLOOR = 100
+const RATING_CEILING = 3500
 const RD_INACTIVITY_C = 34.65
+
+// chess.com seeds a new account from the self-assessed level, never a flat
+// number, so a 1100 chess.com player picks "intermediate" and starts near
+// 1200 with the same Glicko-1 math pulling them to their true strength.
+const SKILL_SEEDS: Record<string, number> = {
+  new: 400,
+  beginner: 800,
+  intermediate: 1200,
+  advanced: 1600,
+  expert: 2000,
+}
+
+async function seedFor(userId: string): Promise<number> {
+  const profile = await prisma.profile.findUnique({ where: { userId }, select: { skillLevel: true } })
+  return SKILL_SEEDS[profile?.skillLevel ?? 'beginner'] ?? 800
+}
 
 const TIME_CONTROLS: Record<string, { initialSec: number; incSec: number; pool: 'bullet' | 'blitz' | 'rapid' }> = {
   '1+0': { initialSec: 60, incSec: 0, pool: 'bullet' },
@@ -62,7 +79,7 @@ function applyGlicko(
   const denom = 1 / (player.rd * player.rd) + invD
   const newRating = player.rating + (Q / denom) * (g * (score - e))
   const newRd = Math.sqrt(1 / denom)
-  const clamped = Math.max(RATING_FLOOR, newRating)
+  const clamped = Math.min(RATING_CEILING, Math.max(RATING_FLOOR, newRating))
   return { rating: clamped, rd: Math.max(RD_FLOOR, Math.min(RD_MAX, newRd)), delta: Math.round(clamped - player.rating) }
 }
 
@@ -156,8 +173,19 @@ const RATING_POOL = 'overall'
 
 async function ratingFor(userId: string) {
   const r = await prisma.userRating.findUnique({ where: { userId_pool: { userId, pool: RATING_POOL } } })
-  if (r) return r
-  return prisma.userRating.create({ data: { userId, pool: RATING_POOL } })
+  if (!r) {
+    // no row yet: seed from the self-assessed level, like chess.com does
+    return prisma.userRating.create({ data: { userId, pool: RATING_POOL, rating: await seedFor(userId) } })
+  }
+  // a rating outside 100..3500 is corrupt data from an older build, never a
+  // real result; repair it here so an impossible number can never show
+  if (r.rating > RATING_CEILING || r.rating < RATING_FLOOR) {
+    return prisma.userRating.update({
+      where: { id: r.id },
+      data: { rating: await seedFor(userId), rd: RD_MAX },
+    })
+  }
+  return r
 }
 
 function leaveQueue(userId: string) {
