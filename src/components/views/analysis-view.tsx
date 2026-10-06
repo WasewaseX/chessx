@@ -160,7 +160,7 @@ function FreeAnalysis() {
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
+    <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
       <div>
         {/* bar + board share one stretch row so the bar matches the board exactly */}
         <div className="flex gap-2">
@@ -550,7 +550,7 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
+    <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
       <div className="min-w-0">
         {/* bar + board share one stretch row so the bar matches the board exactly */}
         <div className="flex gap-2">
@@ -1077,7 +1077,7 @@ function InsightsPanel() {
   const analyzed = data?.games.filter((g) => g.playerAcc != null) ?? []
   if (analyzed.length === 0) {
     return (
-      <div className="mx-auto max-w-xl rounded-xl bg-card p-8 text-center shadow-sm">
+      <div className="mx-auto max-w-xl rounded-xl bg-card p-6 text-center shadow-sm">
         <h2 className="font-display text-xl font-extrabold">No analyzed games yet</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Play a game in the Play tab, press Game review, then Analyze game. Insights build from

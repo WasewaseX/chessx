@@ -492,7 +492,7 @@ export function PuzzlesView() {
       )}
 
       {puzzle && tab !== 'rush' && phase !== 'loading' && (
-        <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
+        <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
           <div className="mx-auto w-full max-w-[600px]">
             <ChessBoard
               fen={fen}

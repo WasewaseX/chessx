@@ -72,7 +72,11 @@ export function Sidebar() {
             <div className="min-w-0">
               <div className="truncate font-bold text-sidebar-foreground">{user?.username ?? profile.name}</div>
               <div className="mt-0.5">
-                {elo ? `Elo ${elo.rating}${elo.games < 5 ? '?' : ''}` : 'Elo pending, pick a level in Profile'}
+                {elo
+                  ? elo.games < 5
+                    ? `Elo ${elo.rating}, provisional`
+                    : `Elo ${elo.rating}`
+                  : 'Elo pending, pick a level in Profile'}
               </div>
             </div>
             <button

@@ -316,7 +316,7 @@ export function RushPanel() {
   if (phase === 'over' && result) {
     return (
       <div className="mx-auto max-w-xl py-10">
-        <div className="rounded-xl bg-card p-8 text-center shadow-sm">
+        <div className="rounded-xl bg-card p-6 text-center shadow-sm">
           <Trophy className={cn('mx-auto h-10 w-10', result.isNewBest ? 'text-[#e6a82c]' : 'text-primary')} />
           <div className="mt-3 font-display text-4xl font-extrabold">{result.score}</div>
           <div className="text-sm text-muted-foreground">
@@ -349,7 +349,7 @@ export function RushPanel() {
       : `${elapsed}s`
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
+    <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
       <div className="relative mx-auto w-full max-w-[600px]">
         <ChessBoard
           fen={fen}

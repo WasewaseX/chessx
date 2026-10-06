@@ -112,10 +112,14 @@ export function sessionCookieOptions(expiresAt: Date) {
     httpOnly: true,
     // The app regularly runs inside the preview panel's cross-site iframe,
     // where SameSite=Lax cookies are stored but never sent back. SameSite=None
-    // keeps the session alive there; Secure is required for None. CSRF stays
-    // covered by the originOk check on every state-changing route.
+    // keeps the session alive there; Secure is required for None. Partitioned
+    // opts the cookie into CHIPS so browsers that block third-party cookies
+    // still store and send it inside the iframe. CSRF stays covered by the
+    // originOk check on every state-changing route, and blocked-cookie clients
+    // fall back to the Authorization header from src/lib/session.ts.
     secure: true,
     sameSite: 'none' as const,
+    partitioned: true,
     path: '/',
     expires: expiresAt,
   }

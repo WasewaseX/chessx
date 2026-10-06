@@ -109,7 +109,7 @@ export function ReviewView() {
           <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Checking the queue…
         </div>
       ) : (
-        <div className="grid gap-5">
+        <div className="grid gap-6">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl bg-card p-6 shadow-sm">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
@@ -137,7 +137,7 @@ export function ReviewView() {
           </div>
 
           {queue.length === 0 ? (
-            <div className="rounded-xl bg-card p-8 text-center shadow-sm">
+            <div className="rounded-xl bg-card p-6 text-center shadow-sm">
               <div className="font-display text-lg font-bold">Nothing due right now.</div>
               <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
                 When a rated puzzle gets the better of you, or a lesson only clicks with hints, it lands here so you can face it again with fresh eyes.
