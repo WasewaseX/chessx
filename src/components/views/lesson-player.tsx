@@ -880,7 +880,9 @@ function DemoBoard({
   const [shownFen, setShownFen] = useState(fen)
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null)
   const [depth, setDepth] = useState(0) // plies played away from the authored position
-  const [autoplay, setAutoplay] = useState(Boolean(moves?.length))
+  // The line never plays itself: the reader predicts first, then taps
+  // "Watch the line". Autoplay here only means "the scripted line is running".
+  const [autoplay, setAutoplay] = useState(false)
   const [flashes, setFlashes] = useState<FlashMark[]>([])
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
   const flashTimersRef = useRef<ReturnType<typeof setTimeout>[]>([])
@@ -936,11 +938,6 @@ function DemoBoard({
     },
     [moves, fen, soundEnabled, clearTimers],
   )
-
-  // auto-play the line once when the step appears
-  useEffect(() => {
-    if (moves?.length) playLine(650)
-  }, [fen])
 
   function onMove(from: Square, to: Square, promotion?: string) {
     if (autoplay) return
@@ -1031,7 +1028,11 @@ function DemoBoard({
         </div>
       </div>
       {!autoplay && depth === 0 && (
-        <p className="mt-1 text-xs text-[#262421]/40">This board is yours to explore. Pick up any piece and try moves.</p>
+        <p className="mt-1 text-xs text-[#262421]/40">
+          {moves?.length
+            ? 'Call your guess first, then tap Watch the line. After that, the board is yours to explore.'
+            : 'This board is yours to explore. Pick up any piece and try moves.'}
+        </p>
       )}
     </div>
   )
@@ -1634,7 +1635,7 @@ function GtmStepView({
     score >= total * 0.85
       ? 'You were reading the position the same way the master did.'
       : score >= total * 0.5
-        ? 'Solid instincts. The ideas you missed are now part of your toolkit.'
+        ? 'Solid instincts. The ideas you missed are exactly the ones worth stealing for your own games.'
         : 'Now you have seen the full idea once. Play it again, and see how much more you find.'
 
   const bubbleTone: BubbleTone = phase === 'done' ? 'praise' : feedback?.tone ?? 'neutral'
@@ -1748,6 +1749,7 @@ function PlayoutStepView({
     }
     return bal
   }
+  const bal = materialBalance(game)
 
   const castled = (g: Chess) => {
     // castle rights gone + king on g1/c1 (or g8/c8) counts as castled
@@ -1774,10 +1776,11 @@ function PlayoutStepView({
         if (step.success === 'material') return materialBalance(g) >= 3 ? 'won' : 'lost'
         return 'draw'
       }
-      // early material check
+      // early material check: past this deficit the game is unrecoverable,
+      // below it one blunder should still be survivable
       if (step.success !== 'draw') {
         const bal = materialBalance(g)
-        if (bal <= -3) return 'lost'
+        if (bal <= -5) return 'lost'
       }
       if (step.success === 'castle' && castled(g)) return 'won'
       if (step.success === 'material' && materialBalance(g) >= 3 && moves.length >= 2) return 'won'
@@ -1871,7 +1874,12 @@ function PlayoutStepView({
       </BoardPlate>
 
       <div className="mt-3 text-center text-sm text-[#262421]/55">
-        {thinking ? 'Opponent thinking…' : moves.length > 0 ? `Moves played: ${moves.length}` : 'Your move.'}
+        <p>{thinking ? 'Opponent thinking…' : `Move ${Math.floor(moves.length / 2) + 1} of ${step.maxMoves ?? 12}`}</p>
+        {step.success === 'material' && (
+          <p className="mt-1 font-semibold text-[#262421]/70">
+            Material: {bal > 0 ? `you +${bal}` : bal < 0 ? `them +${-bal}` : 'even'}
+          </p>
+        )}
       </div>
 
       <div className="mt-3">

@@ -597,7 +597,7 @@ export const beginner: Tier = {
           1,
           'material',
           14,
-          'The toolkit worked in a live game. That is the whole point of drills.',
+          'The scan worked in a live game. That is the whole point of drills.',
           'Reset: scan for loose pieces first, count before every capture, and remove defenders when the math says yes.',
         ),
       ],
@@ -824,7 +824,7 @@ export const beginner: Tier = {
           wrong('Passed', 'Passed means a clear road. A wall in front is the opposite.'),
           wrong('Doubled', 'Doubled means two of your own pawns on the same file. Different problem.'),
         ]),
-        drill('Start the march', '4k3/8/8/1P6/8/8/8/4K3 w - - 0 1', ['b6'], 'The b-pawn is passed. Begin the journey.', 'The pawn on b5 has a clear road. Start with b6.', 'b6. Every step forward raises its price. The opponent must spend pieces to stop it.'),
+        drill('Start the march', '4k3/8/8/1P6/8/8/8/4K3 w - - 0 1', ['b6'], 'The b-pawn is passed. Walk it home.', 'The pawn on b5 has a clear road. Start with b6.', 'b6. Every step forward raises its price. The opponent must spend pieces to stop it.'),
         playout(
           'Push the majority',
           'You have a healthy pawn majority. Push it, use your king, and win material or promote.',

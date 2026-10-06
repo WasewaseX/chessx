@@ -26,7 +26,10 @@ export interface DemoStep {
   title: string
   body: string[]
   fen: string
-  /** SAN moves played automatically on the board, one per tap of "Next". */
+  /**
+   * SAN moves the reader plays by tapping "Watch the line": they predict
+   * first, the board then reveals the line one paced move at a time.
+   */
   moves?: string[]
   arrows?: Arrow[]
   marks?: SquareMark[]

@@ -505,7 +505,7 @@ export const grandmaster: Tier = {
           wrong('The point system says so', 'The point system says 1. The board says a piece.'),
         ]),
         text(
-          'The professional toolkit',
+          'The professional method',
           [
             'Three wins to own completely: Lucena (build the bridge), the cutting-off (rook parks the enemy king on a rank while your king escorts the pawn), and the wrong rook position (when the defending rook is passively placed behind the pawn, the win is routine).',
             'The meta-skill: reach these positions FROM slightly worse ones by exact play a dozen moves earlier. That is what "technical" means: knowing which endgame to aim for before it exists.',

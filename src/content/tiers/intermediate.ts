@@ -949,7 +949,7 @@ export const intermediate: Tier = {
           2,
           'material',
           15,
-          'King activity, opposition, promotion: the full pawn-ending toolkit in one game.',
+          'King activity, opposition, promotion: the full pawn-ending method in one game.',
         ),
       ],
     },

@@ -436,7 +436,7 @@ export const master: Tier = {
         ]),
         playout(
           'Spend it now',
-          'You start with the full toolkit. Convert your ideas into material before the engine equalizes.',
+          'You start with every weapon you own. Convert your ideas into material before the engine equalizes.',
           START,
           'w',
           'Win at least 3 points of material within 18 moves',
