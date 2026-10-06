@@ -33,8 +33,9 @@ export function quiz(
   question: string,
   options: QuizOption[],
   body?: string,
+  fen?: string,
 ): QuizStep {
-  return { type: 'quiz', title, question, options, body }
+  return { type: 'quiz', title, question, options, ...(body ? { body } : {}), ...(fen ? { fen } : {}) }
 }
 
 export function drill(
@@ -44,7 +45,7 @@ export function drill(
   goal: string,
   hint: string,
   success: string,
-  opts: { body?: string[]; explanation?: string } = {},
+  opts: { body?: string; explanation?: string } = {},
 ): ExerciseStep {
   return {
     type: 'exercise',
@@ -56,6 +57,27 @@ export function drill(
     success,
     ...(opts.body ? { body: opts.body } : {}),
     ...(opts.explanation ? { explanation: opts.explanation } : {}),
+  }
+}
+
+export function exercise(
+  title: string,
+  body: string[],
+  fen: string,
+  solution: string[],
+  goal: string,
+  hint: string,
+  success: string,
+): ExerciseStep {
+  return {
+    type: 'exercise',
+    title,
+    fen,
+    solution,
+    goal,
+    hint,
+    success,
+    ...(body.length ? { body: body.join(' ') } : {}),
   }
 }
 

@@ -640,7 +640,14 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                   onBubble={handleBubble}
                 />
               ) : (
-                <QuizStepView key={stepIdx} step={step} onPass={() => setCanAdvance(true)} onBubble={handleBubble} />
+                <QuizStepView
+                  key={stepIdx}
+                  step={step}
+                  stepIdx={stepIdx}
+                  soundEnabled={profile?.soundEnabled ?? true}
+                  onPass={() => setCanAdvance(true)}
+                  onBubble={handleBubble}
+                />
               )}
 
               {/* action bar */}
@@ -1032,10 +1039,14 @@ function DemoBoard({
 
 function QuizStepView({
   step,
+  stepIdx,
+  soundEnabled,
   onPass,
   onBubble,
 }: {
   step: Extract<LessonStep, { type: 'quiz' }>
+  stepIdx: number
+  soundEnabled: boolean
   onPass: () => void
   onBubble: (m: BubbleMsg | null) => void
 }) {
@@ -1073,6 +1084,13 @@ function QuizStepView({
   return (
     <div className="mx-auto w-full max-w-2xl rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)] sm:p-6">
       {step.body && <p className="text-sm leading-relaxed text-[#262421]/60">{step.body}</p>}
+      {step.fen && (
+        <div className="mt-3">
+          <BoardPlate>
+            <DemoBoard key={stepIdx} fen={step.fen} soundEnabled={soundEnabled} />
+          </BoardPlate>
+        </div>
+      )}
       <p className="mt-3 font-book text-lg font-semibold text-[#262421] sm:text-xl">{step.question}</p>
       <div className="mt-4 grid gap-2">
         {step.options.map((o, i) => {
