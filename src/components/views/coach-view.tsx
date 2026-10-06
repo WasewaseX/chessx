@@ -90,8 +90,8 @@ export function CoachView() {
     ;(async () => {
       try {
         const res = await fetch('/api/games?limit=50')
-        const data = await res.json()
-        const g = (data.games as Array<{ id: string; pgn?: string; finalFen?: string; botName?: string }> | undefined)?.find(
+        const data = await readJson<{ games?: Array<{ id: string; pgn?: string; finalFen?: string; botName?: string }> }>(res)
+        const g = data.games?.find(
           (x) => x.id === pendingGame,
         )
         if (cancelled) return
@@ -229,8 +229,8 @@ export function CoachView() {
   const reviewLastGame = useCallback(async () => {
     try {
       const res = await fetch('/api/games?limit=5')
-      const data = await res.json()
-      const g = (data.games as Array<{ id: string; pgn?: string; opponent?: string; botName?: string; finalFen?: string }> | undefined)?.[0]
+      const data = await readJson<{ games?: Array<{ id: string; pgn?: string; opponent?: string; botName?: string; finalFen?: string }> }>(res)
+      const g = data.games?.[0]
       if (!g?.pgn) {
         setError('No games to review yet. Play one against a bot first.')
         return

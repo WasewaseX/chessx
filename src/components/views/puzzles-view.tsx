@@ -6,7 +6,7 @@ import { Chess, type Square } from 'chess.js'
 import { ChessBoard, type FlashMark } from '@/components/chess/board'
 import { PUZZLES, PUZZLE_THEMES } from '@/content/puzzles'
 import type { Puzzle } from '@/content/schema'
-import { useApp } from '@/lib/store'
+import { useApp, type ProfileData } from '@/lib/store'
 import { engine } from '@/lib/chess/engine-client'
 import { playSound } from '@/lib/chess/sounds'
 import { Button } from '@/components/ui/button'
@@ -109,7 +109,7 @@ export function PuzzlesView() {
     const dayKey = new Date().toLocaleDateString('sv-SE')
     try {
       const res = await fetch(`/api/puzzles/daily?day=${dayKey}`)
-      const d = await res.json()
+      const d = await readJson<{ puzzle?: Puzzle; seriesNumber?: number }>(res)
       if (d.puzzle) {
         setState({ puzzle: d.puzzle, dayKey, seriesNumber: d.seriesNumber, daily: true })
         startPuzzle(d.puzzle)
@@ -226,7 +226,7 @@ export function PuzzlesView() {
             reviewItemId,
           }),
         })
-        const d = await res.json()
+        const d = await readJson<{ profile?: ProfileData; ratingDelta?: number | null; graded?: { intervalDays?: number } | null }>(res)
         if (d.profile) setProfile(d.profile)
         setRatingDelta(d.ratingDelta ?? null)
         if (isReview) {

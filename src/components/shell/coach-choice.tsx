@@ -38,7 +38,7 @@ export function usePickCoach() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ coach: id }),
       })
-      const data = await res.json()
+      const data = await readJson<{ profile?: { id: string } }>(res)
       if (data.profile) setProfile(data.profile)
       return COACHES.find((c) => c.id === id) ?? null
     } finally {

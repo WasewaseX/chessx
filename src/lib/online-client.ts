@@ -63,7 +63,7 @@ let connecting: Promise<Socket> | null = null
 async function mintTicket(): Promise<string> {
   const res = await fetch('/api/auth/ticket', { method: 'POST' })
   if (!res.ok) throw new Error('Not signed in')
-  const d = await res.json()
+  const d = await readJson<{ ticket: string }>(res)
   return d.ticket as string
 }
 

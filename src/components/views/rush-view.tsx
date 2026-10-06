@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
 import { ChessBoard, type FlashMark } from '@/components/chess/board'
 import type { Puzzle } from '@/content/schema'
-import { useApp } from '@/lib/store'
+import { useApp, type ProfileData } from '@/lib/store'
 import { playSound } from '@/lib/chess/sounds'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -70,7 +70,7 @@ export function RushPanel() {
     setPhase('loading')
     try {
       const res = await fetch('/api/puzzles/rush')
-      const d = await res.json()
+      const d = await readJson<{ puzzles?: Puzzle[] }>(res)
       setBatch(d.puzzles ?? [])
       return (d.puzzles ?? []) as Puzzle[]
     } catch {
@@ -123,7 +123,7 @@ export function RushPanel() {
             dayKey: new Date().toLocaleDateString('sv-SE'),
           }),
         })
-        const d = await res.json()
+        const d = await readJson<{ profile?: ProfileData }>(res)
         if (d.profile) setProfile(d.profile)
         setResult({
           score: finalScore,

@@ -34,7 +34,7 @@ export function Onboarding() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim() || 'Player', skillLevel: skill, coach: coachId, onboarded: true }),
       })
-      const data = await res.json()
+      const data = await readJson<{ profile?: { id: string } }>(res)
       setProfile(data.profile)
     } finally {
       setBusy(false)

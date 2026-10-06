@@ -52,8 +52,8 @@ export function ProfileView() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ goalMinutes: goal }),
       })
-      const d = await res.json()
-      if (d.profile) patchProfile(d.profile)
+      const d = await readJson<{ profile?: Record<string, unknown> }>(res)
+      if (d.profile) patchProfile(d.profile as never)
     } catch {
       /* keep optimistic value */
     }
