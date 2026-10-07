@@ -10,7 +10,7 @@ import { numOr, publicProfile } from '@/lib/api'
  * and small capped XP are the only residue.
  */
 
-const MODES = ['white', 'black', 'both'] as const
+const MODES = ['white', 'black', 'both', 'hunt'] as const
 type Mode = (typeof MODES)[number]
 
 function isMode(v: unknown): v is Mode {
@@ -23,7 +23,7 @@ async function bests(profileId: string) {
     orderBy: { score: 'desc' },
     take: 200,
   })
-  const best: Record<Mode, number> = { white: 0, black: 0, both: 0 }
+  const best: Record<Mode, number> = { white: 0, black: 0, both: 0, hunt: 0 }
   for (const r of rows) {
     if (isMode(r.mode) && r.score > best[r.mode]) best[r.mode] = r.score
   }
@@ -34,7 +34,7 @@ export async function GET() {
   const user = await getSessionUser()
   if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
   const profile = await db.profile.findUnique({ where: { userId: user.id } })
-  if (!profile) return NextResponse.json({ best: { white: 0, black: 0, both: 0 } })
+  if (!profile) return NextResponse.json({ best: { white: 0, black: 0, both: 0, hunt: 0 } })
   return NextResponse.json({ best: await bests(profile.id) })
 }
 
@@ -51,6 +51,8 @@ export async function POST(req: NextRequest) {
   const score = numOr(body.score, 0, 0, 200)
   const mistakes = numOr(body.mistakes, 0, 0, 500)
   const seconds = numOr(body.seconds, 0, 0, 600)
+  // piece hunt rounds are worth more than one square tap, cap stays token
+  const xpGain = body.mode === 'hunt' ? Math.min(score * 8, 80) : Math.min(score * 2, 60)
   const dayKey = /^\d{4}-\d{2}-\d{2}$/.test(String(body.dayKey ?? '')) ? String(body.dayKey) : dayKeyLocal()
 
   const previousBest = (await bests(pid))[body.mode]
@@ -59,7 +61,6 @@ export async function POST(req: NextRequest) {
   })
 
   // Finding squares is training, not solving: the XP stays token.
-  const xpGain = Math.min(score * 2, 60)
   await db.profile.update({
     where: { id: pid },
     data: { xp: { increment: xpGain } },
