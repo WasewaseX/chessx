@@ -60,11 +60,7 @@ export const master: Tier = {
           wrong('Material, luck, rating, time, style, mood', 'Four of those are not on the board.'),
           wrong('Material only: the rest is decoration', 'Material is one dial of six. Plans come from the other five.'),
         ]),
-        quiz('Picking your imbalance', 'The opponent has the better structure. You have better piece activity and more space. What is the master\u2019s plan?', [
-          right('Keep pieces on the board and amplify activity and space before the structure grinds you down', 'Play on YOUR dials. Trades shrink the position and hand the verdict to structure.'), 
-          wrong('Trade everything into a peaceful endgame', 'That is playing their game: static positions let structure speak loudest.'),
-          wrong('Ignore both and attack randomly', 'Random attacks are not an imbalance. Point your real advantages somewhere concrete.'),
-        ]),
+        drill('Cash the activity', 'r5k1/pppq1p1p/6p1/8/6N1/8/PPP2PPP/R3KB1R w - - 0 1', ['Nf6+', 'Kh8', 'Nxd7'], 'Your army owns the board. Convert activity into material', 'One knight hop checks the king and hits the queen at the same time.', 'Nf6, the king steps, Nxd7. The imbalance you own paid cash. That is the whole doctrine, played.'),
       ],
     },
     {
@@ -197,16 +193,7 @@ export const master: Tier = {
           wrong('Trade all pawns on the kingside', 'Trading away the majority donates the endgame.'),
           wrong('Ignore pawns, attack with pieces', 'Pieces plus a passed pawn win games. The pawn is the plan.'),
         ]),
-        quiz('Retrieval first', 'What does the minority attack b4-b5 actually buy?', [
-          right('A fixed weak pawn on c6 and an open b-file for rooks', 'Files and targets, not passers. That is the whole point of playing two against three.'),
-          wrong('A passed b-pawn', 'Three defenders beat two attackers. The passer is the majority\u2019s weapon, not the minority\u2019s.'),
-          wrong('Immediate material', 'It is a positional lever. The loot is squares.'),
-        ]),
-        quiz('Majority efficiency', 'Why is a 3 versus 2 kingside majority often SLOWER to produce a passer than the queenside majority?', [
-          right('It must advance three pawns in a row, spending three tempi and exposing each one to attack', 'The majority\u2019s own pawns shield the enemy pieces from each other. Space and support decide its speed.'), 
-          wrong('It cannot ever create a passed pawn', 'It can, and often does: the f and h pawns storm ahead in many endings.'),
-          wrong('Because the king cannot support three pawns', 'Kings herd majorities fine. The cost is the tempo count, not the support.'),
-        ]),
+        drill('Roll the majority', '8/5p2/6k1/8/5P1K/6P1/7P/8 w - - 0 1', ['g4'], 'Three pawns against one. Start the march that makes a passer', 'The g-pawn leads, the king escorts, and the f-pawn guards the squares behind.', 'g4. The majority advances and the lone f7 pawn can never catch both runners. Majorities are passers in training, exactly as promised.'),
       ],
     },
     {
@@ -252,11 +239,7 @@ export const master: Tier = {
           wrong('All three are permanent', 'Pieces can move. Pawns cannot. That is the whole classification.'),
           wrong('All three are temporary', 'Doubled pawns never merge back. They age forever.'),
         ]),
-        quiz('Attacking the right weakness', 'The enemy has a temporary weakness you can win material from, and a permanent one worth nothing right now. Which do you hit?', [
-          right('The temporary one, on your clock: permanent weaknesses do not run away', 'Temporary weaknesses expire when the pieces regroup. Harvest them while they are fresh.'), 
-          wrong('The permanent one: it is guaranteed to stay weak', 'Staying weak is not the same as being exploitable. Watch the clock.'), 
-          wrong('Neither: look for a mating attack instead', 'Mating attacks are one type of temporary opportunity, not the only one.'),
-        ]),
+        drill('Harvest the fresh one', '3k4/8/8/8/8/8/3q4/3R2K1 w - - 0 1', ['Rxd2+'], 'Scan rep first: his queen just wandered next to your rook. Temporary weaknesses expire fast', 'The d-file is open and nothing defends her.', 'Rxd2 with check. The temporary weakness paid today, exactly on schedule. Permanent ones wait; loose pieces never do.'),
       ],
     },
     {
@@ -407,10 +390,10 @@ export const master: Tier = {
           wrong('Blockade it immediately with the queen', 'Blockade yes, but with the right piece, and restraint comes first.'),
           wrong('Attack the king instead: pawns promote by themselves', 'They promote while you attack. The order matters.'),
         ]),
-        quiz('Retrieval first', 'What is Nimzowitsch\u2019s three-step program against a passed pawn?', [
-          right('Restrain, blockade, destroy', 'Stop the runner, jail the runner, then beat up the defenders.'),
-          wrong('Trade, attack, convert', 'That is endgame conversion vocabulary, not blockade doctrine.'),
-          wrong('Ignore, ignore, ignore', 'Passers do not forgive ignoring.'),
+        quiz('Static or dynamic', 'Which advantage ages well: a development lead or a healthy pawn structure?', [
+          right('A healthy pawn structure: it is still there in the endgame', 'Structure outlives every lead in tempo. Dynamics expire; statics compound.'),
+          wrong('A development lead: tempo is everything', 'Tempo is exactly what evaporates. Spend it or lose it.'),
+          wrong('Both age the same', 'One is measured in moves, the other in moves that never come back.'),
         ]),
         text(
           'Two currencies, one exchange rate',
@@ -582,33 +565,30 @@ export const master: Tier = {
         text(
           'The unbreakable wall',
           [
-            'A fortress is a position where the stronger side\u2019s extra material simply cannot be converted: the pawns and king form a shape no invasion can breach. A rook against two connected sheltered pawns is the everyday example.',
+            'A fortress is a position where the stronger side\u2019s extra material simply cannot be converted: the pieces and pawns form a shape no invasion can breach. A rook against a cornered king, a sealing knight and two sheltered pawns is the everyday example.',
             'Two fortress skills: BUILDING them when defending (choose the wall before the pieces arrive), and RECOGNIZING them when attacking, so you trade into a real endgame instead of beating your head on the wall.',
           ],
           'Some walls do not fall. Recognize them, do not rent a ladder.',
         ),
-        demo('The everyday wall', ['Black has a whole rook. White has two pawns and the king in front of them. Try as he might, the rook can never make progress: this is a draw with correct play.'], '7k/8/8/8/8/8/r5PP/6K1 w - - 0 1', {
+        demo('The everyday wall', ['Black owns the only big piece, and it can never cash it: the king is tucked in the corner, a knight seals the back rank, and pawns on a2 and b2 seal the corner. Every capture and every check loses the rook on the spot, and there is no zugzwang to farm. A draw with certainty, not with luck.'], 'r6k/8/8/8/8/8/PP6/KN6 w - - 0 1', {
           marks: [
-            { square: 'f2', color: 'green' },
-            { square: 'g2', color: 'green' },
+            { square: 'b1', color: 'green' },
+            { square: 'a2', color: 'green' },
+            { square: 'b2', color: 'green' },
           ],
-          caption: 'Green: the wall. The rook is furniture.',
+          caption: 'Green: the wall. Knight seals the rank, pawns seal the corner.',
         }),
-        quiz('Fortress verdict', 'You are up a rook. Your opponent\u2019s king and two connected pawns form a perfect wall and nothing else is on the board. Result with best play?', [
-          right('Draw: this fortress holds', 'No invasion square, no zugzwang, no win. Take the half point and move on.'),
+        quiz('Fortress verdict', 'You are up a rook. The defender tucks the king into the corner, plants a knight on b1 and pawns on a2 and b2. Result with best play?', [
+          right('Draw: every capture and every check costs the rook, and there is no zugzwang', 'No invasion square, no way to take a pawn and keep the rook, no way to pass a move. Take the half point and move on.'),
           wrong('Win: material is material', 'Material only converts when the position lets you use it.'),
           wrong('Win by zugzwang', 'The rook has spare tempi; the wall has none to give. No zugzwang exists here.'),
         ]),
         quiz('Building a fortress', 'You are DEFENDING a pawn down. When should fortress thinking start?', [
-          right('Before the attackers arrive: choose the pawn wall and king placement early', 'Fortresses are built in advance. Improvised walls crumble.'),
+          right('Before the attackers arrive: choose the wall shape and king placement early', 'Fortresses are built in advance. Improvised walls crumble.'),
           wrong('Only when the position is already hopeless', 'Hopeless is too late. The wall needs moves to build.'),
           wrong('Never, fortresses are luck', 'Fortresses are technique. Books are written about them.'),
         ]),
-        quiz('Recognize the wall', 'You are up a rook, but the pawns and king form a sheltered wall and nothing else exists. What is the efficient decision?', [
-          right('Accept the draw and save energy for winnable games', 'Recognizing fortresses is a skill. Head-banging against a wall is also a skill: the wrong one.'),
-          wrong('Play on for fifty more moves', 'The wall does not care about your clock.'),
-          wrong('Sacrifice the rook for the pawns to win the king race', 'Without the rook there is no race. The wall holds by design.'),
-        ]),
+        playout('Hold the wall', 'You are the wall. The engine brings the rook; the geometry answers. Keep the seal and the half point is guaranteed.', 'r6k/8/8/8/8/8/PP6/KN6 w - - 0 1', 'w', 'Hold the draw for 10 moves', 3, 'draw', 10, 'The rook checked, probed and waited. The wall did not care.', 'If the knight ever leaves b1 for long, the back rank opens and the checks arrive. Keep the seal.', 'Only the knight moves: hop it out to a3 or c3 (the b2 pawn guards both) and back to b1. Never d2: the rook owns that file. The king and pawns never shift.'),
       ],
     },
     {
@@ -673,7 +653,7 @@ export const master: Tier = {
           ],
           'Count tempi like cash. The first open file wins.',
         ),
-        drill('Roll the storm', 'r1bq1rk1/ppp2ppp/2n5/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'The kings are on opposite wings. Start the race', 'The h-pawn leads. Every move counts now.', 'h4. The race is on. h5 comes next, then the rook lifts. Count his tempi and stay ahead.'),
+        drill('Roll the storm', 'r1bq1rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'The kings are on opposite wings. Start the race', 'The h-pawn leads. Every move counts now.', 'h4. The race is on. h5 comes next, then the rook lifts. Count his tempi and stay ahead.'),
         quiz('Race discipline', 'In an opposite-side castling race, your opponent just slowed down to defend. You should...', [
           right('Speed up: his defensive tempo is your free move', 'Races are decided by tempo. His pause is your opening.'),
           wrong('Slow down too, to stay balanced', 'Balance is a middlegame concept. This is a sprint.'),

@@ -10,6 +10,7 @@ import { readJson } from '@/lib/api-client'
 import { useEffect, useMemo, useState } from 'react'
 import { TIERS, findLevel } from '@/content/levels'
 import type { Tier } from '@/content/schema'
+import { isLevelUnlocked, nextUnlockedId } from '@/lib/unlock'
 import { useApp } from '@/lib/store'
 import { coachMaybe } from '@/lib/coaches'
 import { CharacterFace } from '@/components/chess/characters'
@@ -37,21 +38,22 @@ export function LessonsView() {
       .finally(() => setLoading(false))
   }, [])
 
-  const byId = useMemo(() => new Map(progress.map((p) => [p.lessonId, p])), [progress])
   const doneSet = useMemo(() => new Set(progress.filter((p) => p.completed).map((p) => p.lessonId)), [progress])
   const doneCount = progress.filter((p) => p.completed).length
   const totalLessons = TIERS.reduce((n, t) => n + t.levels.length, 0)
   const pct = totalLessons > 0 ? Math.round((doneCount / totalLessons) * 100) : 0
 
-  // first uncompleted level is the recommended next one
+  // the resume target: the most recent started lesson while it is still open,
+  // otherwise the first unlocked and uncompleted level in course order
   const nextId = useMemo(() => {
-    for (const tier of TIERS) {
-      for (const level of tier.levels) {
-        if (!byId.get(level.id)?.completed) return level.id
-      }
-    }
-    return null
-  }, [byId])
+    const started = progress.filter((p) => !p.completed && p.stepsDone > 0)
+    const mostRecent = started.length
+      ? started.reduce((a, b) => ((a.updatedAt ?? '') > (b.updatedAt ?? '') ? a : b))
+      : null
+    return mostRecent && isLevelUnlocked(mostRecent.lessonId, doneSet)
+      ? mostRecent.lessonId
+      : nextUnlockedId(doneSet)
+  }, [progress, doneSet])
 
   // plain value: the React Compiler memoizes it, manual useMemo upset the lint rule
   const nextRef = nextId ? (findLevel(nextId) ?? null) : null
@@ -82,11 +84,9 @@ export function LessonsView() {
           <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-[#262421]/70">
             Videos have you watch. Here you play: every lesson hands you the winning move, and you are the one who
             finds it on a real board. Make a mistake and it is caught on the spot: the move comes back, your coach
-            explains the idea in one line, and you try again before you go on. Every level ends with a position you
-            win yourself, so the last thing you practice is winning. Answer on the first try and your streak builds
-            at the top of the screen. That is the whole difference: you do not watch someone else play well, you do
-            it, at first badly, then on purpose. Every chapter opens at its first level, so if you already know how
-            the pieces move, start at Beginner.
+            explains the idea in one line, and you try again before you go on. Every level ends with the result in your own hands: usually a win to deliver, sometimes a fortress to hold. Answer on the first try and your streak builds
+            at the top of the screen. Levels unlock in order: finish one and the next opens, and every chapter opens
+            at its first level, so if you already know how the pieces move, start at Beginner.
           </p>
 
           <div className="mt-5 flex items-center gap-3">

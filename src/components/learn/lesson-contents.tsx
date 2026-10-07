@@ -9,8 +9,9 @@
 
 import { motion, useReducedMotion } from 'framer-motion'
 import type { Level, Tier } from '@/content/schema'
+import { isLevelUnlocked, unlockRequirement } from '@/lib/unlock'
 import { cn } from '@/lib/utils'
-import { Check, Play } from 'lucide-react'
+import { Check, Lock, Play } from 'lucide-react'
 
 type RowState = 'done' | 'current' | 'open' | 'locked'
 
@@ -18,11 +19,13 @@ const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
 
 function rowState(level: Level, done: Set<string>, nextId: string | null): RowState {
   if (done.has(level.id)) return 'done'
-  // The opening level of every chapter stays unlocked: someone who already
-  // plays chess can start at Beginner without replaying Newbie, and a Newbie
-  // graduate can peek one chapter ahead.
-  if (level.n === 1) return 'open'
+  // The recommended level gets the amber marker even when it is a chapter
+  // opener, so the eye always lands on one row first.
   if (level.id === nextId) return 'current'
+  // Unlock chains inside a chapter (previous level done opens the next), and
+  // the opening level of every chapter stays unlocked: someone who already
+  // plays chess can start at Beginner without replaying Newbie.
+  if (isLevelUnlocked(level.id, done)) return 'open'
   return 'locked'
 }
 
@@ -33,18 +36,21 @@ function rowAria(level: Level, tierTitle: string, state: RowState): string {
   if (state === 'done') return `${base}. Completed. Select to replay.`
   if (state === 'current') return `${base}. Current lesson.`
   if (state === 'open') return `${base}. Open. Start it any time.`
-  return `${base}. Locked. Finish the earlier levels first.`
+  const req = unlockRequirement(level.id)
+  return `${base}. Locked. ${req ? req + ' first.' : 'Finish the earlier levels first.'}`
 }
 
 function LevelRow({
   level,
   tierTitle,
   state,
+  oneWinAway,
   onSelect,
 }: {
   level: Level
   tierTitle: string
   state: RowState
+  oneWinAway: boolean
   onSelect: (levelId: string) => void
 }) {
   const reduce = useReducedMotion()
@@ -60,12 +66,13 @@ function LevelRow({
         state === 'done' && 'border-[#81b64c] bg-[#81b64c] text-white',
         current && 'border-[#c07f1d] bg-[#f4f1e8] text-[#c07f1d]',
         state === 'open' && 'border-[#81b64c]/60 bg-[#81b64c]/10 text-[#4a6b28]',
-        locked && 'border-[#262421]/15 bg-transparent text-transparent',
+        locked && 'border-[#262421]/15 bg-[#f4f1e8] text-[#262421]/45',
       )}
     >
       {state === 'done' && <Check className="h-3.5 w-3.5" strokeWidth={3.2} />}
       {current && <Play className="h-3 w-3 fill-current" />}
       {state === 'open' && <Play className="h-3 w-3 fill-current" />}
+      {locked && <Lock className="h-2.5 w-2.5" strokeWidth={2.5} />}
     </span>
   )
 
@@ -80,7 +87,7 @@ function LevelRow({
           <span
             className={cn(
               'truncate font-display text-[15px] font-bold',
-              locked ? 'text-[#262421]/45' : 'text-[#262421]',
+              locked ? 'text-[#262421]/60' : 'text-[#262421]',
             )}
           >
             {level.title}
@@ -94,12 +101,18 @@ function LevelRow({
             {level.minutes} min
           </span>
         </span>
-        <span className={cn('block truncate text-xs leading-snug', locked ? 'text-[#262421]/30' : 'text-[#262421]/50')}>
+        <span className={cn('block truncate text-xs leading-snug', locked ? 'text-[#262421]/50' : 'text-[#262421]/50')}>
           {level.subtitle}
         </span>
         {open && (
           <span className="mt-0.5 block text-[10px] font-extrabold uppercase tracking-widest text-[#4a6b28]">
             Open, start here
+          </span>
+        )}
+        {locked && (
+          <span className="mt-0.5 block text-[11px] font-bold leading-snug text-[#262421]/65">
+            <span className="sr-only">Locked. </span>
+            {oneWinAway ? 'One win away' : `${unlockRequirement(level.id) ?? 'Finish the earlier levels'} to unlock`}
           </span>
         )}
       </span>
@@ -115,11 +128,7 @@ function LevelRow({
   if (locked) {
     return (
       <li className="relative pl-5 sm:pl-7">
-        <div
-          aria-disabled="true"
-          aria-label={rowAria(level, tierTitle, state)}
-          className={cn(rowCls, 'opacity-80')}
-        >
+        <div className={rowCls}>
           {inner}
         </div>
       </li>
@@ -198,7 +207,7 @@ function Chapter({
       <ol className="relative space-y-1">
         <span
           aria-hidden="true"
-          className="absolute bottom-3 left-[11px] top-3 w-px bg-[#262421]/12 sm:left-[15px]"
+          className="absolute bottom-3 left-[41px] top-3 w-px bg-[#262421]/12 sm:left-[51px]"
         />
         {tier.levels.map((level) => (
           <LevelRow
@@ -206,6 +215,7 @@ function Chapter({
             level={level}
             tierTitle={tier.title}
             state={rowState(level, done, nextId)}
+            oneWinAway={level.n > 1 && nextId === tier.levels[level.n - 2].id}
             onSelect={onSelect}
           />
         ))}

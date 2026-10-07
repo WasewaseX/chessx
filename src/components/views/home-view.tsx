@@ -6,6 +6,7 @@ import { useApp, overallRating } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { ALL_LEVELS } from '@/content/levels'
+import { isLevelUnlocked, nextUnlockedId } from '@/lib/unlock'
 import { potentialElo, titleForXp } from '@/lib/rating'
 import { GoalCard } from '@/components/shell/streak'
 import {
@@ -30,13 +31,6 @@ interface GameRow {
   createdAt: string
 }
 
-function nextLessonId(completed: Set<string>): string | null {
-  for (const { level } of ALL_LEVELS) {
-    if (!completed.has(level.id)) return level.id
-  }
-  return null
-}
-
 /** One shared card style so every home block lines up. */
 const CARD = 'rounded-lg bg-card p-6 shadow-sm'
 
@@ -51,7 +45,7 @@ export function HomeView() {
         puzzleCount: profile.puzzleCount,
       })
     : null
-  const [progress, setProgress] = useState<{ lessonId: string; completed: boolean; stepsDone: number; totalSteps: number }[]>([])
+  const [progress, setProgress] = useState<{ lessonId: string; completed: boolean; stepsDone: number; totalSteps: number; updatedAt?: string }[]>([])
   const [games, setGames] = useState<GameRow[]>([])
   const [dailyDone, setDailyDone] = useState<boolean | null>(null)
   const { dayKey, dailyDate } = useMemo(
@@ -85,7 +79,12 @@ export function HomeView() {
   const mostRecent = started.length
     ? started.reduce((a, b) => ((a.updatedAt ?? '') > (b.updatedAt ?? '') ? a : b))
     : null
-  const nextId = mostRecent?.lessonId ?? nextLessonId(completed)
+  // keep pointing at the most recent started lesson only while it is still
+  // open; a stale start in a now locked level falls back to the next unlocked
+  const nextId =
+    mostRecent && isLevelUnlocked(mostRecent.lessonId, completed)
+      ? mostRecent.lessonId
+      : nextUnlockedId(completed)
   const nextLesson = ALL_LEVELS.find((l) => l.level.id === nextId)
   const doneCount = completed.size
   const totalLessons = ALL_LEVELS.length

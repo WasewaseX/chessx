@@ -157,11 +157,7 @@ export const grandmaster: Tier = {
           wrong('Whoever has more material', 'Material cannot move itself. Tempi decide duels.'),
           wrong('Coincidence: zugzwang is random', 'Corresponding squares are pure geometry. Nothing random.'),
         ]),
-        quiz('Creating zugzwang', 'The enemy king and pawns have several useful waiting moves. How do you turn a static advantage into zugzwang?', [
-          right('Restrict the waiting moves first: fix the pawns, cut the king\u2019s squares, THEN count tempi', 'Zugzwang needs zero useful moves. Restriction creates the zero; the tempo count cashes it.'), 
-          wrong('Attack the king with everything immediately', 'Forcing play RELEASES the defender from waiting. Zugzwang needs quiet pressure.'), 
-          wrong('It cannot be created, only stumbled into', 'Strong players build zugzwang on purpose, one restriction at a time.'), 
-        ]),
+        drill('Take the key square', '6k1/8/5K2/6P1/8/8/8/8 w - - 0 1', ['Kg6'], 'The duel hangs on one corresponding square. Step there', 'The king goes where the pawn advances behind him and the enemy king cannot slip past.', 'Kg6. The king has taken the key square ahead of the pawn, and from here every race is won. The rule, not the calculation.'),
       ],
     },
     {
@@ -185,28 +181,24 @@ export const grandmaster: Tier = {
           ],
           'Fortresses are designed, not improvised. So are their breaches.',
         ),
-        demo('The wall', ['Rook against king and two connected pawns: the everyday fortress. No invasion square exists, no zugzwang is possible, and the rook can check from now until the 50-move rule.'], '7k/8/8/8/8/8/r5PP/6K1 w - - 0 1', {
+        demo('The wall', ['The everyday fortress: king in the corner, knight sealing the back rank, pawns sealing the corner. Every rook check or capture loses the rook on the spot. There is nothing to wait out.'], 'r6k/8/8/8/8/8/PP6/KN6 w - - 0 1', {
           marks: [
-            { square: 'f2', color: 'green' },
-            { square: 'g2', color: 'green' },
+            { square: 'b1', color: 'green' },
+            { square: 'b2', color: 'green' },
           ],
-          caption: 'Green: the wall. It does not fall.',
+          caption: 'Green: the seal. It does not fall.',
         }),
         quiz('Fortress breach', 'Which factor actually breaks a fortress?', [
           right('Zugzwang or a second front the wall cannot face', 'Walls fail on design flaws, not on force.'),
           wrong('More checking with the rook', 'Checks are not progress without a plan.'),
           wrong('Trading down to a pawn endgame', 'That usually STRENGTHENS the defender\u2019s position.'),
         ]),
-        quiz('Fortress build order', 'Which piece pairing makes the strongest everyday fortress?', [
-          right('The king in front of connected pawns, backed by a color-guarding bishop', 'King as the wall\u2019s keystone, bishop as the color watcher.'),
+        quiz('Fortress build order', 'Which pieces make the everyday corner fortress?', [
+          right('The king tucked in, a knight sealing the back rank, pawns sealing the file', 'The knight is the keystone: no checks along the rank, no captures on the wall.'),
           wrong('Two knights in front of scattered pawns', 'Scattered pawns are doors. Knights jump but cannot seal files.'),
           wrong('The queen parked on the first rank', 'Queens patrol; they do not build.'),
         ]),
-        quiz('Design the breach', 'You must crack a fortress. Where do you look?', [
-          right('For a design flaw: zugzwang potential or a second front the wall never faced', 'Walls fall from design errors. Force alone bounces off.'),
-          wrong('For the weakest brick to attack with everything', 'The bricks are fine. The DESIGN is the target.'),
-          wrong('For a piece sacrifice to open files', 'Files mean nothing if no invasion square exists at the end of them.'),
-        ]),
+        drill('The keystone left', 'k6r/8/2N5/8/8/8/PP6/K7 b - - 0 1', ['Rh1#'], 'Same wall, one difference: the knight wandered to c6. Break it', 'The back rank is open. One rook move ends everything.', 'Rh1 mate. The wall was never weak; its keeper simply left. Fortresses die at the design flaw, not at the bricks.'),
         quiz('Building your own fortress', 'You are worse with an unbreakable-looking enemy attack coming. When do you START thinking about a fortress?', [
           right('Immediately: trade into the structure where your pawns and king form a wall, before the pieces arrive', 'Fortresses need the right structure. Building it under fire is far harder.'), 
           wrong('Only when the attack has fully arrived', 'By then every wall square is watched. The window closes early.'), 
@@ -235,12 +227,12 @@ export const grandmaster: Tier = {
           ],
           'Trade value for geometry. Geometry does not move backward.',
         ),
-        demo('The permanent mark', ['Doubled pawns on c6 and c7?? wait, White\u2019s doubles: c3 and c4. The red squares show where the structure bleeds forever.'], '2r1k3/8/8/8/8/2pp4/1PP5/2KR4 w - - 0 1', {
+        demo('The permanent mark', ['White\u2019s doubles sit on c3 and c4. The red squares show where the structure bleeds forever: the front pawn needs a bodyguard every single move for the rest of the game.'], '2r1k3/8/8/8/2P5/2P5/1P6/2KR4 w - - 0 1', {
           marks: [
             { square: 'c3', color: 'red' },
             { square: 'c4', color: 'red' },
           ],
-          caption: 'Red: squares the doubled pawns can never defend',
+          caption: 'Red: the structure that can never heal.',
         }),
         quiz('Structural exchange', 'You can trade your good knight for his bad bishop, and the resulting structure gives him doubled pawns on a half-open file. This trade is good when...', [
           right('The doubled pawns and the open file outweigh the piece quality difference', 'Squares and files outlast piece placement.'),
@@ -257,11 +249,7 @@ export const grandmaster: Tier = {
           wrong('Pushing one of them immediately to undouble', 'Undoubling usually surrenders the file AND the square for nothing.'),
           wrong('Nothing: doubled pawns always fall', 'They fall on a schedule. Good players postpone that schedule forever.'),
         ]),
-        quiz('Structural exchange targets', 'Which enemy piece is the classic target of a structural exchange sacrifice (Rook for Bishop or Knight)?', [
-          right('The key defender of the weak squares your rook sacrifice is buying', 'The sacrifice is real when it removes the ONE piece holding the position together.'), 
-          wrong('Any enemy piece, for the material count', 'Rooks are worth five. Structure alone rarely pays for a full five points without a target.'), 
-          wrong('The enemy king, somehow', 'The king cannot be captured. The defender AROUND him is the target.'), 
-        ]),
+        playout('The structure war, played out', 'His pawns are doubled on the c-file: a target that never heals. Open the file, gang up on the front pawn and turn structure into material.', 'r2q1rk1/p1p1bppp/2pn4/8/8/2N5/PPP2PPP/R1BQ1RK1 w - - 0 9', 'w', 'Win at least 3 points of material within 16 moves', 4, 'material', 16, 'The doubled pawn paid its bill. Structure converted into loot.', 'Do not force anything: the c-file is a slow squeeze. Trade into it, then hit c6 from every direction.', 'Every piece you swing toward c6 is a loan the doubled pawn repays with interest.'),
       ],
     },
     {
@@ -285,7 +273,7 @@ export const grandmaster: Tier = {
           ],
           'Close the center, then flank. Open centers make flank pawns bait.',
         ),
-        drill('Roll the flank', 'r1bq1rk1/ppp2ppp/2n5/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'The center is locked. Start the flank advance', 'The h-pawn leads the wave toward the enemy king.', 'h4. Closed center: the flank is the only road. h5, g5, and the wall has a door.'),
+        drill('Roll the flank', 'r1bq1rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'The center is locked. Start the flank advance', 'The h-pawn leads the wave toward the enemy king.', 'h4. Closed center: the flank is the only road. h5, g5, and the wall has a door.'),
         quiz('Thrust precondition', 'Before playing g4-g5 in a closed position, verify that...', [
           right('The center is stable and cannot be opened against you', 'Flank attacks need a closed center as their foundation.'),
           wrong('Your king is castled short', 'Location matters, but the center\u2019s stability is the true precondition.'),
@@ -369,10 +357,10 @@ export const grandmaster: Tier = {
           wrong('On f7: for an attack', 'f7 is bishop geometry. Exchange sacs are knight geometry.'),
           wrong('Anywhere: rooks are flexible', 'The sacrifice has one classic purchase: the structure.'),
         ]),
-        quiz('Retrieval first', 'What does the exchange sacrifice buy, and what must it never buy?', [
-          right('It buys permanent structure damage: never mere activity', 'Activity evaporates. Doubled pawns do not.'),
-          wrong('It buys tempo for an attack', 'That is a piece sac\u2019s job. The exchange sac buys permanence.'),
-          wrong('It buys material safety', 'It COSTS material. That is the whole deal.'),
+        quiz('When the sac fails', 'You sacrificed the exchange for doubled pawns, but your opponent just traded all the minor pieces. What went wrong?', [
+          right('Nothing structural: but with no pieces left, doubled pawns are the only army that can lose the endgame', 'The sac bought a MIDDLEGAME target. Keep pieces on the board or the purchase expires.'),
+          wrong('Doubled pawns are always enough on their own', 'Pawns win endgames, but only with an army behind them.'),
+          wrong('The sacrifice was simply bad', 'The purchase was real. The plan must keep the pieces that cash it in.'),
         ]),
         text(
           'The invisible squeeze',
@@ -426,23 +414,19 @@ export const grandmaster: Tier = {
           ],
           'Frozen center: the king may walk. Any crack: the king stays home.',
         ),
-        demo('The closed center permit', ['Pawns locked on d4/d5 and e5/e4?? if the center is this frozen, the king path g1-f2-e3 opens real fighting squares. One opened line and the permit is revoked.'], 'r1bq1rk1/ppp2ppp/2n5/3p4/3P4/2N5/PPP2PPP/R1BQKB1R w KQ - 4 6', {
+        demo('The closed center permit', ['The center is closed: d4 and d5 are fixed against each other and no file is open. While the freeze holds, the king is allowed to step toward the center and fight. One opened line and the permit is revoked.'], 'r1bqkb1r/ppp2ppp/2n5/3p4/3P4/2N5/PPP2PPP/R1BQKB1R w KQkq - 4 6', {
           marks: [
-            { square: 'f2', color: 'green' },
-            { square: 'e3', color: 'green' },
+            { square: 'd4', color: 'green' },
+            { square: 'd5', color: 'yellow' },
           ],
-          caption: 'Green: the king\u2019s future route',
+          caption: 'The frozen center: the permit stands while it lasts',
         }),
         quiz('Walk permission', 'A middlegame king march is safe when...', [
           right('The center is closed and no line can be opened against him', 'The wall is the permit.'),
           wrong('You are up material', 'Material does not stop rooks on open files.'),
           wrong('Your queen protects him', 'Queens cannot stop four attackers on an opened file.'),
         ]),
-        quiz('The walk payoff', 'Why walk the king at all when pieces could do the job?', [
-          right('The king escorts passers and supports breaks better than any piece in endgame-leaning positions', 'In piece-scarce positions the king is simply the best piece.'),
-          wrong('Style points', 'Style does not promote pawns.'),
-          wrong('Because queens are about to be traded anyway', 'That is a REASON to be careful, not a reason to walk.'),
-        ]),
+        drill('The walk begins', '8/8/8/8/8/4k3/2P5/K1R5 w - - 0 1', ['Kb1'], 'The same walk, distilled to its skeleton: the king crosses only behind cover', 'The rook guards the pawn; the king slides toward it without ever leaving it unguarded.', 'Kb1. From here the king walks forward and the pawn runs behind him. The rook held the guard duty; the king collected the win.'),
         quiz('The walk audit', 'Your king is three squares into a middlegame walk and the center just unlocked. What now?', [
           right('The permit is revoked: walk the king straight home, immediately', 'One opened line is all it takes. The walk dies the moment the center cracks.'),
           wrong('Continue: the king is already committed', 'Committed to what? The center changed the rules.'),
@@ -648,11 +632,7 @@ export const grandmaster: Tier = {
           wrong('The attacking one: initiative is everything', 'Initiative without clarity is a coin flip.'),
           wrong('Whichever move is faster to play', 'The clock is one resource. The position is the other.'),
         ]),
-        quiz('Recoverability', 'Which property makes a move good in an unclear position?', [
-          right('If it turns out wrong, the resulting position is still defensible', 'Recoverable moves keep the game alive for your skill to matter.'),
-          wrong('It is the most forcing move available', 'Forcing moves commit. Commitments are for clear positions.'),
-          wrong('It has the best engine score at depth one', 'Depth one is a horoscope.'),
-        ]),
+        drill('Calculate the one forcing line', '5r1k/6pp/7N/8/8/1Q6/6PP/6K1 w - - 0 1', ['Qg8+', 'Rxg8', 'Nf7#'], 'Fog everywhere, except here: this line forces itself. Calculate it to the end', 'The queen lands next to the king with support; the rook must take; the knight finishes.', 'Qg8, Rxg8, Nf7 mate. Every ply forced. When a line calculates to the END, the fog does not apply: play it.'),
         quiz('Flexibility test', 'Which move is the flexible one?', [
           right('The one that stays useful in three different plausible futures', 'Flexibility is option density. Commitments are option spending.'),
           wrong('The one your favorite piece wants to make', 'Pieces have dreams. Positions have requirements.'),
@@ -730,6 +710,7 @@ export const grandmaster: Tier = {
           wrong('Playing faster to feel fresh', 'The phase, not fatigue, is the pattern.'),
           wrong('Avoiding move 25', 'Chess has no skip button.'),
         ]),
+        playout('Play the audit', 'The report scans every move for loose pieces and missed checks. Run that scan here, wait for the practice bot to slip, and make it pay.', 'r1bqkb1r/ppp2ppp/2n5/3p4/3P4/2N5/PPP2PPP/R1BQKB1R w KQkq - 4 6', 'w', 'Win at least 3 points of material within 16 moves', 4, 'material', 16, 'The scan found the loot. That is the habit the audit trains.', 'Loose pieces pay only when you LOOK. Checks, captures, threats, every move.', 'The position is unclear, so keep your options: the scan, not the engine, finds the swing.'),
         demo('Marking the swings', ['A blunder map in visual form: the red squares mark where a plan decision went wrong in a real game. The engine finds moves; the map finds MOMENTS.'], 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', {
           marks: [
             { square: 'd8', color: 'red' },
@@ -825,12 +806,13 @@ export const grandmaster: Tier = {
         text(
           'The final rep set',
           [
-            'Three last drills, then the capstone. Visualization between drills: replay each finished line with eyes closed.',
+            'Four last drills, then the capstone. Visualization between drills: replay each finished line with eyes closed.',
           ],
         ),
         drill('Structure strike', '2r1k3/8/8/8/8/2N5/PPP5/2KR4 b - - 0 1', ['Rxc3', 'bxc3'], 'The exchange sacrifice', 'Rook for knight, structure for keeps.', 'Rxc3. Permanent damage, temporary cost.'),
         drill('Zugzwang geometry', '8/2P1k3/2K5/8/8/8/8/8 b - - 0 1', ['Kf8'], 'You are Black in the sealed duel. Every move loses: play the most resilient one', 'The kingside steps last longest: the white king is farthest from them.', 'Kf8. White still wins with exact play, but the kingside walk makes White earn the whole technique. On the queenside the pawn seals everything instantly.'),
         drill('Perpetual road', '6k1/8/8/8/8/8/8/3Q2K1 w - - 0 1', ['Qd8+', 'Kh7', 'Qd7+', 'Kh6', 'Qd6+', 'Kh5'], 'Salvation by rank checks', 'One file left each check.', 'The eternal checks. Half a point by geometry.'),
+        drill('The back rank, one last time', '2r3k1/5ppp/8/8/8/8/1q1R4/3R2K1 w - - 0 1', ['Rd8+', 'Rxd8', 'Rxd8#'], 'His rook guards the back rank; his queen watches the wrong war. Remove the guard first', 'The d-file is open: deflect the guard, then take it.', 'Rd8, Rxd8, Rxd8 mate. Deflection at full depth: see it, verify it, play it. That is the habit the capstone will demand.'),
       ],
     },
     {

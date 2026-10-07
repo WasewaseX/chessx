@@ -19,6 +19,7 @@ import { TIERS, findLevel } from '@/content/levels'
 import { GRADUATION } from '@/content/graduation'
 import type { ExerciseStep, GtmStep, LessonStep, PlayoutStep } from '@/content/schema'
 import { useApp } from '@/lib/store'
+import { isLevelUnlocked, unlockRequirement } from '@/lib/unlock'
 import { engine } from '@/lib/chess/engine-client'
 import { playSound } from '@/lib/chess/sounds'
 import { Button } from '@/components/ui/button'
@@ -35,6 +36,9 @@ import {
   ChevronRight,
   Flame,
   Lightbulb,
+  Loader2,
+  Lock,
+  LockOpen,
   MessageSquareText,
   RotateCcw,
   CheckCircle2,
@@ -85,6 +89,14 @@ const FIRE_QUIPS: Record<string, string> = {
   victor: 'On fire. Checks, captures, threats. Keep going.',
   elena: 'Four first-try finds in a row. That is what a habit looks like.',
   sasha: 'Four in a row. I will allow myself one word: good.',
+}
+
+/* The second wind: one more quip per lesson when the streak reaches eight. */
+const FIRE_QUIPS_EIGHT: Record<string, string> = {
+  nina: 'Eight in a row. I have nothing left to teach tonight.',
+  victor: 'Eight straight. Verification is a habit now, not an effort.',
+  elena: 'Eight first-try finds. That is a professional scan.',
+  sasha: 'Eight. I will allow myself two words: very good.',
 }
 
 /** One sound for every kind of move: castling, promotion and check get their
@@ -274,6 +286,25 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const { navigate, profile, setPendingReview } = useApp()
   const coach = coachMaybe(profile?.coach)
   const found = findLevel(lessonId)
+  // unlock guard: the Study only opens unlocked rows, but stale links, review
+  // items and old bookmarks can still land here. Load the done set once and
+  // hold the lesson behind a lock screen until the previous level is done.
+  const [doneIds, setDoneIds] = useState<Set<string> | null>(null)
+  useEffect(() => {
+    let alive = true
+    fetch('/api/progress')
+      .then((r) => readJson<{ progress?: Array<{ lessonId: string; completed: boolean }> }>(r))
+      .then((d) => {
+        if (alive) setDoneIds(new Set((d.progress ?? []).filter((p) => p.completed).map((p) => p.lessonId)))
+      })
+      .catch(() => {
+        if (alive) setDoneIds(new Set())
+      })
+    return () => {
+      alive = false
+    }
+  }, [])
+  const gateOpen = doneIds !== null && (found ? isLevelUnlocked(lessonId, doneIds) : false)
   const [stepIdx, setStepIdx] = useState(0)
   const [canAdvance, setCanAdvance] = useState(false)
   const [done, setDone] = useState(false)
@@ -292,15 +323,19 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   // the coach quips once per lesson when the streak first reaches four
   const [fireQuip, setFireQuip] = useState<string | null>(null)
   const firedQuipRef = useRef(false)
+  const firedEightRef = useRef(false)
   const fireQuipTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const reportResult = useCallback(
     (firstTry: boolean) => {
       streakRef.current = firstTry ? streakRef.current + 1 : 0
       setStreak(streakRef.current)
       setBestStreak((b) => Math.max(b, streakRef.current))
-      if (streakRef.current === 4 && !firedQuipRef.current && coach) {
-        firedQuipRef.current = true
-        setFireQuip(FIRE_QUIPS[coach.id] ?? null)
+      const hitEight = streakRef.current === 8 && !firedEightRef.current
+      const hitFour = streakRef.current === 4 && !firedQuipRef.current
+      if ((hitFour || hitEight) && coach) {
+        if (hitFour) firedQuipRef.current = true
+        if (hitEight) firedEightRef.current = true
+        setFireQuip((hitEight ? FIRE_QUIPS_EIGHT[coach.id] : FIRE_QUIPS[coach.id]) ?? null)
         if (fireQuipTimer.current) clearTimeout(fireQuipTimer.current)
         fireQuipTimer.current = setTimeout(() => setFireQuip(null), 4200)
       }
@@ -332,7 +367,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           stepsDone,
           totalSteps: lesson.steps.length,
           done: finished,
-          level: globalLevel,
+          level: tier.n,
           hintNow,
           concepts: lesson.concepts ?? [],
           reviewItemId,
@@ -386,7 +421,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   }, [stepIdx])
 
   const isLastStep = lesson ? stepIdx === lesson.steps.length - 1 : false
-  if (lesson && isLastStep && canAdvance && !done) {
+  if (lesson && isLastStep && canAdvance && !done && gateOpen) {
     setDone(true)
   }
 
@@ -398,6 +433,12 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
     return i >= 0 && i < flat.length - 1 ? flat[i + 1] : null
   }, [lesson])
   const nextTier = useMemo(() => (nextLevel ? TIERS.find((t) => t.levels.some((l) => l.id === nextLevel.id)) ?? null : null), [nextLevel])
+  // the completion screen celebrates the unlock this finish just caused, but
+  // only on a FIRST completion: a replay of an already-done lesson did not
+  // unlock anything, so the badge stays quiet there
+  const unlockedNow = doneIds !== null && !doneIds.has(lesson.id) && nextLevel != null && nextLevel.n > 1
+  // on a replay the flat-next level may already be done: go back to the course instead
+  const nextAlreadyDone = nextLevel != null && (doneIds?.has(nextLevel.id) ?? false)
 
   if (!lesson || !tier) {
     return (
@@ -406,6 +447,45 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         <Button className="btn-hero mt-4 h-11 px-6" onClick={() => navigate('lessons')}>
           Back to lessons
         </Button>
+      </div>
+    )
+  }
+
+  // the unlock gate: one screen covers both states, loading and locked, so a
+  // locked lesson never flashes its content before the guard lands
+  if (!gateOpen) {
+    const req = unlockRequirement(lesson.id)
+    return (
+      <div className="flex min-h-screen w-full flex-col items-center justify-center paper px-4 text-center text-[#262421]">
+        <span aria-hidden="true" className="grid h-16 w-16 place-items-center rounded-full border-2 border-[#262421]/15 bg-[#262421]/5">
+          {doneIds === null ? (
+            <Loader2 className="h-6 w-6 motion-reduce:animate-none animate-spin text-[#262421]/50" />
+          ) : (
+            <Lock className="h-7 w-7 text-[#262421]/40" strokeWidth={2.2} />
+          )}
+        </span>
+        {doneIds === null ? (
+          <p className="mt-5 text-sm font-semibold text-[#262421]/60">Checking the course map.</p>
+        ) : (
+          <div role="status">
+            <h1 className="mt-5 font-book text-2xl font-semibold">Level {lesson.n} is still locked</h1>
+            <p className="mt-2 max-w-sm text-sm leading-relaxed text-[#262421]/60">
+              {req ? `${req} and this level opens. Chapter openers are always open, so you can also start any later chapter from its first level.` : 'Finish the earlier levels of this chapter and it opens.'}
+            </p>
+          </div>
+        )}
+        <Button className="btn-hero mt-6 h-11 px-6" onClick={() => navigate('lessons')}>
+          Back to the course
+        </Button>
+        {doneIds !== null && req && (
+          <Button
+            variant="outline"
+            className="mt-3 h-11 border-[#262421]/15 bg-transparent px-6 text-sm font-bold text-[#262421]/75 hover:bg-[#262421]/5 hover:text-[#262421]"
+            onClick={() => navigate('lesson', tier.levels[0].id)}
+          >
+            Start the first level of this chapter
+          </Button>
+        )}
       </div>
     )
   }
@@ -570,8 +650,10 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           tierColor={tier.color}
           nextLevel={nextLevel}
           nextTierTitle={nextTier?.title ?? null}
+          unlockedNow={unlockedNow}
+          nextAlreadyDone={nextAlreadyDone}
           soundEnabled={profile?.soundEnabled ?? true}
-          onContinue={() => (nextLevel ? navigate('lesson', nextLevel.id) : navigate('lessons'))}
+          onContinue={() => (nextLevel && !nextAlreadyDone ? navigate('lesson', nextLevel.id) : navigate('lessons'))}
         />
       ) : (
         <div className="mx-auto w-full max-w-5xl px-4 pb-10 pt-6">
@@ -859,6 +941,8 @@ function CompletionScreen({
   tierColor,
   nextLevel,
   nextTierTitle,
+  unlockedNow,
+  nextAlreadyDone,
   soundEnabled,
   onContinue,
 }: {
@@ -872,6 +956,8 @@ function CompletionScreen({
   tierColor: string
   nextLevel: NonNullable<ReturnType<typeof findLevel>['level']> | null
   nextTierTitle: string | null
+  unlockedNow: boolean
+  nextAlreadyDone: boolean
   soundEnabled: boolean
   onContinue: () => void
 }) {
@@ -945,6 +1031,24 @@ function CompletionScreen({
         </div>
       </div>
 
+      {/* the unlock this finish just caused: the double win */}
+      {unlockedNow && nextLevel && (
+        <motion.div
+          initial={{ opacity: 0, y: 10, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.5, duration: 0.4 }}
+          className="mx-auto mt-3 flex w-full max-w-md items-center gap-2.5 rounded-2xl border border-[#81b64c]/35 bg-[#81b64c]/12 px-4 py-2.5 text-left"
+          role="status"
+        >
+          <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#81b64c] text-white shadow-[0_2px_0_#5d8534]">
+            <LockOpen className="h-4 w-4" strokeWidth={2.5} />
+          </span>
+          <p className="min-w-0 text-sm font-extrabold text-[#3d5c1e]">
+            Unlocked: Level {nextLevel.n}, {nextLevel.title}
+          </p>
+        </motion.div>
+      )}
+
       {/* real stats from this session: steps completed, hints, best first-try streak, xp from the server */}
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-[#262421]/10 bg-[#262421]/5 px-3.5 py-1.5 text-xs font-extrabold text-[#262421]/75">
@@ -973,7 +1077,7 @@ function CompletionScreen({
       </div>
 
       <Button className="btn-hero mt-8 h-13 w-full max-w-xs text-base" onClick={onContinue}>
-        {nextLevel ? `Next up: ${nextLevel.title}` : 'Back to the course'} <ChevronRight className="h-5 w-5" />
+        {nextLevel && !nextAlreadyDone ? `Next up: ${nextLevel.title}` : 'Back to the course'} <ChevronRight className="h-5 w-5" />
       </Button>
     </div>
   )
@@ -2023,7 +2127,8 @@ function PlayoutStepView({
       if (moves.length >= plyLimit) {
         if (step.success === 'castle') return castled(g) ? 'won' : 'lost'
         if (step.success === 'material') return materialBalance(g) >= 3 ? 'won' : 'lost'
-        return 'draw'
+        // a draw-goal playout that survives its whole budget HAS held it
+        return step.success === 'draw' ? 'won' : 'draw'
       }
       // early material check: past this deficit the game is unrecoverable,
       // below it one blunder should still be survivable. Gentle bots hand
