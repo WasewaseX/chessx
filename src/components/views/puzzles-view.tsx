@@ -13,11 +13,12 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RushPanel } from '@/components/views/rush-view'
 import { BattlePanel } from '@/components/views/battle-view'
+import { VisionPanel } from '@/components/views/vision-view'
 import { cn } from '@/lib/utils'
 import { Flame, Lightbulb, RotateCcw, CalendarDays, Loader2, Trophy, Repeat2 } from 'lucide-react'
 
 type Phase = 'loading' | 'solving' | 'solved' | 'failed'
-type PuzzleTab = 'rated' | 'daily' | 'rush' | 'battle'
+type PuzzleTab = 'rated' | 'daily' | 'rush' | 'battle' | 'vision'
 
 interface PuzzleState {
   puzzle: Puzzle
@@ -159,7 +160,7 @@ export function PuzzlesView() {
 
   useEffect(() => {
     if (reviewLoadRef.current) return
-    if (tab === 'rush' || tab === 'battle') return
+    if (tab === 'rush' || tab === 'battle' || tab === 'vision') return
     if (profile && !state) {
       if (tab === 'rated') loadRated()
       else void loadDaily()
@@ -167,7 +168,7 @@ export function PuzzlesView() {
   }, [profile, state, tab, loadRated, loadDaily])
 
   useEffect(() => {
-    if (tab === 'rush' || tab === 'battle') return
+    if (tab === 'rush' || tab === 'battle' || tab === 'vision') return
     if (state) {
       if (tab === 'rated' && !state.daily) loadRated()
       else if (tab === 'daily' && !state.daily) void loadDaily()
@@ -441,11 +442,12 @@ export function PuzzlesView() {
         </div>
         <div className="flex items-center gap-3">
           <Tabs value={tab} onValueChange={(v) => setTab(v as PuzzleTab)}>
-            <TabsList>
+            <TabsList className="h-auto max-w-full flex-wrap">
               <TabsTrigger value="rated">Rated</TabsTrigger>
               <TabsTrigger value="daily">Daily</TabsTrigger>
               <TabsTrigger value="rush">Rush</TabsTrigger>
               <TabsTrigger value="battle">Battle</TabsTrigger>
+              <TabsTrigger value="vision">Vision</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -508,13 +510,15 @@ export function PuzzlesView() {
 
       {tab === 'battle' && <BattlePanel />}
 
+      {tab === 'vision' && <VisionPanel />}
+
       {tab !== 'rush' && tab !== 'battle' && phase === 'loading' && (
         <div className="flex items-center justify-center py-20 text-muted-foreground">
           <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Setting the board…
         </div>
       )}
 
-      {tab !== 'rush' && tab !== 'battle' && phase === 'failed' && !state && (
+      {tab !== 'rush' && tab !== 'battle' && tab !== 'vision' && phase === 'failed' && !state && (
         <div className="mx-auto max-w-md rounded-lg bg-card p-6 text-center shadow-sm">
           <CalendarDays className="mx-auto h-8 w-8 text-muted-foreground" aria-hidden="true" />
           <div className="mt-2 font-display text-lg font-bold">Could not load today's puzzle</div>
@@ -532,7 +536,7 @@ export function PuzzlesView() {
         </div>
       )}
 
-      {puzzle && tab !== 'rush' && tab !== 'battle' && phase !== 'loading' && (
+      {puzzle && tab !== 'rush' && tab !== 'battle' && tab !== 'vision' && phase !== 'loading' && (
         <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
           <div className="mx-auto w-full max-w-[600px]">
             <ChessBoard

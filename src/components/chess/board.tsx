@@ -41,6 +41,9 @@ export interface BoardProps {
   theme?: string
   shake?: boolean // brief shake animation (wrong answer feedback)
   className?: string
+  /** Square-first tap mode (vision drills): every tap reports the square and
+   * skips all piece selection logic. */
+  onSquareTap?: (square: string) => void
 }
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const
@@ -182,6 +185,7 @@ export function ChessBoard({
   theme = 'green',
   shake = false,
   className,
+  onSquareTap,
 }: BoardProps) {
   const colors = boardColors(theme)
   const boardRef = useRef<HTMLDivElement>(null)
@@ -299,6 +303,10 @@ export function ChessBoard({
   const onSquarePointerDown = useCallback(
     (e: React.PointerEvent, square: string) => {
       if (promotion) return
+      if (onSquareTap) {
+        onSquareTap(square)
+        return
+      }
       const piece = game.get(square as Square)
       if (selected && legalTargets.has(square)) {
         tryMove(selected, square)
@@ -316,7 +324,7 @@ export function ChessBoard({
         setSelected(null)
       }
     },
-    [game, movableSide, selected, legalTargets, canMovePiece, tryMove, promotion],
+    [game, movableSide, selected, legalTargets, canMovePiece, tryMove, promotion, onSquareTap],
   )
 
   const onPointerMove = useCallback(

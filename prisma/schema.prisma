@@ -270,3 +270,18 @@ model BattleRecord {
 
   @@index([profileId])
 }
+
+// One finished coordinates sprint (vision training): find named squares on a
+// bare board against the clock. Three perspectives: white, black, both.
+model VisionRun {
+  id        String   @id @default(cuid())
+  profileId String   @default("me")
+  mode      String // white | black | both
+  score     Int
+  mistakes  Int
+  seconds   Int
+  dayKey    String
+  createdAt DateTime @default(now())
+
+  @@index([profileId])
+}
