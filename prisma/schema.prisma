@@ -252,3 +252,21 @@ model SkillMastery {
 
   @@unique([profileId, concept])
 }
+
+// One finished Puzzle Battle: 5 rounds head to head against a bot on the
+// same positions. Casual mode: puzzle Elo and PuzzleAttempt are untouched,
+// only an honest match record and small XP live here.
+model BattleRecord {
+  id        String   @id @default(cuid())
+  profileId String   @default("me")
+  botId     String
+  botName   String
+  you       Int
+  bot       Int
+  result    String // win | loss | draw
+  rounds    Int
+  dayKey    String
+  createdAt DateTime @default(now())
+
+  @@index([profileId])
+}
