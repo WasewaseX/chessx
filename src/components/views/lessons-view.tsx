@@ -81,7 +81,8 @@ export function LessonsView() {
           <h1 className="mt-1 font-book text-3xl font-semibold text-[#262421] sm:text-4xl">The Study</h1>
           <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-[#262421]/70">
             Video lessons have you watch. Every level here has you play: you make the moves, and when you slip,
-            your coach shows why before you go on. That correction loop is the whole reason this works.
+            your coach shows why before you go on. That correction loop is the whole reason this works. Every
+            chapter opens at its first level, so if you already know how the pieces move, start at Beginner.
           </p>
 
           <div className="mt-5 flex items-center gap-3">

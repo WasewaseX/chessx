@@ -12,6 +12,7 @@ import { readJson } from '@/lib/api-client'
 // unchanged; only the presentation was rebuilt.
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Chess, type Square } from 'chess.js'
 import { ChessBoard, type Arrow, type FlashMark, type Mark } from '@/components/chess/board'
 import { findLevel } from '@/content/levels'
@@ -31,6 +32,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Flame,
   Lightbulb,
   MessageSquareText,
   RotateCcw,
@@ -255,6 +257,17 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const savedRef = useRef({ stepsDone: 0, postedDone: false })
   const mobileChipRefs = useRef<Array<HTMLButtonElement | null>>([])
 
+  // first-try streak: every scored step solved without a miss extends it,
+  // any miss resets it. Honest numbers from this session only.
+  const streakRef = useRef(0)
+  const [streak, setStreak] = useState(0)
+  const [bestStreak, setBestStreak] = useState(0)
+  const reportResult = useCallback((firstTry: boolean) => {
+    streakRef.current = firstTry ? streakRef.current + 1 : 0
+    setStreak(streakRef.current)
+    setBestStreak((b) => Math.max(b, streakRef.current))
+  }, [])
+
   const tier = found?.tier
   const lesson = found?.level
   const globalLevel = found?.globalN ?? 0
@@ -426,6 +439,15 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
               <Sparkles className="h-3.5 w-3.5" /> +{xpFlash} XP
             </span>
           )}
+          {streak >= 2 && (
+            <span
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#e8a33d]/40 bg-[#e8a33d]/15 px-2.5 py-1 text-xs font-extrabold text-[#9a5b00]"
+              aria-label={`${streak} correct answers in a row`}
+            >
+              <Flame className="h-3.5 w-3.5 text-[#e8681d]" />
+              {streak >= 4 ? `On fire: ${streak}` : `${streak} in a row`}
+            </span>
+          )}
           <ToolButton onClick={() => setCoachOpen(true)} ariaLabel="Ask the coach" className="shrink-0">
             <MessageSquareText className="h-4 w-4" />
             <span className="hidden sm:inline">Coach</span>
@@ -477,6 +499,8 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           message={bubble?.text ?? null}
           hintsUsed={hintsUsed}
           xpGain={xpFlash}
+          bestStreak={bestStreak}
+          tierTitle={tier.title}
           onContinue={() => navigate('lessons')}
         />
       ) : (
@@ -583,6 +607,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                   key={stepIdx}
                   step={step}
                   onPass={() => setCanAdvance(true)}
+                  onResult={reportResult}
                   onBubble={handleBubble}
                   soundEnabled={profile?.soundEnabled ?? true}
                   showLegal={profile?.showLegal ?? true}
@@ -593,6 +618,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                   key={stepIdx}
                   step={step}
                   onPass={() => setCanAdvance(true)}
+                  onResult={reportResult}
                   onBubble={handleBubble}
                   soundEnabled={profile?.soundEnabled ?? true}
                   showLegal={profile?.showLegal ?? true}
@@ -603,6 +629,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                   key={stepIdx}
                   step={step}
                   onPass={() => setCanAdvance(true)}
+                  onResult={reportResult}
                   onBubble={handleBubble}
                   onHintUsed={handleHintUsed}
                   soundEnabled={profile?.soundEnabled ?? true}
@@ -646,6 +673,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                   stepIdx={stepIdx}
                   soundEnabled={profile?.soundEnabled ?? true}
                   onPass={() => setCanAdvance(true)}
+                  onResult={reportResult}
                   onBubble={handleBubble}
                 />
               )}
@@ -698,12 +726,49 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
 /* ---------------- completion ---------------- */
 
+/** One-shot confetti in the course palette. Skipped entirely when the user
+    prefers reduced motion. Purely visual, aria-hidden, never interactive. */
+function Confetti() {
+  const reduce = useReducedMotion()
+  const pieces = useMemo(() => {
+    const colors = ['#81b64c', '#a3d160', '#e8a33d', '#c07f1d', '#5d8534']
+    return Array.from({ length: 28 }, (_, i) => ({
+      id: i,
+      left: 2 + Math.random() * 96,
+      delay: Math.random() * 0.6,
+      duration: 2.1 + Math.random() * 1.5,
+      size: 6 + Math.random() * 7,
+      color: colors[i % colors.length],
+      drift: -36 + Math.random() * 72,
+      spin: 300 + Math.random() * 420,
+      round: Math.random() < 0.3,
+    }))
+  }, [])
+  if (reduce) return null
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-72 overflow-hidden">
+      {pieces.map((p) => (
+        <motion.span
+          key={p.id}
+          className="absolute top-0"
+          style={{ left: `${p.left}%`, width: p.size, height: p.round ? p.size : p.size * 0.45, background: p.color, borderRadius: p.round ? '9999px' : '2px' }}
+          initial={{ y: -24, x: 0, opacity: 1, rotate: 0 }}
+          animate={{ y: 320, x: p.drift, opacity: [1, 1, 0.9, 0], rotate: p.spin }}
+          transition={{ duration: p.duration, delay: p.delay, ease: 'easeIn' }}
+        />
+      ))}
+    </div>
+  )
+}
+
 function CompletionScreen({
   lesson,
   coach,
   message,
   hintsUsed,
   xpGain,
+  bestStreak,
+  tierTitle,
   onContinue,
 }: {
   lesson: NonNullable<ReturnType<typeof findLevel>['level']>
@@ -711,10 +776,14 @@ function CompletionScreen({
   message: string | null
   hintsUsed: number
   xpGain: number | null
+  bestStreak: number
+  tierTitle: string
   onContinue: () => void
 }) {
+  const chapterEnd = lesson.n >= 20
   return (
-    <div className="mx-auto w-full max-w-xl animate-in fade-in zoom-in-95 px-4 py-8 text-center duration-500 sm:py-12">
+    <div className="relative mx-auto w-full max-w-xl animate-in fade-in zoom-in-95 px-4 py-8 text-center duration-500 sm:py-12">
+      <Confetti />
       <div aria-hidden="true" className="relative mx-auto h-28 w-44">
         <img
           src="/pieces/wK.svg"
@@ -728,11 +797,13 @@ function CompletionScreen({
         />
       </div>
       <h2 className="mt-2 font-book text-4xl font-semibold text-[#262421] sm:text-5xl">
-        Lesson complete
+        {chapterEnd ? 'Chapter complete' : 'Lesson complete'}
       </h2>
-      <p className="mt-1 text-sm font-semibold text-[#262421]/55">{lesson.title}</p>
+      <p className="mt-1 text-sm font-semibold text-[#262421]/55">
+        {chapterEnd ? `The ${tierTitle} chapter is finished` : lesson.title}
+      </p>
 
-      <div className="mx-auto mt-6 flex max-w-md items-start gap-3 rounded-2xl bg-[#fdfbf5] p-4 text-left shadow-xl">
+      <div className="relative mx-auto mt-6 flex max-w-md items-start gap-3 rounded-2xl bg-[#fdfbf5] p-4 text-left shadow-xl">
         {coach ? (
           <CharacterFace
             id={coach.id}
@@ -749,12 +820,15 @@ function CompletionScreen({
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-widest text-[#6f8f42]">{coach ? coach.name : 'ChessX'}</p>
           <p className="mt-0.5 text-sm font-semibold leading-snug text-[#312e2b]">
-            {message ?? `All ${lesson.steps.length} steps complete. Replay it any time to keep it sharp.`}
+            {message ??
+              (chapterEnd
+                ? `Every level of ${tierTitle} is behind you. The next chapter opens at its first level whenever you are ready.`
+                : `All ${lesson.steps.length} steps complete. Replay it any time to keep it sharp.`)}
           </p>
         </div>
       </div>
 
-      {/* real stats from this session: steps completed, hints used, xp from the server */}
+      {/* real stats from this session: steps completed, hints, best first-try streak, xp from the server */}
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-[#262421]/10 bg-[#262421]/5 px-3.5 py-1.5 text-xs font-extrabold text-[#262421]/75">
           <Check className="h-3.5 w-3.5 text-[#81b64c]" strokeWidth={3} />
@@ -764,6 +838,12 @@ function CompletionScreen({
           <Lightbulb className="h-3.5 w-3.5 text-[#e8a33d]" />
           Hints used: {hintsUsed}
         </span>
+        {bestStreak >= 2 && (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e8a33d]/40 bg-[#e8a33d]/15 px-3.5 py-1.5 text-xs font-extrabold text-[#9a5b00]">
+            <Flame className="h-3.5 w-3.5 text-[#e8681d]" />
+            Best streak: {bestStreak}
+          </span>
+        )}
         {xpGain != null && (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-[#81b64c]/40 bg-[#81b64c]/15 px-3.5 py-1.5 text-xs font-extrabold text-[#4a6b28]">
             <Sparkles className="h-3.5 w-3.5" />+{xpGain} XP
@@ -1043,12 +1123,14 @@ function QuizStepView({
   stepIdx,
   soundEnabled,
   onPass,
+  onResult,
   onBubble,
 }: {
   step: Extract<LessonStep, { type: 'quiz' }>
   stepIdx: number
   soundEnabled: boolean
   onPass: () => void
+  onResult: (firstTry: boolean) => void
   onBubble: (m: BubbleMsg | null) => void
 }) {
   const [chosen, setChosen] = useState<number | null>(null)
@@ -1061,10 +1143,12 @@ function QuizStepView({
     if (step.options[i].correct) {
       setChosen(i)
       setAnsweredCorrect(true)
+      onResult(misses === 0)
       onPass()
     } else {
       setChosen(i)
       setMisses((m) => m + 1)
+      onResult(false)
     }
   }
 
@@ -1144,6 +1228,7 @@ function QuizStepView({
 function ExerciseView({
   step,
   onPass,
+  onResult,
   onBubble,
   onHintUsed,
   soundEnabled,
@@ -1153,6 +1238,7 @@ function ExerciseView({
 }: {
   step: ExerciseStep
   onPass: () => void
+  onResult: (firstTry: boolean) => void
   onBubble: (m: BubbleMsg | null) => void
   onHintUsed: () => void
   soundEnabled: boolean
@@ -1165,6 +1251,8 @@ function ExerciseView({
   const [movesSoFar, setMovesSoFar] = useState<string[]>([])
   const [status, setStatus] = useState<'solving' | 'watch' | 'done'>('solving')
   const [attempts, setAttempts] = useState(0)
+  // survives resets: a step solved only after a miss never counts as first-try
+  const blunderedRef = useRef(false)
   const [guideMsg, setGuideMsg] = useState<string | null>(null)
   const [hintShown, setHintShown] = useState(false)
   const [shake, setShake] = useState(false)
@@ -1270,9 +1358,11 @@ function ExerciseView({
   const bubbleTone: BubbleTone = status === 'done' ? 'praise' : guideMsg ? 'guide' : hintShown ? 'hint' : 'neutral'
   const bubbleText =
     status === 'done' ? step.success : guideMsg ?? (hintShown ? step.hint : step.goal)
+  // a finished line that ends in mate earns the bigger chip
+  const bubbleChip = status === 'done' && gameRef.current.isCheckmate() ? 'Checkmate!' : chipFor(bubbleTone)
   useLayoutEffect(() => {
-    onBubble({ tone: bubbleTone, text: bubbleText, speak: bubbleText, chip: chipFor(bubbleTone) })
-  }, [onBubble, bubbleTone, bubbleText])
+    onBubble({ tone: bubbleTone, text: bubbleText, speak: bubbleText, chip: bubbleChip })
+  }, [onBubble, bubbleTone, bubbleText, bubbleChip])
 
   function reset() {
     watchTimers.current.forEach(clearTimeout)
@@ -1309,6 +1399,8 @@ function ExerciseView({
 
     if (!correct) {
       g.undo()
+      blunderedRef.current = true
+      onResult(false)
       const n = attempts + 1
       setAttempts(n)
       setShake(true)
@@ -1357,6 +1449,7 @@ function ExerciseView({
       // line finished
       setStatus('done')
       playSound('correct', soundEnabled)
+      onResult(!blunderedRef.current)
       onPass()
     }
     // if reply exists but it was the last move of the line
@@ -1364,6 +1457,7 @@ function ExerciseView({
       setTimeout(() => {
         setStatus('done')
         playSound('correct', soundEnabled)
+        onResult(!blunderedRef.current)
         onPass()
       }, 1100)
     }
@@ -1428,6 +1522,7 @@ function ExerciseView({
 function GtmStepView({
   step,
   onPass,
+  onResult,
   onBubble,
   soundEnabled,
   showLegal,
@@ -1435,6 +1530,7 @@ function GtmStepView({
 }: {
   step: GtmStep
   onPass: () => void
+  onResult: (firstTry: boolean) => void
   onBubble: (m: BubbleMsg | null) => void
   soundEnabled: boolean
   showLegal: boolean
@@ -1566,6 +1662,7 @@ function GtmStepView({
       setScore((s) => s + 1)
       setResults((r) => [...r, 'full'])
       setFeedback({ tone: 'praise', text: cur.why })
+      onResult(misses === 0)
       advanceAfter(cur)
       return
     }
@@ -1578,6 +1675,7 @@ function GtmStepView({
       setScore((s) => s + 0.5)
       setResults((r) => [...r, 'half'])
       setFeedback({ tone: 'hint', text: `Playable, but the master found the stronger idea: ${cur.san}. ${cur.why}` })
+      onResult(false)
       advanceAfter(cur)
       return
     }
@@ -1585,6 +1683,7 @@ function GtmStepView({
     // a miss: guide first, show the move after the third try
     const n = misses + 1
     setMisses(n)
+    onResult(false)
     setShake(true)
     timers.current.push(setTimeout(() => setShake(false), 420))
     playSound('wrong', soundEnabled)
@@ -1712,6 +1811,7 @@ function GtmStepView({
 function PlayoutStepView({
   step,
   onPass,
+  onResult,
   onBubble,
   soundEnabled,
   showLegal,
@@ -1719,6 +1819,7 @@ function PlayoutStepView({
 }: {
   step: Extract<LessonStep, { type: 'playout' }>
   onPass: () => void
+  onResult: (firstTry: boolean) => void
   onBubble: (m: BubbleMsg | null) => void
   soundEnabled: boolean
   showLegal: boolean
@@ -1731,6 +1832,7 @@ function PlayoutStepView({
   const [status, setStatus] = useState<'playing' | 'won' | 'lost' | 'draw'>('playing')
   const [thinking, setThinking] = useState(false)
   const judgedRef = useRef(false)
+  const lostRef = useRef(false)
 
   const game = useMemo(() => new Chess(fen), [fen])
   const checkSquare = useMemo(() => {
@@ -1777,10 +1879,12 @@ function PlayoutStepView({
         return 'draw'
       }
       // early material check: past this deficit the game is unrecoverable,
-      // below it one blunder should still be survivable
+      // below it one blunder should still be survivable. Gentle bots hand
+      // material back, so the cap scales with their strength.
       if (step.success !== 'draw') {
         const bal = materialBalance(g)
-        if (bal <= -5) return 'lost'
+        const deficitCap = step.engineLevel >= 2 ? -5 : step.engineLevel === 1 ? -7 : -9
+        if (bal <= deficitCap) return 'lost'
       }
       if (step.success === 'castle' && castled(g)) return 'won'
       if (step.success === 'material' && materialBalance(g) >= 3 && moves.length >= 2) return 'won'
@@ -1798,12 +1902,15 @@ function PlayoutStepView({
       setStatus(result)
       if (result === 'won') {
         playSound('correct', soundEnabled)
+        onResult(!lostRef.current)
         onPass()
       } else {
+        lostRef.current = true
+        onResult(false)
         playSound('wrong', soundEnabled)
       }
     }
-  }, [fen, status, judge, onPass, soundEnabled])
+  }, [fen, status, judge, onPass, onResult, soundEnabled])
 
   const engineMove = useCallback(async () => {
     const g = gameRef.current
@@ -1858,7 +1965,8 @@ function PlayoutStepView({
   }, [onBubble, bubbleTone, bubbleText])
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="relative flex flex-col items-center">
+      {status === 'won' && <Confetti />}
       <BoardPlate label={status === 'playing' ? sideToPlayLabel(fen) : undefined}>
         <ChessBoard
           fen={fen}

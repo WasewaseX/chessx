@@ -290,7 +290,7 @@ export const newbie: Tier = {
           wrong('They are equal, knights are the same everywhere', 'Knight power depends entirely on where it stands. From the edge it attacks at most 4 squares; from the center, 8.'),
         ]),
         quiz('Blockers and the jump', 'The knight just took a pawn on f5. Which of your own pieces could have stopped that capture by standing between d4 and f5?', [
-          right('None: the knight jumps over blockers', 'Blockers mean nothing to the knight. That is the L-shape superpower.'),
+          right('None: the knight jumps over blockers', 'Blockers mean nothing to the knight. It hops straight over, which is why you cannot wall it out with pawns.'),
           wrong('A pawn on e4', 'The pawn could guard f5, but it cannot stand in the way of the jump.'),
           wrong('A bishop on e3', 'Bishops slide along clear lines, but a knight jumps over them.'),
         ]),
@@ -341,7 +341,7 @@ export const newbie: Tier = {
           ['Bxg7+'],
           'The black queen sits on g7, right on your bishop\'s diagonal. Take it.',
           'From b2 the diagonal runs c3, d4, e5, f6, straight into the queen.',
-          'You traded your bishop for the queen. Even after the king takes your bishop, you have given a cheap piece for the strongest piece on the board. When a big piece is guarded only by the king, a smaller attacker can win material.',
+          'You traded your bishop for the queen. Even after the king takes your bishop, you have given a cheap piece for the strongest piece on the board. One new symbol: the plus in Bxg7+ means check, the king is under attack. Lesson 8 explains what to do about it.',
         ),
         quiz('Same color forever', 'A bishop starts on f1. Which square can it NEVER reach?', [
           wrong('d3', 'd3 is light, same color as f1. Reachable.'),
@@ -398,13 +398,13 @@ export const newbie: Tier = {
         demo(
           'Double the rooks',
           [
-            'One rook already owns the d-file. Where does the second one go to back it up? Decide, then watch.',
+            'Two rooks, one open file ahead of them. Where should they go so that one backs up the other? Decide, then watch.',
             'Doubled rooks: a second rook behind the first makes the file twice as hard to break. If the front rook gets traded, the one behind takes over.',
           ],
           '4k3/8/8/8/8/8/7R/R3K3 w - - 0 1',
           { moves: ['Rd1', 'Ke7', 'Rhd2'], caption: 'Doubled on the d-file' },
         ),
-        drill('Grab and check', 'n3k3/8/8/8/8/8/8/R3K3 w - - 0 1', ['Rxa8+'], 'Capture the knight on a8 with check', 'The rook on a1 drives straight up the a-file.', 'Rxa8 plus check along the 8th rank. Rooks on open files do exactly this.'),
+        drill('Grab and check', 'n3k3/8/8/8/8/8/8/R3K3 w - - 0 1', ['Rxa8+'], 'Capture the knight on a8 with check', 'The rook on a1 drives straight up the a-file.', 'Rxa8 plus check along the 8th rank. Check means the king is under attack, and the plus sign marks it. Lesson 8 gives checks the full routine. Rooks on open files do exactly this.'),
         drill(
           'Check the back rank',
           '4k3/8/8/8/8/8/8/4K2R w - - 0 1',
@@ -460,14 +460,14 @@ export const newbie: Tier = {
           'The queen moves like a rook and a bishop together. Guard her like the 9 pawns she is worth.',
         ),
         demo('Rank and file', ['From a1 the queen uses rook lines and bishop lines. Name a distant square where she gives check, then watch.'], '4k3/8/8/8/8/8/8/Q3K3 w - - 0 1', { moves: ['Qa8+'], caption: 'Qa8 with check: the whole a-file was hers' }),
-        demo(
-          'The early queen raid',
-          [
-            'Black has just sent the queen out on the second move. She eyes the e4 pawn. Count her defenders before you continue.',
-            'The knight took her for free. Early queen trips lose time, and sometimes they lose the queen itself.',
-          ],
+        exercise(
+          'Punish the early raid',
+          ['Black has just sent the queen out on the second move. She eyes the e4 pawn. Count her defenders, then punish the raid.'],
           'rnb1kbnr/pppp1ppp/8/4p3/4P2q/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3',
-          { moves: ['Nxh4'], caption: 'Qh4 was defended by nothing' },
+          ['Nxh4'],
+          'The queen has no bodyguard. Take her with the piece that already attacks her.',
+          'The knight on f3 attacks h4. Count the black defenders of h4: there are none.',
+          'Nxh4. The queen had no defender, so the knight ate her. Early queen raids lose time, and sometimes they lose the queen itself.',
         ),
         text(
           'Development',
@@ -523,7 +523,7 @@ export const newbie: Tier = {
       steps: [
         quiz('Warm-up: from last lesson', 'Your knights and bishops are still at home on move 3. What is the best use of this move?', [
           right('Develop a knight or bishop toward the center', 'One new piece per move: that is development, and the queen waits for the pieces.'),
-          wrong('Send the queen out to attack', 'Early queen trips get chased while your other pieces wait at home.'),
+          wrong('Send the queen out to attack', 'Send her out now and every Black piece joins the game while your queen runs for her life. One piece out is not an attack.'),
           wrong('Push the h-pawn', 'Pawn moves do not develop pieces. The center and the pieces come first.'),
         ]),
         text(
@@ -697,7 +697,7 @@ export const newbie: Tier = {
           '6k1/5p1p/6p1/8/8/8/5PPP/4R1K1 w - - 0 1',
           { moves: ['Re8+', 'Kg7'], caption: 'Check, but not mate: the king escapes' },
         ),
-        drill('Break through', '3r2k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1', ['Rxd8#'], 'Mate in one', 'The rook on d8 is Black\'s only back-rank defender. Your rook takes it with mate.', 'You captured the only defender and mated on the same move. Removing the back-rank defender is a winning pattern.'),
+        drill('Break through', '3r2k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1', ['Rxd8#'], 'Mate in one', 'The rook on d8 is Black\'s only back-rank defender. Your rook takes it with mate.', 'That was your first checkmate. You removed the only defender and the rook ended the game. Removing the back-rank defender is a winning pattern.'),
         drill(
           'Make luft early',
           '6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1',
@@ -753,6 +753,11 @@ export const newbie: Tier = {
           'Two: no piece stands between them.',
           'Three and four: the king is not in check, and he never starts, passes through, or lands on an attacked square.',
         ], 'Unmoved, unmoved, clear, safe.'),
+        quiz('Illegal castling', 'In which case is castling NOT allowed?', [
+          wrong('A rook stands on an open file', 'Open files do not matter. Only movement, blockers, and attacked squares do.'),
+          right('The king is in check', 'You cannot castle out of check. Deal with the check first.'),
+          wrong('A pawn has just been captured', 'Captures elsewhere are irrelevant. Castling only cares about king and rook.'),
+        ]),
         demo('Short castle', ['Before you watch: name the two squares king and rook land on. Then watch 0-0 play out: king e1 to g1, rook h1 to f1.'], 'r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1', { moves: ['O-O'], caption: 'Short castling' }),
         demo('Long castle', ['Same question the long way: where do king and rook end up? Guess, then watch 0-0-0.'], 'r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1', { moves: ['O-O-O'], caption: 'Long castling' }),
         demo(
@@ -774,21 +779,16 @@ export const newbie: Tier = {
         drill('Castle now', 'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4', ['O-O'], 'Get the king to safety', 'f1 and g1 are empty and nothing attacks them. Make the two-piece move.', 'King safe, rook active. This is what a good opening move looks like.'),
         drill(
           'Castle the long way',
-          'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPPQ1PPP/R3K2R w KQkq - 6 5',
+          'r1bqk2r/2p2ppp/p1np1n2/1pb1p1B1/2B1P3/2NP1N2/PPP1QPPP/R3K2R w KQkq - 0 8',
           ['O-O-O'],
           'The queenside is clear. Castle long.',
           'b1, c1 and d1 are empty, and nothing attacks the king\'s path.',
-          '0-0-0. The rook lands on d1, already staring down the d-file at Black\'s d7 pawn. Long castling often comes with a bonus like that.',
+          '0-0-0. The king tucks in on c1 and the rook joins the game from d1: two jobs, one move.',
         ),
-        quiz('Illegal castling', 'In which case is castling NOT allowed?', [
-          wrong('A rook stands on an open file', 'Open files do not matter. Only movement, blockers, and attacked squares do.'),
-          right('The king is in check', 'You cannot castle out of check. Deal with the check first.'),
-          wrong('A pawn has just been captured', 'Captures elsewhere are irrelevant. Castling only cares about king and rook.'),
-        ]),
         quiz('Why castle early?', 'What makes castling such a valuable opening move?', [
           wrong('It wins material', 'Castling captures nothing. Its value is safety and activity.'),
           right('It tucks the king behind a pawn wall and brings a rook toward the center', 'Two jobs, one move. That is the best trade of effort chess offers.'),
-          wrong('Castled kings may move twice per turn', 'Kings always move one square. Castling is the single exception: two squares, once a game.'),
+          wrong('You may castle twice if both rooks are still home', 'One castle per game, ever. Either rook, but only once.'),
         ]),
         quiz('Where does the king land?', 'After White castles short (0-0), which squares do the king and rook occupy?', [
           wrong('King f1, rook g1', 'Close, but the rook is the one that jumps around. The king takes the bigger step.'),
@@ -833,7 +833,7 @@ export const newbie: Tier = {
           right('So a pawn cannot use the two-square jump to slip past a chasing pawn forever', 'The two-square jump was invented late. En passant keeps the old chase alive: the jumper can still be caught.'),
           wrong('To give each player one free capture per game', 'There is nothing free about it. It only fires in one exact situation.'),
         ]),
-        demo('The other side', ['Same rule for the a-pawn: the black b-pawn jumped beside yours. What is the capture here? Say it, then watch.'], '4k3/8/8/Pp6/8/8/8/4K3 w - b6 0 2', { moves: ['axb6'], caption: 'axb6 en passant' }),
+        demo('The other side', ['Black tries the same trick from the other side: the b-pawn jumped beside your a-pawn. Name the capture square, then watch.'], '4k3/8/8/Pp6/8/8/8/4K3 w - b6 0 2', { moves: ['axb6'], caption: 'axb6 en passant' }),
         drill('Catch it in time', '4k3/8/8/1pP5/8/8/8/4K3 w - b6 0 2', ['cxb6'], 'Black just played b7 to b5. Punish it now.', 'Capture as if the b-pawn had stopped one square earlier.', 'The only chance you will ever get, and you took it.'),
         quiz('En passant window', 'Your opponent plays g7 to g5 beside your pawn on f5. When can you capture en passant?', [
           wrong('For the rest of the game', 'No. One move. Then the chance is gone.'),
@@ -878,7 +878,7 @@ export const newbie: Tier = {
           'The race',
           [
             'Two passed pawns sprint for the last rank: White\'s on c7, Black\'s on a2. Whoever moves first promotes first. What do you play? Decide, then watch.',
-            'In pawn races, tempo is everything: the first new queen runs the whole board.',
+            'Pawn races are footraces. Promote one move first and your new queen hunts the other pawn down. Players call that head start tempo.',,
           ],
           '4k3/2P5/8/8/8/8/p7/4K3 w - - 0 1',
           { moves: ['c8=Q+'], caption: 'First to promote controls the board' },
@@ -914,7 +914,7 @@ export const newbie: Tier = {
       n: 13,
       title: 'Stalemate and draws',
       subtitle: 'Games do not always end in a mate.',
-      minutes: 9,
+      minutes: 13,
       concepts: ['endgame', 'technique'],
       steps: [
         quiz('Warm-up: from last lesson', 'Your pawn is one square from the last rank, but a rook guards the promotion square. What now?', [
@@ -931,7 +931,7 @@ export const newbie: Tier = {
           ],
           'Stalemate is a draw. When you are far ahead, check before every move that the enemy king still has a legal move.',
         ),
-        demo('The trap to avoid', ['White is up a whole queen. One queen move here is checkmate. Another one is stalemate and throws the win away. Call your move before the line plays.'], '7k/8/6K1/Q7/8/8/8/8 w - - 0 1', { marks: [{ square: 'd5', color: 'red' }], caption: 'Red: the stalemate move. The mate is yours to find in the next drill.' }),
+        demo('The trap to avoid', ['White is up a whole queen. One queen move here is checkmate. Another one is stalemate and throws the win away. Call your move, then try both on the board: one ends the game, one hands it back.'], '7k/8/6K1/Q7/8/8/8/8 w - - 0 1', { marks: [{ square: 'd5', color: 'red' }], caption: 'Red: the stalemate move. The mate is yours to find in the next drill.' }),
         text(
           'Three slower ways to draw',
           [
@@ -972,14 +972,14 @@ export const newbie: Tier = {
         ),
         playout(
           'Finish a real endgame',
-          'You have a queen up against a lone king. Mate him. Watch out: one careless move hands him a stalemate draw.',
+          'You have a queen up against a lone king. Mate him. The method: park the queen a knight-move away from his king so she cuts the board in half, march your king up, shrink the box, repeat. And before every move, check he still has a legal square: one careless move hands him a stalemate draw.',
           '7k/8/8/5K2/8/8/8/6Q1 w - - 0 1',
           'w',
-          'Checkmate the black king within 20 moves',
+          'Checkmate the black king within 30 moves',
           0,
           'checkmate',
-          20,
-          'Mated with queen and king working together. That is the most common win in chess, and it is yours now.',
+          30,
+          'The queen checked, your king took away the escape squares. That team-up wins more endgames than anything else you know.',
           'Walk your king over to help the queen corner him. And before every move, check he still has a square left.',
         ),
       ],
@@ -1029,7 +1029,7 @@ export const newbie: Tier = {
           'k2r4/8/8/8/8/2B5/3r4/4K3 w - - 0 1',
           ['Bxd2', 'Rxd2'],
           'Your bishop can capture the rook on d2. Black\'s other rook will take back.',
-          'The bishop on c3 jumps onto d2. After the recapture, count what each side gave.',
+          'The bishop on c3 slides onto d2. After the recapture, count what each side gave.',
           'Bxd2 Rxd2: bishop (3) for rook (5), the exchange, worth about 2 pawns.',
         ),
         quiz('Count defenders', 'Before capturing a defended piece, what must you compare?', [
@@ -1037,11 +1037,15 @@ export const newbie: Tier = {
           right('The total value of attackers against defenders', 'A capture is good when what you win outweighs what you will lose in return.'),
           wrong('Nothing, always capture', 'Capturing without counting is how games are thrown away.'),
         ]),
-        quiz('Two rooks or the queen?', 'Is the queen worth two rooks?', [
-          right('Roughly: two rooks (10) slightly outweigh her (9), and they defend each other', 'The rooks have a small material edge and teamwork. Still, position matters: an active queen can outplay passive rooks.'),
-          wrong('Yes: the queen is the strongest piece', 'Strongest single piece, yes. But two rooks together are a genuine match for her.'),
-          wrong('Material comparisons never matter', 'Values are the first tool every player needs. Exceptions come later, on top of the basics.'),
-        ]),
+        demo(
+          'The poisoned rook',
+          [
+            'A rook sits right where your queen can reach it. Free? Predict what happens after Qxd4.',
+            'The e5 pawn was the rook\'s bodyguard. Queen (9) falls to pawn (1): that is the most expensive free piece in chess.',
+          ],
+          '4k3/8/8/4p3/3r4/8/8/3QK3 w - - 0 1',
+          { moves: ['Qxd4', 'exd4'], caption: 'The free rook was a trap' },
+        ),
         quiz('Order by value', 'Which list orders the pieces from weakest to strongest?', [
           right('Pawn, knight and bishop, rook, queen', '1, 3, 3, 5, 9. The two minor pieces are equal in points, different in style.'),
           wrong('Pawn, rook, knight and bishop, queen', 'Rooks outrank the minor pieces: 5 beats 3.'),
@@ -1109,12 +1113,12 @@ export const newbie: Tier = {
       n: 16,
       title: 'Practice arena I',
       subtitle: 'Capture drills: spot the free pieces.',
-      minutes: 10,
+      minutes: 14,
       concepts: ['winningMaterial', 'defense'],
       steps: [
         quiz('Warm-up: from last lesson', 'Name the scan from last lesson, in order.', [
           right('Their checks, their captures, their threats', 'Defense before dreams. Survive their forcing moves, then play your own.'),
-          wrong('Your threats, then their checks', 'Tunnel vision is how hanging pieces happen. Look both ways, theirs first.'),
+          wrong('Your threats, then their checks', 'Your threats can wait one move. Their forcing moves cannot: that is why the scan starts on their side.'),
           wrong('Captures only', 'Checks come first: they override everything else on the board.'),
         ]),
         text(
@@ -1125,12 +1129,19 @@ export const newbie: Tier = {
             'The rule of thumb: when you are ahead, trade pieces, not pawns. Every swap removes an enemy attacker, and your extra pawns are what promote.',
           ],
         ),
-        drill('Knight grabs', '4k3/8/8/8/3p4/5N2/8/4K3 w - - 0 1', ['Nxd4'], 'Take the pawn with the knight', 'From f3 the knight attacks d4 with its L shape.', 'Nxd4. The pawn was undefended.'),
-        drill('Rook grabs', '4k3/7p/8/8/8/8/8/4K2R w - - 0 1', ['Rxh7'], 'Win the pawn on h7', 'The h-file is open all the way to h7, and nothing defends the pawn.', 'Rxh7. The h-file was open and nothing defended the pawn.'),
-        drill('Bishop grabs', '4k3/8/8/8/8/4b3/8/2B1K3 w - - 0 1', ['Bxe3'], 'The bishop on e3 is loose. Take it.', 'Count the defenders on e3 first. Then ask which of your pieces slides there in one move.', 'Bxe3. Nothing defended the bishop on e3.'),
-        drill('Queen grabs', '4k3/8/8/8/8/5b2/8/3QK3 w - - 0 1', ['Qxf3'], 'Capture the bishop on f3', 'The queen moves like a rook and bishop combined. The d1 to f3 diagonal is clear.', 'Qxf3. The bishop was undefended: free points for the player who checks defenders.'),
+        drill('The quiet pawn', '4k3/8/8/8/3p4/5N2/8/4K3 w - - 0 1', ['Nxd4'], 'One of Black\'s pawns has no bodyguard. Find it and take it.', 'Say the attacker and defender count out loud before you move. Which pawn can the f3 knight reach with nobody behind it?', 'Nxd4. That pawn had no defender, so the knight just ate it. Ask "who takes back?" before every capture and free pawns keep showing up.'),
+        drill('The open road', '4k3/7p/8/8/8/8/8/4K2R w - - 0 1', ['Rxh7'], 'A black pawn is free. One rook move gets it.', 'The h-file has no pawns on it. Where does that road end?', 'Rxh7. Open file, no defender, free pawn. Rooks live for this.'),
+        drill('Count first', '4k3/8/8/8/8/4b3/8/2B1K3 w - - 0 1', ['Bxe3'], 'A black bishop sits on e3. Is it really free? Decide, then act.', 'Count the defenders on e3 before you move. If the count is zero, take it.', 'Bxe3. You counted the defenders, found none, and took. That two-second head count is the whole difference between a free piece and a lost one.'),
         drill(
-          'Take the biggest',
+          'The bait',
+          '4k3/8/8/8/n3p3/5b2/8/3QK3 w - - 0 1',
+          ['Qxa4+'],
+          'Two black pieces look reachable. One is genuinely free, one is bait. Choose.',
+          'The bishop on f3 is guarded by the e4 pawn: taking it hands over your queen for a bishop. Somewhere else a piece has no guard at all.',
+          'Qxa4. The f3 bishop was bait; the knight had no defender at all. The scan saved your queen.',
+        ),
+        drill(
+          'The better prize',
           'r3k3/8/2n5/8/8/8/8/R3K3 w - - 0 1',
           ['Rxa8+'],
           'Two black pieces are undefended. Your rook can only reach one. Choose.',
@@ -1178,7 +1189,7 @@ export const newbie: Tier = {
           'Checks cut both ways',
           [
             'A check forces your opponent to respond, which makes checks powerful for attack and essential to notice for defense.',
-            'First three drills: deliver check. The next two: answer a check by capturing the attacker and by blocking. The last: run the list out loud, capture, block, move, and find the one square left.',
+            'First three drills: deliver check. Then answer one check by moving, one by capturing, one by blocking.',
           ],
         ),
         drill('Knight check', '7k/8/8/6N1/8/8/8/4K3 w - - 0 1', ['Nf7+'], 'Check the king on h8', 'Find the jump that lands two files away and one rank away from the king.', 'With check. The king must stop everything and deal with the knight.'),
@@ -1269,7 +1280,7 @@ export const newbie: Tier = {
           'The black pawn jumped b7 to b5 two moves ago. What can White do now?',
           [
             wrong('Capture it as if it had stopped on b3', 'That was true last move. Waited once, gone forever.'),
-            right('Nothing en passant: the right lasted one move only', 'The en passant right expires immediately after the jump.'),
+            right('Nothing en passant: the right lasted one move only', 'The window is one move wide. It shut the moment White played something else.'),
             wrong('Push the c-pawn to attack it', 'A pawn on c5 attacks b6 and d6, never b5. The pawn already slipped past.'),
           ],
           undefined,
@@ -1284,8 +1295,8 @@ export const newbie: Tier = {
           'f8=N mate. The queen would have been stalemate; the knight mates.',
         ),
         quiz('Castling rights kept', 'You developed your g1 knight and later moved it back home. Can you still castle short?', [
-          wrong('No: any piece passing through cancels it', 'Visitors do not matter. Only the king and the castling rook themselves.'),
-          right('Yes: only moving the king or that rook ever cancels the right', 'Pieces may visit f1 and g1 freely. The right survives until king or rook actually moves.'),
+          wrong('No: any piece passing through cancels it', 'A piece standing on f1 blocks the castle for that one move. Once it leaves, the right is untouched.'),
+          right('Yes: only moving the king or that rook ever cancels the right', 'The knight can sightsee all it wants. The right dies only when the king or that rook actually moves.'),
           wrong('Only if the knight captured something', 'Captures are irrelevant to castling rights.'),
         ]),
       ],
@@ -1299,7 +1310,7 @@ export const newbie: Tier = {
       concepts: ['center', 'development', 'castlingSafety'],
       steps: [
         quiz('Warm-up: from last lesson', 'Your knight visited f1 and came back home. Your king never moved. Can you still castle short?', [
-          right('Yes: only the king or the castling rook itself ever cancels the right', 'Visitors do not matter. The right survives until king or rook actually moves.'),
+          right('Yes: only the king or the castling rook itself ever cancels the right', 'A knight sightseeing on f1 changes nothing. The right only dies when the king or that rook actually moves.'),
           wrong('No: any piece passing through cancels it', 'Passing through blocks castling only while the piece stands there. Move it away and the right is back.'),
           wrong('Only if the knight captured something on its trip', 'Captures are irrelevant. Only king and rook movement matters.'),
         ]),
@@ -1353,14 +1364,14 @@ export const newbie: Tier = {
       n: 20,
       title: 'Newbie graduation',
       subtitle: 'A famous trap, one last quiz, and your first full game.',
-      minutes: 16,
-      concepts: ['famousGame', 'mate', 'sacrifice'],
+      minutes: 22,
+      concepts: ['famousGame', 'mate', 'defense'],
       steps: [
         text(
           'You know every rule now',
           [
             'Board, pieces, check, mate, castling, en passant, promotion, draws, values. That is everything you need to play a full game.',
-            'Before the final game, one famous old trap, told about a Paris game from the 1750s: the queen is offered, the king takes it, and gets mated.',
+            'Before the final game, one famous old trap from a Paris game in the 1750s. White offers the whole queen as bait. Black grabs it, and three moves later Black is mated.',
           ],
           'Check, castling, en passant, promotion, draws: you can now name every rule used in a game.',
         ),
@@ -1379,28 +1390,51 @@ export const newbie: Tier = {
           right('Move a pawn toward the enemy queen', 'A check must be answered this move: capture the attacker, block the line, or move the king.'),
           wrong('Put a piece between your king and the bishop', 'Bishops are sliding pieces, so blocking works.'),
         ]),
-        gtmStep(
-          'Play like Légal',
+        demo(
+          'The trap, in slow motion',
           [
-            'This is one of the oldest famous traps in chess, told about a Paris game from the 1750s.',
-            'Black has just attacked the knight on f3 with the bishop on g4. Your queen stands behind the knight on the same diagonal, so the knight cannot move without losing her. Players call that a pin. Most players defend the knight. Légal moved it.',
-            'You will play White. In each position, find the move Légal played. White offers the whole queen on the way, and the finish is a knight mate.',
+            'White develops normally until the bishop on g4 shoots at the knight on f3, and the knight cannot move because the queen stands right behind it. Then White plays Nxe5 anyway: the knight takes a pawn and offers the whole queen.',
+            'Black cannot resist and takes the queen with the bishop. Now watch the three moves that follow. Predict each one before it lands.',
           ],
-          'Traditional: Légal vs Saint Brie, Paris, around 1750',
           START,
-          ['e4', 'e5', 'Nf3', 'd6', 'Bc4', 'Bg4', 'Nc3', 'g6'],
+          {
+            moves: ['e4', 'e5', 'Nf3', 'd6', 'Bc4', 'Bg4', 'Nc3', 'g6', 'Nxe5', 'Bxd1', 'Bxf7+', 'Ke7', 'Nd5#'],
+            caption: 'The Légal Trap, Paris, around 1750',
+          },
+        ),
+        quiz('The trap question', 'White just played Nxe5, offering the queen. Instead of grabbing her, what was the best reply for Black?', [
+          wrong('Bxd1: take the queen', 'That is the trap. After Bxf7+ Ke7, the knight mates on d5 and the extra queen never matters.'),
+          right('dxe5: take the knight with the pawn', 'It gives up only a pawn and removes the attacker. The bishop on g4 is still loose, but Black is alive.'),
+          wrong('Qe7: defend everything', 'The queen cannot guard the bishop on g4. White replies Nxg4 and wins a piece.'),
+        ]),
+        gtmStep(
+          'Refuse the bait',
           [
-            guess('Nxe5', 'The knight takes a pawn and offers the queen, because the exposed black king matters more than material. Black had a way out: dxe5 loses only a pawn. Grabbing the queen gets mated.', { reply: 'Bxd1' }),
-            guess('Bxf7+', 'The bishop checks and drags the king forward into the knights\' zone. Every check matters more than material here.', { reply: 'Ke7' }),
-            guess('Nd5#', 'Mate with the knight: e6 and e8 are covered by the bishop on f7, f6 and d7 by the knights, and the king has no square left.'),
+            'Same position, but now you are Black and the trap move has been played: the White knight just took the pawn on e5 and is offering your bishop a free queen.',
+            'Everything in you wants that queen. You learned the habit in the last chapter: check what the capture costs before you take it. Find the move that keeps the game going.',
+          ],
+          'Trap from Légal vs Saint Brie, Paris, around 1750. Refutation line composed for ChessX.',
+          START,
+          ['e4', 'e5', 'Nf3', 'd6', 'Bc4', 'Bg4', 'Nc3', 'g6', 'Nxe5'],
+          [
+            guess('dxe5', 'It costs a pawn and nothing more. Grabbing the queen with Bxd1 walks into Bxf7+ Ke7 and Nd5 mate.', { reply: 'Qxg4' }),
+            guess('h5', 'The queen on g4 is loose. Poke her with a pawn and every White move spent saving her is a move not spent developing.', { reply: 'Qg3', alsoGood: ['Nc6', 'Nf6', 'Be7'] }),
+            guess('Nc6', 'You gave up a pawn, not the game. Develop, castle, and the pawn will come back in a better middlegame.'),
           ],
         ),
-        quiz('The Légal lesson', 'What did Légal give up in this trap?', [
-          wrong('Nothing: the bishop on g4 blundered alone', 'Black had a way out: dxe5 just loses a pawn after Qxg4. The mate only springs on players who grab the queen.'),
-          wrong('Both rooks', 'The rooks never moved. The sacrifice was the queen on d1.'),
-          right('The queen, for a mating attack', 'Material meant nothing compared with the exposed king. That ranking of threats over stuff is the real lesson.'),
+        quiz('The habit this trap teaches', 'A piece worth more than a knight is suddenly free in the opening. What is the right first reaction?', [
+          right('Look for the hidden threat before you take it', 'Free material in the opening is usually bait. Check every check and every follow-up first, then decide.'),
+          wrong('Take it fast, before your opponent changes their mind', 'That is exactly how the trap in this lesson caught its victim 250 years ago.'),
+          wrong('Free is free: always take it', 'Sometimes it is. But when your king is still in the center, suspicion first is the habit that saves games.'),
         ]),
-        drill('One last back rank', '2r3k1/5ppp/8/8/8/8/5PPP/2R3K1 w - - 0 1', ['Rxc8#'], 'Mate in one to finish the tier', 'The black rook is the only defender of the back rank. Take it.', 'Rxc8. Tier complete.'),
+        drill(
+          'Deliver the punchline',
+          'rn1qkbnr/ppp2p1p/3p2p1/4N3/2B1P3/2N5/PPPP1PPP/R1BbK2R w KQkq - 0 6',
+          ['Bxf7+', 'Ke7', 'Nd5#'],
+          'Now replay what greed costs. Black grabbed the queen with the bishop. Punish her.',
+          'The bishop on c4 looks at f7. Take, check, and let the knights finish.',
+          'Bxf7+ Ke7 Nd5: the trap\'s punchline, delivered by you. The queen grab never got to spend its point.',
+        ),
         text(
           'Newbie to player',
           [
@@ -1411,13 +1445,13 @@ export const newbie: Tier = {
         ),
         playout(
           'Your first full game',
-          'Play White against a gentle bot. Get 3 or more points ahead within 20 moves.',
+          'Play White against the gentlest bot. It plays the same loose chess as the trap\'s victim: punish one loose piece, castle, and bank the point.',
           START,
           'w',
-          'Be up 3 or more points of material within 20 moves',
-          1,
+          'Be up 3 or more points of material within 30 moves',
+          0,
           'material',
-          20,
+          30,
           'You just played a complete game with every rule in the book: board, pieces, check, mate, castling, en passant, promotion. The Beginner tier adds the plans on top.',
           'You can beat this bot. Reset, defend every piece, and take every free pawn it offers. One clean capture is often all you need.',
         ),

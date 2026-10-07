@@ -12,12 +12,16 @@ import type { Level, Tier } from '@/content/schema'
 import { cn } from '@/lib/utils'
 import { Check, Play } from 'lucide-react'
 
-type RowState = 'done' | 'current' | 'locked'
+type RowState = 'done' | 'current' | 'open' | 'locked'
 
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
 
 function rowState(level: Level, done: Set<string>, nextId: string | null): RowState {
   if (done.has(level.id)) return 'done'
+  // The opening level of every chapter stays unlocked: someone who already
+  // plays chess can start at Beginner without replaying Newbie, and a Newbie
+  // graduate can peek one chapter ahead.
+  if (level.n === 1) return 'open'
   if (level.id === nextId) return 'current'
   return 'locked'
 }
@@ -28,6 +32,7 @@ function rowAria(level: Level, tierTitle: string, state: RowState): string {
   const base = `Level ${level.n} in ${tierTitle}: ${level.title}`
   if (state === 'done') return `${base}. Completed. Select to replay.`
   if (state === 'current') return `${base}. Current lesson.`
+  if (state === 'open') return `${base}. Open. Start it any time.`
   return `${base}. Locked. Finish the earlier levels first.`
 }
 
@@ -45,6 +50,7 @@ function LevelRow({
   const reduce = useReducedMotion()
   const locked = state === 'locked'
   const current = state === 'current'
+  const open = state === 'open'
 
   const mark = (
     <span
@@ -53,11 +59,13 @@ function LevelRow({
         'grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition-colors',
         state === 'done' && 'border-[#81b64c] bg-[#81b64c] text-white',
         current && 'border-[#c07f1d] bg-[#f4f1e8] text-[#c07f1d]',
+        state === 'open' && 'border-[#81b64c]/60 bg-[#81b64c]/10 text-[#4a6b28]',
         locked && 'border-[#262421]/15 bg-transparent text-transparent',
       )}
     >
       {state === 'done' && <Check className="h-3.5 w-3.5" strokeWidth={3.2} />}
       {current && <Play className="h-3 w-3 fill-current" />}
+      {state === 'open' && <Play className="h-3 w-3 fill-current" />}
     </span>
   )
 
@@ -89,6 +97,11 @@ function LevelRow({
         <span className={cn('block truncate text-xs leading-snug', locked ? 'text-[#262421]/30' : 'text-[#262421]/50')}>
           {level.subtitle}
         </span>
+        {open && (
+          <span className="mt-0.5 block text-[10px] font-extrabold uppercase tracking-widest text-[#4a6b28]">
+            Open, start here
+          </span>
+        )}
       </span>
     </>
   )
@@ -96,6 +109,7 @@ function LevelRow({
   const rowCls = cn(
     'flex min-h-[56px] w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors sm:px-3',
     current && 'bg-[#c07f1d]/10 ring-1 ring-[#c07f1d]/35',
+    open && 'ring-1 ring-[#81b64c]/30',
   )
 
   if (locked) {
