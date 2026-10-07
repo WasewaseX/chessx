@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
-import { bumpActivity, computeStreaks } from '@/lib/server/skill'
+import { bumpActivity, computeStreaks, settleStreaks } from '@/lib/server/skill'
 import { dayKeyLocal } from '@/lib/day'
 import { numOr } from '@/lib/api'
 
@@ -13,18 +13,22 @@ export async function GET(req: NextRequest) {
   const pid = profile.id
 
   const dayParam = req.nextUrl.searchParams.get('day') ?? undefined
+  const today = dayParam && /^\d{4}-\d{2}-\d{2}$/.test(dayParam) ? dayParam : dayKeyLocal()
+  // settle the freeze ledger before anyone reads the streak
+  await settleStreaks(pid, today)
   const rows = await db.activityDay.findMany({
     where: { profileId: pid },
     orderBy: { dayKey: 'asc' },
   })
-  const streaks = await computeStreaks(pid, dayParam ?? undefined)
-  const today = dayParam && /^\d{4}-\d{2}-\d{2}$/.test(dayParam) ? dayParam : dayKeyLocal()
+  const fresh = await db.profile.findUnique({ where: { id: pid }, select: { streakFreezes: true } })
+  const streaks = await computeStreaks(pid, today)
   const todayRow = rows.find((r) => r.dayKey === today) ?? null
   return NextResponse.json({
     days: rows,
     today: todayRow,
     streaks,
     goalMinutes: profile.goalMinutes,
+    streakFreezes: fresh?.streakFreezes ?? profile.streakFreezes,
     serverDay: dayKeyLocal(),
   })
 }
@@ -51,5 +55,6 @@ export async function POST(req: NextRequest) {
     today: todayRow,
     streaks,
     goalMinutes: profile.goalMinutes,
+    streakFreezes: profile.streakFreezes,
   })
 }

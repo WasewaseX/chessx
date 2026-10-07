@@ -125,6 +125,10 @@ model Profile {
   botEloGames    Int      @default(0)
   // daily goal + rush bests
   goalMinutes    Int      @default(15)
+  // streak freeze tokens: one banked per qualifying week (goal met 5 of the
+  // last 7 days), max 2 held. A missed day consumes one and keeps the streak.
+  streakFreezes  Int      @default(1)
+  lastFreezeGrant String? // yyyy-mm-dd of the most recent freeze grant
   rushBest3m     Int      @default(0)
   rushBestSurvival Int    @default(0)
   // AI provider settings (BYO API)
@@ -200,6 +204,7 @@ model ActivityDay {
   lessonSteps   Int      @default(0)
   gamesPlayed   Int      @default(0)
   goalMet       Boolean  @default(false)
+  frozen        Boolean  @default(false) // a streak freeze covered this missed day: chain continues, count does not grow
   updatedAt     DateTime @updatedAt
 
   @@index([profileId])

@@ -155,13 +155,15 @@ export async function bumpActivity(
   }
 }
 
-/** Current streak: consecutive goal-met days ending today (or yesterday if today is still open). */
+/** Current streak: consecutive goal-met days ending today (or yesterday if today is still open).
+ * A frozen day (streak freeze consumed) keeps the chain alive without growing the count. */
 export async function computeStreaks(profileId: string, todayKey?: string) {
   const rows = await db.activityDay.findMany({
     where: { profileId },
     orderBy: { dayKey: 'asc' },
   })
   const met = new Map(rows.filter((r) => r.goalMet).map((r) => [r.dayKey, true]))
+  const chain = new Map(rows.filter((r) => r.goalMet || r.frozen).map((r) => [r.dayKey, true]))
   const keyOf = (d: Date) =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   const today = todayKey && /^\d{4}-\d{2}-\d{2}$/.test(todayKey) ? todayKey : keyOf(new Date())
@@ -175,9 +177,9 @@ export async function computeStreaks(profileId: string, todayKey?: string) {
   }
   let cursor = today
   // Today not met yet does not break the streak, it is still open.
-  if (!met.has(cursor)) cursor = shift(cursor, -1)
-  while (met.has(cursor)) {
-    current += 1
+  if (!chain.has(cursor)) cursor = shift(cursor, -1)
+  while (chain.has(cursor)) {
+    if (met.has(cursor)) current += 1
     cursor = shift(cursor, -1)
   }
 
@@ -185,17 +187,93 @@ export async function computeStreaks(profileId: string, todayKey?: string) {
   let run = 0
   let prev: string | null = null
   for (const r of rows) {
-    if (!r.goalMet) {
+    if (r.goalMet) {
+      const continues = prev !== null && nextDay(prev) === r.dayKey
+      run = continues ? run + 1 : 1
+      best = Math.max(best, run)
+      prev = r.dayKey
+    } else if (r.frozen) {
+      // a frozen day holds the run steady: neither growth nor a break
+      prev = r.dayKey
+    } else {
       run = 0
       prev = r.dayKey
-      continue
     }
-    const continues = prev !== null && nextDay(prev) === r.dayKey
-    run = continues ? run + 1 : 1
-    best = Math.max(best, run)
-    prev = r.dayKey
   }
   return { current, best }
+}
+
+const FREEZE_GRANT_MIN_MET = 5
+const FREEZE_GRANT_WINDOW = 7
+const FREEZE_CAP = 2
+
+/**
+ * Settle the streak ledger before anyone reads it:
+ * 1. consume one freeze per fully missed day between the last chain day and
+ *    today (today itself is still open, so it is never frozen),
+ * 2. bank one new freeze when 5 of the last 7 days met the goal, at most one
+ *    grant per 7 days, 2 held at once.
+ * Idempotent by construction: frozen rows and lastFreezeGrant make every
+ * replay a no-op.
+ */
+export async function settleStreaks(profileId: string, todayKey?: string) {
+  const profile = await db.profile.findUnique({ where: { id: profileId } })
+  if (!profile) return
+  const keyOf = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  const today = todayKey && /^\d{4}-\d{2}-\d{2}$/.test(todayKey) ? todayKey : keyOf(new Date())
+  const shift = (key: string, n: number): string => {
+    const [y, m, d] = key.split('-').map(Number)
+    const date = new Date(Date.UTC(y, m - 1, d + n))
+    return date.toISOString().slice(0, 10)
+  }
+
+  const rows = await db.activityDay.findMany({
+    where: { profileId },
+    orderBy: { dayKey: 'asc' },
+  })
+  const chain = new Set(rows.filter((r) => r.goalMet || r.frozen).map((r) => r.dayKey))
+
+  let freezes = profile.streakFreezes
+  let mutated = false
+
+  // 1. consume: walk back from yesterday over the gap between the last chain
+  // day and today. Tokens only spend when they can cover the whole gap: a
+  // partial freeze bridges nothing, so it would be a wasted token.
+  let cursor = shift(today, -1)
+  const gap: string[] = []
+  while (!chain.has(cursor) && gap.length < 60) {
+    gap.unshift(cursor)
+    cursor = shift(cursor, -1)
+  }
+  if (chain.has(cursor) && gap.length > 0 && freezes >= gap.length) {
+    for (const missing of gap) {
+      await db.activityDay.create({
+        data: { id: `${profileId}:${missing}`, profileId, dayKey: missing, frozen: true },
+      })
+    }
+    freezes -= gap.length
+    mutated = true
+  }
+
+  // 2. grant: at most one per rolling 7 days, only with 5 real goal-mets.
+  const lastGrant = profile.lastFreezeGrant
+  const grantAllowed = !lastGrant || shift(lastGrant, FREEZE_GRANT_WINDOW) <= today
+  if (grantAllowed && freezes < FREEZE_CAP) {
+    const recent = await db.activityDay.findMany({
+      where: { profileId, dayKey: { gte: shift(today, -(FREEZE_GRANT_WINDOW - 1)) } },
+    })
+    const metCount = recent.filter((r) => r.goalMet).length
+    if (metCount >= FREEZE_GRANT_MIN_MET) {
+      freezes = Math.min(freezes + 1, FREEZE_CAP)
+      mutated = true
+      await db.profile.update({ where: { id: profileId }, data: { lastFreezeGrant: today } })
+    }
+  }
+
+  if (mutated || freezes !== profile.streakFreezes) {
+    await db.profile.update({ where: { id: profileId }, data: { streakFreezes: freezes } })
+  }
 }
 
 function nextDay(key: string): string {

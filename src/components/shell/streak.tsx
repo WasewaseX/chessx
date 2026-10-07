@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { useApp } from '@/lib/store'
 import { dayKeyLocal, dayKeyShift } from '@/lib/day'
 import { Progress } from '@/components/ui/progress'
-import { Flame } from 'lucide-react'
+import { Flame, Snowflake } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface ActivityRow {
@@ -16,6 +16,7 @@ export interface ActivityRow {
   lessonSteps: number
   gamesPlayed: number
   goalMet: boolean
+  frozen?: boolean
 }
 
 export interface ActivityData {
@@ -23,6 +24,7 @@ export interface ActivityData {
   today: ActivityRow | null
   streaks: { current: number; best: number }
   goalMinutes: number
+  streakFreezes?: number
 }
 
 export function useActivity(enabled = true): ActivityData | null {
@@ -62,15 +64,18 @@ export function StreakCalendar({ days, goalMinutes, weeks }: { days: ActivityRow
                 title={
                   future
                     ? k
-                    : row
-                      ? `${k}: ${row.minutes} active min, ${row.puzzlesSolved} puzzles, ${row.lessonSteps} lesson steps, ${row.gamesPlayed} games`
-                      : `${k}: no activity`
+                    : row?.frozen
+                      ? `${k}: streak frozen`
+                      : row
+                        ? `${k}: ${row.minutes} active min, ${row.puzzlesSolved} puzzles, ${row.lessonSteps} lesson steps, ${row.gamesPlayed} games`
+                        : `${k}: no activity`
                 }
                 className={cn(
                   'h-3 w-3 rounded-[3px]',
                   future && 'bg-transparent',
                   !future && !row && 'bg-muted',
-                  row && !row.goalMet && 'bg-primary/30',
+                  row && !row.goalMet && !row.frozen && 'bg-primary/30',
+                  row?.frozen && 'bg-muted-foreground/40',
                   row?.goalMet && 'bg-primary',
                 )}
               />
@@ -101,6 +106,15 @@ export function GoalCard() {
           <Flame className="h-5 w-5 text-[#e6a82c]" />
           {data.streaks.current}
           <span className="text-xs font-semibold text-muted-foreground">day streak</span>
+          {typeof data.streakFreezes === 'number' && data.streakFreezes > 0 && (
+            <span
+              className="ml-1 inline-flex items-center gap-0.5 rounded-full bg-muted px-1.5 py-0.5 text-xs font-bold text-muted-foreground"
+              title="Streak freezes banked: a missed day consumes one and keeps the streak alive"
+            >
+              <Snowflake className="h-3 w-3" aria-hidden="true" />
+              {data.streakFreezes}
+            </span>
+          )}
         </div>
       </div>
       <Progress value={pct} className="h-2.5" />
@@ -112,7 +126,7 @@ export function GoalCard() {
         <StreakCalendar days={data.days} goalMinutes={data.goalMinutes} weeks={5} />
       </div>
       <div className="mt-2 text-xs text-muted-foreground">
-        Best streak: {data.streaks.best} {data.streaks.best === 1 ? 'day' : 'days'}
+        Best streak: {data.streaks.best} {data.streaks.best === 1 ? 'day' : 'days'} · Meet the goal 5 days of a week and a freeze is banked (2 max). A missed day spends one and the streak survives.
       </div>
     </button>
   )

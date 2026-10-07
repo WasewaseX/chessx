@@ -65,6 +65,7 @@ export interface ProfileData {
   goalMinutes: number
   rushBest3m: number
   rushBestSurvival: number
+  streakFreezes: number
   aiProvider: string
   aiBaseUrl: string | null
   aiModel: string | null
