@@ -109,6 +109,7 @@ export const master: Tier = {
           wrong('Always defend: safety over everything', 'Over-defending loses games that one forward move would have won.'),
           wrong('Always attack: the defender must lose eventually', 'Attacks that ignore the counter-threat are how attackers get mated.'),
         ]),
+        drill('Your turn to cash it', '4k3/8/8/8/8/8/1q6/R3K3 w - - 0 1', ['Rc1'], 'Stop the queen invasion, from memory', 'She eyes your first rank. Cover the entry squares.', 'Rc1. The first rank holds and the queen bites granite.'),
       ],
     },
     {
@@ -132,11 +133,15 @@ export const master: Tier = {
           ],
           'Spend money, not tempo. Every move must ask a question.',
         ),
+        quiz('The pattern, named', 'You drilled this queen sacrifice back in Advanced. What is the engine of the combination?', [
+          right('The e7 bishop is the only defender of e8, and Qd8 plus check removes him with tempo', 'Remove the last guard with a check and the rook mate follows by force.'),
+          wrong('The open a-file', 'The a-file only watches. The mate lands on the e-file.'),
+          wrong('Black castled too late', 'Castling would not have saved the back rank. The e7 defender decides.'),
+        ]),
         demo('Buying the mate', ['Qd8+ hands over a queen but asks a question the opponent cannot refuse. Bxd8 is forced; Re8 is mate. The initiative paid.'], 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', {
           moves: ['Qd8+', 'Bxd8', 'Re8#'],
           caption: 'Material spent, initiative cashed',
         }),
-        drill('Stay forcing', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'Convert the initiative into mate in three', 'Every move must be a check or a threat. No pauses.', 'Check, forced reply, mate. Not one free tempo for the opponent. That is what initiative looks like.'),
         quiz('Initiative check', 'Your attack has won a pawn but now needs two quiet regrouping moves. What happened?', [
           right('The initiative is over. Consolidate before continuing', 'Attacks live on forcing moves. Two quiet moves hand the baton back.'),
           wrong('The attack is fine, keep going', 'Without checks or threats there is no attack. Only hope.'),
@@ -152,6 +157,7 @@ export const master: Tier = {
           wrong('Never: the initiative is priceless', 'Initiative is worth exactly as much as the threats it creates. No threats, no value.'),
           wrong('Always take the pawn: material is permanent', 'Permanent material behind a shattered kingside is how won games get mated.'),
         ]),
+        drill('Your turn to cash it', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+'], 'Play the key sacrifice, from memory', 'You named the engine. Now play the move.', 'Qd8 plus check. Initiative cashed.'),
       ],
     },
     {
@@ -263,7 +269,6 @@ export const master: Tier = {
           ],
           'Every trade is a vote for the next position. Vote carefully.',
         ),
-        drill('Vote to win', '4k3/8/8/8/3b4/5N2/8/4K3 w - - 0 1', ['Nxd4'], 'His bishop outperforms your knight. Decide the trade.', 'The knight on f3 reaches d4. Take the better piece and call it even.', 'Nxd4. The bishop was his best piece. Even trade, better position for you.'),
         quiz('Refusing trades', 'You have the more active pieces. Your opponent offers a bishop trade. You should generally...', [
           right('Decline and keep the activity', 'Activity is your imbalance. Trading it away donates the plan.'),
           wrong('Accept, material is equal anyway', 'Equal material, unequal positions. The position is what matters.'),
@@ -274,6 +279,7 @@ export const master: Tier = {
           wrong('Trade pawns, keep pieces', 'Open lines favor the side hunting compensation.'),
           wrong('Trade everything, anything', 'Indiscriminate trading is not a policy. Direction is.'),
         ]),
+        drill('Vote to win', '4k3/8/8/8/3b4/5N2/8/4K3 w - - 0 1', ['Nxd4'], 'His bishop outperforms your knight. Decide the trade.', 'The knight on f3 reaches d4. Take the better piece and call it even.', 'Nxd4. The bishop was his best piece. Even trade, better position for you.'),
         quiz('The trade interview', 'What three questions does every candidate trade face?', [
           right('Whose remaining pieces are better, whose king is safer, whose structure survives the endgame', 'A trade is a vote for the next position. Ask about the position that results.'),
           wrong('Who is higher rated, who has more time, who is winning', 'The board decides trades. The scoreboard follows.'),
@@ -284,6 +290,7 @@ export const master: Tier = {
           wrong('Yes: even trades are always fine when better', 'Even trades are not neutral: they change which assets remain on the board.'), 
           wrong('Yes, because bishop for rook wins the exchange', 'Winning the exchange on their terms can still lose the game. Read the position, not just the values.'), 
         ]),
+        drill('Your turn to cash it', '4k3/8/8/8/3b4/5N2/8/4K3 w - - 0 1', ['Nxd4'], 'Decide the trade, from memory', 'His best piece sits on d4. Your knight knows the way.', 'Nxd4. Even trade, better position: the trade vote won.'),
       ],
     },
     {
@@ -331,6 +338,7 @@ export const master: Tier = {
           wrong('Your dark-squared one, to prove it is stronger', 'Trading your best piece for their worst hands the dark squares back.'), 
           wrong('Neither: bishops should never be traded', 'The bishop pair is great, but one good bishop beats two unemployed ones.'), 
         ]),
+        drill('Your turn to cash it', '4k3/8/8/8/8/8/1P2BPPP/2B1K3 w - - 0 1', ['Bh6'], 'Blind the king, from memory', 'The dark squares around his king have no guards. March.', 'Bh6. The dark squares belong to you.'),
       ],
     },
     {
@@ -354,7 +362,6 @@ export const master: Tier = {
           ],
           'Restrain. Blockade. Destroy. In that order.',
         ),
-        drill('The perfect jailer', '4k3/2p1p3/8/8/8/8/8/1N2K3 w - - 0 1', ['Nc3', 'Kd7', 'Nd5'], 'March the knight to the central outpost', 'Two hops to d5, the square no pawn can touch.', 'Nd5. From here the knight polices the whole board. The pawns on c7 and e7 will never bother him.'),
         quiz('Blockade choice', 'An enemy pawn is about to run on d4. The best blockader is...', [
           right('A knight, on d4 or the square in front', 'Knights blockade best and thrive on the outpost.'),
           wrong('The queen', 'Your best piece ends up babysitting. Wrong trade of roles.'),
@@ -365,6 +372,7 @@ export const master: Tier = {
           wrong('Capture it immediately with a piece', 'The pieces behind it will recapture. Restraint comes first.'),
           wrong('Ignore it and attack the king', 'Passers promote while you are busy. Restrain it now.'),
         ]),
+        drill('The perfect jailer', '4k3/2p1p3/8/8/8/8/8/1N2K3 w - - 0 1', ['Nc3', 'Kd7', 'Nd5'], 'March the knight to the central outpost', 'Two hops to d5, the square no pawn can touch.', 'Nd5. From here the knight polices the whole board. The pawns on c7 and e7 will never bother him.'),
         quiz('The jailer\u2019s second job', 'Your knight blockades the enemy passer from a strong square. What else should it be doing?', [
           right('Attacking: a blockader on an outpost is also an invader', 'One piece, two jobs: jailer on the pawn\u2019s road, attacker on the rest of the board.'),
           wrong('Nothing: blockading is a full-time job', 'The blockade costs one square, not the whole piece.'),
@@ -375,6 +383,7 @@ export const master: Tier = {
           wrong('Never: a blockade, once set, is permanent', 'Blockades are commitments, not contracts. Re-evaluate every move.'), 
           wrong('Whenever the knight has a better square', 'Better square for WHAT? Without a concrete plan, leaving the passer is suicide.'), 
         ]),
+        drill('Your turn to cash it', '4k3/2p1p3/8/8/8/8/8/1N2K3 w - - 0 1', ['Nc3'], 'Start the jail sentence, from memory', 'Two hops to the outpost. First hop?', 'Nc3. The march to d5 begins.'),
       ],
     },
     {
@@ -453,7 +462,6 @@ export const master: Tier = {
         drill('Prophylaxis', '4k3/8/8/8/8/8/1q6/R3K3 w - - 0 1', ['Rc1'], 'Kill his idea before it exists', 'b1 is the square he wants.', 'Rc1. First tool of the masters.'),
         drill('Trade vote', '4k3/8/8/8/3b4/5N2/8/4K3 w - - 0 1', ['Nxd4'], 'Trade his best piece', 'f3 to d4.', 'Nxd4. The vote is in.'),
         drill('Color invasion', '6k1/8/8/8/8/8/3B2PP/4B1K1 w - - 0 1', ['Bh6'], 'Drive to the missing color', 'Dark squares all the way.', 'Bh6. Highway open.'),
-        drill('Initiative', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'Force the mate', 'No free moves for him.', 'Three forcing moves. Initiative paid in full.'),
         drill(
           'Blockade rep',
           '4k3/8/8/8/3p4/8/8/2N1K3 w - - 0 1',
@@ -485,12 +493,12 @@ export const master: Tier = {
           ],
           'Pick the battlefield before the first move.',
         ),
-        drill('Choose your battlefield', START, ['d4'], 'You love closed, strategic structures. Open with the queen pawn', 'd4 leads to closed centers and long plans.', 'd4. The strategic battlefield. Now every opening choice serves your strengths.'),
         quiz('Repertoire logic', 'You win most of your rook endings but lose sharp tactical fights. Your repertoire should...', [
           right('Avoid early queen trades, aim for balanced middlegames that simplify into rook endings', 'Play toward your strength on purpose.'),
           wrong('Play the sharpest gambits available', 'You are buying tickets to your own weakness.'),
           wrong('Memorize twenty moves of theory', 'Theory without direction is a library with no map.'),
         ]),
+        drill('Choose your battlefield', START, ['d4'], 'You love closed, strategic structures. Open with the queen pawn', 'd4 leads to closed centers and long plans.', 'd4. The strategic battlefield. Now every opening choice serves your strengths.'),
         quiz('Steering example', 'Your opponent plays sharp gambits for a living. The steering move is...', [
           right('Choose lines that close the center and mute the tactics', 'Take the game where their weapons do not work.'),
           wrong('Accept every gambit and out-calculate them', 'You are choosing their favorite game.'),
@@ -501,6 +509,7 @@ export const master: Tier = {
           wrong('Copy the world champion\u2019s repertoire', 'His strengths are not yours. His openings serve his skills.'),
           wrong('Play whatever is fashionable this year', 'Fashion serves nobody\u2019s strengths in particular.'),
         ]),
+        drill('Your turn to open', START, ['d4'], 'Open on your terms, from memory', 'Closed structures are your home. First move?', 'd4. The strategic battlefield, again.'),
       ],
     },
     {
@@ -547,6 +556,7 @@ export const master: Tier = {
           wrong('Both on the back rank, passive', 'A passive rook defends nothing. Distance is the defense.'),
           wrong('King in front of the pawn', 'That is the WINNING side\u2019s setup. The defender stands elsewhere.'),
         ]),
+        drill('Your turn to cash it', '4k3/8/4K3/4P3/8/8/8/7r b - - 0 1', ['Rd1'], 'Hold the distance, from memory', 'Get behind the pawn, check from the back.', 'Rd1. The Philidor rhythm: check, retreat, repeat.'),
       ],
     },
     {
@@ -630,6 +640,7 @@ export const master: Tier = {
           wrong('Center: it sees everything from there', 'A central bishop defends neither complex fully. Commit to one color.'),
           wrong('Next to your king', 'King safety is irrelevant when the pawns are the whole war.'),
         ]),
+        drill('Your turn to cash it', '8/8/4k3/8/8/8/1P2B3/2B1K3 w - - 0 1', ['b4'], 'Escort the runner, from memory', 'Clear the path: push the pawn that kicks the blocker.', 'b4. The road opens for the passer.'),
       ],
     },
     {
@@ -669,6 +680,7 @@ export const master: Tier = {
           wrong('Pure attack moves on your side', 'If they open their file first, your attack never arrives.'),
           wrong('Defensive king moves', 'The king was castled for a reason. The race decides before he matters.'),
         ]),
+        drill('Your turn to cash it', 'r1bq1rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'Roll the storm, from memory', 'The center is closed. Where does the wave start?', 'h4. The flank advance begins.'),
       ],
     },
     {
@@ -697,6 +709,11 @@ export const master: Tier = {
           ],
           'Trade pieces, threaten something, make him prove it.',
         ),
+        quiz('The pattern, named', 'You have drilled this sacrifice twice already. Why does Qd8 plus check work every time?', [
+          right('The e7 bishop is the only defender of e8, and the check removes him with tempo', 'Remove the last guard with a check and the rook mate follows by force.'),
+          wrong('The open a-file', 'The a-file only watches. The mate lands on the e-file.'),
+          wrong('Black castled too late', 'Castling would not have saved the back rank. The e7 defender decides.'),
+        ]),
         drill('One concrete threat', '4k3/8/8/8/R2q4/8/8/4K3 w - - 0 1', ['Rxd4'], 'Worse position, one forcing move available. Find it.', 'The queen shares your rook\u2019s rank. Capture is the loudest answer.', 'Rxd4. The concrete threat resolved the pressure. Defense is a sequence of exactly these.'),
         quiz('Defensive trades', 'Down material and defending. What do you trade?', [
           right('Pieces, to reduce the attacking force', 'Fewer attackers, fewer mating nets. Pawns are your comeback margin.'),
@@ -713,6 +730,7 @@ export const master: Tier = {
           wrong('As many as possible, everywhere', 'Vague multiplicity is passive defense wearing a costume.'),
           wrong('None: pure defense is stronger', 'Pure defense loses slowly. One threat forces decisions.'),
         ]),
+        drill('Your turn to cash it', '4k3/8/8/8/R2q4/8/8/4K3 w - - 0 1', ['Rxd4'], 'One concrete threat, from memory', 'Her queen is loose. Punish her.', 'Rxd4. Counterattack by capture.'),
       ],
     },
     {
@@ -757,6 +775,7 @@ export const master: Tier = {
           wrong('Every move gets equal time', 'Equal spending means the critical branch ran out of budget.'),
           wrong('Only endgame technique moves', 'The middlegame branches are where games are decided.'),
         ]),
+        drill('Your turn to cash it', '4k3/8/8/2b5/3N4/8/8/4K3 w - - 0 1', ['Nb3'], 'The solid move, from memory', 'The knight and their bishop fight for the same squares.', 'Nb3. Out of the bishop’s range, still in the game.'),
       ],
     },
     {
@@ -779,7 +798,11 @@ export const master: Tier = {
             'If a drill repeats an earlier position, solve it faster. Speed on known patterns is what buys clock time for the hard ones.',
           ],
         ),
-        drill('Sacrifice to mate', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'Mate in three', 'Sacrifice, forced reply, open file.', 'Three forcing moves. Calculated, not lucky.'),
+        quiz('The pattern, named', 'This queen sacrifice has followed you for three tiers. What is the engine that makes it work?', [
+          right('The e7 bishop: e8 has no other defender, and Qd8 plus check removes him with tempo', 'Remove the last guard with a check and the rook mate follows by force.'),
+          wrong('The open a-file', 'The a-file only watches. The mate lands on the e-file.'),
+          wrong('Black castled too late', 'Castling would not have saved the back rank. The e7 defender decides.'),
+        ]),
         drill('Deflection mate', 'r5k1/5ppp/8/8/8/8/3R4/3R2K1 w - - 0 1', ['Rd8+', 'Rxd8', 'Rxd8#'], 'The back rank never had a second defender', 'First rook as bait, second rook as executioner.', 'Rd8 plus check, Rxd8, Rxd8 mate. Deflection at full depth.'),
         drill('Break the chain', '4k3/8/8/2ppp3/8/8/8/K6R w - - 0 1', ['Re1'], 'Structural strike', 'The base of the chain is the target.', 'Re1. Positional pressure with concrete teeth.'),
         drill(
@@ -814,7 +837,11 @@ export const master: Tier = {
         ),
         drill('Discovery to mate', '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1', ['Nd6+'], 'The double check that starts everything', 'The knight leaves, two lines open at once.', 'Nd6 plus double check. From here the attack writes itself.'),
         drill('The outpost empire', '4k3/2p1p3/8/8/8/8/8/1N2K3 w - - 0 1', ['Nc3', 'Kd7', 'Nd5'], 'Build the permanent advantage', 'c3, then the square no pawn can reach.', 'Nd5. The knight owns the center for the rest of the game.'),
-        drill('Perpetual salvation', '6k1/8/8/8/8/8/8/3Q2K1 w - - 0 1', ['Qd8+', 'Kh7', 'Qd7+', 'Kh6', 'Qd6+', 'Kh5'], 'Find the draw', 'Rank checks, one rank at a time.', 'The queen polices the ranks. Half a point, fully earned.'),
+        quiz('The pattern, named', 'You drilled this perpetual back in Advanced. Why can the queen check forever?', [
+          right('Each check comes with tempo and the king has no square that escapes the next check', 'The king walks, the queen follows, and no shelter exists.'),
+          wrong('The queen can never be captured', 'She can, if the king ever reaches her. The geometry says he never does.'),
+          wrong('Stalemate tricks', 'Nobody is stalemated. It is a perpetual check draw, plain and honest.'),
+        ]),
         drill(
           'The zwischenzug at depth',
           'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4',

@@ -6,6 +6,7 @@ import { newRating, seedForSkill, clampRating } from '@/lib/rating'
 import { bumpActivity, gradeReview, missReview, sanitizeConcepts, updateMastery } from '@/lib/server/skill'
 import { PUZZLES } from '@/content/puzzles'
 import { dayKeyLocal } from '@/lib/day'
+import { dailyPuzzleIdFor, publicProfile } from '@/lib/api'
 
 export async function POST(req: NextRequest) {
   const user = await getSessionUser()
@@ -19,13 +20,15 @@ export async function POST(req: NextRequest) {
   const kindRaw = String(body.kind ?? 'rated')
   const kind = kindRaw === 'daily' || kindRaw === 'review' ? kindRaw : 'rated'
   const solved = Boolean(body.solved)
-  const puzzleRating = Math.max(100, Math.min(3000, Number(body.puzzleRating ?? 1000)))
   const dayKey = /^\d{4}-\d{2}-\d{2}$/.test(String(body.dayKey ?? '')) ? String(body.dayKey) : dayKeyLocal()
   const reviewItemId = body.reviewItemId ? String(body.reviewItemId).slice(0, 40) : null
 
   if (!puzzleId) return NextResponse.json({ error: 'puzzleId required' }, { status: 400 })
 
   const puzzle = PUZZLES.find((p) => p.id === puzzleId)
+  // the Elo opponent is the puzzle's own rating from content; the request
+  // body never gets a say in it
+  const puzzleRating = puzzle?.rating ?? 1000
   const themes = sanitizeConcepts(puzzle?.themes)
 
   // Review attempts never move the puzzle rating, the streak or XP.
@@ -37,7 +40,7 @@ export async function POST(req: NextRequest) {
     else if (!solved) await missReview(pid, 'puzzle', puzzleId)
     if (solved) await bumpActivity(pid, dayKey, 'puzzlesSolved', 1)
     const updated = await db.profile.findUnique({ where: { id: pid } })
-    return NextResponse.json({ attempt: { kind, solved }, profile: updated, ratingDelta: 0, xpGain: 0, graded })
+    return NextResponse.json({ attempt: { kind, solved }, profile: updated ? publicProfile(updated) : null, ratingDelta: 0, xpGain: 0, graded })
   }
 
   const current = profile.puzzleRating ?? seedForSkill(profile.skillLevel)
@@ -49,17 +52,21 @@ export async function POST(req: NextRequest) {
   const streak = solved ? profile.puzzleStreak + 1 : 0
   const xpGain = solved ? 10 + Math.min(streak, 10) : 0
 
+  // Daily credit only when the attempt really is the puzzle that day owns.
+  const dailyDone = kind === 'daily' && solved && puzzleId === dailyPuzzleIdFor(dayKey)
+
+  // Counters move with atomic increments so racing attempts never lose or
+  // double-count an event.
   await db.profile.update({
     where: { id: pid },
     data: {
       puzzleRating: ratingSafe,
-      puzzleCount: profile.puzzleCount + 1,
-      puzzleStreak: streak,
+      puzzleCount: { increment: 1 },
+      puzzleStreak: solved ? { increment: 1 } : 0,
       bestPuzzleStreak: Math.max(profile.bestPuzzleStreak, streak),
-      puzzleSolved: profile.puzzleSolved + (solved ? 1 : 0),
-      puzzleFailed: profile.puzzleFailed + (solved ? 0 : 1),
-      xp: profile.xp + xpGain,
-      dailyDoneDate: kind === 'daily' && solved ? dayKey : profile.dailyDoneDate,
+      ...(solved ? { puzzleSolved: { increment: 1 } } : { puzzleFailed: { increment: 1 } }),
+      ...(xpGain > 0 ? { xp: { increment: xpGain } } : {}),
+      dailyDoneDate: dailyDone ? dayKey : profile.dailyDoneDate,
     },
   })
 
@@ -81,5 +88,5 @@ export async function POST(req: NextRequest) {
   }
 
   const updated = await db.profile.findUnique({ where: { id: pid } })
-  return NextResponse.json({ attempt, profile: updated, ratingDelta: delta, xpGain })
+  return NextResponse.json({ attempt, profile: updated ? publicProfile(updated) : null, ratingDelta: delta, xpGain })
 }

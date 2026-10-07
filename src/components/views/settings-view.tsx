@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { COACHES } from '@/lib/coaches'
 import { readJson } from '@/lib/api-client'
+import { toast } from '@/hooks/use-toast'
 import { CharacterFace } from '@/components/chess/characters'
 import { cn } from '@/lib/utils'
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
@@ -29,6 +30,11 @@ export function SettingsView() {
   if (!profile) return null
 
   async function save(patch: Record<string, unknown>) {
+    // snapshot the touched fields so a failed PATCH can undo the optimistic write
+    const prev: Record<string, unknown> = {}
+    for (const k of Object.keys(patch)) {
+      prev[k] = (profile as unknown as Record<string, unknown>)[k]
+    }
     patchProfile(patch)
     setSaved(false)
     try {
@@ -42,7 +48,9 @@ export function SettingsView() {
       setSaved(true)
       setTimeout(() => setSaved(false), 1500)
     } catch {
-      /* offline: the optimistic value stays */
+      // the server did not take it: put the old values back and say so
+      patchProfile(prev)
+      toast({ title: 'Could not save settings. Try again.', variant: 'destructive' })
     }
   }
 

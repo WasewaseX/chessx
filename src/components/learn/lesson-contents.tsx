@@ -112,7 +112,7 @@ function LevelRow({
         {locked && (
           <span className="mt-0.5 block text-[11px] font-bold leading-snug text-[#262421]/65">
             <span className="sr-only">Locked. </span>
-            {oneWinAway ? 'One win away' : `${unlockRequirement(level.id) ?? 'Finish the earlier levels'} to unlock`}
+            {oneWinAway ? 'One win away' : `Unlocks after ${unlockRequirement(level.id)?.replace(/^Finish /, '')}`}
           </span>
         )}
       </span>

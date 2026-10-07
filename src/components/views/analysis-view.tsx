@@ -478,8 +478,14 @@ function GameReview({ initialPgn, onPgnChange }: { initialPgn: string; onPgnChan
   // keyboard navigation
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') setCursor((c) => Math.max(-1, c - 1))
-      if (e.key === 'ArrowRight') setCursor((c) => Math.min(plies.length - 1, c + 1))
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault() // keep the page from scrolling while stepping
+        setCursor((c) => Math.max(-1, c - 1))
+      }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        setCursor((c) => Math.min(plies.length - 1, c + 1))
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)

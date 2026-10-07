@@ -3,12 +3,12 @@ import { readJson } from '@/lib/api-client'
 // Spaced-repetition Review: missed puzzles and shaky lessons resurface here
 // on an SM-2 derived schedule, next to the weakest concepts from the skill model.
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useApp } from '@/lib/store'
 import { PUZZLE_THEMES } from '@/content/puzzles'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { Loader2, Puzzle, BookOpen, CalendarClock, Layers } from 'lucide-react'
+import { Loader2, Puzzle, BookOpen, CalendarClock, Layers, RotateCcw } from 'lucide-react'
 
 interface QueueItem {
   id: string
@@ -68,12 +68,13 @@ function dueLabel(iso: string): string {
 export function ReviewView() {
   const { navigate, setPendingReview } = useApp()
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [queue, setQueue] = useState<QueueItem[]>([])
   const [dueCount, setDueCount] = useState(0)
   const [upcomingCount, setUpcomingCount] = useState(0)
   const [mastery, setMastery] = useState<MasteryRow[]>([])
 
-  useEffect(() => {
+  const loadQueue = useCallback(() => {
     fetch('/api/review')
       .then((r) => readJson<unknown>(r))
       .then((d) => {
@@ -82,8 +83,19 @@ export function ReviewView() {
         setUpcomingCount(d.upcomingCount ?? 0)
         setMastery(d.mastery ?? [])
       })
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false))
   }, [])
+
+  function retryQueue() {
+    setLoading(true)
+    setLoadError(false)
+    loadQueue()
+  }
+
+  useEffect(() => {
+    loadQueue()
+  }, [loadQueue])
 
   function startPuzzle(item: QueueItem) {
     setPendingReview({ itemId: item.id, kind: 'puzzle', refId: item.refId })
@@ -107,6 +119,17 @@ export function ReviewView() {
       {loading ? (
         <div className="flex items-center justify-center py-20 text-muted-foreground">
           <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Checking the queue…
+        </div>
+      ) : loadError ? (
+        <div className="rounded-xl bg-card p-8 text-center shadow-sm" role="alert">
+          <CalendarClock className="mx-auto h-8 w-8 text-muted-foreground" aria-hidden="true" />
+          <div className="mt-2 font-display text-lg font-bold">Could not load your review queue.</div>
+          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+            Check your connection and try again. Nothing is lost, everything stays scheduled on the server.
+          </p>
+          <Button variant="secondary" className="mt-4" onClick={retryQueue}>
+            <RotateCcw className="h-4 w-4" /> Retry
+          </Button>
         </div>
       ) : (
         <div className="grid gap-6">

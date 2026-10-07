@@ -113,6 +113,10 @@ export function PuzzlesView() {
       if (d.puzzle) {
         setState({ puzzle: d.puzzle, dayKey, seriesNumber: d.seriesNumber, daily: true })
         startPuzzle(d.puzzle)
+      } else {
+        // the endpoint answered but had nothing for today: an honest failure
+        // beats a spinner that never ends
+        setPhase('failed')
       }
     } catch {
       setPhase('failed')
@@ -277,103 +281,117 @@ export function PuzzlesView() {
   const onMove = useCallback(
     async (from: Square, to: Square, promotion?: string) => {
       if (phase !== 'solving' || busyRef.current || !state) return
-      const g = gameRef.current
-      let mv
+      busyRef.current = true
       try {
-        mv = g.move({ from, to, promotion: promotion ?? undefined })
-      } catch {
-        return
-      }
-      if (!mv) return
-
-      const expected = state.puzzle.solution.split(' ').filter(Boolean)
-      const plyIdx = line.length
-      const expectedSan = expected[plyIdx]?.replace(/[+#]/g, '')
-      const sanNorm = mv.san.replace(/[+#]/g, '')
-      const matchesScript = !diverged && sanNorm === expectedSan
-
-      if (!matchesScript) {
-        // also accept the engine's best move in this position (alternative wins)
-        const { uci } = await engine.bestMove({ fen: g.fen(), skill: 20, depth: 16 })
-        const bestNorm = uci.slice(0, 2) + uci.slice(2, 4) + (uci.slice(4, 5) || '')
-        const moveNorm = mv.from + mv.to + (mv.promotion ?? '')
-        if (bestNorm !== moveNorm) {
-          // a miss, not a failure: take the move back and guide toward the idea
-          g.undo()
-          setFen(g.fen())
-          playSound('wrong', soundEnabled)
-          const n = attempts + 1
-          setAttempts(n)
-          if (n === 1) {
-            setGuide('Not the strongest move. Take it back and scan every check, capture and threat once more.')
-          } else if (n === 2) {
-            setGuide('The piece that moves is glowing. Find its most damaging square.')
-            try {
-              const probe = new Chess(g.fen())
-              const next = probe.move(expected[plyIdx])
-              if (next) flash([{ square: next.from, color: 'gold' }])
-            } catch {
-              /* validated content */
-            }
-          } else {
-            setGuide('Watch how the line works. Then take the next one with fresh eyes.')
-            void record(false)
-            playSolution()
-          }
+        const g = gameRef.current
+        let mv
+        try {
+          mv = g.move({ from, to, promotion: promotion ?? undefined })
+        } catch {
           return
         }
-        if (sanNorm !== expectedSan) setDiverged(true)
-      }
+        if (!mv) return
 
-      setFen(g.fen())
-      setLine((l) => [...l, mv.san])
-      setLastMove({ from: mv.from, to: mv.to })
-      playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+        const expected = state.puzzle.solution.split(' ').filter(Boolean)
+        const plyIdx = line.length
+        const expectedSan = expected[plyIdx]?.replace(/[+#]/g, '')
+        const sanNorm = mv.san.replace(/[+#]/g, '')
+        const matchesScript = !diverged && sanNorm === expectedSan
 
-      // mate delivered?
-      if (g.isCheckmate()) {
-        setPhase('solved')
-        playSound('correct', soundEnabled)
-        void record(true)
-        return
-      }
-      // winningMaterial judged at end of scripted line or when material target hit
-      const remainingScript = expected.length - (plyIdx + 1)
-      if (state.puzzle.themes.includes('winningMaterial') && (remainingScript <= 0 || diverged)) {
-        if (materialBalance(g) >= 2) {
+        if (!matchesScript) {
+          // also accept the engine's best move in this position (alternative wins)
+          const { uci } = await engine.bestMove({ fen: g.fen(), skill: 20, depth: 16 })
+          const bestNorm = uci.slice(0, 2) + uci.slice(2, 4) + (uci.slice(4, 5) || '')
+          const moveNorm = mv.from + mv.to + (mv.promotion ?? '')
+          if (bestNorm !== moveNorm) {
+            // a miss, not a failure: take the move back and guide toward the idea
+            g.undo()
+            setFen(g.fen())
+            playSound('wrong', soundEnabled)
+            const n = attempts + 1
+            setAttempts(n)
+            if (n === 1) {
+              setGuide('Not the strongest move. Take it back and scan every check, capture and threat once more.')
+            } else if (n === 2) {
+              setGuide('The piece that moves is glowing. Find its most damaging square.')
+              try {
+                const probe = new Chess(g.fen())
+                const next = probe.move(expected[plyIdx])
+                if (next) flash([{ square: next.from, color: 'gold' }])
+              } catch {
+                /* validated content */
+              }
+            } else {
+              setGuide('Watch how the line works. Then take the next one with fresh eyes.')
+              void record(false)
+              playSolution()
+            }
+            return
+          }
+          if (sanNorm !== expectedSan) setDiverged(true)
+        }
+
+        setFen(g.fen())
+        setLine((l) => [...l, mv.san])
+        setLastMove({ from: mv.from, to: mv.to })
+        playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+
+        // mate delivered?
+        if (g.isCheckmate()) {
           setPhase('solved')
           playSound('correct', soundEnabled)
           void record(true)
           return
         }
-      }
-      if (remainingScript > 0) {
-        // opponent reply, use the scripted one while on-script, engine otherwise
-        if (!diverged) {
-          setTimeout(() => {
-            const gg = gameRef.current
-            try {
-              const rmv = gg.move(expected[plyIdx + 1])
-              if (rmv) {
-                setFen(gg.fen())
-                setLine((l) => [...l, rmv.san])
-                setLastMove({ from: rmv.from, to: rmv.to })
-                playSound(rmv.captured ? 'capture' : 'move', soundEnabled)
+        // winningMaterial judged at end of scripted line or when material target hit
+        const remainingScript = expected.length - (plyIdx + 1)
+        if (state.puzzle.themes.includes('winningMaterial') && (remainingScript <= 0 || diverged)) {
+          if (materialBalance(g) >= 2) {
+            setPhase('solved')
+            playSound('correct', soundEnabled)
+            void record(true)
+            return
+          }
+        }
+        if (remainingScript > 0) {
+          // opponent reply, use the scripted one while on-script, engine otherwise.
+          // The captured game instance guards against the reply landing on a
+          // puzzle the user has already moved away from.
+          if (!diverged) {
+            setTimeout(() => {
+              if (gameRef.current !== g) return
+              const gg = gameRef.current
+              try {
+                const rmv = gg.move(expected[plyIdx + 1])
+                if (rmv) {
+                  setFen(gg.fen())
+                  setLine((l) => [...l, rmv.san])
+                  setLastMove({ from: rmv.from, to: rmv.to })
+                  playSound(rmv.captured ? 'capture' : 'move', soundEnabled)
+                }
+              } catch {
+                void engineReply(true)
               }
-            } catch {
+            }, 500)
+          } else {
+            setTimeout(() => {
+              if (gameRef.current !== g) return
               void engineReply(true)
-            }
+            }, 500)
+          }
+        } else if (state.puzzle.themes.includes('mate')) {
+          // scripted line ended but no mate, keep playing (should not happen post-validation)
+          setTimeout(() => {
+            if (gameRef.current !== g) return
+            void engineReply(true)
           }, 500)
         } else {
-          setTimeout(() => void engineReply(true), 500)
+          setPhase('solved')
+          playSound('correct', soundEnabled)
+          void record(true)
         }
-      } else if (state.puzzle.themes.includes('mate')) {
-        // scripted line ended but no mate, keep playing (should not happen post-validation)
-        setTimeout(() => void engineReply(true), 500)
-      } else {
-        setPhase('solved')
-        playSound('correct', soundEnabled)
-        void record(true)
+      } finally {
+        busyRef.current = false
       }
     },
     [phase, state, line, diverged, attempts, record, engineReply, materialBalance, soundEnabled, flash],
@@ -384,16 +402,18 @@ export function PuzzlesView() {
     const expected = state.puzzle.solution.split(' ').filter(Boolean)
     setShowSolution(true)
     setPhase('failed')
-    const g = gameRef.current
-    // replay from scratch
-    gameRef.current = new Chess(state.puzzle.fen)
+    // replay on a fresh instance; if the view moves to another puzzle
+    // mid-replay, the tick bails instead of moving the new board
+    const gSol = new Chess(state.puzzle.fen)
+    gameRef.current = gSol
     let i = 0
     const tick = () => {
+      if (gameRef.current !== gSol) return
       if (i >= expected.length) return
       try {
-        const mv = gameRef.current.move(expected[i])
+        const mv = gSol.move(expected[i])
         if (mv) {
-          setFen(gameRef.current.fen())
+          setFen(gSol.fen())
           setLastMove({ from: mv.from, to: mv.to })
           setSolutionPly(i + 1)
           playSound(mv.captured ? 'capture' : 'move', soundEnabled)
@@ -404,7 +424,6 @@ export function PuzzlesView() {
       i++
       setTimeout(tick, 700)
     }
-    void g
     setTimeout(tick, 300)
   }
 
@@ -438,7 +457,7 @@ export function PuzzlesView() {
               onClick={() => setThemeFilter(null)}
               aria-pressed={themeFilter === null}
               className={cn(
-                'rounded-full px-3 py-1 text-xs font-semibold transition active:scale-95',
+                'inline-flex min-h-11 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold transition active:scale-95',
                 themeFilter === null
                   ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground',
@@ -456,7 +475,7 @@ export function PuzzlesView() {
                   aria-pressed={active}
                   title={`${t.count} puzzle${t.count === 1 ? '' : 's'} tagged ${t.label}`}
                   className={cn(
-                    'rounded-full px-3 py-1 text-xs font-semibold transition active:scale-95',
+                    'inline-flex min-h-11 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold transition active:scale-95',
                     active
                       ? 'bg-primary text-primary-foreground shadow-sm'
                       : 'bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground',
@@ -491,6 +510,24 @@ export function PuzzlesView() {
         </div>
       )}
 
+      {tab !== 'rush' && phase === 'failed' && !state && (
+        <div className="mx-auto max-w-md rounded-lg bg-card p-6 text-center shadow-sm">
+          <CalendarDays className="mx-auto h-8 w-8 text-muted-foreground" aria-hidden="true" />
+          <div className="mt-2 font-display text-lg font-bold">Could not load today's puzzle</div>
+          <p className="mt-1 text-sm text-muted-foreground">Check your connection, then try again.</p>
+          <Button
+            variant="secondary"
+            className="mt-4"
+            onClick={() => {
+              setPhase('loading')
+              void loadDaily()
+            }}
+          >
+            <RotateCcw className="h-4 w-4" /> Retry
+          </Button>
+        </div>
+      )}
+
       {puzzle && tab !== 'rush' && phase !== 'loading' && (
         <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
           <div className="mx-auto w-full max-w-[600px]">
@@ -503,6 +540,7 @@ export function PuzzlesView() {
               lastMove={lastMove}
               checkSquare={checkSquare}
               flashes={flashes}
+              theme={profile?.theme ?? 'green'}
             />
           </div>
 
@@ -511,7 +549,7 @@ export function PuzzlesView() {
               <div className="flex items-center justify-between">
                 <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   {reviewItemId ? (
-                    <span className="inline-flex items-center gap-1 text-[#a3d160]">
+                    <span className="inline-flex items-center gap-1 text-[var(--primary-light)]">
                       <Repeat2 className="h-3.5 w-3.5" /> Spaced review
                     </span>
                   ) : state?.daily ? (
@@ -523,7 +561,7 @@ export function PuzzlesView() {
                   )}
                 </div>
                 <div className="flex items-center gap-1 text-sm font-bold">
-                  <Flame className="h-4 w-4 text-[#e6a82c]" /> {profile?.puzzleStreak ?? 0}
+                  <Flame className="h-4 w-4 text-[var(--gold)]" /> {profile?.puzzleStreak ?? 0}
                 </div>
               </div>
               <div className="mt-1 flex flex-wrap items-baseline gap-2">
@@ -531,7 +569,7 @@ export function PuzzlesView() {
                 <span className="text-sm text-muted-foreground">{puzzle.rating}</span>
               </div>
               <div className="mt-1 text-sm">
-                <span className={cn('font-bold', solverSide === 'w' ? 'text-foreground' : 'text-foreground')}>
+                <span className="font-bold">
                   {solverSide === 'w' ? 'White' : 'Black'} to play
                 </span>
                 <span className="text-muted-foreground"> · find the best move</span>

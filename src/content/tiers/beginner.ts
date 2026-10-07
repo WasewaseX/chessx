@@ -173,17 +173,27 @@ export const beginner: Tier = {
           ],
           caption: 'Both kings safe behind their pawn walls',
         }),
-        drill('Finish development your own way', 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 6 5', ['O-O'], 'Center is claimed, pieces are developed. Tuck the king in.', 'f1 and g1 are empty and nothing attacks them.', 'Castled. The rook on f1 is already connected to the a1 rook through the queen.'),
+        text(
+          'The e-file blast',
+          [
+            'When both e-pawns disappear, the e-file opens straight at both kings. Uncastled kings stand in that blast zone.',
+            'This is why 1.e4 players castle fast: the file their pawn opened is the same file their king wants to leave.',
+          ],
+          'Open e-file and a central king is a combination that ends games.',
+        ),
         quiz('Castle timing', 'What is the usual deadline for castling?', [
           right('Around move 8 to 10', 'Early castling prevents most attacks on an uncastled king.'),
           wrong('After move 20', 'By then the center is open and your king is a target.'),
           wrong('Only when under attack', 'Then it is usually too late: the attackers arrive first.'),
         ]),
-        quiz('After castling', 'The king is safe. What do the rooks want next?', [
-          right('To find an open or half-open file and start working', 'Rooks are the last pieces to wake up. Files are their workplace.'),
-          wrong('To rush to the 7th rank immediately', 'The 7th rank is a great destination, but only when the path exists and the timing is right.'),
-          wrong('To stay home and defend the king', 'The pawn wall defends the castled king. The rooks have bigger jobs.'),
-        ]),
+        drill(
+          'Send a rook to work',
+          'rnbq1rk1/ppp1bppp/5n2/3p4/3P4/3B1N2/PPP2PPP/R2Q1RK1 w - - 6 7',
+          ['Re1'],
+          'Both kings are castled. Put a rook on the only open file.',
+          'The e-pawns traded themselves long ago. The rook on f1 reaches that file in one step.',
+          'Re1. The rook owns the open e-file, the exact job rooks dream of once the king is safe.',
+        ),
         quiz('The uncastled price', 'What is the usual fate of a king stuck in the center too long?', [
           right('It gets hit by attacks down the open e-file and diagonals', 'The e-file opens the moment e5 and e4 meet. The central king stands in the blast zone.'),
           wrong('Nothing: the center is the safest square', 'The center is the safest place for pieces. For a king it is the most dangerous square on the board.'),
@@ -194,14 +204,7 @@ export const beginner: Tier = {
           wrong('Yes: only the landing squares matter', 'The whole path matters, and being in check cancels castling entirely.'),
           wrong('Yes: you can castle out of any danger', 'Out of check, through check, into check: all three are forbidden.'),
         ]),
-        text(
-          'The e-file blast',
-          [
-            'When both e-pawns disappear, the e-file opens straight at both kings. Uncastled kings stand in that blast zone.',
-            'This is why 1.e4 players castle fast: the file their pawn opened is the same file their king wants to leave.',
-          ],
-          'Open e-file and a central king is a combination that ends games.',
-        ),
+        drill('Finish development your own way', 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 6 5', ['O-O'], 'Center is claimed, pieces are developed. Tuck the king in.', 'f1 and g1 are empty and nothing attacks them.', 'Castled. The rook on f1 is already connected to the a1 rook through the queen.'),
       ],
     },
     {
@@ -278,21 +281,6 @@ export const beginner: Tier = {
           moves: ['Nc7+', 'Kd8', 'Nxa8'],
           caption: 'Knight fork: king and rook',
         }),
-        demo(
-          'The pawn fork',
-          [
-            'Forks are not only for knights. This humble pawn attacks two knights at once, and pawns cost nothing to lose.',
-            'Black must watch a one-point piece take a three-point piece. Pawn forks are the most underestimated tactic in beginner chess.',
-          ],
-          '4k3/8/8/8/2n1n3/3P4/8/4K3 w - - 0 1',
-          {
-            marks: [
-              { square: 'c4', color: 'red' },
-              { square: 'e4', color: 'red' },
-            ],
-            caption: 'One pawn, two knight problems',
-          },
-        ),
         drill('Find the fork', 'r3k3/8/8/1N6/8/8/8/4K3 w - - 0 1', ['Nc7+'], 'Fork the king and the rook', 'The knight on b5 wants to jump to c7, checking the king and attacking a8.', 'Nc7 plus check. The rook on a8 is a goner.'),
         drill(
           'The queen fork',
@@ -312,6 +300,21 @@ export const beginner: Tier = {
           wrong('Only knights can fork', 'Any piece that attacks two things at once forks: pawns, bishops, rooks, queens, even kings.'),
           wrong('The king', 'The king can attack two pieces, but rarely safely. Usually it is the pawn people forget.'),
         ]),
+        demo(
+          'The pawn fork',
+          [
+            'Forks are not only for knights. This humble pawn attacks two knights at once, and pawns cost nothing to lose.',
+            'Black must watch a one-point piece take a three-point piece. Pawn forks are the most underestimated tactic in beginner chess.',
+          ],
+          '4k3/8/8/8/2n1n3/3P4/8/4K3 w - - 0 1',
+          {
+            marks: [
+              { square: 'c4', color: 'red' },
+              { square: 'e4', color: 'red' },
+            ],
+            caption: 'One pawn, two knight problems',
+          },
+        ),
         quiz('Avoiding forks', 'How do you stop forks before they happen?', [
           right('Keep pieces defended and watch the jump squares around your king', 'Forks feed on undefended pieces. Defense is fork insurance.'),
           wrong('Move the queen to safety every turn', 'The queen is usually the VICTIM of forks, not the cause. Defense of everything is the cure.'),
@@ -372,11 +375,14 @@ export const beginner: Tier = {
           wrong('Only knights', 'Knights are the fork champions. Pins belong to the sliders.'),
           wrong('Only queens', 'Rooks and bishops pin constantly. The queen just does both.'),
         ]),
-        quiz('Winning a pin', 'The enemy knight is pinned and defended once. How do you usually convert the pin into material?', [
-          right('Add more attackers to the knight until your attackers outnumber its defenders', 'A pinned piece cannot run. Attackers pile up, defenders cannot grow as fast.'),
-          wrong('Attack the pinning bishop immediately', 'Sometimes, but the direct route is hammering the frozen knight itself.'),
-          wrong('Wait: pins win material by themselves', 'Pins create the chance. You still have to build pressure to collect.'),
-        ]),
+        drill(
+          'Add to the pile',
+          'r1bqkb1r/ppp2ppp/2n5/1B6/3PP3/8/PPP2PPP/RNBQK1NR w KQkq - 0 6',
+          ['d5'],
+          'The pinned knight on c6 is defended once. Add a second attacker.',
+          'Your d4 pawn is one step from hitting c6. Pinned pieces cannot run from a pile-up.',
+          'd5. Bishop plus pawn now outnumber the lone defender, and the knight is glued to its king. Pile up and collect.',
+        ),
         drill(
           'Escape the pin',
           '4r2k/8/8/8/8/4N3/8/4KB2 w - - 0 1',
@@ -427,11 +433,14 @@ export const beginner: Tier = {
           wrong('Only knights', 'Knights fork, they never skewer: no lines through their targets.'),
           wrong('Only the queen', 'The queen is the most flexible, but rooks and bishops skewer all the time.'),
         ]),
-        quiz('Blocking a skewer', 'Your king is skewered against your rook on the same file. Can you save the rook without moving the king?', [
-          right('Yes: place a piece between king and attacker to cut the line', 'A blocker ends the skewer. The king can stay and the rook survives.'),
-          wrong('No: skewers cannot be blocked', 'That is knight checks. Sliding attacks can always be blocked.'),
-          wrong('Only by giving up the rook', 'The rook can be saved. Block the line or move the rook BEFORE the check lands.'),
-        ]),
+        drill(
+          'Build the shield',
+          '4r3/6k1/8/4K3/2B5/8/8/4Q3 w - - 0 1',
+          ['Be6'],
+          'The rook on e8 fires through your king at the queen on e1. Block the check and keep the queen.',
+          'Your bishop walks the c4 to e6 diagonal. Land it one square in front of your king.',
+          'Be6. The line is cut and the queen is safe: even Rxe6 runs into Kxe6. The skewer dies to one quiet block.',
+        ),
         quiz('Pin or skewer?', 'A bishop checks a king, and a rook stands on the same diagonal behind the king. What is this?', [
           right('A skewer: the king moves and the rook is captured', 'The more valuable piece is BEHIND, so it falls after the king moves.'),
           wrong('A pin', 'In a pin the valuable piece is BEHIND a piece that cannot move. Here the front piece is the king himself.'),
@@ -473,14 +482,6 @@ export const beginner: Tier = {
           'The rook on a4 sees the whole 4th rank. Both knights are loose. Take the one on d4.',
           'Rxd4. Two loose pieces on one line is a recipe. The rook ate well and runs no risk: the other knight cannot recapture.',
         ),
-        drill(
-          'Save your own',
-          '4k3/8/8/3r4/3N4/8/8/4K3 w - - 0 1',
-          ['Nb3'],
-          'The rook on d5 attacks your knight on d4. One square is both safe and useful.',
-          'The knight must leave the d-file. b3 steps away and out of every rook line.',
-          'Nb3. The knight left the d-file and the rook attacks air. Loose pieces of YOURS deserve the same attention.',
-        ),
         quiz('Spot the loose piece', 'Your opponent has a knight on c5 defended by a pawn, and a bishop on e3 defended by nothing. What is the target?', [
           right('The bishop on e3', 'Undefended pieces are the natural targets, regardless of color.'),
           wrong('The knight on c5', 'It is defended. Capturing it trades or loses material.'),
@@ -491,6 +492,14 @@ export const beginner: Tier = {
           wrong('Long Pawns Defend Openings', 'Made up, and thankfully not real doctrine.'),
           wrong('Look Pin Defense Operate', 'Close in spirit, but the real mnemonic is about undefended pieces.'),
         ]),
+        drill(
+          'Save your own',
+          '4k3/8/8/3r4/3N4/8/8/4K3 w - - 0 1',
+          ['Nb3'],
+          'The rook on d5 attacks your knight on d4. One square is both safe and useful.',
+          'The knight must leave the d-file. b3 steps away and out of every rook line.',
+          'Nb3. The knight left the d-file and the rook attacks air. Loose pieces of YOURS deserve the same attention.',
+        ),
         quiz('Fixing a loose piece', 'Your bishop is undefended and the opponent is attacking it. Which fix is usually best?', [
           right('Defend it, move it, or create a bigger counter-threat: in that order of thought', 'Three real options. Picking among them consciously beats hoping the attack is nothing.'),
           wrong('Always move it far away', 'Moving is one option. A cheap defender is often better and keeps your setup.'),
@@ -501,8 +510,8 @@ export const beginner: Tier = {
     {
       id: 'bg-09',
       n: 9,
-      title: 'Counting attackers and defenders',
-      subtitle: 'When is a capture safe? Do the math.',
+      title: 'Do the math, win the trade',
+      subtitle: 'When is a capture safe? Count it out.',
       minutes: 10,
       concepts: ['calculation', 'winningMaterial'],
       steps: [
@@ -516,24 +525,19 @@ export const beginner: Tier = {
           'Attackers, defenders, values. Then capture.',
         ),
         drill('The even trade', '4k3/pp3ppp/2n5/1B6/8/8/PPP2PPP/4K3 w - - 0 1', ['Bxc6+', 'bxc6'], 'Trade bishop for knight. Both are defended.', 'Bishop takes knight, checking the king; the b7 pawn takes back. Count the values first.', 'An even trade, 3 for 3. Fine when trades help you.'),
-        drill(
-          'Count and win the queen',
-          '4k3/8/4p3/3q4/8/2N5/8/3RK3 w - - 0 1',
-          ['Nxd5'],
-          'The black queen on d5 is defended by the e6 pawn. Count before you leap.',
-          'Your knight attacks the queen. After the pawn recaptures, who is ahead on values?',
-          'Nxd5 exd5: knight (3) for queen (9). Counting said yes, and counting was right. Your rook can even collect the pawn next.',
-        ),
         quiz('Favorable counting', 'Your knight (3) and your rook (5) both attack an enemy rook (5). The rook is defended only by a pawn (1). You capture with the knight first and the pawn recaptures. What is the final count?', [
           right('You win a rook for a knight: plus 2', 'Cheapest attacker goes first, you collect the 5 and lose only the 3.'),
           wrong('Even trade', 'The pawn recapture does not restore the rook. The arithmetic favors you.'),
           wrong('You lose material', 'Count again: 5 gained, 3 lost.'),
         ]),
-        quiz('Cheapest first', 'Why should the cheapest attacker capture first?', [
-          right('The recapture lands on your cheap piece, keeping the expensive ones untouched', 'The defender usually hits back on the capturing square. Feed it the pawn, not the rook.'),
-          wrong('Cheap pieces move faster', 'All moves cost the same. The order is about what gets recaptured.'),
-          wrong('It does not matter who captures first', 'Order changes the final count. Rook first can lose 2 points that knight first would win.'),
-        ]),
+        drill(
+          'Cheapest goes first',
+          '6k1/8/8/4p3/3r4/8/2N2B2/4K3 w - - 0 1',
+          ['Nxd4'],
+          'Your knight and bishop both attack the rook on d4, and the e5 pawn defends it. Send in the cheap piece.',
+          'The recapture lands on whatever took the rook. Feed the pawn a 3-point knight, not a 3-point bishop with a pawn to follow.',
+          'Nxd4. The pawn recaptures, your bishop collects the pawn on the same square: rook and pawn for knight. Cheapest first, every time.',
+        ),
         quiz('The losing capture', 'Your rook (5) can capture a bishop (3) defended by a pawn (1), and the pawn recaptures. Final count?', [
           right('You lose 5 and gain 3: minus 2', 'The values make this a losing capture, even though you took a piece.'),
           wrong('You win the bishop', 'You win the bishop and lose the rook. Count the whole exchange, not the first bite.'),
@@ -544,11 +548,22 @@ export const beginner: Tier = {
           wrong('An even trade', 'A pawn does not equal a rook. The values make it a loss.'),
           wrong('You gain a pawn', 'You GAIN a pawn once, then LOSE the rook. Net: minus 4.'),
         ]),
-        quiz('The pile-up', 'Your rook is attacked twice and defended twice. What decides whether capturing is good?', [
-          right('The values that fall during the whole exchange sequence', 'Count the trade like a story: what lands on each square, and what each capture is worth.'),
-          wrong('Nothing: equal attackers and defenders means it is always safe', 'Equal counts with unequal values still lose material. 5 for 3 hurts even when everyone is busy.'),
-          wrong('Whoever captures first always wins the sequence', 'Order matters less than the values involved. Do the math, then decide.'),
-        ]),
+        drill(
+          'Win the pile-up',
+          '6k1/p1p5/1r6/8/N7/8/5B2/6K1 w - - 0 1',
+          ['Nxb6'],
+          'Two attackers, two defenders: the rook on b6 is attacked by your knight and bishop, defended by two pawns. The values decide. Cash it.',
+          'Your knight is the cheapest attacker. Send it in first and count what falls in order.',
+          'Nxb6. A pawn recaptures, your bishop collects the pawn: rook and pawn for knight. Equal counts, unequal values, and the values win.',
+        ),
+        drill(
+          'Count and win the queen',
+          '4k3/8/4p3/3q4/8/2N5/8/3RK3 w - - 0 1',
+          ['Nxd5'],
+          'The black queen on d5 is defended by the e6 pawn. Count before you leap.',
+          'Your knight attacks the queen. After the pawn recaptures, who is ahead on values?',
+          'Nxd5 exd5: knight (3) for queen (9). Counting said yes, and counting was right. Your rook can even collect the pawn next.',
+        ),
       ],
     },
     {
@@ -572,12 +587,12 @@ export const beginner: Tier = {
           moves: ['Bxd8', 'Nxd8'],
           caption: 'Bishop for rook: the defender was the rook, the knight takes back',
         }),
-        drill('Remove and collect', '3r1k2/8/2n2B2/8/8/8/8/4K3 w - - 0 1', ['Bxd8', 'Nxd8'], 'The knight defends the rook. Trade your bishop for the rook anyway.', 'Capture on d8 first. Even after the knight recaptures, count the values.', 'Bishop (3) takes rook (5), knight recaptures. Net: plus 2. Removing the bodyguard paid.'),
         quiz('Who to remove', 'A strong enemy queen is defended by a knight AND a bishop. Your best removal target is usually the one that is...', [
           right('Cheapest to capture or undefended itself', 'Removing a defender should not cost more than the prize it guards.'),
           wrong('The strongest piece', 'You do not remove the queen. You remove her bodyguard.'),
           wrong('Any of them, it makes no difference', 'The cost of removal decides whether the combination works.'),
         ]),
+        drill('Remove and collect', '3r1k2/8/2n2B2/8/8/8/8/4K3 w - - 0 1', ['Bxd8', 'Nxd8'], 'The knight defends the rook. Trade your bishop for the rook anyway.', 'Capture on d8 first. Even after the knight recaptures, count the values.', 'Bishop (3) takes rook (5), knight recaptures. Net: plus 2. Removing the bodyguard paid.'),
         quiz('The overloaded guard', 'What does it mean when a defender is overloaded?', [
           right('It is guarding two things at once, and a threat to either breaks its job', 'Ask it one question too many and something falls. Overloads are removal by distraction.'),
           wrong('It has too many attackers', 'That is just being attacked. Overloaded means too many defensive jobs.'),
@@ -624,6 +639,11 @@ export const beginner: Tier = {
           caption: 'One rook check away from disaster',
         }),
         drill('Make luft', '6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1', ['h3'], 'A black rook may soon hit the back rank. Give your king an exit.', 'The h-pawn has one quiet step, and that step makes the square h2 an exit.', 'h3. The king now has h2. Every back-rank threat just evaporated.'),
+        quiz('Luft timing', 'When is the best moment to play h3?', [
+          right('Before the back rank is under attack, when the move costs nothing', 'Prevention is one tempo. Repair under fire is usually too slow.'),
+          wrong('Never, pawns must stay home', 'Pawns can move. Kings cannot fly.'),
+          wrong('Only after you are already getting mated', 'After the check lands it is often mate, not luft, that you are playing.'),
+        ]),
         drill(
           'Luft as Black',
           'r4rk1/pp3ppp/8/8/8/8/PP3PPP/R4RK1 b - - 0 1',
@@ -632,6 +652,11 @@ export const beginner: Tier = {
           'The h-pawn steps forward and the king gets a breathing square on h7.',
           'h6. The king can breathe on h7. Prevention costs one quiet move; rescue usually costs the game.',
         ),
+        quiz('The cost of luft', 'Playing h3 in front of your castled king weakens something. What?', [
+          right('The dark squares around the king, like g3, can be used by enemy pieces later', 'Luft is usually worth it, but nothing is free. Know what you are paying.'),
+          wrong('Nothing at all: luft is pure profit', 'Mostly profit, yes. But every pawn move opens something. Good players weigh both.'),
+          wrong('It permanently opens the h-file', 'The h-file opens for YOUR rook too. The real cost is the squares, not the file.'),
+        ]),
         demo(
           'Pin the defender, then take it',
           [
@@ -641,16 +666,6 @@ export const beginner: Tier = {
           '3rk3/6pp/8/8/8/1Q6/8/3RK3 w - - 0 1',
           { moves: ['Qb8', 'g6', 'Rxd8+', 'Ke7'], caption: 'First the pin, then the capture' },
         ),
-        quiz('Luft timing', 'When is the best moment to play h3?', [
-          right('Before the back rank is under attack, when the move costs nothing', 'Prevention is one tempo. Repair under fire is usually too slow.'),
-          wrong('Never, pawns must stay home', 'Pawns can move. Kings cannot fly.'),
-          wrong('Only after you are already getting mated', 'After the check lands it is often mate, not luft, that you are playing.'),
-        ]),
-        quiz('The cost of luft', 'Playing h3 in front of your castled king weakens something. What?', [
-          right('The dark squares around the king, like g3, can be used by enemy pieces later', 'Luft is usually worth it, but nothing is free. Know what you are paying.'),
-          wrong('Nothing at all: luft is pure profit', 'Mostly profit, yes. But every pawn move opens something. Good players weigh both.'),
-          wrong('It permanently opens the h-file', 'The h-file opens for YOUR rook too. The real cost is the squares, not the file.'),
-        ]),
         quiz('Luft priority', 'When is the best moment to play h3 against back rank ideas?', [
           right('Before the enemy rook reaches your back rank: as quiet preparation', 'Prophylaxis: fix the weakness while it is still cheap.'),
           wrong('Only after the check arrives: then h3 stops the mate', 'After the check it is often already mate. Prevention beats cure.'),

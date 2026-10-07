@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import { bumpActivity, computeStreaks } from '@/lib/server/skill'
 import { dayKeyLocal } from '@/lib/day'
+import { numOr } from '@/lib/api'
 
 export async function GET(req: NextRequest) {
   const user = await getSessionUser()
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => ({}))
   const dayKey = /^\d{4}-\d{2}-\d{2}$/.test(String(body.dayKey ?? '')) ? String(body.dayKey) : dayKeyLocal()
-  const minutes = Math.max(1, Math.min(5, Number(body.minutes ?? 1)))
+  const minutes = numOr(body.minutes, 1, 1, 5)
   await bumpActivity(pid, dayKey, 'minutes', minutes)
   const rows = await db.activityDay.findMany({
     where: { profileId: pid },

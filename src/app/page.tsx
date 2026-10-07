@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useTheme } from 'next-themes'
 import { useApp, useHashSync, type ProfileData, type PoolRating } from '@/lib/store'
 import { consumeSessionFragment, clearSessionToken } from '@/lib/session'
 import { Sidebar, MobileNav, AppFooter } from '@/components/shell/app-chrome'
@@ -48,6 +49,7 @@ function ViewRouter() {
 export default function Page() {
   useHashSync()
   const { setProfile, setUser, setRatings, profile } = useApp()
+  const { setTheme } = useTheme()
   const [loaded, setLoaded] = useState(false)
   const [signedIn, setSignedIn] = useState(false)
 
@@ -90,18 +92,21 @@ export default function Page() {
     }
   }, [loadSession])
 
-  // apply stored dark mode preference
+  // apply stored dark mode preference: next-themes owns the class on the
+  // document element so color-scheme and every themed surface stay in sync
   useEffect(() => {
     if (!profile) return
     const root = document.documentElement
-    if (profile.darkMode === 'dark') root.classList.add('dark')
+    const dark = profile.darkMode === 'dark'
+    setTheme(dark ? 'dark' : 'light')
+    if (dark) root.classList.add('dark')
     else root.classList.remove('dark')
-  }, [profile?.darkMode])
+  }, [profile?.darkMode, setTheme])
 
   if (!loaded) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-sidebar">
-        <img src="/brand.svg" alt="ChessX" className="h-14 w-14 animate-pulse rounded-xl" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <img src="/brand.svg" alt="ChessX" className="h-14 w-14 animate-pulse rounded-xl motion-reduce:animate-none" />
       </div>
     )
   }

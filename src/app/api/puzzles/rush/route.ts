@@ -5,6 +5,7 @@ import type { Puzzle } from '@/content/schema'
 import { getSessionUser } from '@/lib/auth'
 import { bumpActivity } from '@/lib/server/skill'
 import { dayKeyLocal } from '@/lib/day'
+import { numOr, publicProfile } from '@/lib/api'
 
 /**
  * GET: Puzzle Rush batch, the whole pool ordered easy to hard with a light
@@ -38,9 +39,9 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => ({}))
   const mode = body.mode === 'survival' ? 'survival' : 'threeMin'
-  const score = Math.max(0, Math.min(200, Number(body.score ?? 0)))
-  const total = Math.max(score, Math.min(200, Number(body.total ?? score)))
-  const seconds = Math.max(0, Math.min(3600, Number(body.seconds ?? 0)))
+  const score = numOr(body.score, 0, 0, 200)
+  const total = Math.max(score, numOr(body.total, score, 0, 200))
+  const seconds = numOr(body.seconds, 0, 0, 3600)
   const dayKey = /^\d{4}-\d{2}-\d{2}$/.test(String(body.dayKey ?? '')) ? String(body.dayKey) : dayKeyLocal()
 
   const previousBest = mode === 'survival' ? profile.rushBestSurvival : profile.rushBest3m
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
   await db.profile.update({
     where: { id: pid },
     data: {
-      xp: profile.xp + xpGain,
+      xp: { increment: xpGain },
       ...(mode === 'survival'
         ? { rushBestSurvival: Math.max(profile.rushBestSurvival, score) }
         : { rushBest3m: Math.max(profile.rushBest3m, score) }),
@@ -66,5 +67,5 @@ export async function POST(req: NextRequest) {
   await bumpActivity(pid, dayKey, 'puzzlesSolved', score)
 
   const updated = await db.profile.findUnique({ where: { id: pid } })
-  return NextResponse.json({ run, profile: updated, xpGain, isNewBest, previousBest })
+  return NextResponse.json({ run, profile: updated ? publicProfile(updated) : null, xpGain, isNewBest, previousBest })
 }

@@ -63,6 +63,7 @@ export const advanced: Tier = {
           wrong('Because quiet moves are always bad', 'Quiet moves win plenty of games. They simply branch more, so they come after the forcing scan.'),
           wrong('Checks and captures are worth extra points', 'Nothing is worth points for being forcing. They are worth CLARITY.'),
         ]),
+        drill('Close it out', '7k/8/8/8/8/8/1R6/R5K1 w - - 0 1', ['Rb7', 'Kg8', 'Ra8#'], 'Run the two-rook ladder again, from memory', 'The rook that fences the rank is not the rook that mates.', 'Fence the 7th, let the king shuffle, land Ra8. The ladder is yours on demand now.'),
       ],
     },
     {
@@ -103,6 +104,7 @@ export const advanced: Tier = {
           wrong('There is no difference: attacked pieces just need to run', 'Running to a dead square is half a blunder. The best escape squares work.'),
           wrong('Good retreats always go backward, toward your own side', 'Sideways and forward retreats exist. The test is usefulness, not direction.'),
         ]),
+        drill('From memory', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+'], 'Play the first move of the sacrifice you drilled, no glow', 'Forcing moves first: which check opens the back rank?', 'Qd8 plus check. The scan finds it in seconds now.'),
       ],
     },
     {
@@ -126,11 +128,15 @@ export const advanced: Tier = {
           ],
           'Sacrifice for lines, tempo, or defenders. Never for vibes.',
         ),
+        quiz('The pattern, named', 'You drilled this queen sacrifice earlier in this tier. What makes Qd8 plus check work?', [
+          right('The bishop on e7 is the only defender of e8, and the check takes him with tempo', 'Remove the last guard with a check and the rook mate follows by force.'),
+          wrong('The queen is worth less than the bishop', 'She is worth more. Value never matters in a forcing mate.'),
+          wrong('Black forgot to castle', 'Castling would not have saved the back rank. The e8 defender decides.'),
+        ]),
         demo('The queen as bait', ['Qd8+ strips the f8 king of his last defender. The bishop must take, and the e-file rook ends it.'], 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', {
           moves: ['Qd8+', 'Bxd8', 'Re8#'],
           caption: 'Queen for one defender, mate for the game',
         }),
-        drill('Strip the defender', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'Play the queen sacrifice to mate', 'The bishop on e7 guards e8. Remove him with interest.', 'Qd8 plus check, Bxd8 forced, Re8 mate. Three moves, one defender, zero king.'),
         quiz('Sacrifice checklist', 'Before sacrificing, which question is NOT optional?', [
           right('What exactly does the sacrifice buy, and can I calculate the follow-up?', 'Lines, tempo or defenders. If you cannot name it and calculate it, the sacrifice is gambling.'),
           wrong('Will it look brilliant', 'Brilliance is retrospective. Correctness is now.'),
@@ -146,6 +152,7 @@ export const advanced: Tier = {
           wrong('The material balance: never sacrifice while ahead', 'Material evaporates in races. Whoever opens first usually collects everything anyway.'),
           wrong('Nothing: just push your pawns in order', 'The opponent also gets a vote every move. Track their progress, not just yours.'),
         ]),
+        drill('Your turn to cash it', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+'], 'Play the key sacrifice from this level, from memory', 'You named the engine of the combination. Now play it.', 'Qd8 plus check. You have seen it, named it, and now you played it.'),
       ],
     },
     {
@@ -192,6 +199,7 @@ export const advanced: Tier = {
           wrong('Lifting the rook over a pawn like a knight jump', 'Rooks never jump. A lift is just two or three quiet rook moves along open ranks.'),
           wrong('A type of sacrifice', 'Lifts lose nothing. They are quiet maneuvering moves with attacking intent.'),
         ]),
+        drill('Your turn to cash it', 'r1bq1rk1/ppp2ppp/2n2n2/3p4/3P2PP/2N2N2/PPP2P2/R1BQ1RK1 w - - 0 10', ['g5'], 'Roll the storm one square further, from memory', 'The pawns march together: which one keeps the chain rolling?', 'g5. Space won, defender squeezed.'),
       ],
     },
     {
@@ -229,11 +237,6 @@ export const advanced: Tier = {
           wrong('Yes: material is material', 'Not while your king is being opened up.'),
           wrong('Only if you are behind', 'The clock of the attack decides, not the scoreboard.'),
         ]),
-        quiz('Defense first', 'Their attack has a queen and rook aimed at your king. Your dark-squared bishop is free. Where does it belong?', [
-          right('Defending, until the attack is traded down', 'Defense first. Counterattacks come from stable positions.'),
-          wrong('Joining a pawn storm on the other wing', 'Two races, one clock: theirs is faster.'),
-          wrong('On its best attacking square anyway', 'Best square for WHO? The attacker’s threats set the agenda.'),
-        ]),
         text(
           'Trade the big mouth',
           [
@@ -242,6 +245,12 @@ export const advanced: Tier = {
           ],
           'Defense by subtraction: remove attackers, not just threats.',
         ),
+        quiz('Defense first', 'Their attack has a queen and rook aimed at your king. Your dark-squared bishop is free. Where does it belong?', [
+          right('Defending, until the attack is traded down', 'Defense first. Counterattacks come from stable positions.'),
+          wrong('Joining a pawn storm on the other wing', 'Two races, one clock: theirs is faster.'),
+          wrong('On its best attacking square anyway', 'Best square for WHO? The attacker’s threats set the agenda.'),
+        ]),
+        drill('Your turn to hit back', '4k3/8/8/8/R2q4/8/8/4K3 w - - 0 1', ['Rxd4'], 'Counterattack the way you drilled: take the attacker', 'Her queen grabbed something on d4. Who takes her back?', 'Rxd4. Counterattack by capture: the sharpest defense in chess.'),
       ],
     },
     {
@@ -301,6 +310,7 @@ export const advanced: Tier = {
           wrong('The enemy bishop paints them dark', 'Pieces come and go. Only pawn structure can create permanent holes.'),
           wrong('Weak squares appear only in endgames', 'They are created in the middlegame, and usually exploited there too.'),
         ]),
+        drill('Your turn to cash it', '5rk1/5p1p/6p1/7Q/8/8/5PPP/6K1 w - - 0 1', ['Qe5'], 'Invade the dark heart, from memory', 'Which dark square does the black king quietly fear?', 'Qe5. The dark squares are yours forever.'),
       ],
     },
     {
@@ -350,6 +360,7 @@ export const advanced: Tier = {
           wrong('The bishop: it can never be chased', 'A blockading bishop is stuck on one color and blind to the pawn’s color anyway.'),
           wrong('The queen: too valuable to be traded off the blockade', 'A big blockader is a big target: everything piles onto it.'),
         ]),
+        drill('Your turn to cash it', '4k3/8/8/8/3p4/8/8/2N1K3 w - - 0 1', ['Nd3'], 'Blockade the passer, from memory', 'In front of the pawn, never behind. Name the square.', 'Nd3. The pawn stops. The knight never leaves.'),
       ],
     },
     {
@@ -404,6 +415,7 @@ export const advanced: Tier = {
           wrong('Any even trade: simplicity favors the better position', 'Simplicity favors the side WITHOUT the advantage. Crowded boards bury defenders.'),
           wrong('Trades never matter', 'They matter enormously: each one changes which side has the fighters left.'),
         ]),
+        drill('Your turn to cash it', 'r1bqk2r/pppp1ppp/2n5/8/3P4/2N5/PPP2PPP/R1BQKB1R w KQkq - 4 6', ['Be3'], 'Wake the sleepy piece, from memory', 'Which fighter has not moved yet? Give it a job.', 'Be3. Every piece earns its square.'),
       ],
     },
     {
@@ -476,7 +488,11 @@ export const advanced: Tier = {
           ],
         ),
         drill('Mate in one', '6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1', ['Re8#'], 'Checks first.', 'One rook check exists.', 'Re8 mate.'),
-        drill('The full calculation', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'Find the forced mate', 'Sacrifice, forced reply, open file.', 'Three forcing moves, one mate. That is calculation.'),
+        quiz('The pattern, named', 'You drilled this queen sacrifice earlier in this tier. What is the engine of the whole combination?', [
+          right('The e7 bishop: e8 has no other defender, and Qd8 plus check removes him with tempo', 'Remove the last guard with a check and the rook mate follows by force.'),
+          wrong('The open a-file', 'The a-file only watches. The mate lands on the e-file.'),
+          wrong('Black castled too late', 'Castling would not have saved the back rank. The e7 defender decides.'),
+        ]),
         drill('Hit the base', '4k3/8/8/2ppp3/8/8/8/K6R w - - 0 1', ['Re1'], 'Attack the chain where it hurts', 'Rearmost pawn first.', 'Re1. The base buckles.'),
         drill(
           'Battery mate rep',
@@ -487,8 +503,8 @@ export const advanced: Tier = {
           'Ra8 mate. The oldest back-rank story, told by a scan that took three seconds.',
         ),
         playout(
-          'Calculation test',
-          'Full game. Run the scan on every move.',
+          'The marathon scan',
+          'A full game with the list before every move: checks, captures, threats. Name them first, then play.',
           START,
           'w',
           'Win at least 3 points of material within 20 moves',
@@ -538,6 +554,7 @@ export const advanced: Tier = {
           wrong('1.d4', 'Strong too, but the structures run slower and more closed.'),
           wrong('1.Nf3', 'Flexible, but it postpones the pawn decision rather than forcing open play.'),
         ]),
+        drill('Your turn to cash it', 'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4', ['O-O'], 'Finish the Ruy setup, from memory: castle', 'The king is still in the center. Give him the safest bed.', 'O-O. King safe, rooks connected, opening complete.'),
       ],
     },
     {
@@ -578,6 +595,7 @@ export const advanced: Tier = {
           wrong('The h-file, far from the pawn', 'The isolani decides its own neighborhood. The c-file is the front street.'),
           wrong('No file: the pawn itself is the only factor', 'The pawn comes with a file and an outpost square. The whole structure matters.'),
         ]),
+        drill('Your turn to cash it', 'rnbqkb1r/ppp2ppp/5n2/3p4/3P4/2N5/PP2PPPP/R1BQKBNR w KQkq - 0 5', ['e3'], 'Support the isolani, from memory', 'The d4 pawn needs a bodyguard. Play the supporting move.', 'e3. The pawn holds, and the bishop behind it wakes up.'),
       ],
     },
     {
@@ -662,6 +680,7 @@ export const advanced: Tier = {
           wrong('From move one: always check', 'Constant checking lets the winning king march up supported.'),
           wrong('Never: the first-rank rook is already the Philidor defense', 'The first rank is the SETUP. The checks after the pawn\u2019s advance are the DEFENSE.'),
         ]),
+        drill('Your turn to cash it', '4k3/8/4K3/4P3/8/8/8/7r b - - 0 1', ['Rd1'], 'Hold the draw the Philidor way, from memory', 'Get behind the pawn, check from the back, repeat.', 'Rd1. Behind the pawn with checks forever: half a point banked.'),
       ],
     },
     {
@@ -698,6 +717,7 @@ export const advanced: Tier = {
           wrong('None: behind is behind', 'The pawn\u2019s owner decides whether the rook escorts or polices.'),
           wrong('The rook should always be in front', 'In front of your own pawn blocks it. Behind is the rule for both owners.'),
         ]),
+        drill('Your turn to cash it', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Cut the king off, from memory', 'Park the black king behind a wall. Which rank?', 'Ra5. The king walks behind the wall and never comes home.'),
       ],
     },
     {
@@ -788,6 +808,7 @@ export const advanced: Tier = {
           wrong('The knight: always', 'Knights need fixed structures. In open fields, range rules.'),
           wrong('Whatever the rating says', 'Structure decides. Open structure: bishop.'),
         ]),
+        drill('Your turn to cash it', '4k3/2p1p3/8/3N4/8/8/8/4K3 w - - 0 1', ['Nf6+'], 'Strike with the open-field knight, from memory', 'In open structure the knight hits first. Find the check.', 'Nf6 plus check. The knight strikes before the bishop can blink.'),
       ],
     },
     {

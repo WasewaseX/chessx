@@ -159,6 +159,8 @@ model GameRecord {
   localHour   Int? // player's local hour (0-23) when the game ended, for time-of-day insights
   analyzedAt  DateTime?
   createdAt   DateTime @default(now())
+
+  @@index([profileId])
 }
 
 model LessonProgress {
@@ -184,6 +186,8 @@ model PuzzleAttempt {
   ratingDelta Int?
   dayKey     String? // for daily: yyyy-mm-dd
   createdAt  DateTime @default(now())
+
+  @@index([profileId])
 }
 
 // One row per calendar day the player was active. id is (profileId + dayKey).
@@ -197,6 +201,9 @@ model ActivityDay {
   gamesPlayed   Int      @default(0)
   goalMet       Boolean  @default(false)
   updatedAt     DateTime @updatedAt
+
+  @@index([profileId])
+  @@index([profileId, dayKey])
 }
 
 // Completed Puzzle Rush runs.
@@ -209,6 +216,8 @@ model RushRun {
   seconds   Int
   dayKey    String
   createdAt DateTime @default(now())
+
+  @@index([profileId])
 }
 
 // Spaced-repetition queue (SM-2 derived): missed puzzles and lessons that

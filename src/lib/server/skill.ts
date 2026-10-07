@@ -4,6 +4,7 @@
 // signed-in user's profile first and pass its id down.
 import { db } from '@/lib/db'
 import { CONCEPTS } from '@/content/schema'
+import type { ActivityDay } from '@prisma/client'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -23,17 +24,20 @@ export async function updateMastery(profileId: string, concepts: string[], corre
     const existing = await db.skillMastery.findUnique({
       where: { profileId_concept: { profileId, concept } },
     })
-    const attempts = (existing?.attempts ?? 0) + 1
-    const correctCount = (existing?.correct ?? 0) + (correct ? 1 : 0)
     const prev = existing?.mastery ?? 0
     // Correct answers push mastery toward 1 with diminishing returns; misses pull it down harder.
     const next = correct
       ? Math.min(1, prev + 0.18 * (1.2 - prev))
       : Math.max(0, prev - 0.22)
+    // Counters move with atomic increments so racing attempts never lose one.
     await db.skillMastery.upsert({
       where: { profileId_concept: { profileId, concept } },
-      update: { mastery: next, attempts, correct: correctCount },
-      create: { profileId, concept, mastery: correct ? 0.18 : 0, attempts, correct: correctCount },
+      update: {
+        attempts: { increment: 1 },
+        ...(correct ? { correct: { increment: 1 } } : {}),
+        mastery: next,
+      },
+      create: { profileId, concept, mastery: correct ? 0.18 : 0, attempts: 1, correct: correct ? 1 : 0 },
     })
   }
 }
@@ -112,22 +116,43 @@ export async function bumpActivity(
 ) {
   if (amount <= 0) return
   const id = `${profileId}:${dayKey}`
+  const inc = field === 'minutes'
+    ? { minutes: amount }
+    : field === 'puzzlesSolved'
+      ? { puzzlesSolved: amount }
+      : field === 'lessonSteps'
+        ? { lessonSteps: amount }
+        : { gamesPlayed: amount }
+  let day: ActivityDay | null
+  if (field === 'minutes') {
+    // Heartbeats create the row, then add minutes behind a hard daily cap so
+    // the counter can never run away. The increment is atomic, so racing
+    // heartbeats never lose a minute.
+    await db.activityDay.upsert({
+      where: { id },
+      update: {},
+      create: { id, profileId, dayKey },
+    })
+    await db.activityDay.updateMany({
+      where: { id, minutes: { lt: 600 } },
+      data: { minutes: { increment: amount } },
+    })
+    day = await db.activityDay.findUnique({ where: { id } })
+  } else {
+    day = await db.activityDay.upsert({
+      where: { id },
+      update: inc,
+      create: { id, profileId, dayKey, ...inc },
+    })
+  }
+  if (!day) return
+  // goalMet recomputes from the profile goal and only writes when it flips.
   const profile = await db.profile.findUnique({ where: { id: profileId } })
   const goal = profile?.goalMinutes ?? 15
-  const day = await db.activityDay.upsert({
-    where: { id },
-    update: {},
-    create: { id, profileId, dayKey },
-  })
-  const minutes = field === 'minutes' ? Math.min(600, day.minutes + amount) : day.minutes
-  const data = {
-    minutes,
-    puzzlesSolved: day.puzzlesSolved + (field === 'puzzlesSolved' ? amount : 0),
-    lessonSteps: day.lessonSteps + (field === 'lessonSteps' ? amount : 0),
-    gamesPlayed: day.gamesPlayed + (field === 'gamesPlayed' ? amount : 0),
-    goalMet: minutes >= goal,
+  const goalMet = day.minutes >= goal
+  if (day.goalMet !== goalMet) {
+    await db.activityDay.update({ where: { id }, data: { goalMet } })
   }
-  await db.activityDay.update({ where: { id }, data })
 }
 
 /** Current streak: consecutive goal-met days ending today (or yesterday if today is still open). */

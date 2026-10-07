@@ -15,11 +15,11 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { motion, useReducedMotion } from 'framer-motion'
 import { Chess, type Square } from 'chess.js'
 import { ChessBoard, type Arrow, type FlashMark, type Mark } from '@/components/chess/board'
-import { TIERS, findLevel } from '@/content/levels'
+import { ALL_LEVELS, TIERS, findLevel } from '@/content/levels'
 import { GRADUATION } from '@/content/graduation'
 import type { ExerciseStep, GtmStep, LessonStep, PlayoutStep } from '@/content/schema'
 import { useApp } from '@/lib/store'
-import { isLevelUnlocked, unlockRequirement } from '@/lib/unlock'
+import { isLevelUnlocked, nextUnlockedId, unlockRequirement } from '@/lib/unlock'
 import { engine } from '@/lib/chess/engine-client'
 import { playSound } from '@/lib/chess/sounds'
 import { Button } from '@/components/ui/button'
@@ -43,6 +43,7 @@ import {
   RotateCcw,
   CheckCircle2,
   Play,
+  Puzzle,
   Undo2,
   Sparkles,
   CircleAlert,
@@ -437,8 +438,16 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   // only on a FIRST completion: a replay of an already-done lesson did not
   // unlock anything, so the badge stays quiet there
   const unlockedNow = doneIds !== null && !doneIds.has(lesson.id) && nextLevel != null && nextLevel.n > 1
-  // on a replay the flat-next level may already be done: go back to the course instead
+  // skip-ahead or replay: the flat-next level may already be done, so the real
+  // next step is the first unlocked and uncompleted level this finish leaves
   const nextAlreadyDone = nextLevel != null && (doneIds?.has(nextLevel.id) ?? false)
+  const fallbackNext = useMemo(() => {
+    if (!nextAlreadyDone || !lesson || doneIds === null) return null
+    const id = nextUnlockedId(new Set([...doneIds, lesson.id]))
+    return id ? findLevel(id)?.level ?? null : null
+  }, [nextAlreadyDone, doneIds, lesson])
+  // the teaser and the CTA both point at the fallback whenever the flat-next is done
+  const targetNext = nextAlreadyDone ? fallbackNext : nextLevel
 
   if (!lesson || !tier) {
     return (
@@ -497,6 +506,8 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const completedSteps = done ? total : reached
   const pct = total > 0 ? Math.round((completedSteps / total) * 100) : 0
   const shownBubble = bubble ?? defaultBubbleFor(step)
+  // closing the very last level of the course earns its own celebration
+  const courseComplete = lesson.id === ALL_LEVELS[ALL_LEVELS.length - 1]?.level.id
 
   function goNext() {
     if (last && !done) {
@@ -648,12 +659,15 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           bestStreak={bestStreak}
           tierTitle={tier.title}
           tierColor={tier.color}
-          nextLevel={nextLevel}
+          nextLevel={targetNext}
           nextTierTitle={nextTier?.title ?? null}
           unlockedNow={unlockedNow}
           nextAlreadyDone={nextAlreadyDone}
+          courseComplete={courseComplete}
           soundEnabled={profile?.soundEnabled ?? true}
-          onContinue={() => (nextLevel && !nextAlreadyDone ? navigate('lesson', nextLevel.id) : navigate('lessons'))}
+          onContinue={() => (targetNext ? navigate('lesson', targetNext.id) : navigate('lessons'))}
+          onPlay={() => navigate('play')}
+          onPuzzles={() => navigate('puzzles')}
         />
       ) : (
         <div className="mx-auto w-full max-w-5xl px-4 pb-10 pt-6">
@@ -943,8 +957,11 @@ function CompletionScreen({
   nextTierTitle,
   unlockedNow,
   nextAlreadyDone,
+  courseComplete,
   soundEnabled,
   onContinue,
+  onPlay,
+  onPuzzles,
 }: {
   lesson: NonNullable<ReturnType<typeof findLevel>['level']>
   coach?: Coach
@@ -958,8 +975,11 @@ function CompletionScreen({
   nextTierTitle: string | null
   unlockedNow: boolean
   nextAlreadyDone: boolean
+  courseComplete: boolean
   soundEnabled: boolean
   onContinue: () => void
+  onPlay: () => void
+  onPuzzles: () => void
 }) {
   const chapterEnd = lesson.n >= 20
   // close the lesson with the win sound, once
@@ -982,8 +1002,10 @@ function CompletionScreen({
       (chapterEnd
         ? `Every level of ${tierTitle} is behind you. The next chapter opens at its first level whenever you are ready.`
         : `All ${lesson.steps.length} steps complete. Replay it any time to keep it sharp.`))
+  // a fallback target (the flat-next was already done) always reads as a plain
+  // "next up", never as a chapter opener line
   const nextLine = nextLevel
-    ? isNextChapter
+    ? isNextChapter && !nextAlreadyDone
       ? `Next chapter: ${nextTierTitle ?? 'the next tier'}. Level 1: ${nextLevel.title}. ${nextLevel.subtitle}`
       : `Next up: ${nextLevel.title}. ${nextLevel.subtitle}`
     : null
@@ -1004,10 +1026,14 @@ function CompletionScreen({
         />
       </div>
       <h2 className="mt-2 font-book text-4xl font-semibold text-[#262421] sm:text-5xl">
-        {chapterEnd ? 'Chapter complete' : 'Lesson complete'}
+        {courseComplete ? '120 levels. Every one of them yours.' : chapterEnd ? 'Chapter complete' : 'Lesson complete'}
       </h2>
       <p className="mt-1 text-sm font-semibold text-[#262421]/55">
-        {chapterEnd ? `The ${tierTitle} chapter is finished` : lesson.title}
+        {courseComplete
+          ? 'You started not knowing how the knights jump. You finish reading positions like a grandmaster.'
+          : chapterEnd
+            ? `The ${tierTitle} chapter is finished`
+            : lesson.title}
       </p>
 
       <div className="relative mx-auto mt-6 flex max-w-md items-start gap-3 rounded-2xl bg-[#fdfbf5] p-4 text-left shadow-xl">
@@ -1076,9 +1102,24 @@ function CompletionScreen({
         )}
       </div>
 
-      <Button className="btn-hero mt-8 h-13 w-full max-w-xs text-base" onClick={onContinue}>
-        {nextLevel && !nextAlreadyDone ? `Next up: ${nextLevel.title}` : 'Back to the course'} <ChevronRight className="h-5 w-5" />
-      </Button>
+      {courseComplete ? (
+        <div className="mx-auto mt-8 flex w-full max-w-md flex-col gap-2.5 sm:flex-row">
+          <Button className="btn-hero h-13 flex-1 text-base" onClick={onPlay}>
+            Play <Play className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="outline"
+            className="h-13 flex-1 border-[#262421]/15 bg-transparent px-6 text-base font-bold text-[#262421] hover:bg-[#262421]/5 hover:text-[#262421]"
+            onClick={onPuzzles}
+          >
+            Puzzles <Puzzle className="h-5 w-5" />
+          </Button>
+        </div>
+      ) : (
+        <Button className="btn-hero mt-8 h-13 w-full max-w-xs text-base" onClick={onContinue}>
+          {nextLevel ? `Next up: ${nextLevel.title}` : 'Back to the course'} <ChevronRight className="h-5 w-5" />
+        </Button>
+      )}
     </div>
   )
 }
@@ -1370,6 +1411,8 @@ function QuizStepView({
     if (step.options[i].correct) {
       setChosen(i)
       setAnsweredCorrect(true)
+      // a first-try correct answer earns its own sound; retries stay quiet
+      if (misses === 0) playSound('correct', soundEnabled)
       onResult(misses === 0)
       onPass()
     } else {

@@ -44,7 +44,7 @@ export const GRADUATION: Record<string, string> = {
   'bg-16': 'defend: counting, loose pieces, and the safe recapture.',
   'bg-17': 'play the Italian Game with a real plan behind every move.',
   'bg-18': 'play a full development game and castle by move 12.',
-  'bg-19': 'pass the beginner exam: one quiz, one mate, one trap punished.',
+  'bg-19': 'punish Scholar’s Mate on sight and run the three-second scan on autopilot.',
   'bg-20': 'finish the Beginner tier with a complete game on the board.',
   // Intermediate
   'int-01': 'hit two targets with one move, whatever the piece.',
@@ -108,7 +108,7 @@ export const GRADUATION: Record<string, string> = {
   'ms-17': 'manage clock, tilt, and tempo bluffs like a professional.',
   'ms-18': 'calculate deep, verified combinations.',
   'ms-19': 'combine multiple motifs at full depth.',
-  'ms-20': 'finish the Master tier: famous combination, exam, and game, all cleared.',
+  'ms-20': 'out-plan club players: prophylaxis first, trades with intent, defense by counterattack.',
   // Grandmaster
   'gm-01': 'prune calculation trees and trust only verified endings.',
   'gm-02': 'find resources in worse positions: activity, counterplay, the perpetual.',
@@ -129,5 +129,5 @@ export const GRADUATION: Record<string, string> = {
   'gm-17': 'spend clock minutes where the position is actually complex.',
   'gm-18': 'produce grandmaster combinations at full forcing depth.',
   'gm-19': 'weave multiple motifs into one finish, endgame included.',
-  'gm-20': 'complete the capstone: the full curriculum is behind you.',
+  'gm-20': 'read any position like a grandmaster: prune the tree, kill the plan, convert the point.',
 }

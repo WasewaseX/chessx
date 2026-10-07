@@ -1,7 +1,7 @@
 'use client'
 import { readJson } from '@/lib/api-client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useApp, overallRating } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -16,6 +16,7 @@ import {
   Target,
   CalendarDays,
   ChevronRight,
+  RotateCcw,
 } from 'lucide-react'
 
 interface GameRow {
@@ -46,7 +47,10 @@ export function HomeView() {
       })
     : null
   const [progress, setProgress] = useState<{ lessonId: string; completed: boolean; stepsDone: number; totalSteps: number; updatedAt?: string }[]>([])
+  const [progressError, setProgressError] = useState(false)
   const [games, setGames] = useState<GameRow[]>([])
+  const [gamesLoading, setGamesLoading] = useState(true)
+  const [gamesError, setGamesError] = useState(false)
   const [dailyDone, setDailyDone] = useState<boolean | null>(null)
   const { dayKey, dailyDate } = useMemo(
     () => ({
@@ -57,20 +61,45 @@ export function HomeView() {
     [],
   )
 
-  useEffect(() => {
+  const loadProgress = useCallback(() => {
     fetch('/api/progress')
       .then((r) => readJson<unknown>(r))
       .then((d) => setProgress(d.progress ?? []))
-      .catch(() => {})
+      .catch(() => setProgressError(true))
+  }, [])
+
+  function retryProgress() {
+    setProgressError(false)
+    loadProgress()
+  }
+
+  const loadGames = useCallback(() => {
     fetch('/api/games?limit=5')
       .then((r) => readJson<unknown>(r))
-      .then((d) => setGames(d.games ?? []))
-      .catch(() => {})
+      .then((d) => {
+        setGames(d.games ?? [])
+        setGamesLoading(false)
+      })
+      .catch(() => {
+        setGamesError(true)
+        setGamesLoading(false)
+      })
+  }, [])
+
+  function retryGames() {
+    setGamesLoading(true)
+    setGamesError(false)
+    loadGames()
+  }
+
+  useEffect(() => {
+    loadProgress()
+    loadGames()
     fetch(`/api/puzzles/daily?day=${dayKey}`)
       .then((r) => readJson<unknown>(r))
       .then((d) => setDailyDone(Boolean(d.completed)))
       .catch(() => {})
-  }, [])
+  }, [loadProgress, loadGames, dayKey])
 
   if (!profile) return null
 
@@ -97,7 +126,8 @@ export function HomeView() {
         <div>
           <h1 className="font-display text-2xl font-extrabold sm:text-3xl">{profile.name}</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            {titleForXp(profile.xp)} · {profile.xp} XP · {doneCount}/{totalLessons} lessons done
+            {titleForXp(profile.xp)} · {profile.xp} XP ·{' '}
+            {progressError ? 'progress unavailable' : `${doneCount}/${totalLessons} lessons done`}
           </p>
         </div>
         <div className="flex gap-2 text-center">
@@ -131,11 +161,18 @@ export function HomeView() {
         <section className={`${CARD} flex flex-col md:col-span-2`}>
           <div className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-lg font-bold">
-              {doneCount === 0 ? 'Start here' : doneCount === totalLessons ? 'All lessons complete' : 'Continue learning'}
-            </h2>
+            <h2 className="font-display text-lg font-bold">Continue learning</h2>
           </div>
-          {nextLesson ? (
+          {progressError ? (
+            <>
+              <p className="mt-3 text-sm text-destructive">Could not load your progress.</p>
+              <div className="mt-auto pt-4">
+                <Button variant="secondary" onClick={retryProgress}>
+                  <RotateCcw className="h-4 w-4" /> Retry
+                </Button>
+              </div>
+            </>
+          ) : nextLesson ? (
             <>
               <div className="mt-3 text-sm font-semibold">
                 {nextLesson.tier.title} · Level {nextLesson.level.n}: {nextLesson.level.title}
@@ -226,11 +263,24 @@ export function HomeView() {
       <section className="rounded-lg bg-card shadow-sm">
         <div className="flex items-center justify-between border-b border-border px-6 py-3">
           <h2 className="font-display text-lg font-bold">Recent games</h2>
-          <button className="text-sm font-semibold text-primary" onClick={() => navigate('profile')}>
+          <button className="inline-flex min-h-11 items-center rounded px-3 py-2 text-sm font-semibold text-primary" onClick={() => navigate('profile')}>
             Full history
           </button>
         </div>
-        {games.length === 0 ? (
+        {gamesLoading ? (
+          <div className="space-y-2 px-6 py-4" role="status" aria-label="Loading recent games">
+            {Array.from({ length: 3 }, (_, i) => (
+              <div key={i} className="h-8 animate-pulse rounded bg-secondary motion-reduce:animate-none" />
+            ))}
+          </div>
+        ) : gamesError ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 text-sm">
+            <span className="text-muted-foreground">Could not load recent games.</span>
+            <Button variant="secondary" size="sm" onClick={retryGames}>
+              <RotateCcw className="h-4 w-4" /> Retry
+            </Button>
+          </div>
+        ) : games.length === 0 ? (
           <div className="px-6 py-6 text-sm text-muted-foreground">
             No games yet. The bots are waiting.
           </div>

@@ -58,11 +58,15 @@ export function PlayView() {
   const [phase, setPhase] = useState<Phase>('lobby')
   const [setup, setSetup] = useState<Setup | null>(null)
   const [colorChoice, setColorChoice] = useState<'w' | 'b' | 'random'>('random')
+  // bumped on every startGame so a rematch against the same bot still gets a
+  // fresh GameScreen (the key must change or the old game state sticks around)
+  const [matchNo, setMatchNo] = useState(0)
 
   const startGame = useCallback(
     (bot: Bot) => {
       const color: 'w' | 'b' = colorChoice === 'random' ? (Math.random() < 0.5 ? 'w' : 'b') : colorChoice
       setSetup({ bot, playerColor: color })
+      setMatchNo((n) => n + 1)
       setPhase('playing')
     },
     [colorChoice],
@@ -71,8 +75,9 @@ export function PlayView() {
   if (phase === 'playing' && setup) {
     return (
       <GameScreen
-        key={setup.bot.id}
+        key={`${setup.bot.id}-${matchNo}`}
         setup={setup}
+        theme={profile?.theme ?? 'green'}
         onExit={(rematch) => {
           if (rematch) startGame(botForLevel(setup.bot.level))
           else setPhase('lobby')
@@ -148,13 +153,13 @@ export function PlayView() {
   )
 }
 
-const TIME_CARDS: { tc: string; label: string; pool: string; top: string; bottom: string }[] = [
-  { tc: '1+0', label: 'Bullet', pool: 'bullet', top: '1', bottom: 'min' },
-  { tc: '3+0', label: 'Blitz', pool: 'blitz', top: '3', bottom: 'min' },
-  { tc: '3+2', label: 'Blitz', pool: 'blitz', top: '3 | 2', bottom: 'inc' },
-  { tc: '5+0', label: 'Blitz', pool: 'blitz', top: '5', bottom: 'min' },
-  { tc: '10+0', label: 'Rapid', pool: 'rapid', top: '10', bottom: 'min' },
-  { tc: '15+10', label: 'Rapid', pool: 'rapid', top: '15 | 10', bottom: 'inc' },
+const TIME_CARDS: { tc: string; label: string; pool: string; top: string }[] = [
+  { tc: '1+0', label: 'Bullet', pool: 'bullet', top: '1' },
+  { tc: '3+0', label: 'Blitz', pool: 'blitz', top: '3' },
+  { tc: '3+2', label: 'Blitz', pool: 'blitz', top: '3 | 2' },
+  { tc: '5+0', label: 'Blitz', pool: 'blitz', top: '5' },
+  { tc: '10+0', label: 'Rapid', pool: 'rapid', top: '10' },
+  { tc: '15+10', label: 'Rapid', pool: 'rapid', top: '15 | 10' },
 ]
 
 function OnlineLobby() {
@@ -379,7 +384,7 @@ function OnlineGameScreen({
     setTurn(st.turn)
     lastTickRef.current = Date.now()
     setCheckSq(checkSquareOf(st.fen, st.check))
-    if (st.check && gameRef.current.turn() === myColor) playSound('check', true)
+    if (st.check && gameRef.current.turn() === myColor) playSound('check', soundEnabled)
     else if (lm) playSound(lm.captured ? 'capture' : 'move', soundEnabled)
   }, [myColor, soundEnabled])
 
@@ -500,7 +505,7 @@ function OnlineGameScreen({
             lastMove={lastMove}
             checkSquare={checkSq}
             showLegal={myTurn}
-            theme="green"
+            theme={profile?.theme ?? 'green'}
           />
 
           {/* my plate + clock */}
@@ -557,6 +562,7 @@ function OnlineGameScreen({
                   size="sm"
                   variant="ghost"
                   className="h-7 px-2"
+                  aria-label="Decline draw"
                   onClick={() => {
                     socket?.emit('draw:decline', { gameId: game.id })
                     setDrawOffer(null)
@@ -570,9 +576,9 @@ function OnlineGameScreen({
         </div>
       </div>
 
-      {/* end dialog */}
+      {/* end dialog: no close affordance, the two actions below are the way out */}
       <Dialog open={Boolean(over)} onEscapeKeyDown={(e) => e.preventDefault()}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle className="font-display text-2xl font-extrabold">
               {over ? (over.result === '1/2-1/2' ? 'Draw' : (over.color === 'w') === (over.result === '1-0') ? 'You won' : 'You lost') : ''}
@@ -584,7 +590,7 @@ function OnlineGameScreen({
           {over?.myDelta != null && (
             <div className="flex items-center justify-center gap-3 rounded-lg bg-secondary/60 py-4">
               <span className="font-display text-3xl font-extrabold">{over.myNewRating}</span>
-              <span className={cn('font-display text-xl font-bold', over.myDelta >= 0 ? 'text-[#81b64c]' : 'text-destructive')}>
+              <span className={cn('font-display text-xl font-bold', over.myDelta >= 0 ? 'text-primary' : 'text-destructive')}>
                 {over.myDelta >= 0 ? '+' : ''}
                 {over.myDelta}
               </span>
@@ -730,6 +736,7 @@ function Label({ children, className }: { children: React.ReactNode; className?:
 
 function GameScreen({
   setup,
+  theme,
   onExit,
   onReview,
   setProfile,
@@ -737,6 +744,7 @@ function GameScreen({
   soundEnabled,
 }: {
   setup: Setup
+  theme: string
   onExit: (rematch: boolean) => void
   onReview: (pgn: string, gameId: string | null) => void
   setProfile: (p: import('@/lib/store').ProfileData) => void
@@ -1012,7 +1020,7 @@ function GameScreen({
             checkSquare={checkSquare}
             arrows={hintArrow ? [hintArrow] : []}
             showLegal={(playerOnMove)}
-            theme="green"
+            theme={theme}
           />
           <div className="mt-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -1034,9 +1042,9 @@ function GameScreen({
         </div>
       </div>
 
-      {/* end dialog */}
+      {/* end dialog: rematch and lobby below are the only way out */}
       <Dialog open={Boolean(end)}>
-        <DialogContent className="sm:max-w-md" onEscapeKeyDown={(e) => e.preventDefault()}>
+        <DialogContent className="sm:max-w-md" onEscapeKeyDown={(e) => e.preventDefault()} showCloseButton={false}>
           <DialogHeader>
             <DialogTitle className="font-display text-2xl font-extrabold">
               {end?.result === 'win' ? 'You won' : end?.result === 'loss' ? 'You lost' : 'Draw'}
@@ -1051,7 +1059,7 @@ function GameScreen({
               <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Estimated Elo</span>
               <span className="flex items-baseline gap-2">
                 <span className="font-display text-2xl font-extrabold">{estAfter.elo}</span>
-                <span className={cn('font-display text-lg font-bold', estAfter.delta >= 0 ? 'text-[#81b64c]' : 'text-destructive')}>
+                <span className={cn('font-display text-lg font-bold', estAfter.delta >= 0 ? 'text-primary' : 'text-destructive')}>
                   {estAfter.delta >= 0 ? '+' : ''}
                   {estAfter.delta}
                 </span>

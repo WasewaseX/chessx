@@ -43,6 +43,7 @@
 
 :root {
   --radius: 0.5rem;
+  color-scheme: light dark;
   --background: #f7f6f5;
   --foreground: #2b2926;
   --card: #ffffff;
@@ -55,8 +56,10 @@
   --secondary-foreground: #2b2926;
   --muted: #f0eeec;
   --muted-foreground: #7d7a75;
-  --accent: #edeff1;
+  --accent: #eceae6;
   --accent-foreground: #2b2926;
+  --primary-light: #a3d160;
+  --gold: #e6a82c;
   --destructive: #ca3431;
   --border: #e6e4e1;
   --input: #dcdad7;
@@ -72,6 +75,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: #1f1e1c;
   --foreground: #e8e6e3;
   --card: #292726;
@@ -86,6 +90,8 @@
   --muted-foreground: #9d9a95;
   --accent: #33312e;
   --accent-foreground: #e8e6e3;
+  --primary-light: #a3d160;
+  --gold: #e6a82c;
   --destructive: #e05a56;
   --border: #3a3733;
   --input: #3a3733;

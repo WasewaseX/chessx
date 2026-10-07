@@ -80,8 +80,10 @@ export function RushPanel() {
   }, [])
 
   const startRun = useCallback(
-    async (m: Mode) => {
-      const puzzles = batch.length > 0 ? batch : await loadBatch()
+    async (m: Mode, fresh = false) => {
+      // fresh restarts (Play again) always refetch so the batch is a new deal;
+      // the reuse guard only serves the very first start
+      const puzzles = fresh || batch.length === 0 ? await loadBatch() : batch
       if (puzzles.length === 0) {
         setPhase('idle')
         return
@@ -236,8 +238,10 @@ export function RushPanel() {
         } catch {
           /* validated content */
         }
+        const gAtMiss = g
         setTimeout(() => {
           busyRef.current = false
+          if (gameRef.current !== gAtMiss) return
           advance(score, newMisses)
         }, 750)
         return
@@ -261,10 +265,12 @@ export function RushPanel() {
           advance(newScore, misses)
         }, 450)
       } else if (expected[plyRef.current]) {
-        // opponent reply comes fast in rush
+        // opponent reply comes fast in rush; bail if the board moved on
         busyRef.current = true
+        const gAtMove = g
         setTimeout(() => {
           busyRef.current = false
+          if (gameRef.current !== gAtMove) return
           applyScriptedReply(puzzle)
         }, 220)
       }
@@ -317,7 +323,7 @@ export function RushPanel() {
     return (
       <div className="mx-auto max-w-xl py-10">
         <div className="rounded-xl bg-card p-6 text-center shadow-sm">
-          <Trophy className={cn('mx-auto h-10 w-10', result.isNewBest ? 'text-[#e6a82c]' : 'text-primary')} />
+          <Trophy className={cn('mx-auto h-10 w-10', result.isNewBest ? 'text-[var(--gold)]' : 'text-primary')} />
           <div className="mt-3 font-display text-4xl font-extrabold">{result.score}</div>
           <div className="text-sm text-muted-foreground">
             solved in {mode === 'threeMin' ? '3 minutes' : `${result.seconds}s survival`} · {result.total - result.score} missed
@@ -329,7 +335,7 @@ export function RushPanel() {
           )}
           <div className="mt-2 text-sm font-semibold">+{result.xpGain} XP</div>
           <div className="mt-6 flex justify-center gap-2">
-            <Button className="btn-hero" onClick={() => void startRun(mode)}>
+            <Button className="btn-hero" onClick={() => void startRun(mode, true)}>
               <Zap className="h-4 w-4" /> Play again
             </Button>
             <Button variant="secondary" onClick={() => setPhase('idle')}>
@@ -360,6 +366,7 @@ export function RushPanel() {
           lastMove={lastMove}
           checkSquare={checkSquare}
           flashes={flashes}
+          theme={profile?.theme ?? 'green'}
         />
         {feedback === 'good' && (
           <div className="pointer-events-none absolute inset-x-0 top-2 mx-auto w-fit rounded-md bg-primary px-3 py-1 text-sm font-bold text-primary-foreground shadow">

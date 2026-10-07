@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useApp } from '@/lib/store'
+import { clearSessionToken } from '@/lib/session'
 import { CoachCards } from '@/components/shell/coach-choice'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, Loader2 } from 'lucide-react'
@@ -24,10 +25,12 @@ export function Onboarding() {
   const [name, setName] = useState('')
   const [skill, setSkill] = useState('beginner')
   const [busy, setBusy] = useState(false)
+  const [startError, setStartError] = useState(false)
 
   async function start() {
     if (!coachId) return
     setBusy(true)
+    setStartError(false)
     try {
       const res = await fetch('/api/profile', {
         method: 'PATCH',
@@ -35,10 +38,20 @@ export function Onboarding() {
         body: JSON.stringify({ name: name.trim() || 'Player', skillLevel: skill, coach: coachId, onboarded: true }),
       })
       const data = await readJson<{ profile?: { id: string } }>(res)
+      if (!data.profile) throw new Error('no profile in response')
       setProfile(data.profile)
+    } catch {
+      // never trap the user here: show what happened and let them retry
+      setStartError(true)
     } finally {
       setBusy(false)
     }
+  }
+
+  function signOut() {
+    void fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
+    clearSessionToken()
+    window.location.reload()
   }
 
   return (
@@ -127,8 +140,35 @@ export function Onboarding() {
                   {busy ? 'Setting up…' : 'Start learning'}
                 </Button>
               </div>
+
+              {startError && (
+                <div
+                  className="mt-3 flex items-center justify-between gap-3 rounded-md border border-red-300/30 bg-red-300/10 px-3 py-2"
+                  role="alert"
+                >
+                  <span className="text-xs font-semibold text-red-200">Could not save your setup. Check your connection.</span>
+                  <button
+                    type="button"
+                    onClick={start}
+                    disabled={busy}
+                    className="text-xs font-bold text-red-200 underline underline-offset-2 disabled:opacity-50"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
             </>
           )}
+
+          <div className="mt-10 flex justify-center">
+            <button
+              type="button"
+              onClick={signOut}
+              className="text-xs font-semibold text-sidebar-foreground/50 transition-colors hover:text-sidebar-foreground"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
       </div>
     </div>

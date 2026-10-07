@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import { seedForSkill } from '@/lib/rating'
+import { publicProfile } from '@/lib/api'
 
 export const dynamic = 'force-dynamic'
 
@@ -84,12 +85,6 @@ export async function PATCH(req: NextRequest) {
     profile: publicProfile(profile),
     ratings: ratings.map(publicRating),
   })
-}
-
-function publicProfile(p: Record<string, unknown>) {
-  // never send the raw API key to the client, only whether one exists
-  const { aiApiKey, ...rest } = p as { aiApiKey?: string | null }
-  return { ...rest, hasApiKey: Boolean(aiApiKey) }
 }
 
 function publicRating(r: { pool: string; rating: number; rd: number; games: number; wins: number; losses: number; draws: number }) {

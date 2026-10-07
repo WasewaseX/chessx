@@ -114,7 +114,7 @@ export function MobileNav() {
             onClick={() => navigate(name)}
             className={cn(
               'flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-semibold transition-transform duration-150 active:scale-90',
-              view.name === name ? 'text-[#a3d160]' : 'text-sidebar-foreground/70',
+              view.name === name ? 'text-[var(--primary-light)]' : 'text-sidebar-foreground/70',
             )}
             aria-current={view.name === name ? 'page' : undefined}
           >
@@ -126,7 +126,7 @@ export function MobileNav() {
           onClick={() => setMoreOpen(true)}
           className={cn(
             'flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-semibold transition-transform duration-150 active:scale-90',
-            extrasActive ? 'text-[#a3d160]' : 'text-sidebar-foreground/70',
+            extrasActive ? 'text-[var(--primary-light)]' : 'text-sidebar-foreground/70',
           )}
           aria-haspopup="dialog"
           aria-expanded={moreOpen}

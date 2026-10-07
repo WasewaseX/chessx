@@ -33,6 +33,11 @@ export const grandmaster: Tier = {
           ],
           'Three branches, fully finished, beat twenty half-calculated ideas.',
         ),
+        quiz('The pattern, named', 'You drilled this queen sacrifice back in Advanced. What is the engine of the whole combination?', [
+          right('The e7 bishop is the only defender of e8, and Qd8 plus check removes him with tempo', 'Remove the last guard with a check and the rook mate follows by force.'),
+          wrong('The open a-file', 'The a-file only watches. The mate lands on the e-file.'),
+          wrong('Black castled too late', 'Castling would not have saved the back rank. The e7 defender decides.'),
+        ]),
         demo(
           'The full tree',
           ['One sacrifice, one forced reply, one mate. Before moving, a master has already seen all three positions and verified the last one.'],
@@ -45,7 +50,6 @@ export const grandmaster: Tier = {
             caption: 'Qd8+, Bxd8, Re8: seen before played',
           },
         ),
-        drill('Finish the tree', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+', 'Bxd8', 'Re8#'], 'Calculate to the mate, then play the line', 'The bishop is the only defender of d8. After he takes, the e-file is empty.', 'Three positions, all verified. The line ends in mate: calculation complete.'),
         quiz('Pruning rule', 'A candidate move looks brilliant but loses a pawn to the opponent\u2019s BEST reply. What does the master do?', [
           right('Drops it and evaluates the next candidate', 'Best replies only. Hope is not a branch of the tree.'),
           wrong('Calculates the opponent\u2019s likely (weaker) reply', 'The tree must survive the strongest attack. Everything else is decoration.'),
@@ -61,6 +65,7 @@ export const grandmaster: Tier = {
           wrong('None: a working line means the move is playable', 'Playable is not optimal. Strong players finish the scan before committing.'), 
           wrong('You should calculate all 40 moves equally deep', 'Prune by pattern to a shortlist first, then calculate the shortlist honestly. Skipping the shortlist is the crime.'), 
         ]),
+        drill('Your turn to cash it', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+'], 'Play the key sacrifice, from memory', 'You named the engine of the tree. Now play the move that starts it.', 'Qd8 plus check. The calculation tree, cashed.'),
       ],
     },
     {
@@ -84,11 +89,15 @@ export const grandmaster: Tier = {
           ],
           'Find the one thing that still bites. Ride it.',
         ),
+        quiz('The pattern, named', 'You drilled this perpetual back in Advanced. Why can the queen check forever?', [
+          right('Each check comes with tempo and the king has no square that escapes the next check', 'The king walks, the queen follows, and no shelter exists.'),
+          wrong('The queen can never be captured', 'She can, if the king ever reaches her. The geometry says he never does.'),
+          wrong('Stalemate tricks', 'Nobody is stalemated. It is a perpetual check draw, plain and honest.'),
+        ]),
         demo('The eternal checks', ['Material means nothing while the queen checks along every rank. The king walks down the board and meets the same queen every step.'], '6k1/8/8/8/8/8/8/3Q2K1 w - - 0 1', {
           moves: ['Qd8+', 'Kh7', 'Qd7+', 'Kh6', 'Qd6+', 'Kh5'],
           caption: 'The resource that never runs out',
         }),
-        drill('Ride the resource', '6k1/8/8/8/8/8/8/3Q2K1 w - - 0 1', ['Qd8+', 'Kh7', 'Qd7+', 'Kh6', 'Qd6+', 'Kh5'], 'Prove the draw with checks', 'Rank after rank, one file to the left each time.', 'The perpetual is a resource, not a habit. Here it is the whole point.'),
         quiz('Resource hunt', 'You are two pawns down with one far-advanced passed pawn on h6. The defense of the opponent is solid. Your best practical plan?', [
           right('Push the pawn: it forces the enemy pieces to babysit it, freeing squares elsewhere', 'The passer is a magnet. Magnets create weaknesses elsewhere.'),
           wrong('Trade into a pure pawn endgame', 'Two pawns down in a pawn ending is resignable.'),
@@ -104,6 +113,7 @@ export const grandmaster: Tier = {
           wrong('The fastest square to hide the king', 'Hiding alone loses slowly. Active defense actually saves positions.'), 
           wrong('Trading every piece you can', 'Trades reduce counterplay first. The weaker side usually wants pieces ON.'), 
         ]),
+        drill('Your turn to cash it', '6k1/8/8/8/8/8/8/3Q2K1 w - - 0 1', ['Qd8+'], 'Start the perpetual, from memory', 'One queen, one rank at a time. First check?', 'Qd8 plus check. The eternal checks, from the first move.'),
       ],
     },
     {
@@ -204,6 +214,7 @@ export const grandmaster: Tier = {
           wrong('Only when the attack has fully arrived', 'By then every wall square is watched. The window closes early.'), 
           wrong('Fortresses are only for endgames', 'The best fortresses are set up while queens still hover: the structure does the defending.'), 
         ]),
+        drill('Your turn to cash it', 'k6r/8/2N5/8/8/8/PP6/K7 b - - 0 1', ['Rh1#'], 'Deliver the corner mate, from memory', 'The keystone stays gone. Land the rook.', 'Rh1 mate. The corner was never repaired.'),
       ],
     },
     {
@@ -273,7 +284,6 @@ export const grandmaster: Tier = {
           ],
           'Close the center, then flank. Open centers make flank pawns bait.',
         ),
-        drill('Roll the flank', 'r1bq1rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'The center is locked. Start the flank advance', 'The h-pawn leads the wave toward the enemy king.', 'h4. Closed center: the flank is the only road. h5, g5, and the wall has a door.'),
         quiz('Thrust precondition', 'Before playing g4-g5 in a closed position, verify that...', [
           right('The center is stable and cannot be opened against you', 'Flank attacks need a closed center as their foundation.'),
           wrong('Your king is castled short', 'Location matters, but the center\u2019s stability is the true precondition.'),
@@ -284,6 +294,7 @@ export const grandmaster: Tier = {
           wrong('Nothing: pawns are free', 'Pawns never move back. Every push is an investment with risk.'),
           wrong('Improved your bishop automatically', 'The g-pawn often BLOCKS its own bishop. Costs and benefits.'),
         ]),
+        drill('Roll the flank', 'r1bq1rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'The center is locked. Start the flank advance', 'The h-pawn leads the wave toward the enemy king.', 'h4. Closed center: the flank is the only road. h5, g5, and the wall has a door.'),
         quiz('Open center punishment', 'You played g4-g5 but the center was NOT stable. What happens?', [
           right('The center opens and your advanced pawns become targets for the counterstrike', 'Flank attacks without a closed center are invitations to the middle.'),
           wrong('Nothing: flank pawns are always safe', 'An open center turns every advanced flank pawn into a hook.'),
@@ -294,6 +305,7 @@ export const grandmaster: Tier = {
           wrong('Advanced pawns are always assets', 'They are hooks for BOTH sides. Whoever attacks the hook first usually profits.'),
           wrong('Hooks only matter in pawn endings', 'Opening a file with a pawn trade matters most with heavy pieces still on.'),
         ]),
+        drill('Your turn to cash it', 'r1bq1rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'Roll the flank, from memory', 'Closed center. Which pawn leads?', 'h4. The flank is the only road.'),
       ],
     },
     {
@@ -321,7 +333,6 @@ export const grandmaster: Tier = {
           moves: ['Rxc3', 'bxc3'],
           caption: 'Material: minus two. Structure: plus everything.',
         }),
-        drill('Break the shell', '2r1k3/8/8/8/8/2N5/PPP5/2KR4 b - - 0 1', ['Rxc3', 'bxc3'], 'Play the exchange sacrifice', 'The knight on c3 guards the whole white queenside. Remove it with a rook.', 'Rxc3, bxc3. Doubled pawns, dead squares, permanent weakness. The rook was the cheapest part.'),
         quiz('Sac verdict', 'The exchange sacrifice is justified when...', [
           right('The compensation is permanent: structure, squares, or an unfixable king weakness', 'Temporary activity for a permanent rook is a bad rate. Permanent damage is the right purchase.'),
           wrong('You feel the position needs shaking up', 'Feelings do not convert into endgames.'),
@@ -332,6 +343,7 @@ export const grandmaster: Tier = {
           wrong('f7, where bishops belong', 'f7 is bishop geometry. The exchange sac is knight geometry.'),
           wrong('Wherever the enemy queen sits', 'That would be a queen sacrifice, not an exchange one.'),
         ]),
+        drill('Break the shell', '2r1k3/8/8/8/8/2N5/PPP5/2KR4 b - - 0 1', ['Rxc3', 'bxc3'], 'Play the exchange sacrifice', 'The knight on c3 guards the whole white queenside. Remove it with a rook.', 'Rxc3, bxc3. Doubled pawns, dead squares, permanent weakness. The rook was the cheapest part.'),
         quiz('The permanent audit', 'You played Rxc3 and got doubled pawns, a weak square, and nothing else concrete. Was the sacrifice sound?', [
           right('Only if the structure damage is permanent and worth more than two points over the rest of the game', 'Permanent purchases only. Activity alone cannot cover a rook.'),
           wrong('Yes: any exchange sac creates pressure', 'Pressure without permanence is a two-point donation.'),
@@ -342,6 +354,7 @@ export const grandmaster: Tier = {
           wrong('When it is played early, before move 20', 'Early exchange sacs are common and strong when the structure fits.'), 
           wrong('When the defender has not castled yet', 'Unmixed kings can be MORE vulnerable: the sac may deflect before castling.'), 
         ]),
+        drill('Your turn to cash it', '2r1k3/8/8/8/8/2N5/PPP5/2KR4 b - - 0 1', ['Rxc3', 'bxc3'], 'Break the shell, from memory', 'The knight on c3 is the guard. The rook is the price.', 'Rxc3, bxc3. Doubled pawns, permanent weakness.'),
       ],
     },
     {
@@ -370,7 +383,6 @@ export const grandmaster: Tier = {
           ],
           'Restrict his future, then collect the present.',
         ),
-        drill('Kill the dream square', '4k3/2p1p3/8/8/8/8/8/1N2K3 w - - 0 1', ['Nc3', 'Kd7', 'Nd5'], 'His knight would love d5. Get there first', 'Two hops: c3, then the square itself.', 'Nd5. The square is occupied by the RIGHT knight now. His dream square is your outpost.'),
         quiz('Prophylaxis target', 'The strongest prophylactic moves target...', [
           right('The opponent\u2019s PLANS: the squares and routes his pieces need', 'Kill the idea two moves early and it never costs a tempo.'),
           wrong('Only immediate threats', 'Immediate threats are tactics. Prophylaxis is strategy.'),
@@ -381,6 +393,7 @@ export const grandmaster: Tier = {
           wrong('Blocking the immediate threat', 'That is plain defense. Necessary, but not the art.'),
           wrong('Both are the same thing', 'One is a bandage. The other is the vaccine.'),
         ]),
+        drill('Kill the dream square', '4k3/2p1p3/8/8/8/8/8/1N2K3 w - - 0 1', ['Nc3', 'Kd7', 'Nd5'], 'His knight would love d5. Get there first', 'Two hops: c3, then the square itself.', 'Nd5. The square is occupied by the RIGHT knight now. His dream square is your outpost.'),
         quiz('The squeeze audit', 'Your position is better but your opponent has no weaknesses. What is the master plan?', [
           right('Restrict his pieces\u2019 best squares until HIS position cracks first', 'No weaknesses means you create the squeeze: deny squares, force bad moves, wait.'),
           wrong('Sacrifice to create complications', 'Complications favor the squeezed side\u2019s counterplay.'),
@@ -391,6 +404,7 @@ export const grandmaster: Tier = {
           wrong('None: always improve a piece every single move', 'Once every piece stands at its best, further moves only create weaknesses. Waiting takes over.'), 
           wrong('Waiting moves are only for time trouble', 'Grandmasters spend many moves a game doing exactly nothing, on purpose.'), 
         ]),
+        drill('Your turn to cash it', '4k3/2p1p3/8/8/8/8/8/1N2K3 w - - 0 1', ['Nc3'], 'Kill the dream square, from memory', 'First hop toward d5.', 'Nc3. The squeeze has a direction now.'),
       ],
     },
     {
@@ -432,6 +446,7 @@ export const grandmaster: Tier = {
           wrong('Continue: the king is already committed', 'Committed to what? The center changed the rules.'),
           wrong('Continue but keep the queen defending', 'Queens cannot stop four pieces on an opened file. Turn back.'),
         ]),
+        drill('Your turn to cash it', '8/8/8/8/8/4k3/2P5/K1R5 w - - 0 1', ['Kb1'], 'Start the king walk, from memory', 'The rook guards the pawn. The king escorts it. First step?', 'Kb1. The walk of a thousand endgames begins.'),
       ],
     },
     {
@@ -473,6 +488,7 @@ export const grandmaster: Tier = {
           wrong('Because it promotes next move no matter what', 'It still needs escorting. The VALUE is the distraction.'),
           wrong('Pawns are undervalued by the point system only', 'This is a concrete positional fact, not a scoring quirk.'),
         ]),
+        drill('Your turn to cash it', '8/8/8/2PP4/8/8/8/4K2k w - - 0 1', ['d6'], 'Roll the duo, from memory', 'The connected pawns march together. Advance the right one.', 'd6. The duo rolls on.'),
       ],
     },
     {
@@ -512,6 +528,7 @@ export const grandmaster: Tier = {
           wrong('Memorizing more tablebase lines', 'The tables cover the last few pieces. The steering is the human skill.'),
           wrong('Playing faster in endings', 'Speed is irrelevant to reaching the right structure.'),
         ]),
+        drill('Your turn to cash it', '8/3P2k1/8/1K6/7R/8/1r6/8 w - - 0 1', ['Rb4', 'Rxb4+', 'Kxb4'], 'Build the bridge, from memory', 'Offer the rook, take the check, walk home with the king.', 'Rb4, Rxb4 plus, Kxb4. The Lucena bridge, built by hand.'),
       ],
     },
     {
@@ -551,6 +568,7 @@ export const grandmaster: Tier = {
           wrong('Whether your opponent wants it', 'The table decides, not the opponent\u2019s mood.'),
           wrong('Nothing: queen endings are always better', 'Queen endings are drawish and tactical. The rook ending is a guaranteed point.'),
         ]),
+        drill('Your turn to cash it', '7k/8/6K1/8/8/8/8/3Q4 w - - 0 1', ['Qd8#'], 'Mate, not stalemate, from memory', 'The queen lands on the one square that mates.', 'Qd8 mate. Careful to the last move.'),
       ],
     },
     {
@@ -586,8 +604,8 @@ export const grandmaster: Tier = {
         ]),
         drill('First move of the conversion', '4k3/8/8/8/8/8/8/R3K3 w - - 0 1', ['Kd2'], 'The rook endgame begins. Best first move?', 'The king marches. Rook moves can wait.', 'Kd2. King activity is the conversion engine.'),
         playout(
-          'The technique exam',
-          'Rook and king against a lone king. Mate him, cleanly and fast.',
+          'The conversion',
+          'A won rook endgame, a bare king, and no excuses. Convert it cleanly and fast.',
           '7k/8/8/8/8/8/8/R3K3 w - - 0 1',
           'w',
           'Checkmate the black king',
@@ -638,6 +656,7 @@ export const grandmaster: Tier = {
           wrong('The one your favorite piece wants to make', 'Pieces have dreams. Positions have requirements.'),
           wrong('The one that wins the most material if it works', 'If it works is doing heavy lifting in that sentence.'),
         ]),
+        drill('Your turn to cash it', '5r1k/6pp/7N/8/8/1Q6/6PP/6K1 w - - 0 1', ['Qg8+', 'Rxg8', 'Nf7#'], 'Cash the forcing line, from memory', 'Sacrifice, recapture, smothered entry. The shortlist, played.', 'Qg8 plus, Rxg8, Nf7 mate. Calculation verified on the board.'),
       ],
     },
     {
@@ -710,7 +729,6 @@ export const grandmaster: Tier = {
           wrong('Playing faster to feel fresh', 'The phase, not fatigue, is the pattern.'),
           wrong('Avoiding move 25', 'Chess has no skip button.'),
         ]),
-        playout('Play the audit', 'The report scans every move for loose pieces and missed checks. Run that scan here, wait for the practice bot to slip, and make it pay.', 'r1bqkb1r/ppp2ppp/2n5/3p4/3P4/2N5/PPP2PPP/R1BQKB1R w KQkq - 4 6', 'w', 'Win at least 3 points of material within 16 moves', 4, 'material', 16, 'The scan found the loot. That is the habit the audit trains.', 'Loose pieces pay only when you LOOK. Checks, captures, threats, every move.', 'The position is unclear, so keep your options: the scan, not the engine, finds the swing.'),
         demo('Marking the swings', ['A blunder map in visual form: the red squares mark where a plan decision went wrong in a real game. The engine finds moves; the map finds MOMENTS.'], 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', {
           marks: [
             { square: 'd8', color: 'red' },
@@ -723,6 +741,7 @@ export const grandmaster: Tier = {
           wrong('The engine\u2019s evaluation at that move', 'Numbers do not fix habits. Named gaps do.'),
           wrong('Nothing: recognizing it once is enough', 'Habits repeat until they are named and retrained.'),
         ]),
+        playout('Play the audit', 'The report scans every move for loose pieces and missed checks. Run that scan here, wait for the practice bot to slip, and make it pay.', 'r1bqkb1r/ppp2ppp/2n5/3p4/3P4/2N5/PPP2PPP/R1BQKB1R w KQkq - 4 6', 'w', 'Win at least 3 points of material within 16 moves', 4, 'material', 16, 'The scan found the loot. That is the habit the audit trains.', 'Loose pieces pay only when you LOOK. Checks, captures, threats, every move.', 'The position is unclear, so keep your options: the scan, not the engine, finds the swing.'),
       ],
     },
     {
@@ -762,6 +781,7 @@ export const grandmaster: Tier = {
           wrong('Endgames are easy and need no time', 'They are easy ONLY with time to verify every tempo.'),
           wrong('To avoid flagging on the last move', 'Flagging is one risk. Wrong technique is the expensive one.'),
         ]),
+        drill('Your turn to cash it', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Cut the king off, from memory', 'Park him behind the wall. Which rank?', 'Ra5. The wall goes up and never comes down.'),
       ],
     },
     {
@@ -886,7 +906,7 @@ export const grandmaster: Tier = {
         ]),
         playout(
           'The capstone game',
-          'Defeat the level 5 engine on material. Full curriculum applied.',
+          'One game. Everything the last 120 levels taught, against the strongest bot you can beat. Bank the point.',
           START,
           'w',
           'Win 3 or more points of material within 20 moves',

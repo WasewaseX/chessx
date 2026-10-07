@@ -7,7 +7,7 @@ import { readJson } from '@/lib/api-client'
 // sentence up top says why this teaches better than watching videos.
 // Progress loads exactly as before from /api/progress; only presentation.
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TIERS, findLevel } from '@/content/levels'
 import type { Tier } from '@/content/schema'
 import { isLevelUnlocked, nextUnlockedId } from '@/lib/unlock'
@@ -15,8 +15,9 @@ import { useApp } from '@/lib/store'
 import { coachMaybe } from '@/lib/coaches'
 import { CharacterFace } from '@/components/chess/characters'
 import { LessonContents } from '@/components/learn/lesson-contents'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Check, Loader2, Play } from 'lucide-react'
+import { Check, Loader2, Play, RotateCcw } from 'lucide-react'
 
 interface ProgressRow {
   lessonId: string
@@ -29,14 +30,25 @@ export function LessonsView() {
   const { navigate, profile } = useApp()
   const [progress, setProgress] = useState<ProgressRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [progressError, setProgressError] = useState(false)
 
-  useEffect(() => {
+  const loadProgress = useCallback(() => {
     fetch('/api/progress')
       .then((r) => readJson<unknown>(r))
       .then((d) => setProgress(d.progress ?? []))
-      .catch(() => {})
+      .catch(() => setProgressError(true))
       .finally(() => setLoading(false))
   }, [])
+
+  function retryProgress() {
+    setLoading(true)
+    setProgressError(false)
+    loadProgress()
+  }
+
+  useEffect(() => {
+    loadProgress()
+  }, [loadProgress])
 
   const doneSet = useMemo(() => new Set(progress.filter((p) => p.completed).map((p) => p.lessonId)), [progress])
   const doneCount = progress.filter((p) => p.completed).length
@@ -101,7 +113,7 @@ export function LessonsView() {
               <div className="h-full rounded-full bg-[#81b64c] transition-all duration-500" style={{ width: `${pct}%` }} />
             </div>
             <span className="shrink-0 text-xs font-extrabold tabular-nums text-[#262421]/55">
-              {doneCount}/{totalLessons}
+              {progressError ? '-' : `${doneCount}/${totalLessons}`}
             </span>
           </div>
 
@@ -154,6 +166,8 @@ export function LessonsView() {
             </p>
             {loading ? (
               <p className="mt-0.5 text-sm text-[#8a8580]">Loading your progress.</p>
+            ) : progressError ? (
+              <p className="mt-0.5 text-sm text-destructive">Could not load your progress.</p>
             ) : nextRef ? (
               <>
                 <p className="mt-0.5 font-display text-sm font-extrabold text-[#262421]">{nextRef.level.title}</p>
@@ -185,6 +199,16 @@ export function LessonsView() {
             <div className="flex h-40 items-center justify-center" aria-label="Loading progress">
               <Loader2 className="h-6 w-6 animate-spin text-[#262421]/50" />
             </div>
+          ) : progressError ? (
+            <div className="rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] p-8 text-center shadow-sm" role="alert">
+              <p className="font-display text-lg font-bold text-[#262421]">Could not load your progress.</p>
+              <p className="mx-auto mt-1 max-w-md text-sm text-[#57534e]">
+                The course needs it to unlock the right levels, so the ledger stays closed until it loads.
+              </p>
+              <Button variant="secondary" className="mt-4" onClick={retryProgress}>
+                <RotateCcw className="h-4 w-4" /> Retry
+              </Button>
+            </div>
           ) : (
             <LessonContents tiers={TIERS} done={doneSet} nextId={nextId} onSelect={(id) => navigate('lesson', id)} />
           )}
@@ -203,7 +227,7 @@ export function LessonsView() {
             }}
           >
             <Play className="h-5 w-5" />
-            {nextId ? 'Continue: pick up where you left off' : 'Course complete'}
+            {nextId ? 'Continue: pick up where you left off' : progressError ? 'Progress unavailable' : 'Course complete'}
           </button>
         </div>
       </div>

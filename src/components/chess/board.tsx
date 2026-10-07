@@ -362,6 +362,12 @@ export function ChessBoard({
     return m
   }, [marks])
 
+  // one plain-words description of the position for screen readers: the board
+  // itself is pointer/drag-first, so this is the core accessible summary
+  const whiteCount = pieces.filter((p) => p.color === 'w').length
+  const blackCount = pieces.length - whiteCount
+  const boardLabel = `Chess board. ${game.turn() === 'w' ? 'White' : 'Black'} to move. ${whiteCount} white ${whiteCount === 1 ? 'piece' : 'pieces'}, ${blackCount} black ${blackCount === 1 ? 'piece' : 'pieces'}.`
+
   const squarePercent = (sq: string) => ({
     left: `${(orientation === 'w' ? fileOf(sq) : 7 - fileOf(sq)) * 12.5}%`,
     top: `${(orientation === 'w' ? rankOf(sq) : 7 - rankOf(sq)) * 12.5}%`,
@@ -369,6 +375,8 @@ export function ChessBoard({
 
   return (
     <div
+      role="img"
+      aria-label={boardLabel}
       className={cn('relative aspect-square w-full select-none overflow-hidden rounded-md', shake && 'animate-shake', className)}
       style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.25)' }}
     >
@@ -400,7 +408,7 @@ export function ChessBoard({
               }}
               onPointerDown={(e) => onSquarePointerDown(e, square)}
             >
-              {isLast && <div className="absolute inset-0" style={{ background: 'rgba(230, 168, 44, 0.42)' }} />}
+              {isLast && <div className="absolute inset-0" aria-hidden="true" style={{ background: 'rgba(230, 168, 44, 0.42)' }} />}
               {selected === square && (
                 <div
                   className="pointer-events-none absolute inset-0"
@@ -410,14 +418,15 @@ export function ChessBoard({
               {checkSquare === square && (
                 <div
                   className="absolute inset-0"
+                  aria-hidden="true"
                   style={{
                     background: 'radial-gradient(circle, rgba(224,60,49,0.95) 15%, rgba(224,60,49,0.5) 55%, transparent 75%)',
                   }}
                 />
               )}
-              {markColor && <div className="absolute inset-0" style={{ background: markColor }} />}
+              {markColor && <div className="absolute inset-0" aria-hidden="true" style={{ background: markColor }} />}
               {hoverSquare === square && drag && drag.from !== square && (
-                <div className="absolute inset-0" style={{ background: 'rgba(255,255,255,0.28)' }} />
+                <div className="absolute inset-0" aria-hidden="true" style={{ background: 'rgba(255,255,255,0.28)' }} />
               )}
               {showCoords && col === 0 && (
                 <span
@@ -443,7 +452,7 @@ export function ChessBoard({
         {showLegal &&
           [...legalTargets.entries()].map(([sq, isCapture]) =>
             sq === hoverSquare && drag ? null : (
-              <div key={`dot-${sq}`} className={cn('pointer-events-none absolute z-10', animateTargets && 'legal-pulse')} style={{ ...squarePercent(sq), width: '12.5%', height: '12.5%' }}>
+              <div key={`dot-${sq}`} aria-hidden="true" tabIndex={-1} className={cn('pointer-events-none absolute z-10', animateTargets && 'legal-pulse')} style={{ ...squarePercent(sq), width: '12.5%', height: '12.5%' }}>
                 {isCapture ? (
                   <div className="absolute inset-[6%] rounded-full" style={{ border: 'calc(min(4vw, 26px) / 3) solid rgba(0,0,0,0.16)' }} />
                 ) : (
@@ -457,6 +466,8 @@ export function ChessBoard({
         {flashes.map((f, i) => (
           <div
             key={`flash-${f.square}-${i}`}
+            aria-hidden="true"
+            tabIndex={-1}
             className={cn(
               'square-flash pointer-events-none absolute z-10',
               f.color === 'red' ? 'flash-red' : f.color === 'gold' ? 'flash-gold' : 'flash-green',
@@ -511,7 +522,7 @@ export function ChessBoard({
 
         {/* arrows */}
         {arrows.length > 0 && (
-          <svg className="pointer-events-none absolute inset-0 z-30" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <svg aria-hidden="true" tabIndex={-1} className="pointer-events-none absolute inset-0 z-30" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
               {Object.entries(ARROW_COLORS).map(([k, c]) => (
                 <marker key={k} id={`arrow-${k}`} viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse">
