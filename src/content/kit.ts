@@ -124,8 +124,22 @@ export function playout(
   maxMoves: number,
   successText: string,
   failText?: string,
+  hint?: string,
 ): PlayoutStep {
-  return { type: 'playout', title, body: [body], fen, side, goal, engineLevel, success, maxMoves, successText, ...(failText ? { failText } : {}) }
+  return {
+    type: 'playout',
+    title,
+    body: [body],
+    fen,
+    side,
+    goal,
+    engineLevel,
+    success,
+    maxMoves,
+    successText,
+    ...(failText ? { failText } : {}),
+    ...(hint ? { hint } : {}),
+  }
 }
 
 export function gtmStep(

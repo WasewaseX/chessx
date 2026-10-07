@@ -80,9 +80,13 @@ export function LessonsView() {
           <p className="text-[11px] font-extrabold uppercase tracking-[0.24em] text-[#6f8f42]">ChessX course</p>
           <h1 className="mt-1 font-book text-3xl font-semibold text-[#262421] sm:text-4xl">The Study</h1>
           <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-[#262421]/70">
-            Video lessons have you watch. Every level here has you play: you make the moves, and when you slip,
-            your coach shows why before you go on. That correction loop is the whole reason this works. Every
-            chapter opens at its first level, so if you already know how the pieces move, start at Beginner.
+            Videos have you watch. Here you play: every lesson hands you the winning move, and you are the one who
+            finds it on a real board. Make a mistake and it is caught on the spot: the move comes back, your coach
+            explains the idea in one line, and you try again before you go on. Every level ends with a position you
+            win yourself, so the last thing you practice is winning. Answer on the first try and your streak builds
+            at the top of the screen. That is the whole difference: you do not watch someone else play well, you do
+            it, at first badly, then on purpose. Every chapter opens at its first level, so if you already know how
+            the pieces move, start at Beginner.
           </p>
 
           <div className="mt-5 flex items-center gap-3">

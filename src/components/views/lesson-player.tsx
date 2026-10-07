@@ -15,8 +15,9 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { motion, useReducedMotion } from 'framer-motion'
 import { Chess, type Square } from 'chess.js'
 import { ChessBoard, type Arrow, type FlashMark, type Mark } from '@/components/chess/board'
-import { findLevel } from '@/content/levels'
-import type { ExerciseStep, GtmStep, LessonStep } from '@/content/schema'
+import { TIERS, findLevel } from '@/content/levels'
+import { GRADUATION } from '@/content/graduation'
+import type { ExerciseStep, GtmStep, LessonStep, PlayoutStep } from '@/content/schema'
 import { useApp } from '@/lib/store'
 import { engine } from '@/lib/chess/engine-client'
 import { playSound } from '@/lib/chess/sounds'
@@ -63,11 +64,37 @@ const STEP_LABELS: Record<LessonStep['type'], string> = {
   gtm: 'Guess the move',
 }
 
-function chipFor(tone: BubbleTone): string | undefined {
-  if (tone === 'praise') return 'Nice'
+function chipFor(tone: BubbleTone, coachId?: string): string | undefined {
+  if (tone === 'praise') return (coachId && PRAISE_CHIP[coachId]) || 'Nice'
   if (tone === 'guide') return 'Look again'
   if (tone === 'hint') return 'Hint'
   return undefined
+}
+
+/* Coach voice pools: the same praise chip and streak moment sound like the
+   coach the learner actually picked, not a default voice. */
+const PRAISE_CHIP: Record<string, string> = {
+  nina: 'Lovely',
+  victor: 'Sharp',
+  elena: 'Precisely',
+  sasha: 'Correct',
+}
+
+const FIRE_QUIPS: Record<string, string> = {
+  nina: 'Four first tries in a row. I am not even surprised.',
+  victor: 'On fire. Checks, captures, threats. Keep going.',
+  elena: 'Four first-try finds in a row. That is what a habit looks like.',
+  sasha: 'Four in a row. I will allow myself one word: good.',
+}
+
+/** One sound for every kind of move: castling, promotion and check get their
+    own voice, so delivering a first checkmate never sounds like a pawn push. */
+function moveSound(g: Chess, mv: { san: string; captured?: boolean; promotion?: string | null } | null | undefined, enabled: boolean) {
+  if (!mv) return
+  if (mv.san.startsWith('O-O')) playSound('castle', enabled)
+  else if (mv.promotion) playSound('promote', enabled)
+  else if (g.isCheck()) playSound('check', enabled)
+  else playSound(mv.captured ? 'capture' : 'move', enabled)
 }
 
 /** The instruction the coach opens every step with, derived from the step data. */
@@ -262,11 +289,24 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const streakRef = useRef(0)
   const [streak, setStreak] = useState(0)
   const [bestStreak, setBestStreak] = useState(0)
-  const reportResult = useCallback((firstTry: boolean) => {
-    streakRef.current = firstTry ? streakRef.current + 1 : 0
-    setStreak(streakRef.current)
-    setBestStreak((b) => Math.max(b, streakRef.current))
-  }, [])
+  // the coach quips once per lesson when the streak first reaches four
+  const [fireQuip, setFireQuip] = useState<string | null>(null)
+  const firedQuipRef = useRef(false)
+  const fireQuipTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const reportResult = useCallback(
+    (firstTry: boolean) => {
+      streakRef.current = firstTry ? streakRef.current + 1 : 0
+      setStreak(streakRef.current)
+      setBestStreak((b) => Math.max(b, streakRef.current))
+      if (streakRef.current === 4 && !firedQuipRef.current && coach) {
+        firedQuipRef.current = true
+        setFireQuip(FIRE_QUIPS[coach.id] ?? null)
+        if (fireQuipTimer.current) clearTimeout(fireQuipTimer.current)
+        fireQuipTimer.current = setTimeout(() => setFireQuip(null), 4200)
+      }
+    },
+    [coach],
+  )
 
   const tier = found?.tier
   const lesson = found?.level
@@ -274,6 +314,8 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
   const [xpFlash, setXpFlash] = useState<number | null>(null)
   const xpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // XP belongs to solves: only steps the learner actually scored arm the flash
+  const xpArmedRef = useRef(false)
 
   const saveProgress = useCallback(
     (stepsDone: number, finished: boolean, hintNow = false) => {
@@ -301,7 +343,8 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         .then((d) => {
           if (d.profile) useApp.getState().setProfile(d.profile)
           if (reviewItemId) setPendingReview(null)
-          if (typeof d.xpGain === 'number' && d.xpGain > 0) {
+          if (typeof d.xpGain === 'number' && d.xpGain > 0 && xpArmedRef.current) {
+            xpArmedRef.current = false
             setXpFlash(d.xpGain)
             if (xpTimerRef.current) clearTimeout(xpTimerRef.current)
             xpTimerRef.current = setTimeout(() => setXpFlash(null), 2500)
@@ -346,6 +389,15 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   if (lesson && isLastStep && canAdvance && !done) {
     setDone(true)
   }
+
+  // the level that comes next in course order, for the completion card
+  const nextLevel = useMemo(() => {
+    if (!lesson) return null
+    const flat = TIERS.flatMap((t) => t.levels)
+    const i = flat.findIndex((l) => l.id === lesson.id)
+    return i >= 0 && i < flat.length - 1 ? flat[i + 1] : null
+  }, [lesson])
+  const nextTier = useMemo(() => (nextLevel ? TIERS.find((t) => t.levels.some((l) => l.id === nextLevel.id)) ?? null : null), [nextLevel])
 
   if (!lesson || !tier) {
     return (
@@ -492,6 +544,20 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         </div>
       </header>
 
+      {/* the coach notices the streak: one quip per lesson, shown once */}
+      {fireQuip && (
+        <div className="pointer-events-none fixed inset-x-0 top-16 z-50 flex justify-center px-4">
+          <motion.span
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#262421] px-4 py-1.5 text-xs font-bold text-[#f4f1e8] shadow-lg"
+          >
+            <Flame className="h-3.5 w-3.5 text-[#e8a33d]" />
+            {fireQuip}
+          </motion.span>
+        </div>
+      )}
+
       {done ? (
         <CompletionScreen
           lesson={lesson}
@@ -501,7 +567,11 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           xpGain={xpFlash}
           bestStreak={bestStreak}
           tierTitle={tier.title}
-          onContinue={() => navigate('lessons')}
+          tierColor={tier.color}
+          nextLevel={nextLevel}
+          nextTierTitle={nextTier?.title ?? null}
+          soundEnabled={profile?.soundEnabled ?? true}
+          onContinue={() => (nextLevel ? navigate('lesson', nextLevel.id) : navigate('lessons'))}
         />
       ) : (
         <div className="mx-auto w-full max-w-5xl px-4 pb-10 pt-6">
@@ -606,9 +676,14 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                 <PlayoutStepView
                   key={stepIdx}
                   step={step}
-                  onPass={() => setCanAdvance(true)}
+                  coachId={coach?.id}
+                  onPass={() => {
+                    xpArmedRef.current = true
+                    setCanAdvance(true)
+                  }}
                   onResult={reportResult}
                   onBubble={handleBubble}
+                  onHintUsed={handleHintUsed}
                   soundEnabled={profile?.soundEnabled ?? true}
                   showLegal={profile?.showLegal ?? true}
                   theme={profile?.theme ?? 'green'}
@@ -617,7 +692,11 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                 <GtmStepView
                   key={stepIdx}
                   step={step}
-                  onPass={() => setCanAdvance(true)}
+                  coachId={coach?.id}
+                  onPass={() => {
+                    xpArmedRef.current = true
+                    setCanAdvance(true)
+                  }}
                   onResult={reportResult}
                   onBubble={handleBubble}
                   soundEnabled={profile?.soundEnabled ?? true}
@@ -628,7 +707,11 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                 <ExerciseView
                   key={stepIdx}
                   step={step}
-                  onPass={() => setCanAdvance(true)}
+                  coachId={coach?.id}
+                  onPass={() => {
+                    xpArmedRef.current = true
+                    setCanAdvance(true)
+                  }}
                   onResult={reportResult}
                   onBubble={handleBubble}
                   onHintUsed={handleHintUsed}
@@ -671,8 +754,12 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                   key={stepIdx}
                   step={step}
                   stepIdx={stepIdx}
+                  coachId={coach?.id}
                   soundEnabled={profile?.soundEnabled ?? true}
-                  onPass={() => setCanAdvance(true)}
+                  onPass={() => {
+                    xpArmedRef.current = true
+                    setCanAdvance(true)
+                  }}
                   onResult={reportResult}
                   onBubble={handleBubble}
                 />
@@ -769,6 +856,10 @@ function CompletionScreen({
   xpGain,
   bestStreak,
   tierTitle,
+  tierColor,
+  nextLevel,
+  nextTierTitle,
+  soundEnabled,
   onContinue,
 }: {
   lesson: NonNullable<ReturnType<typeof findLevel>['level']>
@@ -778,9 +869,39 @@ function CompletionScreen({
   xpGain: number | null
   bestStreak: number
   tierTitle: string
+  tierColor: string
+  nextLevel: NonNullable<ReturnType<typeof findLevel>['level']> | null
+  nextTierTitle: string | null
+  soundEnabled: boolean
   onContinue: () => void
 }) {
   const chapterEnd = lesson.n >= 20
+  // close the lesson with the win sound, once
+  const winPlayedRef = useRef(false)
+  useEffect(() => {
+    if (!winPlayedRef.current) {
+      winPlayedRef.current = true
+      playSound('win', soundEnabled)
+    }
+  }, [soundEnabled])
+
+  // the departing sentence states what the learner can now do, then teases
+  // the real next level. Every claim is grounded: the superpower names what
+  // the drills of THIS level made them play, the teaser is a real title.
+  const superpower = GRADUATION[lesson.id]
+  const isNextChapter = nextLevel != null && nextLevel.id.split('-')[0] !== lesson.id.split('-')[0]
+  const coachLine = superpower
+    ? `You can now ${superpower}`
+    : (message ??
+      (chapterEnd
+        ? `Every level of ${tierTitle} is behind you. The next chapter opens at its first level whenever you are ready.`
+        : `All ${lesson.steps.length} steps complete. Replay it any time to keep it sharp.`))
+  const nextLine = nextLevel
+    ? isNextChapter
+      ? `Next chapter: ${nextTierTitle ?? 'the next tier'}. Level 1: ${nextLevel.title}. ${nextLevel.subtitle}`
+      : `Next up: ${nextLevel.title}. ${nextLevel.subtitle}`
+    : null
+
   return (
     <div className="relative mx-auto w-full max-w-xl animate-in fade-in zoom-in-95 px-4 py-8 text-center duration-500 sm:py-12">
       <Confetti />
@@ -819,24 +940,24 @@ function CompletionScreen({
         )}
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-widest text-[#6f8f42]">{coach ? coach.name : 'ChessX'}</p>
-          <p className="mt-0.5 text-sm font-semibold leading-snug text-[#312e2b]">
-            {message ??
-              (chapterEnd
-                ? `Every level of ${tierTitle} is behind you. The next chapter opens at its first level whenever you are ready.`
-                : `All ${lesson.steps.length} steps complete. Replay it any time to keep it sharp.`)}
-          </p>
+          <p className="mt-0.5 text-sm font-semibold leading-snug text-[#312e2b]">{coachLine}</p>
+          {nextLine && <p className="mt-2 text-xs font-semibold leading-snug text-[#262421]/55">{nextLine}</p>}
         </div>
       </div>
 
       {/* real stats from this session: steps completed, hints, best first-try streak, xp from the server */}
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-[#262421]/10 bg-[#262421]/5 px-3.5 py-1.5 text-xs font-extrabold text-[#262421]/75">
+          <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ background: tierColor }} />
+          {tierTitle} level {lesson.n} of 20
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#262421]/10 bg-[#262421]/5 px-3.5 py-1.5 text-xs font-extrabold text-[#262421]/75">
           <Check className="h-3.5 w-3.5 text-[#81b64c]" strokeWidth={3} />
           {lesson.steps.length} of {lesson.steps.length} steps
         </span>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-[#262421]/10 bg-[#262421]/5 px-3.5 py-1.5 text-xs font-extrabold text-[#262421]/75">
           <Lightbulb className="h-3.5 w-3.5 text-[#e8a33d]" />
-          Hints used: {hintsUsed}
+          {hintsUsed === 0 ? 'No hints needed' : `Hints borrowed: ${hintsUsed}`}
         </span>
         {bestStreak >= 2 && (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e8a33d]/40 bg-[#e8a33d]/15 px-3.5 py-1.5 text-xs font-extrabold text-[#9a5b00]">
@@ -852,7 +973,7 @@ function CompletionScreen({
       </div>
 
       <Button className="btn-hero mt-8 h-13 w-full max-w-xs text-base" onClick={onContinue}>
-        Continue <ChevronRight className="h-5 w-5" />
+        {nextLevel ? `Next up: ${nextLevel.title}` : 'Back to the course'} <ChevronRight className="h-5 w-5" />
       </Button>
     </div>
   )
@@ -1002,7 +1123,7 @@ function DemoBoard({
           setShownFen(gameRef.current.fen())
           setLastMove({ from: mv.from, to: mv.to })
           setDepth((d) => d + 1)
-          playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+          moveSound(gameRef.current, mv, soundEnabled)
           // flash where the piece went, then let it fade
           setFlashes([
             { square: mv.from, color: 'gold' },
@@ -1043,7 +1164,7 @@ function DemoBoard({
       setShownFen(g.fen())
       setLastMove({ from: mv.from, to: mv.to })
       setDepth((d) => d + 1)
-      playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+      moveSound(g, mv, soundEnabled)
     } catch {
       /* illegal, ignore */
     }
@@ -1121,6 +1242,7 @@ function DemoBoard({
 function QuizStepView({
   step,
   stepIdx,
+  coachId,
   soundEnabled,
   onPass,
   onResult,
@@ -1128,6 +1250,7 @@ function QuizStepView({
 }: {
   step: Extract<LessonStep, { type: 'quiz' }>
   stepIdx: number
+  coachId?: string
   soundEnabled: boolean
   onPass: () => void
   onResult: (firstTry: boolean) => void
@@ -1163,8 +1286,8 @@ function QuizStepView({
       ? `${step.options[chosen].why} Take another look.`
       : step.question
   useLayoutEffect(() => {
-    onBubble({ tone: bubbleTone, text: bubbleText, speak: bubbleText, chip: chipFor(bubbleTone) })
-  }, [onBubble, bubbleTone, bubbleText])
+    onBubble({ tone: bubbleTone, text: bubbleText, speak: bubbleText, chip: chipFor(bubbleTone, coachId) })
+  }, [onBubble, bubbleTone, bubbleText, coachId])
 
   return (
     <div className="mx-auto w-full max-w-2xl rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)] sm:p-6">
@@ -1231,6 +1354,7 @@ function ExerciseView({
   onResult,
   onBubble,
   onHintUsed,
+  coachId,
   soundEnabled,
   showLegal,
   theme,
@@ -1241,6 +1365,7 @@ function ExerciseView({
   onResult: (firstTry: boolean) => void
   onBubble: (m: BubbleMsg | null) => void
   onHintUsed: () => void
+  coachId?: string
   soundEnabled: boolean
   showLegal: boolean
   theme: string
@@ -1359,7 +1484,7 @@ function ExerciseView({
   const bubbleText =
     status === 'done' ? step.success : guideMsg ?? (hintShown ? step.hint : step.goal)
   // a finished line that ends in mate earns the bigger chip
-  const bubbleChip = status === 'done' && gameRef.current.isCheckmate() ? 'Checkmate!' : chipFor(bubbleTone)
+  const bubbleChip = status === 'done' && gameRef.current.isCheckmate() ? 'Checkmate!' : chipFor(bubbleTone, coachId)
   useLayoutEffect(() => {
     onBubble({ tone: bubbleTone, text: bubbleText, speak: bubbleText, chip: bubbleChip })
   }, [onBubble, bubbleTone, bubbleText, bubbleChip])
@@ -1407,7 +1532,8 @@ function ExerciseView({
       setTimeout(() => setShake(false), 420)
       playSound('wrong', soundEnabled)
       if (n === 1) {
-        setGuideMsg('Not that idea. Take it back and look again: check every check, capture and threat first.')
+        // the authored hint knows this exact position: it beats a generic scan line
+        setGuideMsg(`${step.hint} Take it back and try again.`)
       } else if (n === 2) {
         setGuideMsg('The piece that moves is glowing. Where does it do the most damage?')
         try {
@@ -1427,7 +1553,7 @@ function ExerciseView({
     setMovesSoFar((m) => [...m, mv.san])
     setLastMove({ from: mv.from, to: mv.to })
     setFen(g.fen())
-    playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+    moveSound(g, mv, soundEnabled)
 
     // opponent scripted reply
     const reply = step.solution[movesSoFar.length + 1]
@@ -1439,7 +1565,7 @@ function ExerciseView({
             setMovesSoFar((m) => [...m, rmv.san])
             setLastMove({ from: rmv.from, to: rmv.to })
             setFen(g.fen())
-            playSound(rmv.captured ? 'capture' : 'move', soundEnabled)
+            moveSound(g, rmv, soundEnabled)
           }
         } catch {
           /* scripted reply must be legal; validator guarantees */
@@ -1448,7 +1574,7 @@ function ExerciseView({
     } else {
       // line finished
       setStatus('done')
-      playSound('correct', soundEnabled)
+      playSound('win', soundEnabled)
       onResult(!blunderedRef.current)
       onPass()
     }
@@ -1456,7 +1582,7 @@ function ExerciseView({
     if (reply && movesSoFar.length + 2 >= step.solution.length) {
       setTimeout(() => {
         setStatus('done')
-        playSound('correct', soundEnabled)
+        playSound('win', soundEnabled)
         onResult(!blunderedRef.current)
         onPass()
       }, 1100)
@@ -1500,7 +1626,7 @@ function ExerciseView({
         <ToolButton onClick={reset} disabled={status !== 'solving'} ariaLabel="Reset exercise">
           <RotateCcw className="h-4 w-4" /> Reset
         </ToolButton>
-        <ToolButton onClick={showHint} disabled={hintShown || status !== 'solving'} ariaLabel="Show a hint">
+        <ToolButton onClick={showHint} disabled={status !== 'solving'} ariaLabel="Show a hint">
           <Lightbulb className="h-4 w-4" /> Hint
         </ToolButton>
         <ToolButton onClick={onAskCoach} ariaLabel="Ask the coach">
@@ -1524,6 +1650,7 @@ function GtmStepView({
   onPass,
   onResult,
   onBubble,
+  coachId,
   soundEnabled,
   showLegal,
   theme,
@@ -1532,6 +1659,7 @@ function GtmStepView({
   onPass: () => void
   onResult: (firstTry: boolean) => void
   onBubble: (m: BubbleMsg | null) => void
+  coachId?: string
   soundEnabled: boolean
   showLegal: boolean
   theme: string
@@ -1599,7 +1727,7 @@ function GtmStepView({
             if (rmv) {
               setFen(g.fen())
               setLastMove({ from: rmv.from, to: rmv.to })
-              playSound(rmv.captured ? 'capture' : 'move', soundEnabled)
+              moveSound(g, rmv, soundEnabled)
             }
           } catch {
             /* validated content */
@@ -1627,7 +1755,7 @@ function GtmStepView({
       if (master) {
         setFen(g.fen())
         setLastMove({ from: master.from, to: master.to })
-        playSound(master.captured ? 'capture' : 'move', soundEnabled)
+        moveSound(g, master, soundEnabled)
         setFlashes([
           { square: master.from, color: 'gold' },
           { square: master.to, color: 'green' },
@@ -1658,7 +1786,7 @@ function GtmStepView({
       // full credit: their move stands
       setFen(g.fen())
       setLastMove({ from: mv.from, to: mv.to })
-      playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+      moveSound(g, mv, soundEnabled)
       setScore((s) => s + 1)
       setResults((r) => [...r, 'full'])
       setFeedback({ tone: 'praise', text: cur.why })
@@ -1813,6 +1941,8 @@ function PlayoutStepView({
   onPass,
   onResult,
   onBubble,
+  onHintUsed,
+  coachId,
   soundEnabled,
   showLegal,
   theme,
@@ -1821,6 +1951,8 @@ function PlayoutStepView({
   onPass: () => void
   onResult: (firstTry: boolean) => void
   onBubble: (m: BubbleMsg | null) => void
+  onHintUsed?: () => void
+  coachId?: string
   soundEnabled: boolean
   showLegal: boolean
   theme: string
@@ -1833,6 +1965,21 @@ function PlayoutStepView({
   const [thinking, setThinking] = useState(false)
   const judgedRef = useRef(false)
   const lostRef = useRef(false)
+  // graduated help: the method hint appears on demand, then automatically
+  // after a second loss, so nobody is stuck replaying until luck
+  const [hintShown, setHintShown] = useState(false)
+  const lossesRef = useRef(0)
+  const FALLBACK_HINT: Record<PlayoutStep['success'], string> = {
+    checkmate: 'Shrink the box: park your queen a knight-jump from their king, walk your king up beside her, and repeat.',
+    material: 'Play slow and safe. Before every move, check what their pieces attack, then take whatever is left undefended.',
+    draw: 'Keep your pieces together and defend. Trade when trading helps, and never chase anything.',
+    castle: 'Clear the squares between your king and rook, then castle at the first quiet moment.',
+  }
+  const hint = step.hint ?? FALLBACK_HINT[step.success]
+  const showHint = () => {
+    setHintShown(true)
+    onHintUsed?.()
+  }
 
   const game = useMemo(() => new Chess(fen), [fen])
   const checkSquare = useMemo(() => {
@@ -1901,16 +2048,18 @@ function PlayoutStepView({
       judgedRef.current = true
       setStatus(result)
       if (result === 'won') {
-        playSound('correct', soundEnabled)
+        playSound('win', soundEnabled)
         onResult(!lostRef.current)
         onPass()
       } else {
         lostRef.current = true
         onResult(false)
         playSound('wrong', soundEnabled)
+        lossesRef.current += 1
+        if (lossesRef.current >= 2 && !hintShown) setHintShown(true)
       }
     }
-  }, [fen, status, judge, onPass, onResult, soundEnabled])
+  }, [fen, status, judge, onPass, onResult, soundEnabled, hintShown])
 
   const engineMove = useCallback(async () => {
     const g = gameRef.current
@@ -1924,7 +2073,7 @@ function PlayoutStepView({
           setFen(g.fen())
           setMoves((m) => [...m, mv.san])
           setLastMove({ from: mv.from, to: mv.to })
-          playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+          moveSound(g, mv, soundEnabled)
         }
       }
     } finally {
@@ -1941,7 +2090,7 @@ function PlayoutStepView({
       setFen(g.fen())
       setMoves((m) => [...m, mv.san])
       setLastMove({ from: mv.from, to: mv.to })
-      playSound(mv.captured ? 'capture' : 'move', soundEnabled)
+      moveSound(g, mv, soundEnabled)
       if (!g.isGameOver()) void engineMove()
     } catch {
       /* illegal */
@@ -1958,11 +2107,11 @@ function PlayoutStepView({
   }
 
   const failText = step.failText ?? (status === 'draw' ? 'A draw is not the goal here.' : 'That did not work. Reset and try a different plan.')
-  const bubbleTone: BubbleTone = status === 'won' ? 'praise' : status === 'playing' ? 'neutral' : 'guide'
-  const bubbleText = status === 'won' ? step.successText : status === 'playing' ? step.goal : failText
+  const bubbleTone: BubbleTone = status === 'won' ? 'praise' : status === 'playing' ? (hintShown ? 'hint' : 'neutral') : 'guide'
+  const bubbleText = status === 'won' ? step.successText : status === 'playing' ? (hintShown ? hint : step.goal) : failText
   useLayoutEffect(() => {
-    onBubble({ tone: bubbleTone, text: bubbleText, speak: bubbleText, chip: chipFor(bubbleTone) })
-  }, [onBubble, bubbleTone, bubbleText])
+    onBubble({ tone: bubbleTone, text: bubbleText, speak: bubbleText, chip: chipFor(bubbleTone, coachId) })
+  }, [onBubble, bubbleTone, bubbleText, coachId])
 
   return (
     <div className="relative flex flex-col items-center">
@@ -1990,9 +2139,18 @@ function PlayoutStepView({
         )}
       </div>
 
-      <div className="mt-3">
+      {hintShown && status === 'playing' && (
+        <p className="mt-2 max-w-[620px] rounded-xl border border-[#e6a82c]/40 bg-[#e6a82c]/10 px-3 py-2 text-center text-sm font-semibold text-[#262421]">
+          {hint}
+        </p>
+      )}
+
+      <div className="mt-3 flex items-center gap-2">
         <ToolButton onClick={reset} disabled={status === 'playing' && moves.length === 0} ariaLabel="Reset position">
           <RotateCcw className="h-4 w-4" /> Reset
+        </ToolButton>
+        <ToolButton onClick={showHint} disabled={status !== 'playing'} ariaLabel="Show a method hint">
+          <Lightbulb className="h-4 w-4" /> Hint
         </ToolButton>
       </div>
     </div>

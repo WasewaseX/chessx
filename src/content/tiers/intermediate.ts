@@ -65,7 +65,7 @@ export const intermediate: Tier = {
       id: 'int-02',
       n: 2,
       title: 'Discovered attack',
-      subtitle: 'Move one piece, unleash the one behind it.',
+      subtitle: 'Move one piece, free the one behind it.',
       minutes: 9,
       concepts: ['discoveredAttack', 'doubleAttack'],
       steps: [
@@ -103,7 +103,7 @@ export const intermediate: Tier = {
           { moves: ['Nd6+'], caption: 'Queen and knight battery: double check again' },
         ),
         drill('Open the file', '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1', ['Nd6+'], 'Attack the king with the rook by moving the knight', 'The e-file is the line. The knight hops to d6, which also checks.', 'Nd6 plus check, twice over. The king must run; the knight also eyes e8.'),
-        drill('Unleash the bishop', 'k7/6pp/8/4N3/8/8/8/1B4K1 w - - 0 1', ['Nf7'], 'The bishop on b2 is tired of waiting behind the knight', 'Any knight move opens the b2-g7 diagonal. Pick the jump that lands next to the king: f7.', 'Nf7. The knight hops toward the king side while the bishop suddenly stares at g7. The pawn is doomed.'),
+        drill('Free the bishop', 'k7/6pp/8/4N3/8/8/8/1B4K1 w - - 0 1', ['Nf7'], 'The bishop on b2 is tired of waiting behind the knight', 'Any knight move opens the b2-g7 diagonal. Pick the jump that lands next to the king: f7.', 'Nf7. The knight hops toward the king side while the bishop suddenly stares at g7. The pawn is doomed.'),
         quiz('Blocking a check', 'Your opponent delivers a double check (two pieces checking at once). Your options are...', [
           right('Move the king. That is all.', 'Against a double check, blocking and capturing are impossible: two different attackers must both be stopped.'),
           wrong('Block with a piece', 'You would need to block two lines at once. Impossible with one piece.'),

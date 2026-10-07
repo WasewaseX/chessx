@@ -85,6 +85,8 @@ export interface PlayoutStep {
   maxMoves?: number
   successText: string
   failText?: string
+  /** One-line method reminder surfaced by the in-lesson Hint button. */
+  hint?: string
 }
 
 export interface GtmMove {
