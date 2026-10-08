@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { SpeakButton } from '@/components/chess/speak-button'
 import { cn } from '@/lib/utils'
-import { Check, RotateCcw, ShieldCheck, Sparkles, TriangleAlert, X } from 'lucide-react'
+import { BookOpen, Check, Copy, RotateCcw, ShieldCheck, Sparkles, TriangleAlert, X } from 'lucide-react'
 
 const NUDGE = 'Walk through every check, capture and threat before choosing. One of them is the move.'
 
@@ -50,6 +50,14 @@ function checkSquareOf(fen: string): string | null {
 export function ArtifactCard({ artifact, onRecorded, onRemove, className }: Props) {
   const theme = useApp((s) => s.profile?.theme ?? 'green')
   const isBoardKind = artifact.kind === 'puzzle' || artifact.kind === 'drill'
+  const kindLabel =
+    artifact.kind === 'quiz'
+      ? 'Quiz'
+      : artifact.kind === 'drill'
+        ? 'Drill'
+        : artifact.kind === 'line'
+          ? 'Walkthrough'
+          : 'Puzzle'
 
   return (
     <div className={cn('rounded-lg border border-primary/30 bg-card shadow-sm', className)}>
@@ -57,7 +65,7 @@ export function ArtifactCard({ artifact, onRecorded, onRemove, className }: Prop
         <Sparkles className="h-3.5 w-3.5 shrink-0 text-primary" />
         <span className="min-w-0 flex-1 truncate text-sm font-bold">{artifact.title}</span>
         <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">
-          {artifact.kind === 'quiz' ? 'Quiz' : artifact.kind === 'drill' ? 'Drill' : 'Puzzle'}
+          {kindLabel}
         </Badge>
         {artifact.rating != null && (
           <span className="text-[11px] font-semibold text-muted-foreground">{artifact.rating} Elo</span>
@@ -73,6 +81,8 @@ export function ArtifactCard({ artifact, onRecorded, onRemove, className }: Prop
 
       {isBoardKind ? (
         <BoardAttempt artifact={artifact} theme={theme} onRecorded={onRecorded} />
+      ) : artifact.kind === 'line' ? (
+        <LineWalkthrough artifact={artifact} />
       ) : (
         <QuizAttempt artifact={artifact} onRecorded={onRecorded} />
       )}
@@ -310,6 +320,101 @@ function BoardAttempt({
           {misses === 1 ? 'Try again with that nudge in mind.' : 'One more miss and the line is shown.'}
         </p>
       )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+
+/** Walkthrough card for opening traps and famous games: the move sequence
+ * with commentary on the key moves, plus a copy-as-PGN button. Long games
+ * scroll; every move was replay-verified before the card was stored. */
+function LineWalkthrough({ artifact }: { artifact: ArtifactView }) {
+  const [copied, setCopied] = useState(false)
+  const steps = (artifact.steps ?? []).length
+    ? artifact.steps!
+    : artifact.solution.map((san) => ({ san }))
+  const [openPly, setOpenPly] = useState<number | null>(null)
+  const coachVoice = coachMaybe(useApp((s) => s.profile?.coach))?.voice ?? 'nina'
+
+  const pairs: { n: number; white: string; black?: string; whitePly: number; blackPly?: number }[] = []
+  steps.forEach((s, i) => {
+    if (i % 2 === 0) pairs.push({ n: i / 2 + 1, white: s.san, whitePly: i })
+    else pairs[pairs.length - 1].black = s.san
+    if (i % 2 === 0) pairs[pairs.length - 1].blackPly = undefined
+    if (i % 2 === 1) pairs[pairs.length - 1].blackPly = i
+  })
+
+  const copy = async () => {
+    try {
+      const pgn = pairs.map((p) => `${p.n}. ${p.white}${p.black ? ` ${p.black}` : ''}`).join(' ')
+      await navigator.clipboard.writeText(pgn)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1200)
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
+
+  const noteText = (ply: number | undefined): string | null => {
+    if (ply == null) return null
+    const note = steps[ply]?.note
+    return note ?? null
+  }
+
+  const visibleNote = openPly != null ? noteText(openPly) : null
+
+  return (
+    <div className="p-3">
+      <p className="text-xs leading-relaxed text-muted-foreground">
+        {artifact.explanation ?? ''}
+      </p>
+      <div className="scroll-slim mt-2 max-h-64 overflow-y-auto rounded-md bg-secondary/50 p-2">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 sm:grid-cols-3">
+          {pairs.map((p) => {
+            const hasNote = noteText(p.whitePly) != null || noteText(p.blackPly) != null
+            return (
+              <div key={p.n} className="flex items-baseline gap-1 text-sm">
+                <span className="w-6 shrink-0 text-right text-[11px] font-semibold text-muted-foreground">{p.n}.</span>
+                <button
+                  onClick={() => setOpenPly(p.whitePly)}
+                  className={cn(
+                    'rounded px-1 font-semibold transition hover:bg-accent',
+                    hasNote && noteText(p.whitePly) && 'text-primary',
+                  )}
+                >
+                  {p.white}
+                </button>
+                {p.black && (
+                  <button
+                    onClick={() => setOpenPly(p.blackPly ?? null)}
+                    className={cn(
+                      'rounded px-1 font-semibold transition hover:bg-accent',
+                      hasNote && noteText(p.blackPly) && 'text-primary',
+                    )}
+                  >
+                    {p.black}
+                  </button>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <Button variant="secondary" size="sm" className="h-7" onClick={copy}>
+          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />} {copied ? 'Copied' : 'Copy moves'}
+        </Button>
+        {visibleNote ? (
+          <div className="flex min-w-0 flex-1 items-start gap-1.5 rounded-md bg-secondary/70 px-3 py-2">
+            <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+            <span className="min-w-0 flex-1 text-xs leading-relaxed">{visibleNote}</span>
+            <SpeakButton text={visibleNote} voice={coachVoice} speed={0.95} className="shrink-0" />
+          </div>
+        ) : (
+          <p className="min-w-0 flex-1 text-[11px] text-muted-foreground">Tap any highlighted move to see the commentary.</p>
+        )}
+      </div>
     </div>
   )
 }

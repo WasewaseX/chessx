@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Chess } from 'chess.js'
 import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import { runChat, getAiConfig, type ChatMessage } from '@/lib/ai'
@@ -14,10 +13,48 @@ import {
   SkillError,
   type SkillId,
 } from '@/lib/server/coach-skills'
+import { routeMessage, hasGenerationIntent, type CommandOutcome, type CoachAction } from '@/lib/server/coach-commands'
 import { describeFen } from '@/lib/server/chess-describe'
 import { dayKeyLocal } from '@/lib/day'
 
 export const maxDuration = 120
+
+const VALID_VIEWS = new Set(['home', 'play', 'lessons', 'puzzles', 'review', 'coach', 'analysis', 'profile', 'settings'])
+const VALID_COACHES = new Set(['nina', 'victor', 'elena', 'sasha'])
+
+/** Model-emitted app actions, whitelisted and shape-checked. */
+function parseActionBlock(raw: string): CoachAction | null {
+  const matches = [...raw.matchAll(/```(?:chessx-action|action)\s*\n?([\s\S]*?)```/gi)]
+  if (!matches.length) return null
+  const last = matches[matches.length - 1]
+  const braceStart = last[1].indexOf('{')
+  const braceEnd = last[1].lastIndexOf('}')
+  if (braceStart === -1 || braceEnd <= braceStart) return null
+  try {
+    const obj = JSON.parse(last[1].slice(braceStart, braceEnd + 1)) as Record<string, unknown>
+    const type = String(obj.action ?? obj.type ?? '')
+    if (type === 'flip_board') return { type: 'flip_board' }
+    if (type === 'reset_board') return { type: 'reset_board' }
+    if (type === 'toggle_dark') return { type: 'toggle_dark' }
+    if (type === 'toggle_sound') return { type: 'toggle_sound' }
+    if (type === 'goto' && VALID_VIEWS.has(String(obj.view ?? ''))) {
+      return { type: 'goto', view: String(obj.view) }
+    }
+    if (type === 'switch_coach' && VALID_COACHES.has(String(obj.coachId ?? ''))) {
+      return { type: 'switch_coach', coachId: String(obj.coachId) }
+    }
+  } catch {
+    /* a malformed block is simply ignored */
+  }
+  return null
+}
+
+function stripActionBlock(raw: string): string {
+  return raw
+    .replace(/```(?:chessx-action|action)\s*\n?[\s\S]*?```/gi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
 
 export async function POST(req: NextRequest) {
   const user = await getSessionUser()
@@ -35,11 +72,75 @@ export async function POST(req: NextRequest) {
   if (messages.length === 0) {
     return NextResponse.json({ error: 'messages required' }, { status: 400 })
   }
+  const lastUser = [...messages].reverse().find((m) => m.role === 'user')?.content ?? ''
 
   const ctx = body.context ?? {}
   const skill = String(ctx.skillLevel ?? 'beginner')
   const coach = coachById(typeof ctx.coach === 'string' ? ctx.coach : 'nina')
+  const cfg = await getAiConfig(profile.id)
 
+  // Generation runner shared by commands, direct requests and model blocks:
+  // one place for rate limits and skill execution.
+  const runGeneration = async (skillId: SkillId, theme?: unknown): Promise<ReturnType<typeof runSkill>> => {
+    const limited = checkRateLimit(profile.id, dayKeyLocal())
+    if (limited) throw new SkillError(limited)
+    return runSkill({
+      skill: skillId,
+      cfg,
+      profileId: profile.id,
+      skillLevel: profile.skillLevel,
+      tier: ctx.tier,
+      level: ctx.level,
+      theme,
+      fen: ctx.fen,
+    })
+  }
+
+  const levelCtx = resolveLevelContext(ctx.tier, ctx.level, skill)
+
+  // ---------------------------------------------------------------
+  // Deterministic routing: /commands, greetings, app actions and
+  // unambiguous generation requests never reach the language model.
+  // This is the reliability guarantee: "hi" can never come back as a
+  // puzzle and "flip white and black" always flips the board.
+  // ---------------------------------------------------------------
+  try {
+    const routed = await routeMessage({
+      message: lastUser,
+      cfg,
+      profile: {
+        id: profile.id,
+        name: profile.name,
+        skillLevel: profile.skillLevel,
+        coach: profile.coach,
+        darkMode: profile.darkMode,
+        soundEnabled: profile.soundEnabled,
+      },
+      ctx: { fen: ctx.fen, tier: ctx.tier, level: ctx.level, theme: ctx.theme },
+      coach,
+      runGeneration,
+    })
+    if (routed) {
+      const out = routed as CommandOutcome
+      return NextResponse.json({
+        content: out.content,
+        provider: cfg.provider,
+        ...(out.artifacts?.length ? { artifacts: out.artifacts } : {}),
+        ...(out.artifacts?.length === 1 ? { artifact: out.artifacts[0] } : {}),
+        ...(out.action ? { action: out.action } : {}),
+      })
+    }
+  } catch (e) {
+    if (e instanceof SkillError) {
+      return NextResponse.json({ content: `${e.message} Try again in a moment, or use the skill buttons under the chat.`, provider: cfg.provider })
+    }
+    const msg = e instanceof Error ? e.message : String(e)
+    return NextResponse.json({ error: msg }, { status: 502 })
+  }
+
+  // ---------------------------------------------------------------
+  // Conversation context
+  // ---------------------------------------------------------------
   const contextLines: string[] = []
   if (ctx.fen) {
     contextLines.push(`Current position FEN: ${ctx.fen}`)
@@ -50,9 +151,6 @@ export async function POST(req: NextRequest) {
   if (ctx.stepHint) contextLines.push(`Current exercise: ${ctx.stepHint}`)
   if (ctx.pgn) contextLines.push(`Game so far (PGN):\n${String(ctx.pgn).slice(0, 3000)}`)
   if (ctx.moves) contextLines.push(`Moves played so far: ${ctx.moves}`)
-  // Course anchor for skill requests: the client sends the level the student
-  // is on, and generated material is calibrated against it.
-  const levelCtx = resolveLevelContext(ctx.tier, ctx.level, skill)
   if (ctx.tier != null || ctx.level != null) {
     contextLines.push(`Course progress: ${levelCtx.tierTitle}, Level ${levelCtx.levelN} ("${levelCtx.levelTitle}").`)
   }
@@ -94,66 +192,79 @@ export async function POST(req: NextRequest) {
   }
 
   const system = [
-    `You are ${coach.name}, the coach inside ChessX, a chess training app. You talk to one student.`,
+    `You are ${coach.name}, the coach inside ChessX, a chess training app, and you are talking with one student${profile.name ? ` called ${profile.name}` : ''}. You are a person at a chessboard, not a menu and not a script.`,
     coach.systemLine,
     `The student self-identifies as: ${skill}. Calibrate depth to that level.`,
-    'Rules of conduct:',
-    '- Be concise. A few short paragraphs at most. No lists unless asked.',
+    'How you talk:',
+    '- Short and alive. A few sentences at most. Sound like a coach sitting across the board, not like a manual.',
+    '- If the student greets you, greet them back warmly and offer one concrete next step (a puzzle, a look at the board, a lesson). Two sentences, then stop.',
+    '- If the student makes small talk or asks something unrelated to chess (weather, mood, life), answer honestly and briefly in one sentence, with a little warmth or dry humor, then offer the next chess thing. Never refuse, never lecture, never pretend to fetch live data you do not have.',
+    '- Match their energy. Excited gets quick and punchy. Tired gets gentle. Confused gets simple words and one idea at a time.',
+    '- Ask a short follow-up question when it moves the conversation forward, but not on every message.',
     '- Plain, direct chess language. No hype, no emojis, no filler like "great question".',
-    '- Never open with a greeting or introduction. Answer the question straight away, every time.',
     '- Never use the em dash character. Use commas, periods or parentheses instead.',
     '- When a position is given, read the ASCII board carefully square by square before answering. Trust the board, not guesses about move order. Be concrete: name squares, pieces and moves in SAN.',
     '- Only name an opening or variation if you are certain it matches the moves actually played. If unsure, describe the moves and plans instead of guessing a name.',
     '- In a lesson exercise, guide with questions and ideas. Do NOT hand over the solution move unless the student explicitly asks for it after trying.',
     '- You may be wrong about deep calculation; hedge when unsure and suggest checking with the engine.',
-    '- If the student asks something unrelated to chess, answer briefly and steer back.',
+    '- The student can type / to see your skills (commands like /puzzle, /mate, /analyze, /recap). Mention one fitting command when it is the fastest path to what they want. There is also /help.',
     ...skillProtocolLines(),
+    'Controlling the app (your hands):',
+    'When the student asks you to change the app itself (flip or turn the board, reset the board, open a section, switch the coach), end your reply with ONE block:',
+    '```chessx-action',
+    '{"action":"flip_board"}',
+    '```',
+    'Valid actions: flip_board, reset_board, toggle_dark, toggle_sound, goto (add "view": home|play|lessons|puzzles|review|coach|analysis|profile|settings), switch_coach (add "coachId": nina|victor|elena|sasha).',
+    'The app executes the action after your reply. Only include the block when the student clearly wants the app itself to change.',
     contextLines.length ? `\nContext:\n${contextLines.join('\n')}` : '',
   ].join('\n')
 
   try {
-    const cfg = await getAiConfig(profile.id)
     const raw = await runChat(cfg, system, messages)
 
-    // A skill block means the coach just promised the student material.
-    // The app itself generates, verifies and stores it; the model never
-    // writes the content and never learns the artifact back.
     let content = raw
     let artifact: unknown = null
+    let action: CoachAction | null = null
     let extraNote = ''
-    const extracted = extractSkillBlock(raw)
+
+    // Model-issued actions: whitelist-checked, block stripped from the prose.
+    const parsedAction = parseActionBlock(raw)
+    if (parsedAction) {
+      action = parsedAction
+      content = stripActionBlock(content)
+    }
+
+    // A skill block means the coach promised the student material. The app
+    // itself generates, verifies and stores it; the model never writes the
+    // content. The block is only honored when the student actually asked for
+    // material (deterministic gate), so a model that fires its skill
+    // protocol on "hi" or "how is the weather" cannot ship a puzzle.
+    const extracted = extractSkillBlock(content)
     if (extracted) {
       content = extracted.content
       const skillId = String(extracted.params.skill ?? '')
-      if (SKILL_IDS.includes(skillId as SkillId)) {
-        const limited = checkRateLimit(profile.id, dayKeyLocal())
-        if (limited) {
-          extraNote = `\n\n(${limited})`
-        } else {
+      if (hasGenerationIntent(lastUser)) {
+        if (SKILL_IDS.includes(skillId as SkillId)) {
           try {
-            artifact = await runSkill({
-              skill: skillId as SkillId,
-              cfg,
-              profileId: profile.id,
-              skillLevel: profile.skillLevel,
-              // tier/level/fen come from the app's own context, never from
-              // the model, so a hallucinated FEN can never enter the loop.
-              tier: ctx.tier,
-              level: ctx.level,
-              theme: extracted.params.theme,
-              fen: ctx.fen,
-            })
+            artifact = await runGeneration(skillId as SkillId, extracted.params.theme)
           } catch (e) {
             const reason = e instanceof SkillError ? e.message : 'the generation did not pass verification'
             extraNote = `\n\n(I tried to generate that material but it failed: ${reason} The skill buttons under the chat retry the same request.)`
           }
+        } else {
+          extraNote = '\n\n(I meant to generate material but named an unknown skill. Use the skill buttons under the chat instead.)'
         }
-      } else {
-        extraNote = '\n\n(I meant to generate material but named an unknown skill. Use the skill buttons under the chat instead.)'
+      } else if (!content.trim()) {
+        content = 'I can build that for you: a puzzle, a mate hunt, a drill from the board or a quiz. Say the word and it appears, verified.'
       }
     }
 
-    return NextResponse.json({ content: (content + extraNote).trim(), provider: cfg.provider, artifact })
+    return NextResponse.json({
+      content: (content + extraNote).trim(),
+      provider: cfg.provider,
+      ...(artifact ? { artifact } : {}),
+      ...(action ? { action } : {}),
+    })
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     return NextResponse.json({ error: msg }, { status: 502 })

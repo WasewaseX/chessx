@@ -7,6 +7,8 @@
 //
 // Skills:
 //   level_puzzle   fresh puzzle calibrated to a curriculum level
+//   mate_hunt      same, but the line must end in a verified forced mate
+//   endgame_drill  puzzle built only from sparse endgame course positions
 //   position_drill training task built from a specific position (the board)
 //   level_quiz     multiple-choice quiz question calibrated to a level
 import 'server-only'
@@ -20,9 +22,9 @@ import { describeFen } from '@/lib/server/chess-describe'
 import { collectCandidateFens, craftWinningLine, type CraftedLine } from '@/lib/server/craft'
 import { levelRating, type ArtifactView, type QuizOptionView, artifactFromRow } from '@/lib/coach-artifacts'
 
-export type SkillId = 'level_puzzle' | 'position_drill' | 'level_quiz'
+export type SkillId = 'level_puzzle' | 'mate_hunt' | 'endgame_drill' | 'position_drill' | 'level_quiz'
 
-export const SKILL_IDS: SkillId[] = ['level_puzzle', 'position_drill', 'level_quiz']
+export const SKILL_IDS: SkillId[] = ['level_puzzle', 'mate_hunt', 'endgame_drill', 'position_drill', 'level_quiz']
 
 // Engine verification budget per artifact: single-threaded wasm, depth 12.
 const ENGINE_BUDGET_MS = 24_000
@@ -420,7 +422,20 @@ function rowToView(row: Record<string, unknown>): ArtifactView {
 export async function runSkill(opts: RunSkillOpts): Promise<ArtifactView> {
   if (opts.skill === 'level_quiz') return runLevelQuiz(opts)
   if (opts.skill === 'level_puzzle') return runLevelPuzzle(opts)
+  if (opts.skill === 'mate_hunt') return runLevelPuzzle(opts, { requireMate: true })
+  if (opts.skill === 'endgame_drill') return runLevelPuzzle(opts, { endgameOnly: true })
   return runPositionDrill(opts)
+}
+
+interface PuzzleVariant {
+  /** The crafted line must end in checkmate (mate hunt). */
+  requireMate?: boolean
+  /** Only accept sparse endgame positions as the root. */
+  endgameOnly?: boolean
+}
+
+function pieceCount(fen: string): number {
+  return (fen.split(' ')[0].match(/[a-zA-Z]/g) ?? []).length
 }
 
 interface CraftCopy {
@@ -473,35 +488,63 @@ async function writeCopy(cfg: AiConfig, line: CraftedLine, ctx: LevelContext | n
   }
 }
 
-async function runLevelPuzzle(opts: RunSkillOpts): Promise<ArtifactView> {
+async function runLevelPuzzle(opts: RunSkillOpts, variant: PuzzleVariant = {}): Promise<ArtifactView> {
   const ctx = resolveLevelContext(opts.tier, opts.level, opts.skillLevel)
   const deadline = Date.now() + ENGINE_BUDGET_MS
-  const requestedTheme = (CONCEPTS as readonly string[]).includes(String(opts.theme ?? '')) ? String(opts.theme) : null
-  const candidates = collectCandidateFens(ctx.tierN, ctx.levelN, 80)
-  const maxSolverMoves = ctx.tierN >= 5 ? 3 : ctx.tierN >= 3 ? 2 : 1
+  const requestedTheme = variant.requireMate
+    ? 'mate'
+    : (CONCEPTS as readonly string[]).includes(String(opts.theme ?? ''))
+      ? String(opts.theme)
+      : null
+  let candidates = collectCandidateFens(ctx.tierN, ctx.levelN, variant.endgameOnly ? 140 : 80)
+  if (variant.endgameOnly) candidates = candidates.filter((f) => pieceCount(f) <= 9)
+  const maxSolverMoves = variant.requireMate
+    ? ctx.tierN >= 3
+      ? 2
+      : 1
+    : ctx.tierN >= 5
+      ? 3
+      : ctx.tierN >= 3
+        ? 2
+        : 1
 
   let crafted: CraftedLine | null = null
   let engineVerified = false
   let probes = 0
   for (const fen of candidates) {
-    if (Date.now() > deadline || probes >= 20) break
+    if (Date.now() > deadline || probes >= (variant.requireMate ? 30 : 20)) break
     probes++
-    const line = await craftWinningLine(fen, { requireWin: true, minMargin: 60, maxSolverMoves })
+    const line = await craftWinningLine(fen, { requireWin: true, minMargin: variant.requireMate ? 0 : 60, maxSolverMoves })
     if (!line) {
       console.log(`[coach-craft] probe ${probes} rejected: ${fen.split(' ').slice(0, 2).join(' ')}`)
       continue
     }
-    const check = await verifyLine({ fen: line.fen, solution: line.solution, allowStartCheck: false, deadline, finalFloor: FINAL_WIN })
+    if (variant.requireMate && line.mateIn == null) continue
+    if (variant.endgameOnly && !line.winning) continue
+    const check = await verifyLine({
+      fen: line.fen,
+      solution: line.solution,
+      allowStartCheck: false,
+      deadline,
+      finalFloor: variant.requireMate ? null : FINAL_WIN,
+    })
     if (!check.ok) {
       console.log(`[coach-craft] probe ${probes} failed verify: ${check.error ?? 'unknown'}`)
       continue
     }
+    if (variant.requireMate && !checkLineEndsInMate(line.fen, line.solution)) continue
     crafted = line
     engineVerified = check.engineVerified
     break
   }
   if (!crafted) {
-    throw new SkillError('The coach could not craft a verified puzzle from course positions right now. Try again in a moment, or ask for a quiz instead.')
+    throw new SkillError(
+      variant.requireMate
+        ? 'The coach could not land a verified forced mate from course positions right now. Try again in a moment, or ask for a regular puzzle.'
+        : variant.endgameOnly
+          ? 'The coach could not craft a verified endgame task right now. Try again in a moment.'
+          : 'The coach could not craft a verified puzzle from course positions right now. Try again in a moment, or ask for a quiz instead.',
+    )
   }
 
   const copy = await writeCopy(opts.cfg, crafted, ctx, 'puzzle', requestedTheme)
@@ -516,7 +559,7 @@ async function runLevelPuzzle(opts: RunSkillOpts): Promise<ArtifactView> {
       sideToMove: side,
       payloadJson: JSON.stringify({
         hint: copy.hint,
-        goal: null,
+        goal: variant.requireMate ? 'Deliver mate.' : null,
         explanation: copy.explanation || null,
       }),
       themes: JSON.stringify([copy.theme]),
@@ -526,6 +569,18 @@ async function runLevelPuzzle(opts: RunSkillOpts): Promise<ArtifactView> {
     },
   })
   return rowToView(row)
+}
+
+/** Pure chess.js double check that the line ends in checkmate (the engine
+ * score already said so; this makes the mate claim structural). */
+function checkLineEndsInMate(fen: string, solution: string[]): boolean {
+  try {
+    const g = new Chess(fen)
+    for (const san of solution) g.move(san)
+    return g.isCheckmate()
+  } catch {
+    return false
+  }
 }
 
 async function runPositionDrill(opts: RunSkillOpts): Promise<ArtifactView> {
@@ -661,6 +716,8 @@ export function skillProtocolLines(): string[] {
     '```',
     `Valid skill values: ${SKILL_IDS.join(', ')}.`,
     '- level_puzzle: a fresh puzzle calibrated to the student\'s current course level. Use it when they ask for a puzzle or more practice at their level.',
+    '- mate_hunt: a puzzle whose solution is a forced mate. Use it when they ask to hunt mates or practice checkmates.',
+    '- endgame_drill: a puzzle built from a sparse endgame position. Use it when they ask for endgame practice.',
     '- position_drill: a training task built from the position currently on the board. Use it when they want to practice this position.',
     '- level_quiz: a multiple-choice quiz question for the level.',
     'Optional "theme" key from this list: ' + CONCEPTS.join(', ') + '.',

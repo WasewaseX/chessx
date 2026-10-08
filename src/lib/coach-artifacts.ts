@@ -8,14 +8,21 @@ export interface QuizOptionView {
   why: string
 }
 
-export type ArtifactKind = 'puzzle' | 'drill' | 'quiz'
+export type ArtifactKind = 'puzzle' | 'drill' | 'quiz' | 'line'
+
+/** One commented move of a walkthrough line (opening traps, famous games). */
+export interface LineStep {
+  san: string
+  note?: string
+}
 
 export interface ArtifactView {
   id: string
   kind: ArtifactKind
   title: string
   fen: string | null
-  /** Solver move first, then forced replies, alternating. SAN. */
+  /** Solver move first, then forced replies, alternating. SAN. For kind
+   * 'line': the full walkthrough move sequence. */
   solution: string[]
   sideToMove: 'w' | 'b' | null
   question: string | null
@@ -23,6 +30,8 @@ export interface ArtifactView {
   goal: string | null
   explanation: string | null
   options: QuizOptionView[] | null
+  /** Kind 'line' only: per-move commentary straight from the payload. */
+  steps: LineStep[] | null
   themes: string[]
   rating: number | null
   /** Curriculum anchor like "beginner:5", when the artifact was made for a level. */
@@ -39,7 +48,17 @@ export function artifactFromRow(row: Record<string, unknown>): ArtifactView {
   const payload = safeParse(row.payloadJson)
   const themes = safeArray(row.themes)
   const solutionRaw = typeof row.solution === 'string' && row.solution.trim() ? row.solution.trim().split(/\s+/) : []
-  const kind = row.kind === 'drill' || row.kind === 'quiz' ? (row.kind as ArtifactKind) : 'puzzle'
+  const kind = row.kind === 'drill' || row.kind === 'quiz' || row.kind === 'line' ? (row.kind as ArtifactKind) : 'puzzle'
+  const stepsRaw = Array.isArray(payload.steps) ? payload.steps : null
+  const steps: LineStep[] | null = stepsRaw
+    ? stepsRaw
+        .slice(0, 80)
+        .map((s) => {
+          const o = (s ?? {}) as Record<string, unknown>
+          return { san: String(o.san ?? ''), note: typeof o.note === 'string' && o.note ? o.note : undefined }
+        })
+        .filter((s) => s.san)
+    : null
   return {
     id: String(row.id ?? ''),
     kind,
@@ -52,6 +71,7 @@ export function artifactFromRow(row: Record<string, unknown>): ArtifactView {
     goal: typeof payload.goal === 'string' && payload.goal ? payload.goal : null,
     explanation: typeof payload.explanation === 'string' && payload.explanation ? payload.explanation : null,
     options: Array.isArray(payload.options) && payload.options.length ? payload.options : null,
+    steps: steps && steps.length ? steps : null,
     themes,
     rating: typeof row.rating === 'number' ? row.rating : null,
     levelRef: typeof row.levelRef === 'string' && row.levelRef ? row.levelRef : null,
