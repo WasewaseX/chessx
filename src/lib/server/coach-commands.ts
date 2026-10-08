@@ -244,6 +244,23 @@ export function actionIntent(text: string): CoachAction | null {
   return goto
 }
 
+/** Engine questions in plain words: anything explicitly asking for the best
+ * move, an evaluation, threats, a hint, a description or a legal-move list
+ * deserves the ENGINE's answer, not a model guess. Returns the board command
+ * id, or null for genuine conversation. */
+export function engineQuestionRoute(text: string): string | null {
+  const t = text.trim().toLowerCase()
+  if (t.startsWith('/')) return null
+  if (/\bhint\b|\bnudge me\b|\bhelp me find(?! the word)\b/.test(t)) return 'hint'
+  if (/\bbest move\b|\bwhat('s| is| should)( the)? best\b|\bwhat would you play\b|\bwhat do i play\b|\bwhat to play\b|\bwhich move\b/.test(t)) return 'best'
+  if (/\bwho('s| is| has)? ?(winning|better|ahead|standing)\b|\beval(uation)?\b|\bhow (good|bad) is (my|the|this) position\b/.test(t)) return 'eval'
+  if (/\bthreat(s|ened)?\b|\bwhat is (he|she|they|the opponent|black|white) (going|planning|threatening)\b|\bam i in danger\b/.test(t)) return 'threats'
+  if (/\banaly[sz]e\b|\bassess\b|\bbreak(ing)? (this|the) (position|down)\b/.test(t)) return 'analyze'
+  if (/\bdescribe (the|this) position\b|\bwhat('s| is) on the board\b|\bmaterial count\b/.test(t)) return 'describe'
+  if (/\blegal moves\b|\bwhat moves (can|do) i (have|play)\b|\blist.*moves\b/.test(t)) return 'moves'
+  return null
+}
+
 function gotoIntent(t: string): CoachAction | null {
   const m = t.match(/\b(go to|goto|jump to|open|take me to|show me the)\b([^!?.;]*)/i)
   if (!m) return null
@@ -1370,7 +1387,14 @@ export async function routeMessage(req: CommandRequest): Promise<CommandOutcome 
     return { content: confirm, action }
   }
 
-  // 4. unambiguous generation request: build it now, no model in the loop
+  // 4. engine questions in plain words: the engine answers, not a guess
+  const boardAsk = engineQuestionRoute(text)
+  if (boardAsk) {
+    const def = COMMANDS.find((c) => c.id === boardAsk)
+    if (def) return await runCommand(req, def, '')
+  }
+
+  // 5. unambiguous generation request: build it now, no model in the loop
   const gen = directGenRoute(text)
   if (gen) {
     if (gen.skill === 'pivot') return await runPivot(req)
@@ -1379,6 +1403,6 @@ export async function routeMessage(req: CommandRequest): Promise<CommandOutcome 
     return { content: leadIn(kindKey), artifacts: [artifact] }
   }
 
-  // 5. genuine conversation: the model's stage
+  // 6. genuine conversation: the model's stage
   return null
 }
