@@ -13,12 +13,13 @@ import { runChat, type AiConfig } from '@/lib/ai'
 import { COACHES, type Coach } from '@/lib/coaches'
 import { analyze } from '@/lib/server/engine'
 import { describeFen } from '@/lib/server/chess-describe'
+import { craftWinningLine } from '@/lib/server/craft'
 import { CONCEPTS } from '@/content/schema'
 import { findLevel } from '@/content/levels'
 import { nextUnlockedId } from '@/lib/unlock'
 import { levelRating, artifactFromRow, type ArtifactView, type LineStep } from '@/lib/coach-artifacts'
 import { COMMANDS, parseClientCommand, type CoachAction, type CommandDef } from '@/lib/coach-commands-catalog'
-import { resolveLevelContext, type SkillId } from '@/lib/server/coach-skills'
+import { resolveLevelContext, runSkill, verifyLine, writeCopy, checkRateLimit, SkillError, type SkillId } from '@/lib/server/coach-skills'
 import { memoryHook } from '@/lib/server/coach-memory'
 import { dayKeyLocal } from '@/lib/day'
 
@@ -169,11 +170,18 @@ export function hasGenerationIntent(text: string): boolean {
 }
 
 /** Map the message onto one concrete skill when it is unambiguous. */
-function directGenRoute(text: string): { skill: SkillId; theme?: string } | null {
+function directGenRoute(text: string): { skill: SkillId | 'pivot'; theme?: string } | null {
   const t = text.toLowerCase()
   if (!hasGenerationIntent(t)) return null
   const longQuestion = t.length > 90 && t.includes('?')
   if (longQuestion) return null // let the model handle multi-part asks
+  if (
+    /\bpivot\b/.test(t) ||
+    (/\b(worst|biggest)\b/.test(t) && /\b(mistake|blunder)\b/.test(t)) ||
+    (/\bdrill\b/.test(t) && /\b(mistake|blunder|last game|my game|worst|last)\b/.test(t))
+  ) {
+    return { skill: 'pivot' }
+  }
   if (/\b(quiz|test me)\b/.test(t)) return { skill: 'level_quiz', theme: extractTheme(t) }
   if (/\bdrill\b/.test(t)) return { skill: 'position_drill' }
   if (/\b(endgame)\b/.test(t)) return { skill: 'endgame_drill' }
@@ -1083,6 +1091,81 @@ async function runLineLibrary(req: CommandRequest, kind: 'trap' | 'game'): Promi
 }
 
 // ---------------------------------------------------------------------------
+// Pivotal moment skill: rebuild the exact miss from the student's last game
+// ---------------------------------------------------------------------------
+
+const FINAL_WIN = 250
+
+async function runPivot(req: CommandRequest): Promise<CommandOutcome> {
+  const limited = checkRateLimit(req.profile.id, dayKeyLocal())
+  if (limited) throw new SkillError(limited)
+  const game = await db.gameRecord.findFirst({
+    where: { profileId: req.profile.id, analyzedAt: { not: null }, pivotFen: { not: null } },
+    orderBy: { createdAt: 'desc' },
+  })
+  if (!game?.pivotFen) {
+    return {
+      content:
+        'No pivotal moment on file yet. Play a practice game and run Game review on it; I will then turn your biggest miss into a drill from the exact position. Meanwhile, /puzzle keeps you sharp.',
+    }
+  }
+  const fen = game.pivotFen
+  let probe: Chess
+  try {
+    probe = new Chess(fen)
+  } catch {
+    return { content: 'The stored pivotal position no longer parses, which should never happen. Try /puzzle meanwhile.' }
+  }
+  if (probe.isGameOver()) {
+    return { content: 'The stored pivotal position is already decided, so there is nothing to drill there. Run Game review on your latest game and try again.' }
+  }
+
+  const deadline = Date.now() + 24_000
+  const line = await craftWinningLine(fen, { requireWin: false, minMargin: 40, maxSolverMoves: 2 })
+  if (!line) {
+    return { content: `I found your pivotal moment (you played ${game.pivotSan}), but the position before it offers no clean training point for the engine. Try /drill on a sharper setup, or review the game in the Analysis tab.` }
+  }
+  const check = await verifyLine({ fen, solution: line.solution, allowStartCheck: true, deadline, finalFloor: line.winning ? FINAL_WIN : null })
+  if (!check.ok) {
+    return { content: 'I found your pivotal moment but could not verify a clean task from it this time. Try again in a moment, or open the Analysis tab for the full report.' }
+  }
+
+  const moveNo = Math.floor((game.pivotPly ?? 0) / 2) + 1
+  const lossPawns = game.pivotLoss != null ? Math.round(game.pivotLoss) / 100 : null
+  const explanation = [
+    `Move ${moveNo} of your game against ${game.botName}: you played ${game.pivotSan}${lossPawns ? `, throwing away roughly ${lossPawns} pawns of evaluation` : ''}.`,
+    'This is the position right before that move, with the chance to play it better.',
+  ].join(' ')
+
+  const ctx = resolveLevelContext(req.ctx.tier, req.ctx.level, req.profile.skillLevel)
+  const copy = await writeCopy(req.cfg, line, ctx, 'drill', null).catch(() => null)
+  const title = copy?.title ? `${copy.title} (your game)` : 'Your pivotal moment'
+  const goal = line.mateIn ? 'Deliver mate.' : line.winning ? 'Convert your advantage.' : 'Find the strongest continuation.'
+  const row = await db.coachArtifact.create({
+    data: {
+      profileId: req.profile.id,
+      kind: 'drill',
+      title,
+      fen,
+      solution: line.solution.join(' '),
+      sideToMove: fen.split(' ')[1] === 'b' ? 'b' : 'w',
+      payloadJson: JSON.stringify({
+        hint: copy?.hint ?? 'This is your own game. List every check, capture and threat, then choose better than you did.',
+        goal,
+        explanation,
+      }),
+      themes: JSON.stringify([copy?.theme && (CONCEPTS as readonly string[]).includes(copy.theme) ? copy.theme : 'calculation']),
+      levelRef: ctx.levelRef,
+      engineVerified: check.engineVerified,
+    },
+  })
+  return {
+    content: `Found it: move ${moveNo} against ${game.botName}, where ${game.pivotSan} cost you${lossPawns ? ` about ${lossPawns} pawns` : ' the thread'}. The position right before your move is now a drill, verified by the engine.`,
+    artifacts: [artifactFromRow(row as unknown as Record<string, unknown>)],
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Help
 // ---------------------------------------------------------------------------
 
@@ -1152,6 +1235,8 @@ async function runCommand(req: CommandRequest, def: CommandDef, arg: string): Pr
         artifacts,
       }
     }
+    case 'pivot':
+      return runPivot(req)
     case 'trap':
     case 'famous':
       return runLineLibrary(req, def.id === 'trap' ? 'trap' : 'game')
@@ -1288,6 +1373,7 @@ export async function routeMessage(req: CommandRequest): Promise<CommandOutcome 
   // 4. unambiguous generation request: build it now, no model in the loop
   const gen = directGenRoute(text)
   if (gen) {
+    if (gen.skill === 'pivot') return await runPivot(req)
     const artifact = await req.runGeneration(gen.skill, gen.theme)
     const kindKey = gen.skill === 'mate_hunt' ? 'mate' : gen.skill === 'endgame_drill' ? 'endgame' : gen.skill === 'position_drill' ? 'drill' : gen.skill === 'level_quiz' ? 'quiz' : 'puzzle'
     return { content: leadIn(kindKey), artifacts: [artifact] }

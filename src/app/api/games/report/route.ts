@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Chess } from 'chess.js'
 import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import { accuracyFromLoss } from '@/lib/rating'
@@ -69,6 +70,36 @@ export async function POST(req: NextRequest) {
   const sans = clean.map((p) => p.san)
   const opening = detectOpening(sans)
 
+  // The pivotal moment: the player's biggest eval drop, kept with the FEN
+  // right before the move so the coach can rebuild the exact miss as a drill.
+  // The FEN is rebuilt from the server-side SAN replay, never trusted from
+  // the client.
+  let pivotFen: string | null = null
+  let pivotSan: string | null = null
+  let pivotPly: number | null = null
+  let pivotLoss: number | null = null
+  let worst = 0
+  for (let i = 0; i < clean.length; i++) {
+    const p = clean[i]
+    if ((p.label !== 'blunder' && p.label !== 'mistake') || p.san === '...') continue
+    const loss = Math.max(0, (p.color === 'w' ? p.before : -p.before) - (p.color === 'w' ? p.after : -p.after))
+    if (loss > worst) {
+      worst = loss
+      pivotSan = p.san
+      pivotPly = i
+      pivotLoss = Math.round(loss)
+    }
+  }
+  if (pivotPly != null) {
+    try {
+      const replay = new Chess()
+      for (let i = 0; i < pivotPly; i++) replay.move(clean[i].san)
+      pivotFen = replay.fen()
+    } catch {
+      pivotFen = null
+    }
+  }
+
   // player's local hour at game end (the browser is the clock in this app)
   const localHour = Number.isInteger(body?.localHour) ? Math.max(0, Math.min(23, Number(body.localHour))) : null
 
@@ -80,6 +111,7 @@ export async function POST(req: NextRequest) {
       blackAcc,
       playerAcc,
       labelsJson: JSON.stringify(counts),
+      ...(pivotFen ? { pivotFen, pivotSan, pivotPly, pivotLoss } : {}),
       localHour,
       analyzedAt: new Date(),
     },

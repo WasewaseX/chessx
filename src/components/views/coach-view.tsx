@@ -590,7 +590,7 @@ export function CoachView() {
               >
                 /
               </button>{' '}
-              to browse all 30 skills, or{' '}
+              to browse every skill, or{' '}
               <button className="font-semibold text-primary hover:underline" onClick={() => void send('/help')}>
                 /help
               </button>{' '}

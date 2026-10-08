@@ -161,6 +161,12 @@ model GameRecord {
   playerAcc   Float?
   labelsJson  String? // per-side label counts, {best:{w,b},...}
   localHour   Int? // player's local hour (0-23) when the game ended, for time-of-day insights
+  // pivotal moment: the player's biggest verified eval drop, stored with the
+  // position right before it so the coach can spin a drill from the exact miss
+  pivotFen    String?
+  pivotSan    String?
+  pivotPly    Int?
+  pivotLoss   Float? // centipawns thrown away
   analyzedAt  DateTime?
   createdAt   DateTime @default(now())
 

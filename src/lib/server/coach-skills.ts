@@ -173,7 +173,7 @@ interface LineCheck {
   engineVerified: boolean
 }
 
-async function verifyLine(opts: {
+export async function verifyLine(opts: {
   fen: string
   solution: string[]
   allowStartCheck: boolean
@@ -448,7 +448,7 @@ interface CraftCopy {
 /** The LLM writes only the teaching copy: title, nudge, explanation, theme.
  * Every move in the line was already chosen and verified by the engine, so
  * no hallucination can reach the student through this path. */
-async function writeCopy(cfg: AiConfig, line: CraftedLine, ctx: LevelContext | null, kind: 'puzzle' | 'drill', requestedTheme: string | null): Promise<CraftCopy> {
+export async function writeCopy(cfg: AiConfig, line: CraftedLine, ctx: LevelContext | null, kind: 'puzzle' | 'drill', requestedTheme: string | null): Promise<CraftCopy> {
   const mover = line.fen.split(' ')[1] === 'b' ? 'Black' : 'White'
   const fallback: CraftCopy = {
     title: kind === 'puzzle' ? `${mover} to strike` : 'Position drill',

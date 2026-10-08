@@ -26,6 +26,7 @@ export const COMMANDS: CommandDef[] = [
   { id: 'endgame', cmd: '/endgame', category: 'generate', title: 'Endgame drill', desc: 'A verified endgame technique task from real course material', example: '/endgame' },
   { id: 'quiz', cmd: '/quiz', args: '[theme]', category: 'generate', title: 'Level quiz', desc: 'Multiple-choice quiz question tuned to your level', example: '/quiz pin' },
   { id: 'daily', cmd: '/daily', category: 'generate', title: 'Daily challenge', desc: 'One puzzle plus one quiz, the coach picks the themes', example: '/daily' },
+  { id: 'pivot', cmd: '/pivot', category: 'generate', title: 'Pivotal moment drill', desc: 'A drill rebuilt from the exact position where your last game went wrong', example: '/pivot' },
   { id: 'trap', cmd: '/trap', category: 'generate', title: 'Opening trap', desc: 'A classic trap, move by move, and how to avoid falling for it', example: '/trap' },
   { id: 'famous', cmd: '/famous', category: 'generate', title: 'Famous game', desc: 'Walk through a legendary game with commentary on the key moves', example: '/famous' },
 
@@ -98,7 +99,7 @@ export function parseClientCommand(text: string): { def: CommandDef; arg: string
 
 /** Commands that spend a generation slot (rate limited together with chat-triggered skills). */
 export function commandIsGenerative(id: string): boolean {
-  return ['puzzle', 'mate', 'drill', 'endgame', 'quiz', 'daily', 'trap', 'famous'].includes(id)
+  return ['puzzle', 'mate', 'drill', 'endgame', 'quiz', 'daily', 'trap', 'famous', 'pivot'].includes(id)
 }
 
 /** All command words that start with the given fragment (used by the palette). */
