@@ -12,6 +12,12 @@ import { SpeakButton } from '@/components/chess/speak-button'
 import { CharacterFace } from '@/components/chess/characters'
 import { coachMaybe } from '@/lib/coaches'
 import { CoachChoice } from '@/components/shell/coach-choice'
+import { ArtifactCard } from '@/components/coach/artifact-card'
+import { CoachDrillsShelf } from '@/components/coach/drills-shelf'
+import type { ArtifactView } from '@/lib/coach-artifacts'
+import { nextUnlockedId } from '@/lib/unlock'
+import { findLevel } from '@/content/levels'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import {
   ArrowLeftRight,
@@ -25,11 +31,16 @@ import {
   GraduationCap,
   ListChecks,
   ClipboardCheck,
+  Puzzle,
+  Target,
+  Brain,
 } from 'lucide-react'
 
 interface Msg {
   role: 'user' | 'assistant'
   content: string
+  /** Coach skill output rendered under the bubble. */
+  artifact?: ArtifactView
 }
 
 interface SendCtx {
@@ -39,11 +50,15 @@ interface SendCtx {
   gameId?: string
 }
 
+type SkillButton = 'level_puzzle' | 'position_drill' | 'level_quiz'
+
+const SKILL_RUNNING = 'Crafting, verifying every move with the engine. This can take half a minute.'
+
 const SUGGESTIONS = [
+  'Generate a puzzle for my level.',
   "What's the plan for the side to move?",
   'Find the tactics in this position.',
-  'What would you play here, and why?',
-  'Give me a training task based on this position.',
+  'Build me a drill from this position.',
 ]
 
 function sanLine(sans: string[]): string {
@@ -73,6 +88,94 @@ export function CoachView() {
   const lastAttempt = useRef<Msg[] | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const [mobileTab, setMobileTab] = useState<'board' | 'chat'>('chat')
+
+  // Coach skills: the tutor can generate level-calibrated puzzles, drills
+  // and quizzes; generated material is verified server-side before it lands.
+  const [busySkill, setBusySkill] = useState<SkillButton | null>(null)
+  const [skillNote, setSkillNote] = useState<string | null>(null)
+  const [courseRef, setCourseRef] = useState<{ tier: string; level: number; label: string | null } | null>(null)
+  const [drills, setDrills] = useState<ArtifactView[]>([])
+  const [drillOpen, setDrillOpen] = useState<ArtifactView | null>(null)
+
+  // The level anchor: first unlocked, unfinished level in course order.
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch('/api/progress')
+        const data = await readJson<{ progress?: Array<{ lessonId: string; completed: boolean }> }>(res)
+        if (cancelled) return
+        const done = new Set((data.progress ?? []).filter((p) => p.completed).map((p) => p.lessonId))
+        const nextId = nextUnlockedId(done)
+        if (!nextId) {
+          setCourseRef(null)
+          return
+        }
+        const ref = findLevel(nextId)
+        if (ref) {
+          setCourseRef({ tier: ref.tier.id, level: ref.level.n, label: `${ref.tier.title} · Level ${ref.level.n}` })
+        }
+      } catch {
+        /* the skills still work without the anchor: the server falls back */
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const refreshDrills = useCallback(async () => {
+    try {
+      const res = await fetch('/api/coach/artifacts?limit=24')
+      const data = await readJson<{ artifacts?: ArtifactView[] }>(res)
+      setDrills(data.artifacts ?? [])
+    } catch {
+      /* shelf stays as-is on a failed refresh */
+    }
+  }, [])
+
+  useEffect(() => {
+    void refreshDrills()
+  }, [refreshDrills])
+
+  const runSkill = useCallback(
+    async (skill: SkillButton) => {
+      if (busySkill || busy) return
+      setBusySkill(skill)
+      setSkillNote(SKILL_RUNNING)
+      setError(null)
+      setMobileTab('chat')
+      try {
+        const res = await fetch('/api/ai/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            skill,
+            tier: courseRef?.tier,
+            level: courseRef?.level,
+            ...(skill === 'position_drill' ? { fen } : {}),
+          }),
+        })
+        const data = await readJson<{ artifact?: ArtifactView; error?: string }>(res)
+        if (!res.ok || !data.artifact) throw new Error(data.error ?? 'The coach could not generate that right now.')
+        const a = data.artifact
+        const lead =
+          a.kind === 'quiz'
+            ? 'Fresh quiz, made for your level:'
+            : a.kind === 'drill'
+              ? 'Drill built from your position:'
+              : 'Fresh puzzle, calibrated to your level:'
+        setMessages((m) => [...m, { role: 'assistant', content: `${lead} ${a.title}.`, artifact: a }])
+        void refreshDrills()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+      } finally {
+        setBusySkill(null)
+        setSkillNote(null)
+      }
+    },
+    [busySkill, busy, courseRef, fen, refreshDrills],
+  )
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
@@ -202,19 +305,28 @@ export function CoachView() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             messages: next.slice(-16),
-            context: { ...context, skillLevel: profile?.skillLevel ?? 'beginner', coach: coach.id },
+            context: {
+              ...context,
+              skillLevel: profile?.skillLevel ?? 'beginner',
+              coach: coach.id,
+              ...(courseRef ? { tier: courseRef.tier, level: courseRef.level } : {}),
+            },
           }),
         })
-        const data = await readJson<{ content?: string; error?: string }>(res)
+        const data = await readJson<{ content?: string; error?: string; artifact?: ArtifactView }>(res)
         if (!res.ok || !data.content) throw new Error(data.error ?? 'The coach could not answer. Try again.')
-        setMessages((m) => [...m, { role: 'assistant', content: data.content }])
+        setMessages((m) => [
+          ...m,
+          { role: 'assistant', content: data.content!, ...(data.artifact ? { artifact: data.artifact } : {}) },
+        ])
+        if (data.artifact) void refreshDrills()
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e))
       } finally {
         setBusy(false)
       }
     },
-    [busy, messages, fen, sans, profile?.skillLevel],
+    [busy, messages, fen, sans, profile?.skillLevel, courseRef, refreshDrills],
   )
 
   const retry = useCallback(() => {
@@ -275,16 +387,17 @@ export function CoachView() {
   })()
 
   const boardPanel = (
-    <div className="rounded-lg bg-card p-4 shadow-sm">
-      <div className="mx-auto max-w-[520px]">
-        <ChessBoard
-          fen={fen}
-          orientation={orientation}
-          onMove={onMove}
-          movableSide="both"
-          lastMove={lastMove}
-        />
-      </div>
+    <div className="space-y-4">
+      <div className="rounded-lg bg-card p-4 shadow-sm">
+        <div className="mx-auto max-w-[520px]">
+          <ChessBoard
+            fen={fen}
+            orientation={orientation}
+            onMove={onMove}
+            movableSide="both"
+            lastMove={lastMove}
+          />
+        </div>
 
       <div className="mx-auto mt-3 flex max-w-[520px] flex-wrap items-center gap-2">
         <Button variant="secondary" size="sm" onClick={reset}>
@@ -330,8 +443,16 @@ export function CoachView() {
       )}
 
       <p className="mx-auto mt-3 max-w-[520px] text-xs text-muted-foreground">
-        Move pieces for either side. Every question you ask includes the position on this board, so set it up first and then ask.
+        Move pieces for either side. Every question you ask includes the position on this board, so set it up first and then ask. "Drill from this position" turns whatever stands here into a training task.
       </p>
+      </div>
+
+      <CoachDrillsShelf
+        drills={drills}
+        onOpen={setDrillOpen}
+        onNavigateLessons={() => navigate('lessons')}
+        courseLabel={courseRef?.label ?? null}
+      />
     </div>
   )
 
@@ -363,7 +484,7 @@ export function CoachView() {
         {messages.length === 0 && !busy && (
           <div>
             <div className="rounded-md bg-secondary p-3 text-sm leading-relaxed text-muted-foreground">
-              Set up any position on the board, then ask. Plans, tactics, openings, endgames, or what went wrong in a game, the coach sees whatever is on the board. For a full move-by-move review, play a game first and use{' '}
+              Set up any position on the board, then ask. Plans, tactics, openings, endgames, or what went wrong in a game, the coach sees whatever is on the board. Your coach can also generate training for you: puzzles calibrated to your course level, drills from any position and quizzes, every move verified by the engine before you see it. Use the skill buttons below, or just ask. For a full move-by-move review, play a game first and use{' '}
               <button className="font-semibold text-primary hover:underline" onClick={() => navigate('analysis')}>
                 Game review
               </button>
@@ -384,34 +505,42 @@ export function CoachView() {
         )}
 
         {messages.map((m, i) => (
-          <div key={i} className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
-            {m.role === 'assistant' && (
-              <CharacterFace id={coach.id} className="mr-2 mt-1 h-7 w-7 shrink-0 rounded-full" />
-            )}
-            <div
-              className={cn(
-                'max-w-[85%] whitespace-pre-wrap rounded-lg px-3 py-2 text-sm leading-relaxed',
-                m.role === 'user'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-secondary-foreground',
+          <div key={i} className="space-y-2">
+            <div className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
+              {m.role === 'assistant' && (
+                <CharacterFace id={coach.id} className="mr-2 mt-1 h-7 w-7 shrink-0 rounded-full" />
               )}
-            >
-              {m.content}
+              <div
+                className={cn(
+                  'max-w-[85%] whitespace-pre-wrap rounded-lg px-3 py-2 text-sm leading-relaxed',
+                  m.role === 'user'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-secondary text-secondary-foreground',
+                )}
+              >
+                {m.content}
+              </div>
+              {m.role === 'assistant' && <SpeakButton text={m.content} voice={coach.voice} speed={coach.speed} className="ml-1 mt-0.5" />}
             </div>
-            {m.role === 'assistant' && <SpeakButton text={m.content} voice={coach.voice} speed={coach.speed} className="ml-1 mt-0.5" />}
+            {m.artifact && (
+              <div className="pl-9">
+                <ArtifactCard artifact={m.artifact} onRecorded={() => void refreshDrills()} />
+              </div>
+            )}
           </div>
         ))}
 
-        {busy && (
+        {(busy || busySkill) && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span className="flex gap-1">
               <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/70 [animation-delay:0ms]" />
               <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/70 [animation-delay:120ms]" />
               <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/70 [animation-delay:240ms]" />
             </span>
-            Coach is thinking
+            {busySkill ? 'Generating and verifying' : 'Coach is thinking'}
           </div>
         )}
+        {skillNote && busySkill && <p className="text-[11px] text-muted-foreground">{skillNote}</p>}
 
         {error && (
           <div className="flex flex-wrap items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -428,29 +557,50 @@ export function CoachView() {
       <div className="border-t border-border">
         <div className="flex gap-2 overflow-x-auto px-3 pt-2 pb-1 [scrollbar-width:none]">
           <button
+            onClick={() => void runSkill('level_puzzle')}
+            disabled={busy || busySkill != null}
+            className="flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+          >
+            <Puzzle className="h-3.5 w-3.5" /> Puzzle for my level{courseRef?.label ? ` (${courseRef.level})` : ''}
+          </button>
+          <button
+            onClick={() => void runSkill('position_drill')}
+            disabled={busy || busySkill != null}
+            className="flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+          >
+            <Target className="h-3.5 w-3.5" /> Drill from this position
+          </button>
+          <button
+            onClick={() => void runSkill('level_quiz')}
+            disabled={busy || busySkill != null}
+            className="flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+          >
+            <Brain className="h-3.5 w-3.5" /> Level quiz
+          </button>
+          <button
             onClick={() => void reviewLastGame()}
-            disabled={busy}
+            disabled={busy || busySkill != null}
             className="flex shrink-0 items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold transition hover:bg-accent disabled:opacity-50"
           >
             <Swords className="h-3.5 w-3.5" /> Review my last game
           </button>
           <button
             onClick={quizMe}
-            disabled={busy}
+            disabled={busy || busySkill != null}
             className="flex shrink-0 items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold transition hover:bg-accent disabled:opacity-50"
           >
             <GraduationCap className="h-3.5 w-3.5" /> Quiz me
           </button>
           <button
             onClick={() => void send('What should I focus on in this position to improve?')}
-            disabled={busy}
+            disabled={busy || busySkill != null}
             className="flex shrink-0 items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold transition hover:bg-accent disabled:opacity-50"
           >
             <ListChecks className="h-3.5 w-3.5" /> Improvement plan
           </button>
           <button
             onClick={() => void send('Summarize the position: material, king safety, and the best plan for both sides.')}
-            disabled={busy}
+            disabled={busy || busySkill != null}
             className="flex shrink-0 items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold transition hover:bg-accent disabled:opacity-50"
           >
             <ClipboardCheck className="h-3.5 w-3.5" /> Summarize position
@@ -495,6 +645,15 @@ export function CoachView() {
         <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-muted-foreground">
           {providerLabel}
         </span>
+        {courseRef?.label && (
+          <button
+            onClick={() => navigate('lessons')}
+            className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary transition hover:bg-primary/20"
+            title="Your current course level, used to calibrate generated material"
+          >
+            {courseRef.label}
+          </button>
+        )}
       </div>
 
       {/* mobile tabs */}
@@ -517,6 +676,25 @@ export function CoachView() {
         <div className={mobileTab === 'board' ? '' : 'hidden lg:block'}>{boardPanel}</div>
         <div className={mobileTab === 'chat' ? '' : 'hidden lg:block'}>{chatPanel}</div>
       </div>
+
+      <Dialog open={drillOpen != null} onOpenChange={(o) => !o && setDrillOpen(null)}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{drillOpen?.title ?? 'Drill'}</DialogTitle>
+          </DialogHeader>
+          {drillOpen && (
+            <ArtifactCard
+              artifact={drillOpen}
+              onRemove={() => {
+                const id = drillOpen.id
+                setDrills((d) => d.filter((x) => x.id !== id))
+                setDrillOpen(null)
+                void fetch(`/api/coach/artifacts?id=${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {})
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

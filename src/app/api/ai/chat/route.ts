@@ -4,86 +4,20 @@ import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import { runChat, getAiConfig, type ChatMessage } from '@/lib/ai'
 import { coachById } from '@/lib/coaches'
+import {
+  extractSkillBlock,
+  resolveLevelContext,
+  runSkill,
+  checkRateLimit,
+  skillProtocolLines,
+  SKILL_IDS,
+  SkillError,
+  type SkillId,
+} from '@/lib/server/coach-skills'
+import { describeFen } from '@/lib/server/chess-describe'
+import { dayKeyLocal } from '@/lib/day'
 
-export const maxDuration = 60
-
-/** ASCII board + metadata: LLMs reason far better over this than raw FEN. */
-const PIECE_NAMES: Record<string, string> = {
-  p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king',
-}
-
-function pieceMap(g: Chess): Map<string, string> {
-  const m = new Map<string, string>()
-  for (const row of g.board()) {
-    for (const sq of row) {
-      if (sq) m.set(sq.square, (sq.color === 'w' ? sq.type.toUpperCase() : sq.type))
-    }
-  }
-  return m
-}
-
-function describeFen(fen: string): string | null {
-  try {
-    const g = new Chess(fen)
-    const rows = fen.split(' ')[0].split('/')
-    const board = rows
-      .map((row, i) => {
-        let line = ''
-        for (const ch of row) {
-          if (/\d/.test(ch)) line += '. '.repeat(parseInt(ch, 10))
-          else line += `${ch} `
-        }
-        return `${8 - i}  ${line.trimEnd()}`
-      })
-      .join('\n')
-    const turn = g.turn() === 'w' ? 'White' : 'Black'
-    const [ , castling, enPassant, halfmove, fullmove ] = fen.split(' ')
-
-    // ground-truth diff vs the standard start position (kills opening-theory hallucinations)
-    const now = pieceMap(g)
-    const start = pieceMap(new Chess())
-    const diffs: string[] = []
-    for (const [sq, piece] of now) {
-      if (start.get(sq) !== piece) {
-        const color = piece === piece.toUpperCase() ? 'White' : 'Black'
-        const name = PIECE_NAMES[piece.toLowerCase()]
-        const fromSquare = [...start.entries()].find(([, p]) => p === piece)?.[0]
-        diffs.push(
-          fromSquare
-            ? `${color} ${name} on ${sq} (its starting square was ${fromSquare})`
-            : `${color} ${name} on ${sq}`,
-        )
-      }
-    }
-    for (const [sq, piece] of start) {
-      if (!now.has(sq)) {
-        const color = piece === piece.toUpperCase() ? 'White' : 'Black'
-        diffs.push(`${color} ${PIECE_NAMES[piece.toLowerCase()]} no longer on ${sq}`)
-      }
-    }
-
-    const material: Record<'w' | 'b', number> = { w: 0, b: 0 }
-    for (const piece of now.values()) {
-      const t = piece.toLowerCase()
-      if (t === 'k') continue
-      const val = { p: 1, n: 3, b: 3, r: 5, q: 9 }[t] ?? 0
-      material[piece === piece.toUpperCase() ? 'w' : 'b'] += val
-    }
-
-    return [
-      'ASCII board (uppercase = White, lowercase = Black, rank 8 first, dots = empty):',
-      board,
-      '    a b c d e f g h',
-      `Side to move: ${turn}. Castling: ${castling === '-' ? 'none' : castling}. En passant target: ${enPassant}. Move ${fullmove}, halfmove clock ${halfmove}.`,
-      `Material (pawn=1, bishop/knight=3, rook=5, queen=9): White ${material.w} vs Black ${material.b}.`,
-      diffs.length
-        ? `Pieces NOT on their starting squares (verified facts, trust these over theory): ${diffs.join('; ')}.`
-        : 'Every piece is still on its starting square.',
-    ].join('\n')
-  } catch {
-    return null
-  }
-}
+export const maxDuration = 120
 
 export async function POST(req: NextRequest) {
   const user = await getSessionUser()
@@ -116,6 +50,12 @@ export async function POST(req: NextRequest) {
   if (ctx.stepHint) contextLines.push(`Current exercise: ${ctx.stepHint}`)
   if (ctx.pgn) contextLines.push(`Game so far (PGN):\n${String(ctx.pgn).slice(0, 3000)}`)
   if (ctx.moves) contextLines.push(`Moves played so far: ${ctx.moves}`)
+  // Course anchor for skill requests: the client sends the level the student
+  // is on, and generated material is calibrated against it.
+  const levelCtx = resolveLevelContext(ctx.tier, ctx.level, skill)
+  if (ctx.tier != null || ctx.level != null) {
+    contextLines.push(`Course progress: ${levelCtx.tierTitle}, Level ${levelCtx.levelN} ("${levelCtx.levelTitle}").`)
+  }
 
   // A saved game the student wants to talk about. The report facts come straight
   // from this app's stored analysis, never from the client, so the coach can
@@ -167,13 +107,53 @@ export async function POST(req: NextRequest) {
     '- In a lesson exercise, guide with questions and ideas. Do NOT hand over the solution move unless the student explicitly asks for it after trying.',
     '- You may be wrong about deep calculation; hedge when unsure and suggest checking with the engine.',
     '- If the student asks something unrelated to chess, answer briefly and steer back.',
+    ...skillProtocolLines(),
     contextLines.length ? `\nContext:\n${contextLines.join('\n')}` : '',
   ].join('\n')
 
   try {
     const cfg = await getAiConfig(profile.id)
-    const content = await runChat(cfg, system, messages)
-    return NextResponse.json({ content, provider: cfg.provider })
+    const raw = await runChat(cfg, system, messages)
+
+    // A skill block means the coach just promised the student material.
+    // The app itself generates, verifies and stores it; the model never
+    // writes the content and never learns the artifact back.
+    let content = raw
+    let artifact: unknown = null
+    let extraNote = ''
+    const extracted = extractSkillBlock(raw)
+    if (extracted) {
+      content = extracted.content
+      const skillId = String(extracted.params.skill ?? '')
+      if (SKILL_IDS.includes(skillId as SkillId)) {
+        const limited = checkRateLimit(profile.id, dayKeyLocal())
+        if (limited) {
+          extraNote = `\n\n(${limited})`
+        } else {
+          try {
+            artifact = await runSkill({
+              skill: skillId as SkillId,
+              cfg,
+              profileId: profile.id,
+              skillLevel: profile.skillLevel,
+              // tier/level/fen come from the app's own context, never from
+              // the model, so a hallucinated FEN can never enter the loop.
+              tier: ctx.tier,
+              level: ctx.level,
+              theme: extracted.params.theme,
+              fen: ctx.fen,
+            })
+          } catch (e) {
+            const reason = e instanceof SkillError ? e.message : 'the generation did not pass verification'
+            extraNote = `\n\n(I tried to generate that material but it failed: ${reason} The skill buttons under the chat retry the same request.)`
+          }
+        }
+      } else {
+        extraNote = '\n\n(I meant to generate material but named an unknown skill. Use the skill buttons under the chat instead.)'
+      }
+    }
+
+    return NextResponse.json({ content: (content + extraNote).trim(), provider: cfg.provider, artifact })
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     return NextResponse.json({ error: msg }, { status: 502 })
