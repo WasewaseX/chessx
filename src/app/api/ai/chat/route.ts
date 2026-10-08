@@ -15,6 +15,7 @@ import {
 } from '@/lib/server/coach-skills'
 import { routeMessage, hasGenerationIntent, type CommandOutcome, type CoachAction } from '@/lib/server/coach-commands'
 import { describeFen } from '@/lib/server/chess-describe'
+import { coachMemoryBrief } from '@/lib/server/coach-memory'
 import { dayKeyLocal } from '@/lib/day'
 
 export const maxDuration = 120
@@ -155,6 +156,12 @@ export async function POST(req: NextRequest) {
     contextLines.push(`Course progress: ${levelCtx.tierTitle}, Level ${levelCtx.levelN} ("${levelCtx.levelTitle}").`)
   }
 
+  // Coach memory: a factual brief assembled from this app's own ledger
+  // (games, mistake labels, skill mastery, habits). The coach opens with
+  // what matters and references real patterns; it never invents beyond it.
+  const memory = await coachMemoryBrief(profile.id).catch(() => null)
+  if (memory) contextLines.push(`Memory of this student (facts from this app's ledger, use naturally, never recite the list): ${memory}`)
+
   // A saved game the student wants to talk about. The report facts come straight
   // from this app's stored analysis, never from the client, so the coach can
   // only quote numbers the engine actually produced.
@@ -208,6 +215,7 @@ export async function POST(req: NextRequest) {
     '- In a lesson exercise, guide with questions and ideas. Do NOT hand over the solution move unless the student explicitly asks for it after trying.',
     '- You may be wrong about deep calculation; hedge when unsure and suggest checking with the engine.',
     '- The student can type / to see your skills (commands like /puzzle, /mate, /analyze, /recap). Mention one fitting command when it is the fastest path to what they want. There is also /help.',
+    '- When the memory section is present, use it like a coach who remembers their student: reference at most one fact when it genuinely helps, never recite, and never invent facts beyond it.',
     ...skillProtocolLines(),
     'Controlling the app (your hands):',
     'When the student asks you to change the app itself (flip or turn the board, reset the board, open a section, switch the coach), end your reply with ONE block:',

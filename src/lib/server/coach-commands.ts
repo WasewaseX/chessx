@@ -19,6 +19,7 @@ import { nextUnlockedId } from '@/lib/unlock'
 import { levelRating, artifactFromRow, type ArtifactView, type LineStep } from '@/lib/coach-artifacts'
 import { COMMANDS, parseClientCommand, type CoachAction, type CommandDef } from '@/lib/coach-commands-catalog'
 import { resolveLevelContext, type SkillId } from '@/lib/server/coach-skills'
+import { memoryHook } from '@/lib/server/coach-memory'
 import { dayKeyLocal } from '@/lib/day'
 
 // ---------------------------------------------------------------------------
@@ -1253,10 +1254,16 @@ export async function routeMessage(req: CommandRequest): Promise<CommandOutcome 
     return await runCommand(req, parsed.def, parsed.arg)
   }
 
-  // 2. social: greet, identity, thanks, bye (short anchored messages only)
+  // 2. social: greet, identity, thanks, bye (short anchored messages only).
+  // The greeting is enriched with one honest hook from the student's real
+  // ledger (weakest motif, unsolved material, last game, open daily goal).
   const social = socialIntent(text)
   if (social) {
-    if (social === 'greeting') return { content: greetingReply(req.coach, req.profile.name) }
+    if (social === 'greeting') {
+      const base = greetingReply(req.coach, req.profile.name)
+      const hook = await memoryHook(req.profile.id).catch(() => null)
+      return { content: hook ? `${base}\n\n${hook}` : base }
+    }
     if (social === 'identity') return { content: identityReply(req.coach) }
     if (social === 'thanks') return { content: thanksReply(req.coach) }
     return { content: byeReply(req.coach) }
