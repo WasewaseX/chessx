@@ -70,15 +70,21 @@ export function lichessCount(): number {
   try {
     // Newer banks carry the exact count in a tiny meta table — a one-row read
     // instead of a multi-second COUNT(*) over 5.7M rows on a cold cache.
-    const meta = d.prepare(`SELECT value FROM meta WHERE key = 'row_count'`).get() as
-      | { value: string }
-      | undefined
-    if (meta?.value) {
-      const n = Number(meta.value)
-      if (Number.isFinite(n) && n > 0) {
-        countCache = { at: Date.now(), value: n }
-        return n
+    // Banks built before that table existed make this query throw; that must
+    // fall through to the real COUNT, never swallow the whole count to 0.
+    try {
+      const meta = d.prepare(`SELECT value FROM meta WHERE key = 'row_count'`).get() as
+        | { value: string }
+        | undefined
+      if (meta?.value) {
+        const n = Number(meta.value)
+        if (Number.isFinite(n) && n > 0) {
+          countCache = { at: Date.now(), value: n }
+          return n
+        }
       }
+    } catch {
+      /* no meta table in this bank: use the COUNT below */
     }
     const row = d.prepare('SELECT COUNT(*) c FROM puzzles').get() as { c: number | bigint }
     const n = Number(row.c)

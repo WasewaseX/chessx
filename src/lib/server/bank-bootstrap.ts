@@ -16,16 +16,28 @@
 // never user input), single-installer lock with stale reclaim, hard byte caps
 // and timeouts inside the fetcher, atomic rename only after the SQLite magic
 // header and a minimum size are verified.
+//
+// WEBPACK CONSTRAINT (this cost a day once — do not undo): this module is
+// imported from API routes AND from instrumentation, and webpack compiles
+// every one of those graphs for multiple targets. Any STATIC `node:*` import
+// here (child_process, fs, path) or anything that transitively imports one
+// (lichess-bank pulls node:sqlite) makes the edge/client graphs fail with
+// UnhandledSchemeError and every page 500s. All node builtins are therefore
+// required LAZILY inside the functions below through eval('require'), which
+// webpack never tries to resolve at build time. Keep it that way.
 import 'server-only'
-import { spawn } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
-import path from 'node:path'
-import { warmBank } from '@/lib/server/lichess-bank'
 
-const DB_DIR = path.join(process.cwd(), 'db')
-const DB_PATH = path.join(DB_DIR, 'puzzles.db')
-const STATUS_PATH = path.join(DB_DIR, '.bank-status.json')
-const FETCHER = path.join(process.cwd(), 'scripts', 'bank-fetch.mjs')
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any, @typescript-eslint/no-require-imports */
+function nodeRequire(mod: string): any {
+  // Opaque to webpack: resolved by the real Node CJS loader at call time.
+  // eslint-disable-next-line no-implied-eval
+  return (eval('require'))(mod)
+}
+
+const DB_DIR = `${process.cwd()}/db`
+const DB_PATH = `${DB_DIR}/puzzles.db`
+const STATUS_PATH = `${DB_DIR}/.bank-status.json`
+const FETCHER = `${process.cwd()}/scripts/bank-fetch.mjs`
 
 const DEFAULT_URL = 'https://github.com/WasewaseX/chessx/releases/download/puzzle-bank-v1/puzzles.db.gz'
 const BANK_URL = process.env.CHESSX_BANK_URL || DEFAULT_URL
@@ -47,10 +59,11 @@ const g = globalThis as typeof globalThis & { __chessxBankKickedAt?: number }
 
 /** Cheap snapshot: existsSync + one small JSON read. No COUNT, no I/O on the bank. */
 export function bankStatus(): BankStatus {
-  const available = existsSync(DB_PATH)
+  const fs = nodeRequire('node:fs')
+  const available = fs.existsSync(DB_PATH)
   let file: { phase?: string; bytes?: number; totalBytes?: number | null; error?: string | null; startedAt?: number | null; finishedAt?: number | null } = {}
   try {
-    if (existsSync(STATUS_PATH)) file = JSON.parse(readFileSync(STATUS_PATH, 'utf8'))
+    if (fs.existsSync(STATUS_PATH)) file = JSON.parse(fs.readFileSync(STATUS_PATH, 'utf8'))
   } catch {
     /* torn write: treat as no status */
   }
@@ -61,7 +74,7 @@ export function bankStatus(): BankStatus {
     phase = file.phase as BankPhase
   } else if (file.phase === 'ready') {
     // the fetcher finished but the server has not seen the file yet (or the
-    // file was removed again): report present only when actually there
+    // file was removed again): report ready only when actually there
     phase = 'ready'
   }
   return {
@@ -82,17 +95,19 @@ export function bankStatus(): BankStatus {
  * 10s spawn throttle stops request storms from forking a process zoo.
  */
 export function kickBankBootstrap(): void {
-  if (existsSync(DB_PATH)) {
-    // Bank already here: warm the hot SQL paths instead of installing.
-    warmBank()
-    return
-  }
   const now = Date.now()
   if (g.__chessxBankKickedAt && now - g.__chessxBankKickedAt < 10_000) return
   g.__chessxBankKickedAt = now
   try {
+    const fs = nodeRequire('node:fs')
+    if (fs.existsSync(DB_PATH)) {
+      // Bank already here: nothing to install. The hot SQL paths warm
+      // themselves on the first puzzle request (lazy open in lichess-bank).
+      return
+    }
     // Detached + unref'd: the fetcher outlives this server process. stdio is
     // ignored so the child never blocks on a full pipe.
+    const { spawn } = nodeRequire('node:child_process')
     const child = spawn(process.execPath, [FETCHER, DB_DIR, BANK_URL], {
       detached: true,
       stdio: 'ignore',
