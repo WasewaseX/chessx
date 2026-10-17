@@ -381,6 +381,40 @@ export function lichessRushBatch(size = 250): LichessPuzzle[] {
 }
 
 // ---------------------------------------------------------------------------
+// Cold-start warmup: the bank is a 1.3GB file and a fresh install (or a
+// server restart) starts with a cold page cache — the first COUNT(*) and the
+// first window query then take seconds, which the puzzle view experiences as
+// a hang and retries against, piling requests up. warmBank() runs the hot
+// paths once in the background right after boot so the first real request is
+// instant. Idempotent and best-effort.
+// ---------------------------------------------------------------------------
+let warmed = false
+
+export function warmBank(): void {
+  if (warmed) return
+  const d = getDb()
+  if (!d) return
+  warmed = true
+  setImmediate(() => {
+    try {
+      lichessCount()
+    } catch {
+      /* best effort */
+    }
+    try {
+      lichessWindow(1200, 400)
+    } catch {
+      /* best effort */
+    }
+    try {
+      lichessThemeStats(60)
+    } catch {
+      /* best effort */
+    }
+  })
+}
+
+// ---------------------------------------------------------------------------
 // Adapter for the grading/reveal pipeline (Puzzle-shaped)
 // ---------------------------------------------------------------------------
 

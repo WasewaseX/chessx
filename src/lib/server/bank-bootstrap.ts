@@ -20,6 +20,7 @@ import 'server-only'
 import { spawn } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
+import { warmBank } from '@/lib/server/lichess-bank'
 
 const DB_DIR = path.join(process.cwd(), 'db')
 const DB_PATH = path.join(DB_DIR, 'puzzles.db')
@@ -81,7 +82,11 @@ export function bankStatus(): BankStatus {
  * 10s spawn throttle stops request storms from forking a process zoo.
  */
 export function kickBankBootstrap(): void {
-  if (existsSync(DB_PATH)) return
+  if (existsSync(DB_PATH)) {
+    // Bank already here: warm the hot SQL paths instead of installing.
+    warmBank()
+    return
+  }
   const now = Date.now()
   if (g.__chessxBankKickedAt && now - g.__chessxBankKickedAt < 10_000) return
   g.__chessxBankKickedAt = now
