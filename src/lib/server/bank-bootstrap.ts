@@ -27,10 +27,10 @@
 // webpack never tries to resolve at build time. Keep it that way.
 import 'server-only'
 
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any, @typescript-eslint/no-require-imports */
+ 
 function nodeRequire(mod: string): any {
   // Opaque to webpack: resolved by the real Node CJS loader at call time.
-  // eslint-disable-next-line no-implied-eval
+   
   return (eval('require'))(mod)
 }
 

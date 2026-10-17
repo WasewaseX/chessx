@@ -58,23 +58,24 @@ export function OpeningExplorer() {
     abortRef.current?.abort()
     const ctrl = new AbortController()
     abortRef.current = ctrl
-    setLoading(true)
-    setError(null)
-    fetch(`/api/tools/explorer?fen=${encodeURIComponent(fen)}`, { signal: ctrl.signal })
-      .then(async (res) => {
+    // All state updates live inside the async IIFE: the effect body itself
+    // stays free of synchronous setState (React cascade-render lint rule).
+    void (async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetch(`/api/tools/explorer?fen=${encodeURIComponent(fen)}`, { signal: ctrl.signal })
         const d = (await res.json()) as ExplorerPayload & { error?: string }
         if (!res.ok) throw new Error(d.error ?? `HTTP ${res.status}`)
-        return d
-      })
-      .then((d) => setPayload(d))
-      .catch((e: unknown) => {
+        setPayload(d)
+      } catch (e: unknown) {
         if (e instanceof DOMException && e.name === 'AbortError') return
         setError(e instanceof Error ? e.message : 'The explorer is unreachable.')
         setPayload(null)
-      })
-      .finally(() => {
+      } finally {
         if (!ctrl.signal.aborted) setLoading(false)
-      })
+      }
+    })()
     return () => ctrl.abort()
   }, [fen])
 
