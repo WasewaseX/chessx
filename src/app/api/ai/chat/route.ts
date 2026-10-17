@@ -16,6 +16,8 @@ import {
 import { routeMessage, hasGenerationIntent, type CommandOutcome, type CoachAction } from '@/lib/server/coach-commands'
 import { stripUnsolved, type ArtifactView } from '@/lib/coach-artifacts'
 import { describeFen } from '@/lib/server/chess-describe'
+import { buildDossier } from '@/lib/server/position-dossier'
+import { verifyClaims, repairInstruction } from '@/lib/server/claim-guard'
 import { coachMemoryBrief } from '@/lib/server/coach-memory'
 import { dayKeyLocal } from '@/lib/day'
 
@@ -171,8 +173,16 @@ export async function POST(req: NextRequest) {
   const contextLines: string[] = []
   if (ctxIn.fen) {
     contextLines.push(`Current position FEN: ${ctxIn.fen}`)
-    const described = describeFen(String(ctxIn.fen))
-    if (described) contextLines.push(described)
+    // The dossier is the structural honesty layer: board, piece list, legal
+    // move census, threats and engine lines, all verified before the model
+    // speaks. describeFen stays as the fallback if the dossier fails.
+    const dossier = await buildDossier(ctxIn.fen).catch(() => null)
+    if (dossier) {
+      contextLines.push(dossier)
+    } else {
+      const described = describeFen(String(ctxIn.fen))
+      if (described) contextLines.push(described)
+    }
   }
   if (ctxIn.lessonTitle) contextLines.push(`The student is working on the lesson "${ctxIn.lessonTitle}".`)
   if (ctxIn.stepHint) contextLines.push(`Current exercise: ${ctxIn.stepHint}`)
@@ -291,6 +301,37 @@ export async function POST(req: NextRequest) {
         }
       } else if (!content.trim()) {
         content = 'I can build that for you: a puzzle, a mate hunt, a drill from the board or a quiz. Say the word and it appears, verified.'
+      }
+    }
+
+    // ---------------------------------------------------------------
+    // Claim guard: the reply is replayed against chess.js before it
+    // reaches the student. Illegal moves, phantom pieces, wrong
+    // side-to-move and false mate claims trigger one repair pass with
+    // the exact violations; a second failure gets an honest correction
+    // appended instead of shipping silently wrong chess.
+    // ---------------------------------------------------------------
+    if (ctxIn.fen) {
+      const first = verifyClaims(content, ctxIn.fen)
+      if (!first.ok) {
+        const repairSystem = `${system}\n\n${repairInstruction(first.violations)}`
+        const repaired = await runChat(cfg, repairSystem, [
+          ...messages,
+          { role: 'assistant', content },
+          { role: 'user', content: 'Your last reply failed the board fact-check. Rewrite it now with only verified moves and pieces.' },
+        ]).catch(() => null)
+        if (repaired) {
+          const repairedContent = stripActionBlock(extractSkillBlock(repaired)?.content ?? repaired)
+          const second = verifyClaims(repairedContent, ctxIn.fen)
+          if (second.ok) {
+            content = repairedContent
+          } else {
+            content = repairedContent
+            extraNote += `\n\n(Board fact-check: ${second.violations.slice(0, 3).join('; ')}. Verify against the board.)`
+          }
+        } else {
+          extraNote += `\n\n(Board fact-check: ${first.violations.slice(0, 3).join('; ')}. Verify against the board.)`
+        }
       }
     }
 

@@ -11,8 +11,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Loader2, ArrowRight, Search, Wand2, Calculator, BookOpen, GraduationCap, Code2, Copy, Check } from 'lucide-react'
+import { Loader2, ArrowRight, Search, Wand2, Calculator, BookOpen, GraduationCap, Code2, Copy, Check, Compass } from 'lucide-react'
 import { OpeningTrainer } from '@/components/views/opening-trainer'
+import { OpeningExplorer } from '@/components/views/opening-explorer'
 import { cn } from '@/lib/utils'
 import { readJson } from '@/lib/api-client'
 import { useApp } from '@/lib/store'
@@ -286,13 +287,15 @@ function OpeningGuideTool() {
   )
 }
 
-// Tabbed shell around the two opening tools: keeps the existing guide reader
-// and identifier untouched, and slots the Opening trainer in beside them.
+// Tabbed shell around the opening tools: keeps the existing guide reader
+// and identifier untouched, and slots the Opening trainer and the community
+// Opening explorer in beside them.
 function OpeningToolsSection() {
-  const [tab, setTab] = useState<'guide' | 'trainer'>('guide')
+  const [tab, setTab] = useState<'guide' | 'trainer' | 'explorer'>('guide')
   const tabs = [
     { id: 'guide' as const, label: 'Opening guide', icon: BookOpen },
     { id: 'trainer' as const, label: 'Opening trainer', icon: GraduationCap },
+    { id: 'explorer' as const, label: 'Explorer', icon: Compass },
   ]
   return (
     <div>
@@ -313,8 +316,8 @@ function OpeningToolsSection() {
           </button>
         ))}
       </div>
-      <div className="mt-3" role="tabpanel" aria-label={tab === 'guide' ? 'Opening guide' : 'Opening trainer'}>
-        {tab === 'guide' ? <OpeningGuideTool /> : <OpeningTrainer />}
+      <div className="mt-3" role="tabpanel" aria-label={tab === 'guide' ? 'Opening guide' : tab === 'trainer' ? 'Opening trainer' : 'Opening explorer'}>
+        {tab === 'guide' ? <OpeningGuideTool /> : tab === 'trainer' ? <OpeningTrainer /> : <OpeningExplorer />}
       </div>
     </div>
   )

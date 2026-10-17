@@ -1289,10 +1289,15 @@ async function runPivot(req: CommandRequest): Promise<CommandOutcome> {
     return { content: 'The stored pivotal position is already decided, so there is nothing to drill there. Run Game review on your latest game and try again.' }
   }
 
+  // Whose move was the pivot? Even ply indexes are White moves. Needed both
+  // for the wording of the early exits and for the drill explanation below.
+  const pivotColor: 'w' | 'b' = (game.pivotPly ?? 0) % 2 === 0 ? 'w' : 'b'
+  const pivotWasStudent = pivotColor === (game.color === 'w' ? 'w' : 'b')
+
   const deadline = Date.now() + 24_000
   const line = await craftWinningLine(fen, { requireWin: false, minMargin: 40, maxSolverMoves: 2 })
   if (!line) {
-    return { content: `I found your pivotal moment (you played ${game.pivotSan}), but the position before it offers no clean training point for the engine. Try /drill on a sharper setup, or review the game in the Analysis tab.` }
+    return { content: `I found the pivotal moment (${pivotColor === 'w' ? 'White' : 'Black'} played ${game.pivotSan}), but the position before it offers no clean training point for the engine. Try /drill on a sharper setup, or review the game in the Analysis tab.` }
   }
   const check = await verifyLine({ fen, solution: line.solution, allowStartCheck: true, deadline, finalFloor: line.winning ? FINAL_WIN : null })
   if (!check.ok) {
@@ -1301,9 +1306,14 @@ async function runPivot(req: CommandRequest): Promise<CommandOutcome> {
 
   const moveNo = Math.floor((game.pivotPly ?? 0) / 2) + 1
   const lossPawns = game.pivotLoss != null ? Math.round(game.pivotLoss) / 100 : null
+  const pawnText = lossPawns != null ? ` ${lossPawns} ${lossPawns === 1 ? 'pawn' : 'pawns'} of evaluation` : ''
+  // The words must not accuse the student of a miss they did not make.
+  const who = pivotWasStudent
+    ? `you played ${game.pivotSan}${lossPawns ? `, giving back roughly${pawnText}` : ''}`
+    : `${pivotColor === 'w' ? 'White' : 'Black'} played ${game.pivotSan}${lossPawns ? `, and the position swung by roughly${pawnText}` : ''}`
   const explanation = [
-    `Move ${moveNo} of your game against ${game.botName}: you played ${game.pivotSan}${lossPawns ? `, throwing away roughly ${lossPawns} pawns of evaluation` : ''}.`,
-    'This is the position right before that move, with the chance to play it better.',
+    `Move ${moveNo} of your game against ${game.botName}: ${who}.`,
+    'This is the position right before that move. Play the strongest continuation.',
   ].join(' ')
 
   const ctx = resolveLevelContext(req.ctx.tier, req.ctx.level, req.profile.skillLevel)

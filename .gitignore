@@ -63,5 +63,6 @@ upload/
 .env.*
 !.env.example
 db/.secret
-data/
-db/.bank-*
+data/lichess/*.csv
+db/*.db
+dev.log*

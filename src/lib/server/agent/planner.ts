@@ -194,9 +194,24 @@ async function gameOutcome(env: AgentEnv, op: StoredGameOp): Promise<string> {
     ? ''
     : ' This game has not been through a full Game review yet, so these counts are just the stored labels, not a clean bill of play.'
   if (op.cmd === 'overview') {
-    const pivot = g.pivotSan
-      ? ` The move that bent the game was ${g.pivotSan} at move ${Math.floor((g.pivotPly ?? 0) / 2) + 1}${g.pivotLoss != null ? `, costing about ${Math.round(g.pivotLoss / 100)} pawns of evaluation` : ''}.`
-      : ' Game review has not flagged a single turning move for this one.'
+    // Whose move was the pivot? Even ply indexes are White moves. When the
+    // stored pivot was not the student's move, or the student had no misses
+    // at all, the text must NOT call it "the move that bent the game" as if
+    // it were theirs: "0 blunders" plus "your pivotal miss" in one report is
+    // the contradiction that erodes trust in the analysis.
+    const pivotColor: 'w' | 'b' = (g.pivotPly ?? 0) % 2 === 0 ? 'w' : 'b'
+    const pivotWasStudent = g.pivotSan != null && pivotColor === (g.color === 'w' ? 'w' : 'b')
+    const ownMisses = blunders + mistakes + inaccuracies
+    const moveNo = Math.floor((g.pivotPly ?? 0) / 2) + 1
+    const pawns = g.pivotLoss != null ? g.pivotLoss / 100 : null
+    const pawnText = pawns != null ? `, costing about ${pawns} ${pawns === 1 ? 'pawn' : 'pawns'} of evaluation` : ''
+    const pivot = !g.pivotSan
+      ? ' Game review has not flagged a single turning move for this one.'
+      : pivotWasStudent && ownMisses > 0
+        ? ` The biggest turning point on your side was ${g.pivotSan} at move ${moveNo}${pawnText}.`
+        : pivotWasStudent
+          ? ` Your largest single eval swing was ${g.pivotSan} at move ${moveNo}, which review scored better than a mistake; no true misses were found on your side.`
+          : ` The biggest turning point came on ${pivotColor === 'w' ? "White's" : "Black's"} side of the board: ${g.pivotSan} at move ${moveNo}.`
     return head + reviewed + pivot
   }
   // pivot: the engine's verdict on the position right before the turning move.
@@ -314,7 +329,7 @@ export async function runAssessment(env: AgentEnv, ctx: StepCtx): Promise<Assess
   if (recent.length) {
     const lines = recent.map((g, i) => {
       const acc = g.playerAcc != null ? ` ${g.playerAcc}% accuracy` : ''
-      const piv = g.pivotSan != null && g.pivotLoss != null ? ` pivotal miss: ${g.pivotSan} (-${Math.round(g.pivotLoss / 100)} pawns)` : ''
+      const piv = g.pivotSan != null && g.pivotLoss != null ? ` key moment: ${g.pivotSan} (-${Math.round(g.pivotLoss / 100)} ${Math.round(g.pivotLoss / 100) === 1 ? 'pawn' : 'pawns'})` : ''
       return `${i + 1}. ${g.result} as ${g.color === 'w' ? 'White' : 'Black'} vs ${g.botName}${acc}${piv}`
     })
     facts.push(`Games on file, newest first (the game op takes which: "last" | "loss" | "win" | "draw"): ${lines.join('; ')}.`)
