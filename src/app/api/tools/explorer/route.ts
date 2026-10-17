@@ -31,6 +31,13 @@ interface ExplorerPayload {
   black: number
   moves: ExplorerMove[]
   opening: { eco: string; name: string } | null
+  /** 'explorer': real community game stats. 'cloud': community database
+   * unreachable from this server; the Lichess cloud engine's verified
+   * evaluation is served instead so the panel stays honest and useful. */
+  mode?: 'explorer' | 'cloud'
+  cloudDepth?: number
+  cloudCp?: number | null
+  cloudMate?: number | null
 }
 
 const cache = new Map<string, { at: number; payload: ExplorerPayload }>()
@@ -89,6 +96,14 @@ export async function GET(req: NextRequest) {
       signal: AbortSignal.timeout(8_000),
     })
     if (!res.ok) {
+      // The community database answers 401 from some datacenter IPs. Fall back
+      // to the Lichess cloud engine (a different host, usually reachable) so
+      // the panel degrades to verified engine lines instead of an error.
+      const cloud = await cloudEval(fen)
+      if (cloud) {
+        cachePut(fen, cloud.payload)
+        return NextResponse.json({ ...cloud.payload, cached: false })
+      }
       return NextResponse.json({ error: `The explorer database answered with HTTP ${res.status}.` }, { status: 502 })
     }
     const raw = (await res.json()) as Record<string, unknown>
@@ -114,11 +129,72 @@ export async function GET(req: NextRequest) {
               name: String((raw.opening as Record<string, unknown>).name ?? ''),
             }
           : null,
+      mode: 'explorer',
     }
     cachePut(fen, payload)
     return NextResponse.json({ ...payload, cached: false })
   } catch (e) {
+    const cloud = await cloudEval(fen).catch(() => null)
+    if (cloud) {
+      cachePut(fen, cloud.payload)
+      return NextResponse.json({ ...cloud.payload, cached: false })
+    }
     const msg = e instanceof Error ? e.message : String(e)
     return NextResponse.json({ error: `Could not reach the explorer database (${msg.slice(0, 80)}).` }, { status: 502 })
+  }
+}
+
+/** Lichess cloud-eval fallback: real engine output for positions the cloud
+ * has seen. Returns null when the host is unreachable or the position is
+ * unknown — never invents a line. */
+async function cloudEval(fen: string): Promise<{ payload: ExplorerPayload } | null> {
+  try {
+    const res = await fetch(
+      `https://lichess.org/api/cloud-eval?fen=${encodeURIComponent(fen)}&multiPv=3`,
+      { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(6_000) },
+    )
+    if (!res.ok) return null
+    const raw = (await res.json()) as {
+      pvs?: { moves?: string; cp?: number; mate?: number }[]
+      depth?: number
+    }
+    const pvs = Array.isArray(raw.pvs) ? raw.pvs.slice(0, 3) : []
+    if (!pvs.length) return null
+    const moves: ExplorerMove[] = []
+    for (const pv of pvs) {
+      const uciList = String(pv.moves ?? '').trim().split(/\s+/).filter(Boolean)
+      const first = uciList[0]
+      if (!first || first.length < 4) continue
+      const g = new Chess(fen)
+      let san: string
+      try {
+        const mv = g.move({ from: first.slice(0, 2), to: first.slice(2, 4), promotion: first.slice(4, 5) || undefined })
+        if (!mv) continue
+        san = mv.san
+      } catch {
+        continue
+      }
+      // In cloud mode there are no game stats; the row shows the engine's
+      // continuation and the eval rides in the header text.
+      moves.push({ uci: first, san, white: 0, draws: 0, black: 0, averageRating: undefined })
+    }
+    if (!moves.length) return null
+    const firstPv = pvs[0]
+    return {
+      payload: {
+        fen,
+        white: 0,
+        draws: 0,
+        black: 0,
+        moves,
+        opening: null,
+        mode: 'cloud',
+        cloudDepth: Number(raw.depth ?? 0) || undefined,
+        cloudCp: typeof firstPv.cp === 'number' ? firstPv.cp : null,
+        cloudMate: typeof firstPv.mate === 'number' ? firstPv.mate : null,
+      },
+    }
+  } catch {
+    return null
   }
 }

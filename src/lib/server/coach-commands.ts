@@ -650,7 +650,8 @@ export async function boardThreats(req: CommandRequest): Promise<CommandOutcome>
     return { content: 'That board position did not parse. Reset and try again.' }
   }
   if (game.isGameOver()) return { content: 'This position is already decided. Set up the next one.' }
-  if (game.isCheck()) {
+  const inCheck = game.isCheck()
+  if (inCheck) {
     return { content: 'You are in check right now, so there is nothing to predict: deal with the check first. Run /best if you want the move.' }
   }
   const swapped = swapTurn(fen)
@@ -669,7 +670,39 @@ export async function boardThreats(req: CommandRequest): Promise<CommandOutcome>
   const opponent = game.turn() === 'w' ? 'Black' : 'White'
   const severity = Math.abs(a.bestScore) >= 250 ? 'a real problem' : Math.abs(a.bestScore) >= 80 ? 'uncomfortable' : 'mild'
   const why = classifyMove(swapped, mv.san)
-  const parts = [`If it were ${opponent}'s move, ${mv.san} is the idea, and that would be ${severity} for you.`]
+
+  // The student usually asks "what do I have": answer THEIR options first
+  // (verified straight from the legal-move list, so nothing can be invented),
+  // then the opponent's main idea. Answering only one side made students
+  // re-ask, which is exactly the loop this coach must not create.
+  const parts: string[] = []
+  const checks: string[] = []
+  const captures: string[] = []
+  for (const m of game.moves({ verbose: true })) {
+    const probe = new Chess(fen)
+    try {
+      probe.move({ from: m.from, to: m.to, promotion: m.promotion })
+    } catch {
+      continue
+    }
+    if (probe.isCheck()) checks.push(m.san)
+    else if (m.captured) {
+      const victim = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen' }[m.captured] ?? 'piece'
+      const defended = probe.attackers(m.to, m.color === 'w' ? 'b' : 'w').length > 0
+      captures.push(`${m.san} (takes the ${victim}${defended ? ', defended' : ', undefended'})`)
+    }
+  }
+  parts.push(
+    checks.length
+      ? `Your checks: ${checks.slice(0, 6).join(', ')}.`
+      : 'You have no checks in this position.',
+  )
+  parts.push(
+    captures.length
+      ? `Your captures: ${captures.slice(0, 6).join('; ')}.`
+      : 'You have no captures this move.',
+  )
+  parts.push(`If it were ${opponent}'s move, ${mv.san} is the idea, and that would be ${severity} for you.`)
   if (why) parts.push(`It works because ${why}.`)
   parts.push('Your turn to move changes things, so either stop that idea or make it irrelevant.')
   return { content: parts.join(' ') }

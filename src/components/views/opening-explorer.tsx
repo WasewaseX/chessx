@@ -28,6 +28,10 @@ interface ExplorerPayload {
   black: number
   moves: ExplorerMove[]
   opening: { eco: string; name: string } | null
+  mode?: 'explorer' | 'cloud'
+  cloudDepth?: number
+  cloudCp?: number | null
+  cloudMate?: number | null
   cached?: boolean
   error?: string
 }
@@ -116,6 +120,7 @@ export function OpeningExplorer() {
 
   const totalGames = payload ? payload.white + payload.draws + payload.black : 0
   const bestUci = payload?.moves[0]?.uci ?? null
+  const cloudMode = payload?.mode === 'cloud'
 
   const arrows: Arrow[] = useMemo(() => {
     if (!hoverUci || hoverUci === bestUci) return []
@@ -177,10 +182,12 @@ export function OpeningExplorer() {
         )}
         {payload && !gameOver && (
           <p className="mb-2 text-xs text-muted-foreground" aria-live="polite">
-            {fmt(totalGames)} games in the database at this position{payload.cached ? ' (cached)' : ''}.
+            {cloudMode
+              ? `The community database is unreachable from this server, so this is the Lichess cloud engine's verified evaluation${payload.cloudDepth ? ` (depth ${payload.cloudDepth})` : ''}${payload.cloudMate != null ? `: mate in ${Math.abs(payload.cloudMate)}` : payload.cloudCp != null ? `: ${payload.cloudCp > 0 ? '+' : ''}${(payload.cloudCp / 100).toFixed(1)} for White` : ''}. Play moves on the board to keep exploring.`
+              : `${fmt(totalGames)} games in the database at this position${payload.cached ? ' (cached)' : ''}.`}
           </p>
         )}
-        <ul className="max-h-[420px] space-y-1 overflow-y-auto pr-1 scroll-slim" aria-label="Moves with statistics">
+        <ul className="max-h-[420px] space-y-1 overflow-y-auto pr-1 scroll-slim" aria-label={cloudMode ? 'Engine lines' : 'Moves with statistics'}>
           {payload?.moves.map((m) => {
             const games = m.white + m.draws + m.black
             const pw = games ? (m.white / games) * 100 : 0
@@ -210,20 +217,28 @@ export function OpeningExplorer() {
                 >
                   <div className="flex items-center justify-between gap-2 text-sm">
                     <span className="font-mono font-bold">{m.san}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {fmt(games)} games{m.averageRating ? ` · avg ${Math.round(m.averageRating)}` : ''}
-                    </span>
+                    {cloudMode ? (
+                      <span className="text-xs text-muted-foreground">engine line</span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {fmt(games)} games{m.averageRating ? ` · avg ${Math.round(m.averageRating)}` : ''}
+                      </span>
+                    )}
                   </div>
-                  <div className="mt-1 flex h-2 w-full overflow-hidden rounded-full" aria-hidden>
-                    <div className="h-full bg-[#e8e6e3] dark:bg-[#c8c6c3]" style={{ width: `${pw}%` }} />
-                    <div className="h-full bg-[#9e9c9a] dark:bg-[#7a7876]" style={{ width: `${pd}%` }} />
-                    <div className="h-full bg-[#4a4846] dark:bg-[#35333f]" style={{ width: `${pb}%` }} />
-                  </div>
-                  <div className="mt-0.5 flex justify-between text-[10px] text-muted-foreground" aria-hidden>
-                    <span>{pw.toFixed(0)}%</span>
-                    <span>{pd.toFixed(0)}%</span>
-                    <span>{pb.toFixed(0)}%</span>
-                  </div>
+                  {games > 0 && (
+                    <>
+                      <div className="mt-1 flex h-2 w-full overflow-hidden rounded-full" aria-hidden>
+                        <div className="h-full bg-[#e8e6e3] dark:bg-[#c8c6c3]" style={{ width: `${pw}%` }} />
+                        <div className="h-full bg-[#9e9c9a] dark:bg-[#7a7876]" style={{ width: `${pd}%` }} />
+                        <div className="h-full bg-[#4a4846] dark:bg-[#35333f]" style={{ width: `${pb}%` }} />
+                      </div>
+                      <div className="mt-0.5 flex justify-between text-[10px] text-muted-foreground" aria-hidden>
+                        <span>{pw.toFixed(0)}%</span>
+                        <span>{pd.toFixed(0)}%</span>
+                        <span>{pb.toFixed(0)}%</span>
+                      </div>
+                    </>
+                  )}
                 </button>
               </li>
             )

@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 // One Elo row per account (pool 'overall'). Created the moment the player
 // picks a level during onboarding so the account carries its starting rating
 // from day one, exactly like chess.com shows a rating after signup.
-export async function ensureRatingRow(userId: string, skillLevel: string) {
+async function ensureRatingRow(userId: string, skillLevel: string) {
   const existing = await db.userRating.findUnique({
     where: { userId_pool: { userId, pool: 'overall' } },
   })

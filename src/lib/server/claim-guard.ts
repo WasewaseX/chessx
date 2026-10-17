@@ -46,12 +46,13 @@ function isBareSquare(tok: string): boolean {
 function checkPieceClaims(text: string, g: Chess): string[] {
   const violations: string[] = []
   const negs = [...stripNoise(text).matchAll(NEG_PIECE_AT_RE)].map((m) => m[2].toLowerCase())
+  const CODE: Record<string, string> = { king: 'k', queen: 'q', rook: 'r', bishop: 'b', knight: 'n', pawn: 'p' }
   for (const m of stripNoise(text).matchAll(PIECE_AT_RE)) {
     const claimed = m[1].toLowerCase()
     const sq = m[2].toLowerCase()
     if (negs.some((n) => n === sq)) continue // the reply itself denies it
     const at = g.get(sq as never)
-    if (!at || at.type !== claimed[0]) {
+    if (!at || at.type !== CODE[claimed]) {
       const actual = at ? `${at.color === 'w' ? 'White' : 'Black'} ${NAMES[at.type]}` : 'empty'
       violations.push(`the reply says there is a ${claimed} on ${sq}, but the board has ${actual === 'empty' ? 'nothing there' : `a ${actual} there`}`)
     }
@@ -95,6 +96,97 @@ function checkMateClaims(text: string, g: Chess): string[] {
   return violations
 }
 
+/** Verify existence claims about the position itself: "all pieces are still
+ * on their starting squares", "you have no captures", "no checks". These are
+ * the hallucinations a move-replay cannot catch: no move is named, the
+ * sentence is just factually wrong about the board. */
+function checkPositionClaims(text: string, g: Chess): string[] {
+  const violations: string[] = []
+  const t = stripNoise(text)
+
+  // "All pieces on their starting squares" — verifiable against the start
+  // position piece map.
+  const claimsAllStart =
+    /\b(?:all|every|each)\b[^.!?]{0,40}\b(?:pieces?|pawns?)\b[^.!?]{0,30}\b(?:on|at|in)\s+(?:their|its)\s+(?:starting|original|home|beginning)/i.test(t) ||
+    /\b(?:still|back)\s+on\s+their\s+starting\s+squares/i.test(t)
+  if (claimsAllStart) {
+    const moved = countMovedPieces(g)
+    if (moved > 0) {
+      violations.push(`the reply says the pieces are still on their starting squares, but ${moved} of them have moved`)
+    }
+  }
+
+  // "You have no captures / none of your pieces can capture" — verifiable
+  // against the legal-move list.
+  const claimsNoCaptures =
+    /\byou (?:have|got) no captures\b/i.test(t) ||
+    /\bnone of (?:your|the) pieces can (?:capture|take)\b/i.test(t) ||
+    /\bno captures (?:are )?available\b/i.test(t) ||
+    /\bnothing (?:to|can be) captur/i.test(t) ||
+    /\bno captures this move\b/i.test(t)
+  if (claimsNoCaptures) {
+    const caps = legalCaptures(g)
+    if (caps.length > 0) {
+      violations.push(`the reply says there are no captures, but these captures exist: ${caps.slice(0, 3).join(', ')}`)
+    }
+  }
+
+  // "You have no checks" — same verification, checks only.
+  const claimsNoChecks =
+    /\byou (?:have|got) no checks\b/i.test(t) ||
+    /\bno checks? (?:are )?available\b/i.test(t) ||
+    /\bno checking moves\b/i.test(t)
+  if (claimsNoChecks) {
+    const chks = legalChecks(g)
+    if (chks.length > 0) {
+      violations.push(`the reply says there are no checks, but these checks exist: ${chks.slice(0, 3).join(', ')}`)
+    }
+  }
+  return violations
+}
+
+function countMovedPieces(g: Chess): number {
+  let moved = 0
+  const start = new Chess()
+  const startMap = new Map<string, string>()
+  for (const row of start.board()) {
+    for (const sq of row) {
+      if (sq) startMap.set(sq.square, `${sq.color}${sq.type}`)
+    }
+  }
+  for (const row of g.board()) {
+    for (const sq of row) {
+      if (!sq) continue
+      const key = `${sq.color}${sq.type}`
+      if (startMap.get(sq.square) !== key) moved += 1
+    }
+  }
+  return moved
+}
+
+function legalCaptures(g: Chess): string[] {
+  const out: string[] = []
+  for (const m of g.moves({ verbose: true })) {
+    if (m.captured) out.push(m.san)
+  }
+  return out
+}
+
+function legalChecks(g: Chess): string[] {
+  const out: string[] = []
+  const fen = g.fen()
+  for (const m of g.moves({ verbose: true })) {
+    const probe = new Chess(fen)
+    try {
+      probe.move({ from: m.from, to: m.to, promotion: m.promotion })
+    } catch {
+      continue
+    }
+    if (probe.isCheck()) out.push(m.san)
+  }
+  return out
+}
+
 /**
  * Verify every chess claim in a reply against the position. `fen` is the
  * position the conversation was in when the reply was written.
@@ -112,6 +204,7 @@ export function verifyClaims(text: string, fen: string): ClaimVerdict {
   violations.push(...checkPieceClaims(text, base))
   violations.push(...checkSideClaims(text, base))
   violations.push(...checkMateClaims(text, base))
+  violations.push(...checkPositionClaims(text, base))
 
   // Move replay: walk tokens in order; on failure retry from the base
   // position (the model often restarts lines: "after e5, what if Nxe5?").
