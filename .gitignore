@@ -64,3 +64,4 @@ upload/
 !.env.example
 db/.secret
 data/
+db/.bank-*
