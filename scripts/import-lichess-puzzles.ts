@@ -185,6 +185,15 @@ function importAll() {
         db.exec('COMMIT')
         db.exec(`CREATE INDEX IF NOT EXISTS idx_puzzles_rating ON puzzles(rating)`)
         db.exec(`CREATE INDEX IF NOT EXISTS idx_puzzles_popularity ON puzzles(popularity)`)
+        // Composite index for the serving path: the window query filters a
+        // rating band and wants the most-played rows first. Both directions
+        // are index orders, so the band walk STOPS at LIMIT with no sort —
+        // 1ms instead of a 25s temp-B-tree over ~2M rows on a cold cache.
+        db.exec(`CREATE INDEX IF NOT EXISTS idx_p_rating_asc_np_desc ON puzzles(rating, nbplays DESC)`)
+        db.exec(`CREATE INDEX IF NOT EXISTS idx_p_rating_desc_np_desc ON puzzles(rating DESC, nbplays DESC)`)
+        // Exact row count baked into the file: serving reads one meta row
+        // instead of running COUNT(*) over 5.7M rows on every cold start.
+        db.exec(`CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)`)
         // theme popularity for the chips: pivot in rowid chunks so 5.7M rows
         // never sit in memory at once
         db.exec(`CREATE TABLE IF NOT EXISTS theme_stats (theme TEXT PRIMARY KEY, count INTEGER NOT NULL)`)
@@ -205,6 +214,10 @@ function importAll() {
         }
         const ins = db.prepare(`INSERT INTO theme_stats (theme, count) VALUES (?, ?)`)
         for (const [t, c] of counts) ins.run(t, c)
+        const rowCount = db.prepare('SELECT COUNT(*) c FROM puzzles').get() as { c: number | bigint }
+        db
+          .prepare(`INSERT OR REPLACE INTO meta (key, value) VALUES ('row_count', ?)`)
+          .run(String(rowCount.c))
         db.close()
         console.log(`[import] done: ${rows.toLocaleString()} puzzles imported.`)
         resolve()

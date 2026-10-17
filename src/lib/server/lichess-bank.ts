@@ -68,6 +68,18 @@ export function lichessCount(): number {
   const d = getDb()
   if (!d) return 0
   try {
+    // Newer banks carry the exact count in a tiny meta table — a one-row read
+    // instead of a multi-second COUNT(*) over 5.7M rows on a cold cache.
+    const meta = d.prepare(`SELECT value FROM meta WHERE key = 'row_count'`).get() as
+      | { value: string }
+      | undefined
+    if (meta?.value) {
+      const n = Number(meta.value)
+      if (Number.isFinite(n) && n > 0) {
+        countCache = { at: Date.now(), value: n }
+        return n
+      }
+    }
     const row = d.prepare('SELECT COUNT(*) c FROM puzzles').get() as { c: number | bigint }
     const n = Number(row.c)
     countCache = { at: Date.now(), value: n }
@@ -247,17 +259,31 @@ export function lichessWindow(rating: number, size = 400, themes?: string[]): Li
     ]
     for (const [width, take] of slices) {
       if (out.length >= size) break
-      const rows = d
-        .prepare(
-          `SELECT ${COLS} FROM puzzles WHERE rating BETWEEN ? AND ?${themeClause} ORDER BY nbplays DESC LIMIT ?`,
-        )
-        .all(target - width, target + width, ...patterns, take) as unknown as Row[]
-      for (const r of rows) {
-        if (seen.has(r.id)) continue
-        seen.add(r.id)
-        const p = rowToPuzzle(r)
-        if (p) out.push(p)
+      // Dual-cursor band walk: with the (rating, nbplays DESC) and
+      // (rating DESC, nbplays DESC) indexes both orders are index orders, so
+      // SQLite walks the band from its edges and STOPS at LIMIT — no temp
+      // B-tree over the ~2M rows a dense ±150 band would otherwise sort
+      // (25s cold on a 4GB host vs 1ms here). Half from each edge so the
+      // window spans the band instead of hugging its lowest ratings.
+      const half = Math.max(1, Math.ceil(take / 2))
+      const legs: Array<{ order: string; limit: number }> = [
+        { order: 'rating ASC, nbplays DESC', limit: half },
+        { order: 'rating DESC, nbplays DESC', limit: take - half },
+      ]
+      for (const leg of legs) {
         if (out.length >= size) break
+        const rows = d
+          .prepare(
+            `SELECT ${COLS} FROM puzzles WHERE rating BETWEEN ? AND ?${themeClause} ORDER BY ${leg.order} LIMIT ?`,
+          )
+          .all(target - width, target + width, ...patterns, leg.limit) as unknown as Row[]
+        for (const r of rows) {
+          if (seen.has(r.id)) continue
+          seen.add(r.id)
+          const p = rowToPuzzle(r)
+          if (p) out.push(p)
+          if (out.length >= size) break
+        }
       }
     }
     // Fisher-Yates over the assembled window: the client chips/battle deals
