@@ -13,6 +13,7 @@ import {
   SESSION_COOKIE,
   UNSUPPORTED_ACCOUNT_MSG,
 } from '@/lib/auth'
+import { seedForSkill } from '@/lib/rating'
 
 const bodySchema = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
@@ -64,7 +65,10 @@ export async function POST(req: NextRequest) {
       passwordHash,
       profile: { create: { name: username } },
       ratings: {
-        create: { pool: 'overall', rating: 1000, rd: 350 },
+        // The overall pool starts from the self-assessed skill seed, the same
+        // number the profile route and puzzle ratings use. A hardcoded start
+        // would put every newcomer at the same Elo regardless of level.
+        create: { pool: 'overall', rating: seedForSkill('beginner'), rd: 350 },
       },
     },
   })

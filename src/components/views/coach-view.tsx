@@ -14,7 +14,8 @@ import { coachMaybe } from '@/lib/coaches'
 import { CoachChoice } from '@/components/shell/coach-choice'
 import { ArtifactCard } from '@/components/coach/artifact-card'
 import { CoachDrillsShelf } from '@/components/coach/drills-shelf'
-import type { ArtifactView } from '@/lib/coach-artifacts'
+import { AgentTaskCard } from '@/components/coach/agent-card'
+import { displayTitle, type ArtifactView } from '@/lib/coach-artifacts'
 import { nextUnlockedId } from '@/lib/unlock'
 import { findLevel } from '@/content/levels'
 import type { ViewName } from '@/lib/store'
@@ -41,6 +42,11 @@ import {
   Crown,
   Castle,
   SlashSquare,
+  CalendarCheck,
+  Microscope,
+  Dumbbell,
+  Radar,
+  Sparkles,
 } from 'lucide-react'
 
 interface Msg {
@@ -50,6 +56,9 @@ interface Msg {
   artifact?: ArtifactView
   /** Extra artifacts (the daily challenge ships a puzzle AND a quiz). */
   artifacts?: ArtifactView[]
+  /** Set when the reply launched an agent mission: the card below the
+   * bubble streams the live checklist from /api/agent/stream. */
+  agentTaskId?: string
 }
 
 interface SendCtx {
@@ -66,10 +75,18 @@ const VALID_VIEWS: ViewName[] = ['home', 'play', 'lessons', 'lesson', 'puzzles',
 const SKILL_RUNNING = 'Crafting, verifying every move with the engine. This can take half a minute.'
 
 const SUGGESTIONS = [
-  'Generate a puzzle for my level.',
+  'Build me a training plan.',
   "What's the plan for the side to move?",
-  'What can you do?',
+  'Dissect my last game.',
   'Build me a drill from this position.',
+]
+
+const MISSION_CHIPS: { cmd: string; label: string; Icon: typeof Sparkles }[] = [
+  { cmd: '/plan', label: 'Training plan', Icon: CalendarCheck },
+  { cmd: '/autopsy', label: 'Game autopsy', Icon: Microscope },
+  { cmd: '/bootcamp', label: 'Bootcamp', Icon: Dumbbell },
+  { cmd: '/radar', label: 'Weakness radar', Icon: Radar },
+  { cmd: '/gauntlet', label: 'Tactics gauntlet', Icon: Swords },
 ]
 
 function sanLine(sans: string[]): string {
@@ -123,7 +140,9 @@ export function CoachView() {
         const data = await readJson<{ progress?: Array<{ lessonId: string; completed: boolean }> }>(res)
         if (cancelled) return
         const done = new Set((data.progress ?? []).filter((p) => p.completed).map((p) => p.lessonId))
-        const nextId = nextUnlockedId(done)
+        // The self-assessment steers a fresh student's anchor (Intermediate
+        // onboarding means Intermediate material, not Newbie drills).
+        const nextId = nextUnlockedId(done, profile?.skillLevel)
         if (!nextId) {
           setCourseRef(null)
           return
@@ -139,7 +158,7 @@ export function CoachView() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [profile?.skillLevel])
 
   const refreshDrills = useCallback(async () => {
     try {
@@ -186,7 +205,10 @@ export function CoachView() {
                 : skill === 'endgame_drill'
                   ? 'Endgame technique, verified move by move:'
                   : 'Fresh puzzle, calibrated to your level:'
-        setMessages((m) => [...m, { role: 'assistant', content: `${lead} ${a.title}.`, artifact: a }])
+        // No title in the lead: an unsolved headline is a spoiler. The card
+        // below the message carries the neutral name; the real headline
+        // appears on the card once it is solved.
+        setMessages((m) => [...m, { role: 'assistant', content: `${lead} The board is set below.`, artifact: a }])
         void refreshDrills()
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e))
@@ -384,7 +406,7 @@ export function CoachView() {
             context: {
               ...context,
               skillLevel: profile?.skillLevel ?? 'beginner',
-              coach: coach.id,
+              coach: coach?.id ?? 'nina',
               ...(courseRef ? { tier: courseRef.tier, level: courseRef.level } : {}),
             },
           }),
@@ -395,12 +417,13 @@ export function CoachView() {
           artifact?: ArtifactView
           artifacts?: ArtifactView[]
           action?: CoachAction
+          agentTaskId?: string
         }>(res)
         if (!res.ok || !data.content) throw new Error(data.error ?? 'The coach could not answer. Try again.')
         const artifacts = data.artifacts?.length ? data.artifacts : data.artifact ? [data.artifact] : []
         setMessages((m) => [
           ...m,
-          { role: 'assistant', content: data.content!, ...(artifacts.length ? { artifacts } : {}) },
+          { role: 'assistant', content: data.content!, ...(artifacts.length ? { artifacts } : {}), ...(data.agentTaskId ? { agentTaskId: data.agentTaskId } : {}) },
         ])
         if (artifacts.length) void refreshDrills()
         if (data.action) applyAction(data.action)
@@ -582,7 +605,7 @@ export function CoachView() {
         {messages.length === 0 && !busy && (
           <div>
             <div className="rounded-md bg-secondary p-3 text-sm leading-relaxed text-muted-foreground">
-              Talk to me like a person: ask about the position on the board, a plan, an opening, or what went wrong in a game. I can build training for you, every move verified by the engine before you see it, and I can drive the app itself: flip the board, open a section, switch the coach. Type{' '}
+              Talk to me like a person: ask about the position on the board, a plan, an opening, or what went wrong in a game. I can build training for you, every move verified by the engine before you see it, and I can drive the app itself: flip the board, open a section, switch the coach. For long-form work I run missions: say "build me a training plan" or type{' '}
               <button
                 className="font-mono font-semibold text-primary hover:underline"
                 onClick={() => setInput('/')}
@@ -590,11 +613,7 @@ export function CoachView() {
               >
                 /
               </button>{' '}
-              to browse every skill, or{' '}
-              <button className="font-semibold text-primary hover:underline" onClick={() => void send('/help')}>
-                /help
-              </button>{' '}
-              for the list. For a full move-by-move review, play a game first and use{' '}
+              to browse every skill and mission ({'/agent'} takes any goal and plans the steps itself). For a full move-by-move review, play a game first and use{' '}
               <button className="font-semibold text-primary hover:underline" onClick={() => navigate('analysis')}>
                 Game review
               </button>
@@ -639,6 +658,16 @@ export function CoachView() {
                 ))}
               </div>
             )}
+            {m.agentTaskId && (
+              <div className="pl-0 sm:pl-9">
+                <AgentTaskCard
+                  taskId={m.agentTaskId}
+                  onArtifactsChanged={() => void refreshDrills()}
+                  onAction={applyAction}
+                  onOpenArtifact={(a) => setDrillOpen(a)}
+                />
+              </div>
+            )}
           </div>
         ))}
 
@@ -668,6 +697,19 @@ export function CoachView() {
 
       <div className="relative border-t border-border">
         <div className="flex gap-2 overflow-x-auto px-3 pt-2 pb-1 [scrollbar-width:none]">
+          <span className="flex shrink-0 items-center gap-1 pr-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <Sparkles className="h-3 w-3" /> Missions
+          </span>
+          {MISSION_CHIPS.map(({ cmd, label, Icon }) => (
+            <button
+              key={cmd}
+              onClick={() => void send(cmd)}
+              disabled={busy || busySkill != null}
+              className="flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
+            >
+              <Icon className="h-3.5 w-3.5" /> {label}
+            </button>
+          ))}
           <button
             onClick={() => void runSkill('level_puzzle')}
             disabled={busy || busySkill != null}
@@ -739,11 +781,11 @@ export function CoachView() {
             <GraduationCap className="h-3.5 w-3.5" /> Quiz me
           </button>
           <button
-            onClick={() => void send('What should I focus on in this position to improve?')}
+            onClick={() => void send('/plan')}
             disabled={busy || busySkill != null}
             className="flex shrink-0 items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold transition hover:bg-accent disabled:opacity-50"
           >
-            <ListChecks className="h-3.5 w-3.5" /> Improvement plan
+            <ListChecks className="h-3.5 w-3.5" /> Full training plan
           </button>
           <button
             onClick={() => void send('Summarize the position: material, king safety, and the best plan for both sides.')}
@@ -868,7 +910,11 @@ export function CoachView() {
       <Dialog open={drillOpen != null} onOpenChange={(o) => !o && setDrillOpen(null)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{drillOpen?.title ?? 'Drill'}</DialogTitle>
+            {/* Spoiler rule, enforced everywhere: an unsolved puzzle or drill
+                never shows its headline, not even in the dialog frame. The
+                neutral "Puzzle · White to play · rating" line stands in until
+                the card is solved. */}
+            <DialogTitle>{drillOpen ? displayTitle(drillOpen) : 'Drill'}</DialogTitle>
           </DialogHeader>
           {drillOpen && (
             <ArtifactCard

@@ -10,8 +10,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
 import { ChessBoard, type FlashMark } from '@/components/chess/board'
 import { CharacterFace } from '@/components/chess/characters'
-import { PUZZLES } from '@/content/puzzles'
-import type { Puzzle } from '@/content/schema'
+import type { PuzzleStub } from '@/content/schema'
+import { fetchPuzzleIndex, gradePuzzleMove } from '@/lib/chess/solver'
 import { BOTS, type Bot } from '@/lib/chess/bots'
 import { useApp, type ProfileData } from '@/lib/store'
 import { playSound } from '@/lib/chess/sounds'
@@ -64,8 +64,8 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 /** Five puzzles near the player's level, avoiding the previous battle's deal. */
-function drawBatch(target: number, avoid: Set<string>): Puzzle[] {
-  const sorted = [...PUZZLES].sort((a, b) => Math.abs(a.rating - target) - Math.abs(b.rating - target))
+function drawBatch(target: number, avoid: Set<string>, pool: PuzzleStub[]): PuzzleStub[] {
+  const sorted = [...pool].sort((a, b) => Math.abs(a.rating - target) - Math.abs(b.rating - target))
   const near = sorted.slice(0, Math.min(14, sorted.length)).filter((p) => !avoid.has(p.id))
   const use = shuffle(near.length >= 5 ? near : sorted.slice(0, Math.min(14, sorted.length)))
   return use.slice(0, 5)
@@ -80,7 +80,8 @@ export function BattlePanel() {
   const { profile, setProfile } = useApp()
   const [phase, setPhase] = useState<Phase>('idle')
   const [bot, setBot] = useState<Bot | null>(null)
-  const [batch, setBatch] = useState<Puzzle[]>([])
+  const [batch, setBatch] = useState<PuzzleStub[]>([])
+  const [pool, setPool] = useState<PuzzleStub[]>([])
   const [roundIdx, setRoundIdx] = useState(0)
   const [you, setYou] = useState(0)
   const [botPts, setBotPts] = useState(0)
@@ -97,7 +98,7 @@ export function BattlePanel() {
   const [xpGain, setXpGain] = useState(0)
 
   const gameRef = useRef(new Chess())
-  const plyRef = useRef(0)
+  const userMovesRef = useRef<string[]>([])
   const busyRef = useRef(false)
   const roundTimeRef = useRef(ROUND_SECONDS)
   const tokenRef = useRef(0)
@@ -141,6 +142,16 @@ export function BattlePanel() {
     fetchRecords()
   }, [fetchRecords])
 
+  // The sanitized pool: positions and ratings only, same as every other
+  // puzzle surface. Grading happens on the server.
+  useEffect(() => {
+    fetchPuzzleIndex()
+      .then(setPool)
+      .catch(() => {
+        /* battling starts once the pool arrives; the idle screen is safe */
+      })
+  }, [])
+
   const clearTimers = useCallback(() => {
     for (const t of timersRef.current) clearTimeout(t)
     timersRef.current = []
@@ -178,9 +189,9 @@ export function BattlePanel() {
 
   /** Everything a new round needs, reset from event-handler context (never
    * synchronously inside an effect): board, round clock, bot plan. */
-  const beginRound = useCallback((b: Bot, p: Puzzle) => {
+  const beginRound = useCallback((b: Bot, p: PuzzleStub) => {
     gameRef.current = new Chess(p.fen)
-    plyRef.current = 0
+    userMovesRef.current = []
     busyRef.current = false
     setFen(p.fen)
     setLastMove(null)
@@ -235,8 +246,9 @@ export function BattlePanel() {
 
   const startBattle = useCallback(
     (b: Bot) => {
+      if (pool.length === 0) return
       const target = profile?.puzzleRating ?? 800
-      const deal = drawBatch(target, lastDealRef.current)
+      const deal = drawBatch(target, lastDealRef.current, pool)
       if (deal.length === 0) return
       lastDealRef.current = new Set(deal.map((p) => p.id))
       setBatch(deal)
@@ -251,7 +263,7 @@ export function BattlePanel() {
       setPhase('running')
       beginRound(b, deal[0])
     },
-    [profile?.puzzleRating, soundEnabled, beginRound],
+    [profile?.puzzleRating, soundEnabled, beginRound, pool],
   )
 
   // Bot clock for the current round: only schedules the timeout, all state
@@ -290,21 +302,17 @@ export function BattlePanel() {
     return () => clearInterval(iv)
   }, [phase, banner])
 
-  const applyScriptedReply = useCallback((p: Puzzle) => {
+  const applyReply = useCallback((replySan: string) => {
     const g = gameRef.current
-    const expected = p.solution.split(' ').filter(Boolean)
-    const reply = expected[plyRef.current]
-    if (!reply) return
     try {
-      const rmv = g.move(reply)
+      const rmv = g.move(replySan)
       if (rmv) {
-        plyRef.current += 1
         setFen(g.fen())
         setLastMove({ from: rmv.from, to: rmv.to })
         playSound(rmv.captured ? 'capture' : 'move', soundEnabled)
       }
     } catch {
-      /* validated content */
+      /* graded content */
     }
   }, [soundEnabled])
 
@@ -314,7 +322,7 @@ export function BattlePanel() {
   }, [])
 
   const onMove = useCallback(
-    (from: Square, to: Square, promotion?: string) => {
+    async (from: Square, to: Square, promotion?: string) => {
       if (phase !== 'running' || banner || busyRef.current || !puzzle) return
       const g = gameRef.current
       let mv
@@ -325,22 +333,27 @@ export function BattlePanel() {
       }
       if (!mv) return
 
-      const expected = puzzle.solution.split(' ').filter(Boolean)
-      const expectedSan = expected[plyRef.current]?.replace(/[+#]/g, '')
-      const sanNorm = mv.san.replace(/[+#]/g, '')
+      busyRef.current = true
+      let verdict
+      try {
+        verdict = await gradePuzzleMove(puzzle.id, [...userMovesRef.current, mv.san])
+      } catch {
+        // grading unreachable: rewind rather than hand the round away
+        g.undo()
+        busyRef.current = false
+        return
+      }
+      if (gameRef.current !== g) {
+        busyRef.current = false
+        return
+      }
 
-      if (sanNorm !== expectedSan) {
-        // one wrong move and the round is gone: battle rules
+      if (!verdict.correct) {
+        // one wrong move and the round is gone: battle rules. The glowing
+        // from-square comes from the grading server with the verdict.
         g.undo()
         playSound('wrong', soundEnabled)
-        busyRef.current = true
-        try {
-          const probe = new Chess(g.fen())
-          const next = probe.move(expected[plyRef.current])
-          if (next) flash([{ square: next.from, color: 'gold' }], 800)
-        } catch {
-          /* validated content */
-        }
+        if (verdict.hintFrom) flash([{ square: verdict.hintFrom as Square, color: 'gold' }], 800)
         const gAtMiss = g
         setTimeout(() => {
           busyRef.current = false
@@ -350,31 +363,36 @@ export function BattlePanel() {
         return
       }
 
-      plyRef.current += 1
+      userMovesRef.current = [...userMovesRef.current, mv.san]
       setFen(g.fen())
       setLastMove({ from: mv.from, to: mv.to })
       playSound(mv.captured ? 'capture' : 'move', soundEnabled)
 
-      const remaining = expected.length - plyRef.current
-      if (remaining === 0) {
+      if (verdict.scriptDone) {
         busyRef.current = true
         const gAtEnd = g
         setTimeout(() => {
           busyRef.current = false
           if (gameRef.current !== gAtEnd) return
+          if (verdict.reply) applyReply(verdict.reply)
           resolveRef.current('you')
         }, 450)
-      } else if (expected[plyRef.current]) {
+        return
+      }
+      if (verdict.reply) {
         busyRef.current = true
+        const replySan = verdict.reply
         const gAtMove = g
         setTimeout(() => {
           busyRef.current = false
           if (gameRef.current !== gAtMove) return
-          applyScriptedReply(puzzle)
+          applyReply(replySan)
         }, 220)
+        return
       }
+      busyRef.current = false
     },
-    [phase, banner, puzzle, flash, soundEnabled, applyScriptedReply],
+    [phase, banner, puzzle, flash, soundEnabled, applyReply],
   )
 
   /* ---------- idle: opponent picker ---------- */

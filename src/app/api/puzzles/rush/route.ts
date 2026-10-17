@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { PUZZLES } from '@/content/puzzles'
-import type { Puzzle } from '@/content/schema'
+import { lichessAvailable, lichessRushBatch } from '@/lib/server/lichess-bank'
 import { getSessionUser } from '@/lib/auth'
 import { bumpActivity } from '@/lib/server/skill'
 import { dayKeyLocal } from '@/lib/day'
@@ -10,10 +10,23 @@ import { numOr, publicProfile } from '@/lib/api'
 /**
  * GET: Puzzle Rush batch, the whole pool ordered easy to hard with a light
  * shuffle inside same-rating groups so runs do not feel memorized.
+ * Sanitized on purpose: id, fen, rating — no solutions, titles or sources.
+ * Grading happens server-side via /api/puzzles/move.
  */
 export async function GET() {
+  // The Lichess bank feeds Rush when installed: buckets walk the whole
+  // 399-3283 rating range, so every level gets a real run.
+  if (lichessAvailable()) {
+    const batch = lichessRushBatch(250)
+    if (batch.length) {
+      return NextResponse.json({
+        puzzles: batch.map((p) => ({ id: p.id, fen: p.fen, rating: p.rating })),
+        total: batch.length,
+      })
+    }
+  }
   const sorted = [...PUZZLES].sort((a, b) => a.rating - b.rating)
-  const batch: Puzzle[] = []
+  const batch: { id: string; fen: string; rating: number }[] = []
   let i = 0
   while (i < sorted.length) {
     let j = i
@@ -23,7 +36,7 @@ export async function GET() {
       const r = Math.floor(Math.random() * (k + 1))
       ;[group[k], group[r]] = [group[r], group[k]]
     }
-    batch.push(...group)
+    batch.push(...group.map((p) => ({ id: p.id, fen: p.fen, rating: p.rating })))
     i = j
   }
   return NextResponse.json({ puzzles: batch, total: batch.length })

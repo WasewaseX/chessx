@@ -19,18 +19,25 @@ export interface AuthUser {
 }
 
 /**
- * Email policy: only established consumer mail providers backed by real
- * identity are accepted. The message intentionally does not explain why;
- * unsupported domains all get the same neutral response.
+ * Email policy: any real, syntactically valid mailbox at any provider is
+ * accepted. The format gate (one @, a dotted domain, sane lengths) keeps
+ * junk out without discriminating by provider; there is no verification
+ * email today, so a domain whitelist bought nothing but locked students out.
+ * Malformed addresses get the same neutral response as anything else invalid.
  */
-const SUPPORTED_EMAIL_DOMAINS = new Set(['gmail.com'])
 export const UNSUPPORTED_ACCOUNT_MSG = 'This account is not supported'
 export const ORIGIN_BLOCKED_MSG = 'Security check failed. Refresh the page and try again.'
+
+const EMAIL_DOMAIN_RE = /^[a-z0-9.-]+\.[a-z]{2,}$/
 
 export function isSupportedEmail(email: string): boolean {
   const at = email.lastIndexOf('@')
   if (at < 1) return false
-  return SUPPORTED_EMAIL_DOMAINS.has(email.slice(at + 1).toLowerCase())
+  const local = email.slice(0, at)
+  const domain = email.slice(at + 1).toLowerCase()
+  if (local.length < 1 || local.length > 64) return false
+  if (domain.length < 4 || domain.length > 253) return false
+  return EMAIL_DOMAIN_RE.test(domain)
 }
 
 export function hashToken(token: string): string {

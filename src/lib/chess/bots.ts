@@ -10,6 +10,7 @@ export interface Bot {
   blunder: number // 0-1 chance of playing a random legal move
   minTime: number // ms the bot "thinks" (ui pacing)
   style: string // how they play, shown in the lobby
+  aggression?: number // 0-1, prefers forcing moves (checks/captures) among near-best lines
   barks: {
     greet: string[]
     playerGood: string[] // player just won material
@@ -96,6 +97,7 @@ export const BOTS: Bot[] = [
     depth: 5,
     blunder: 0.16,
     minTime: 550,
+    aggression: 0.5,
     style: 'All-out aggression, every single game.',
     barks: {
       greet: ['Grrr. Let us fight.', 'I smell fear. Or a sandwich.'],
@@ -171,6 +173,28 @@ export const BOTS: Bot[] = [
   },
   {
     level: 8,
+    id: 'torch',
+    name: 'Human Torch',
+    rating: 1450,
+    description: 'Plays like a human on fire. Loves a sacrifice.',
+    color: '#e8641f',
+    skill: 12,
+    depth: 11,
+    blunder: 0.02,
+    minTime: 700,
+    aggression: 0.8,
+    style: 'Burns the board: checks, captures, sacrifices first.',
+    barks: {
+      greet: ['Feel the heat. Your king is kindling.', 'Every move is a spark. Some become fires.'],
+      playerGood: ['Cool move. Literally icy.', 'You put out my flame. Impressive.'],
+      playerBlunder: ['And whoosh — up in smoke.', 'That mistake is fuel. Mine, now.'],
+      win: ['Burned to the last rank. Flawless combustion.', 'The board is ash. My kind of game.'],
+      lose: ['Extinguished. Rematch while I still smolder.', 'You doused the fire. Respect.'],
+      draw: ['Neither flame nor flood. A standoff.'],
+    },
+  },
+  {
+    level: 9,
     id: 'cornerstone',
     name: 'Cornerstone',
     rating: 1550,
@@ -191,7 +215,7 @@ export const BOTS: Bot[] = [
     },
   },
   {
-    level: 9,
+    level: 10,
     id: 'tactician',
     name: 'Tactician',
     rating: 1700,
@@ -212,7 +236,7 @@ export const BOTS: Bot[] = [
     },
   },
   {
-    level: 10,
+    level: 11,
     id: 'strategist',
     name: 'Strategist',
     rating: 1850,
@@ -233,7 +257,7 @@ export const BOTS: Bot[] = [
     },
   },
   {
-    level: 11,
+    level: 12,
     id: 'nyx',
     name: 'Nyx',
     rating: 2000,
@@ -254,7 +278,7 @@ export const BOTS: Bot[] = [
     },
   },
   {
-    level: 12,
+    level: 13,
     id: 'grandmaster',
     name: 'Grandmaster',
     rating: 2150,
@@ -275,7 +299,7 @@ export const BOTS: Bot[] = [
     },
   },
   {
-    level: 13,
+    level: 14,
     id: 'titan',
     name: 'Titan',
     rating: 2350,
@@ -296,7 +320,7 @@ export const BOTS: Bot[] = [
     },
   },
   {
-    level: 14,
+    level: 15,
     id: 'maximum',
     name: 'Maximum',
     rating: 2600,

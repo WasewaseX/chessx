@@ -1,0 +1,1538 @@
+[Event "New Orleans, USA"]
+[Site "New Orleans, USA"]
+[Date "1920.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Edwin Ziegler Adams"]
+[Black "Carlos Torre Repetto"]
+[ECO "C41"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "45"]
+
+1. e4 e5 2. Nf3 d6 3. d4 exd4 4. Qxd4 Nc6 5. Bb5 Bd7 6. Bxc6
+Bxc6 7. Nc3 Nf6 8. O-O Be7 9. Nd5 Bxd5 10. exd5 O-O 11. Bg5 c6
+12. c4 cxd5 13. cxd5 Re8 14. Rfe1 a5 15. Re2 Rc8 16. Rae1 Qd7
+17. Bxf6 Bxf6 18. Qg4 Qb5 19. Qc4 Qd7 20. Qc7 Qb5 21. a4 Qxa4
+22. Re4 Qb5 23. Qxb7 1-0
+
+[Event "XXII Torneo Ciudad de Linares"]
+[Site "Linares ESP"]
+[Date "2005.03.08"]
+[EventDate "?"]
+[Round "12"]
+[Result "0-1"]
+[White "Michael Adams"]
+[Black "Garry Kasparov"]
+[ECO "B90"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "52"]
+
+1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.Be3 e6 7.Be2
+Qc7 8.Qd2 b5 9.a3 Bb7 10.f3 Nc6 11.O-O-O b4 12.axb4 Nxb4 13.g4
+Be7 14.g5 Nd7 15.h4 Nc5 16.Kb1 Rb8 17.h5 O-O 18.g6 Bf6 19.Rdg1
+Ba8 20.Bg5 Be5 21.gxh7+ Kxh7 22.Nb3 Nxc2 23.Nxc5 Na3+ 24.Ka2
+Qxc5 25.Na4 Nc2 26.Kb1 Qa3 0-1
+
+[Event "Vienna"]
+[Site "Vienna AUT"]
+[Date "1922.11.13"]
+[EventDate "1922.11.13"]
+[Round "1"]
+[Result "1/2-1/2"]
+[White "Alexander Alekhine"]
+[Black "Richard Reti"]
+[ECO "C77"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "118"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. Nc3 b5 6. Bb3 Bc5
+7. Nxe5 $1 Nxe5 8. d4 Bd6 9. dxe5 Bxe5 10. f4 $1 Bxc3+
+11. bxc3 O-O 12. e5 c5 $1 13. Ba3 $3 Qa5 14. O-O Qxa3 15. exf6
+c4 16. Qd5 Qa5 17. fxg7 Qb6+ 18. Kh1 Kxg7 19. Bxc4 $1 Bb7
+(19... bxc4 20. Qxa8 Bb7 21. Rab1 Qxb1 22. Qxf8+ Kxf8
+23. Rxb1) 20. Qe5+ Qf6 21. Bd3 Rfe8 $1 22. Qh5 h6 23. Qg4+ Kh8
+24. Qxd7 Re7 25. Qd4 Qxd4 26. cxd4 Rd8 $1 27. f5 $1 f6 $1
+28. Rae1 ( 28. Rf4 Rg7 29. Bf1 Rc8 $1 30. Rf2 Rc3) 28... Rg7
+29. Be4 Rxd4 30. Bxb7 Rxb7 31. Re6 Kg7 32. Rxa6 Rc4 33. Rf3
+Rxc2 34. h3 Kf7 35. Rg3 Rf2 36. Rg6 Rxf5 37. Rxh6 Kg7 38. Rh4
+b4 39. Rg4+ Kf7 40. Rg3 Rfb5 41. Rb3 Kg6 42. Kh2 Rc5 43. Ra4
+Rcb5 44. h4 R5b6 45. Kh3 Rb8 46. g3 f5 47. Ra5 Rc8 48. Rf3 Rf6
+49. Kg2 Rc3 50. Ra8 Rxf3 51. Kxf3 Rc6 52. Rb8 Rc4 53. Rb6+ Kg7
+54. h5 Rd4 55. Rc6 $1 Re4 56. Rg6+ Kf7 57. g4 Rxg4 $1 58. Rxg4
+fxg4+ 59. Kxg4 Kg7 1/2-1/2
+
+[Event "Mtel Masters"]
+[Site "Sofia BUL"]
+[Date "2005.05.12"]
+[EventDate "2005.05.12"]
+[Round "1"]
+[Result "1/2-1/2"]
+[White "Viswanathan Anand"]
+[Black "Veselin Topalov"]
+[ECO "B90"]
+[WhiteElo "2785"]
+[BlackElo "2778"]
+[PlyCount "120"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be3 e6
+7. f3 b5 8. g4 h6 9. Qd2 b4 10. Na4 Nbd7 11. O-O-O Ne5 12. b3
+Bd7 13. Nb2 d5 14. Bf4 Nxf3 15. Nxf3 Nxe4 16. Qd4 f6 17. Bd3
+Bc5 18. Bxe4 Bxd4 19. Bg6+ Kf8 20. Rxd4 a5 21. Re1 Be8 22. Nh4
+e5 23. Rd2 a4 24. bxa4 Kg8 25. Bg3 d4 26. Rd3 h5 27. Bxe8 Qxe8
+28. g5 Rc8 29. g6 Rh6 30. Rxd4 Rxg6 31. Nxg6 Qxg6 32. Rd2 Rc3
+33. Red1 Kh7 34. Kb1 Qf5 35. Be1 Ra3 36. Rd6 Rh3 37. a5 Rxh2
+38. Rc1 Qe4 39. a6 Qa8 40. Bxb4 h4 41. Bc5 h3 42. Nd3 Rd2
+43. Rb6 h2 44. Nf2 Qd5 45. Be3 Re2 46. Rb3 f5 47. a7 Rxe3
+48. Rxe3 Qb7+ 49. Rb3 Qxa7 50. Nh1 f4 51. c4 e4 52. c5 e3
+53. c6 e2 54. c7 Qxc7 55. Rxc7 e1=Q+ 56. Rc1 Qe4+ 57. Ka1 Qd4+
+58. Kb1 Qe4+ 59. Ka1 Qd4+ 60. Kb1 Qe4+ 1/2-1/2
+
+[Event "Casual Game"]
+[Site "Berlin GER"]
+[Date "1852.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Adolf Anderssen"]
+[Black "Jean Dufresne"]
+[ECO "C52"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "47"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.b4 Bxb4 5.c3 Ba5 6.d4 exd4 7.O-O
+d3 8.Qb3 Qf6 9.e5 Qg6 10.Re1 Nge7 11.Ba3 b5 12.Qxb5 Rb8 13.Qa4
+Bb6 14.Nbd2 Bb7 15.Ne4 Qf5 16.Bxd3 Qh5 17.Nf6+ gxf6 18.exf6
+Rg8 19.Rad1 Qxf3 20.Rxe7+ Nxe7 21.Qxd7+ Kxd7 22.Bf5+ Ke8
+23.Bd7+ Kf8 24.Bxe7# 1-0
+
+[Event "London"]
+[Site "London"]
+[Date "1851.06.21"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Adolf Anderssen"]
+[Black "Kieseritzky"]
+[ECO "C33"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "45"]
+
+1.e4 e5 2.f4 exf4 3.Bc4 Qh4+ 4.Kf1 b5 5.Bxb5 Nf6 6.Nf3 Qh6
+7.d3 Nh5 8.Nh4 Qg5 9.Nf5 c6 10.g4 Nf6 11.Rg1 cxb5 12.h4 Qg6
+13.h5 Qg5 14.Qf3 Ng8 15.Bxf4 Qf6 16.Nc3 Bc5 17.Nd5 Qxb2 18.Bd6
+Bxg1 {It is from this move that Black's defeat stems. Wilhelm
+Steinitz suggested in 1879 that a better move would be
+18... Qxa1+; likely moves to follow are 19. Ke2 Qb2 20. Kd2
+Bxg1.} 19. e5 Qxa1+ 20. Ke2 Na6 21.Nxg7+ Kd8 22.Qf6+ Nxf6
+23.Be7# 1-0
+
+[Event "Maroczy mem"]
+[Site "Szeged"]
+[Date "1997.11.14"]
+[EventDate "?"]
+[Round "3"]
+[Result "1-0"]
+[White "Suat Atalik"]
+[Black "Gyula Sax"]
+[ECO "E37"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "51"]
+
+1.d4 Nf6 2.c4 e6 3.Nc3 Bb4 4.Qc2 d5 5.a3 Bxc3+ 6.Qxc3 Ne4
+7.Qc2 Nc6 8.e3 e5 9.cxd5 Qxd5 10.Bc4 Qa5+ 11.b4 Nxb4 12.Qxe4
+Nc2+ 13.Ke2 Qe1+ 14.Kf3 Nxa1 15.Bb2 O-O 16.Kg3 Kh8 17.dxe5 Be6
+18.Nf3 Qxh1 19.Ng5 g6 20.Nxf7+ Rxf7 21.Bxe6 Rg7 22.Bf7 Rxf7
+23.e6+ Kg8 24.Qd4 Kf8 25.exf7 Kxf7 26.Qd7+ 1-0
+
+[Event "London"]
+[Site "London"]
+[Date "1858.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "0-1"]
+[White "Henry Edward Bird"]
+[Black "Paul Morphy"]
+[ECO "C41"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "58"]
+
+1.e4 e5 2.Nf3 d6 3.d4 f5 4.Nc3 fxe4 5.Nxe4 d5 6.Ng3 e4 7.Ne5
+Nf6 8.Bg5 Bd6 9.Nh5 O-O 10.Qd2 Qe8 11.g4 Nxg4 12.Nxg4 Qxh5
+13.Ne5 Nc6 14.Be2 Qh3 15.Nxc6 bxc6 16.Be3 Rb8 17.O-O-O Rxf2
+18.Bxf2 Qa3 19.c3 Qxa2 20.b4 Qa1+ 21.Kc2 Qa4+ 22.Kb2 Bxb4
+23.cxb4 Rxb4+ 24.Qxb4 Qxb4+ 25.Kc2 e3 26.Bxe3 Bf5+ 27.Rd3 Qc4+
+28.Kd2 Qa2+ 29.Kd1 Qb1+ 0-1
+
+[Event "Hastings"]
+[Site "Hastings ENG"]
+[Date "1922.09.21"]
+[EventDate "1922.09.10"]
+[Round "10"]
+[Result "0-1"]
+[White "Efim Bogoljubov"]
+[Black "Alexander Alekhine"]
+[ECO "A90"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "106"]
+
+1. d4 f5 2. c4 Nf6 3. g3 e6 4. Bg2 Bb4+ 5. Bd2 Bxd2+ 6. Nxd2
+Nc6 7. Ngf3 O-O 8. O-O d6 9. Qb3 Kh8 10. Qc3 e5 11. e3 a5
+12. b3 Qe8 13. a3 Qh5 14. h4 Ng4 15. Ng5 Bd7 16. f3 Nf6 17. f4
+e4 18. Rfd1 h6 19. Nh3 d5 20. Nf1 Ne7 21. a4 Nc6 22. Rd2 Nb4
+23. Bh1 Qe8 24. Rg2 dxc4 25. bxc4 Bxa4 26. Nf2 Bd7 27. Nd2 b5
+28. Nd1 Nd3 29. Rxa5 b4 30. Rxa8 bxc3 31. Rxe8 c2 32. Rxf8+
+Kh7 33. Nf2 c1=Q+ 34. Nf1 Ne1 35. Rh2 Qxc4 36. Rb8 Bb5
+37. Rxb5 Qxb5 38. g4 Nf3+ 39. Bxf3 exf3 40. gxf5 Qe2 41. d5
+Kg8 42. h5 Kh7 43. e4 Nxe4 44. Nxe4 Qxe4 45. d6 cxd6 46. f6
+gxf6 47. Rd2 Qe2 48. Rxe2 fxe2 49. Kf2 exf1=Q+ 50. Kxf1 Kg7
+51. Ke2 Kf7 52. Ke3 Ke6 53. Ke4 d5+ 0-1
+
+[Event "Third Rosenwald Trophy"]
+[Site "New York USA"]
+[Date "1956.10.17"]
+[EventDate "1956.10.07"]
+[Round "8"]
+[Result "0-1"]
+[White "Donald Byrne"]
+[Black "Robert James Fischer"]
+[ECO "D92"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "82"]
+
+1. Nf3 Nf6 2. c4 g6 3. Nc3 Bg7 4. d4 O-O 5. Bf4 d5 6. Qb3 dxc4
+7. Qxc4 c6 8. e4 Nbd7 9. Rd1 Nb6 10. Qc5 Bg4 11. Bg5 {11. Be2
+followed by 12 O-O would have been more prudent. The bishop
+move played allows a sudden crescendo of tactical points to be
+uncovered by Fischer. -- Wade} Na4 {!} 12. Qa3 {On 12. Nxa4
+Nxe4 and White faces considerable difficulties.} Nxc3 {At
+first glance, one might think that this move only helps White
+create a stronger pawn center; however, Fischer's plan is
+quite the opposite. By eliminating the Knight on c3, it
+becomes possible to sacrifice the exchange via Nxe4 and smash
+White's center, while the King remains trapped in the center.}
+13. bxc3 Nxe4 {The natural continuation of Black's plan.}
+14. Bxe7 Qb6 15. Bc4 Nxc3 16. Bc5 Rfe8+ 17. Kf1 Be6 {!! If
+this is the game of the century, then 17...Be6!! must be the
+counter of the century. Fischer offers his queen in exchange
+for a fierce attack with his minor pieces. Declining this
+offer is not so easy: 18. Bxe6 leads to a 'Philidor Mate'
+(smothered mate) with ...Qb5+ 19. Kg1 Ne2+ 20. Kf1 Ng3+
+21. Kg1 Qf1+ 22. Rxf1 Ne2#. Other ways to decline the queen
+also run into trouble: e.g., 18. Qxc3 Qxc5} 18. Bxb6 Bxc4+
+19. Kg1 Ne2+ 20. Kf1 Nxd4+ {This tactical scenario, where a
+king is repeatedly revealed to checks, is sometimes called a
+"windmill."} 21. Kg1 Ne2+ 22. Kf1 Nc3+ 23. Kg1 axb6 24. Qb4
+Ra4 25. Qxb6 Nxd1 26. h3 Rxa2 27. Kh2 Nxf2 28. Re1 Rxe1
+29. Qd8+ Bf8 30. Nxe1 Bd5 31. Nf3 Ne4 32. Qb8 b5 {Every piece
+and pawn of the black camp is defended. The white queen has
+nothing to do.} 33. h4 h5 34. Ne5 Kg7 35. Kg1 Bc5+ 36. Kf1
+Ng3+ {Now Byrne is hopelessly entangled in Fischer's mating
+net.} 37. Ke1 Bb4+ 38. Kd1 Bb3+ 39. Kc1 Ne2+ 40. Kb1 Nc3+
+41. Kc1 Rc2# 0-1
+
+[Event "US Championship 1963/64"]
+[Site "New York City, NY USA"]
+[Date "1963.12.18"]
+[EventDate "1963.??.??"]
+[Round "3"]
+[Result "0-1"]
+[White "Robert Eugene Byrne"]
+[Black "Robert James Fischer"]
+[ECO "E60"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "42"]
+
+1. d4 {Notes from various sources.} Nf6 2. c4 g6 3. g3 c6
+4. Bg2 d5 5. cxd5 {5.Qb3 maintains more tension. -- Fischer}
+cxd5 6. Nc3 Bg7 7. e3 O-O 8. Nge2 Nc6 9. O-O b6 10. b3 {It's
+hard for either side to introduce an imbalance into this
+essentially symmetrical variation. Deadeye equality also
+ensues afer 10.Nf4 e6 11.b3 Ba6 12.Re1 Rc8 13.Ba3 Re8 14.Rc1
+(Stahlberg-Flohr, Kemeri 1937) -- Fischer} Ba6 11. Ba3 {After
+White's 11th move I should adjudicate his position as slightly
+superior, and at worst completely safe. To turn this into a
+mating position in eleven more moves is more witchcraft than
+chess! Quite honestly, I do not see the man who can stop Bobby
+at this time. -- K.F. Kirby, South African Chess Quarterly}
+Re8 12. Qd2 e5 {! I was a bit worried about weakening my QP,
+but felt that the tremendous activity obtained by my minor
+pieces would permit White no time to exploit it. 12...e6 would
+probably lead to a draw. -- Fischer} 13. dxe5 Nxe5 14. Rfd1
+{"Add another to those melancholy case histories entitled: The
+Wrong Rook." -- Fischer ~ "This is very much a case of 'the
+wrong rook'. One can understand Byrne's desire to break the
+pin on the e2-knight, but this turns out to be less important
+than other considerations. Fischer spends a lot of time and
+energy analysing the superior 14. Rad1!, but still comes to
+the conclusion that Black can keep the advantage." -- John
+Nunn} Nd3 {Now it's all systems go for the Fischer rocket. --
+Robert Wade} 15. Qc2 {There is hardly any other defense to the
+threat of ...Ne4. -- Fischer} Nxf2 {! The key to Black's
+previous play. The complete justification for this sac does
+not become apparent until White resigns! -- Fischer} 16. Kxf2
+Ng4+ 17. Kg1 Nxe3 18. Qd2 {Byrne: As I sat pondering why
+Fischer would choose such a line, because it was so obviously
+lost for Black, there suddenly comes...} Nxg2 {!! This
+dazzling move came as the shocker... the culminating
+combination is of such depth that, even at the very moment at
+which I resigned, both grandmasters who were commenting on the
+play for the spectators in a separate room believed I had a
+won game! -- Robert Byrne} 19. Kxg2 d4 {!} 20. Nxd4 Bb7+ {The
+King is at Black's mercy. -- Fischer} 21. Kf1 {In a room set
+aside for commentaries on the games in progress, two
+grandmasters were stating, for the benefit of the spectators,
+that Byrne had a won game. Byrne's reply to Fischer's next
+move must have been jaw dropping! -- Wade} Qd7 {And White
+resigns. Fischer writes: "A bitter disappointment. I'd hoped
+for 22.Qf2 Qh3+ 23.Kg1 Re1+!! 24.Rxe1 Bxd4 with mate to follow
+shortly."} 0-1
+
+[Event "Exhibition Match"]
+[Site "Havana"]
+[Date "1912.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Jose Raul Capablanca"]
+[Black "Jaime Baca Arus"]
+[ECO "D00"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "49"]
+
+1. d4 d5 2. e3 e6 3. Bd3 c6 4. Nf3 Bd6 5. Nbd2 f5 6. c4 Qf6
+7. b3 Nh6 8. Bb2 O-O 9. Qc2 Nd7 10. h3 g6 11. O-O-O e5
+12. dxe5 Nxe5 13. cxd5 cxd5 14. Nc4 dxc4 15. Bxc4+ Nhf7
+16. Rxd6 Qxd6 17. Nxe5 Be6 18. Rd1 Qe7 19. Rd7 Bxd7 20. Nxd7
+Rfc8 21. Qc3 Rxc4 22. bxc4 Nd6 23.Qh8+ Kf7 24.Ne5+ Ke6 25.Qxa8
+1-0
+
+[Event "Wijk aan Zee C Group"]
+[Site "Wijk aan Zee NED"]
+[Date "2004.01.24"]
+[EventDate "2004.01.10"]
+[Round "12"]
+[Result "1-0"]
+[White "Magnus Carlsen"]
+[Black "Sipke Ernst"]
+[ECO "B19"]
+[WhiteElo "2484"]
+[BlackElo "2474"]
+[PlyCount "57"]
+
+1. e4 c6 2. d4 d5 3. Nc3 dxe4 4. Nxe4 Bf5 5. Ng3 Bg6 6. h4 h6
+7. Nf3 Nd7 8. h5 Bh7 9. Bd3 Bxd3 10. Qxd3 e6 11. Bf4 Ngf6
+12. O-O-O Be7 13. Ne4 Qa5 14. Kb1 O-O 15. Nxf6+ Nxf6 16. Ne5
+Rad8 17. Qe2 c5 18. Ng6 fxg6 19. Qxe6+ Kh8 20. hxg6 Ng8
+21. Bxh6 gxh6 22. Rxh6+ Nxh6 23. Qxe7 Nf7 24. gxf7 Kg7 25. Rd3
+Rd6 26. Rg3+ Rg6 27. Qe5+ Kxf7 28. Qf5+ Rf6 29. Qd7# 1-0
+
+[Event "Kaschau"]
+[Site "Kaschau"]
+[Date "1893.04.09"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Rudolf Rezso Charousek"]
+[Black "Jakob Wollner"]
+[ECO "C21"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "37"]
+
+1.e4 e5 2.d4 exd4 3.c3 dxc3 4.Bc4 Nf6 5.Nf3 Bc5 6.Nxc3 d6
+7.O-O O-O 8.Ng5 h6 9.Nxf7 Rxf7 10.e5 Ng4 11.e6 Qh4 12.exf7+
+Kf8 13.Bf4 Nxf2 14.Qe2 Ng4+ 15.Kh1 Bd7 16.Rae1 Nc6 17.Qe8+
+Rxe8 18.fxe8=Q+ Bxe8 19.Bd6# 1-0
+
+[Event "Amsterdam Dutch Ch Prelim."]
+[Site "?"]
+[Date "1938.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Chris De Ronde"]
+[Black "Hendrik Hermanus Kamstra"]
+[ECO "E80"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "99"]
+
+1. c4 Nf6 2. Nc3 g6 3. e4 d6 4. d4 Bg7 5. f3 Nbd7 6. Be3 e5
+7. d5 a5 8. Qd2 b6 9. g4 Nc5 10. Nge2 h5 11. g5 Nfd7 12. Qc2
+Nb8 13. O-O-O Nba6 14. a3 Bd7 15. Kb1 O-O 16. Nc1 Qe7 17. Be2
+Rfe8 18. Rdg1 Qd8 19. h3 Qc8 20. Bf1 Re7 21. Rh2 Qb7 22. Bd3
+Nxd3 23. Nxd3 Nc5 24. a4 Qc8 25. Nf2 Na6 26. Qd1 Nb4 27. Nb5
+Qb7 28. Bd2 Na6 29. Qe1 Nc5 30. Be3 Nxa4 31. Ng4 hxg4 32. hxg4
+Ree8 33. Qh4 Kf8 34. Qh7 Nc5 35. Nd4 exd4 36. Qxg7+ Kxg7
+37. Bxd4+ Re5 38. f4 Nxe4 39. fxe5 Nxg5 40. e6+ f6 41. Rf1 Rf8
+42. exd7 Qb8 43. Rxf6 Rxf6 44. Rf2 Ne4 45. Rxf6 Qd8 46. g5
+Nxg5 47. Rxd6+ Kf8 48. Bf6 cxd6 49. Bxd8 Nf7 50. Bf6 1-0
+
+[Event "London, England"]
+[Site "London, England"]
+[Date "1912.10.29"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Edward Lasker"]
+[Black "George Alan Thomas"]
+[ECO "A40"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "35"]
+
+1. d4 e6 2. Nf3 f5 3. Nc3 Nf6 4. Bg5 Be7 5. Bxf6 Bxf6 6. e4
+fxe4 7. Nxe4 b6 8. Ne5 O-O 9. Bd3 Bb7 10. Qh5 Qe7 11. Qxh7+
+Kxh7 12. Nxf6+ Kh6 13. Neg4+ Kg5 14. h4+ Kf4 15. g3+ Kf3
+16. Be2+ Kg2 17. Rh2+ Kg1 18. Kd2# 1-0
+
+[Event "corr-5"]
+[Site "corr-5"]
+[Date "1965.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "0-1"]
+[White "Yakov Estrin"]
+[Black "Hans Berliner"]
+[ECO "C57"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "84"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6 4.Ng5 d5 5.exd5 b5 6.Bf1 Nd4 7.c3
+Nxd5 8.Ne4 Qh4 9.Ng3 Bg4 10.f3 e4 11.cxd4 Bd6 12.Bxb5+ Kd8
+13.O-O exf3 14.Rxf3 Rb8 15.Be2 Bxf3 16.Bxf3 Qxd4+ 17.Kh1 Bxg3
+18.hxg3 Rb6 19.d3 Ne3 20.Bxe3 Qxe3 21.Bg4 h5 22.Bh3 g5 23.Nd2
+g4 24.Nc4 Qxg3 25.Nxb6 gxh3 26.Qf3 hxg2+ 27.Qxg2 Qxg2+ 28.Kxg2
+cxb6 29.Rf1 Ke7 30.Re1+ Kd6 31.Rf1 Rc8 32.Rxf7 Rc7 33.Rf2 Ke5
+34.a4 Kd4 35.a5 Kxd3 36.Rf3+ Kc2 37.b4 b5 38.a6 Rc4 39.Rf7
+Rxb4 40.Rb7 Rg4+ 41.Kf3 b4 42.Rxa7 b3 0-1
+
+[Event "Warsaw"]
+[Site "Warsaw"]
+[Date "1929.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "0-1"]
+[White "Glucksberg"]
+[Black "Miguel Najdorf"]
+[ECO "A85"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "44"]
+
+1.d4 f5 2.c4 Nf6 3.Nc3 e6 4.Nf3 d5 5.e3 c6 6.Bd3 Bd6 7.O-O O-O
+8.Ne2 Nbd7 9.Ng5 Bxh2+ 10.Kh1 Ng4 11.f4 Qe8 12.g3 Qh5 13.Kg2
+Bg1 14.Nxg1 Qh2+ 15.Kf3 e5 16.dxe5 Ndxe5+ 17.fxe5 Nxe5+ 18.Kf4
+Ng6+ 19.Kf3 f4 20.exf4 Bg4+ 21.Kxg4 Ne5+ 22.fxe5 h5# 0-1
+
+[Event "Vienna"]
+[Site "Vienna"]
+[Date "1872.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1/2-1/2"]
+[White "Carl Hamppe"]
+[Black "Philipp Meitner"]
+[ECO "C25"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "36"]
+
+1. e4 e5 2. Nc3 Bc5 3. Na4 Bxf2+ 4. Kxf2 Qh4+ 5. Ke3 Qf4+
+6. Kd3 d5 7. Kc3 Qxe4 8. Kb3 Na6 9. a3 Qxa4+ 10. Kxa4 Nc5+
+11. Kb4 a5+ 12. Kxc5 Ne7 13. Bb5+ Kd8 14. Bc6 b6+ 15. Kb5 Nxc6
+16. Kxc6 Bb7+ 17. Kb5 Ba6+ 18. Kc6 Bb7+ 1/2-1/2
+
+[Event "Warsaw m"]
+[Site "Warsaw"]
+[Date "1844.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "0-1"]
+[White "F Alexander Hoffmann"]
+[Black "Alexander Petrov"]
+[ECO "C53"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "40"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.c3 Nf6 5.d4 exd4 6.e5 Ne4 7.Bd5
+Nxf2 8.Kxf2 dxc3+ 9.Kg3 cxb2 10.Bxb2 Ne7 11.Ng5 Nxd5 12.Nxf7
+O-O 13.Nxd8 Bf2+ 14.Kh3 d6+ 15.e6 Nf4+ 16.Kg4 Nxe6 17.Nxe6
+Bxe6+ 18.Kg5 Rf5+ 19.Kg4 h5+ 20.Kh3 Rf3# 0-1
+
+[Event "Wijk aan Zee Hoogovens"]
+[Site "Wijk aan Zee NED"]
+[Date "1996.01.16"]
+[EventDate "1996.01.13"]
+[Round "3"]
+[Result "1-0"]
+[White "Vassily Ivanchuk"]
+[Black "Alexey Shirov"]
+[ECO "D44"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "69"]
+
+1.d4 d5 2.c4 c6 3.Nc3 Nf6 4.Nf3 e6 5.Bg5 dxc4 6.e4 b5 7.e5 h6
+8.Bh4 g5 9.Nxg5 hxg5 10.Bxg5 Nbd7 11.exf6 Bb7 12.g3 c5 13.d5
+Qb6 14.Bg2 O-O-O 15.O-O b4 16.Na4 Qb5 17.a3 exd5 18.axb4 cxb4
+19.Be3 Nc5 20.Qg4+ Rd7 21.Qg7 Bxg7 22.fxg7 Rg8 23.Nxc5 d4
+24.Bxb7+ Rxb7 25.Nxb7 Qb6 26.Bxd4 Qxd4 27.Rfd1 Qxb2 28.Nd6+
+Kb8 29.Rdb1 Qxg7 30.Rxb4+ Kc7 31.Ra6 Rb8 32.Rxa7+ Kxd6 33.Rxb8
+Qg4 34.Rd8+ Kc6 35.Ra1 1-0
+
+[Event "Brussel"]
+[Site "Brussel"]
+[Date "1991.08.??"]
+[EventDate "?"]
+[Round "9"]
+[Result "0-1"]
+[White "Vassily Ivanchuk"]
+[Black "Artur Yusupov"]
+[ECO "E67"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "78"]
+
+1.c4 e5 2.g3 d6 3.Bg2 g6 4.d4 Nd7 5.Nc3 Bg7 6.Nf3 Ngf6 7.O-O
+O-O 8.Qc2 Re8 9.Rd1 c6 10.b3 Qe7 11.Ba3 e4 12.Ng5 e3 13.f4 Nf8
+14.b4 Bf5 15.Qb3 h6 16.Nf3 Ng4 17.b5 g5 18.bxc6 bxc6 19.Ne5
+gxf4 20.Nxc6 Qg5 21.Bxd6 Ng6 22.Nd5 Qh5 23.h4 Nxh4 24.gxh4
+Qxh4 25.Nde7+ Kh8 26.Nxf5 Qh2+ 27.Kf1 Re6 28.Qb7 Rg6 29.Qxa8+
+Kh7 30.Qg8+ Kxg8 31.Nce7+ Kh7 32.Nxg6 fxg6 33.Nxg7 Nf2 34.Bxf4
+Qxf4 35.Ne6 Qh2 36.Rdb1 Nh3 37.Rb7+ Kg8 38.Rb8+ Qxb8 39.Bxh3
+Qg3 0-1
+
+[Event "European Clubs Cup (Men)"]
+[Site "Rethymnon GRE"]
+[Date "2003.10.04"]
+[EventDate "2003.09.28"]
+[Round "7"]
+[Result "1-0"]
+[White "Baadur Jobava"]
+[Black "Evgeny Bareev"]
+[ECO "B19"]
+[WhiteElo "2596"]
+[BlackElo "2721"]
+[PlyCount "67"]
+
+1. e4 c6 2. d4 d5 3. Nd2 dxe4 4. Nxe4 Bf5 5. Ng3 Bg6 6. h4 h6
+7. Nf3 Nd7 8. h5 Bh7 9. Bd3 Bxd3 10. Qxd3 Ngf6 11. Bd2 e6
+12. O-O-O Be7 13. Qe2 O-O 14. Kb1 c5 15. d5 exd5 16. Bxh6 gxh6
+17. Nf5 Re8 18. Nxh6+ Kf8 19. Ng5 Qb6 20. Qf3 Ne5 21. Qg3 Bd6
+22. Nf5 Qxb2+ 23. Kxb2 Nc4+ 24. Kb3 Bxg3 25. h6 Na5+ 26. Ka4
+b5+ 27. Kxa5 Bc7+ 28. Kxb5 Rab8+ 29. Ka4 Ne4 30. Rxd5 Nc3+
+31. Ka3 Nb5+ 32. Kb2 Nd4+ 33. Kc3 Nb5+ 34.Kd3 1-0
+
+[Event "Ch World (m) (cand.) (1/4)"]
+[Site "New York (USA)"]
+[Date "1994.06.??"]
+[EventDate "?"]
+[Round "1"]
+[Result "1-0"]
+[White "Gata Kamsky"]
+[Black "Vladimir Kramnik"]
+[ECO "D44"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "81"]
+
+1. d4 d5 2. c4 c6 3. Nc3 Nf6 4. Nf3 e6 5. Bg5 dxc4 6. e4 b5
+7. e5 h6 8. Bh4 g5 9. Nxg5 hxg5 10. Bxg5 Nbd7 11. exf6 Bb7
+12. g3 c5 13. d5 Qb6 14. Bg2 O-O-O 15. O-O b4 16. Na4 Qb5
+17. a3 Ne5 18. axb4 cxb4 19. Qd4 Nc6 20. dxc6 Rxd4 21. cxb7+
+Kc7 22. Be3 e5 23. Nc3 bxc3 24. bxc3 Bc5 25. cxd4 Bxd4
+26. Rfb1 Qc5 27. Ra6 Rb8 28. Bc1 c3 29. Ba3 Qc4 30. Bd6+ Kd7
+31. Bc6+ Ke6 32. Bb5 Bxf2+ 33. Kxf2 Qd4+ 34. Kf1 Qe4 35. Re1
+Qh1+ 36. Kf2 Qxh2+ 37. Kf3 Rxb7 38. Bxe5+ Rb6 39. Bc4+ Kd7
+40. Rxa7+ Kc8 41. Rc7+ 1-0
+
+[Event "Corus Wijk aan Zee"]
+[Site "Wijk aan Zee"]
+[Date "2006.01.14"]
+[EventDate "?"]
+[Round "1"]
+[Result "0-1"]
+[White "Sergey Karjakin"]
+[Black "Viswanathan Anand"]
+[ECO "B90"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "74"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be3 e5
+7. Nb3 Be6 8. f3 Be7 9. Qd2 O-O 10. O-O-O Nbd7 11. g4 b5
+12. g5 b4 13. Ne2 Ne8 14. f4 a5 15. f5 a4 16. Nbd4 exd4
+17. Nxd4 b3 18. Kb1 bxc2+ 19. Nxc2 Bb3 20. axb3 axb3 21. Na3
+Ne5 22. h4 Ra5 23. Qc3 Qa8 24. Bg2 Nc7 25. Qxc7 Rc8 26. Qxe7
+Nc4 27. g6 hxg6 28. fxg6 Nxa3+ 29. bxa3 Rxa3 30. gxf7+ Kh7
+31. f8=N+ Rxf8 32. Qxf8 Ra1+ 33. Kb2 Ra2+ 34. Kc3 Qa5+ 35. Kd3
+Qb5+ 36. Kd4 Ra4+ 37. Kc3 Qc4+ 0-1
+
+[Event "Wch Moscow i 40/202; YB 4/91"]
+[Site "16"]
+[Date "1985.10.15"]
+[EventDate "?"]
+[Round "16"]
+[Result "0-1"]
+[White "Anatoly Karpov"]
+[Black "Garry Kasparov"]
+[ECO "B44"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "80"]
+
+1.e4 c5 2.Nf3 e6 3.d4 cxd4 4.Nxd4 Nc6 5.Nb5 d6 6.c4 Nf6 7.N1c3
+a6 8.Na3 d5 9.cxd5 exd5 10.exd5 Nb4 11.Be2 Bc5 12.O-O O-O
+13.Bf3 Bf5 14.Bg5 Re8 15.Qd2 b5 16.Rad1 Nd3 17.Nab1 h6 18.Bh4
+b4 19.Na4 Bd6 20.Bg3 Rc8 21.b3 g5 22.Bxd6 Qxd6 23.g3 Nd7
+24.Bg2 Qf6 25.a3 a5 26.axb4 axb4 27.Qa2 Bg6 28.d6 g4 29.Qd2
+Kg7 30.f3 Qxd6 31.fxg4 Qd4+ 32.Kh1 Nf6 33.Rf4 Ne4 34.Qxd3 Nf2+
+35.Rxf2 Bxd3 36.Rfd2 Qe3 37.Rxd3 Rc1 38.Nb2 Qf2 39.Nd2 Rxd1+
+40.Nxd1 Re1+ 0-1
+
+[Event "Nice"]
+[Site "Nice"]
+[Date "1974.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Anatoly Karpov"]
+[Black "Wolfgang Unzicker"]
+[ECO "C98"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "87"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5
+7. Bb3 d6 8. c3 O-O 9. h3 Na5 10. Bc2 c5 11. d4 Qc7 12. Nbd2
+Nc6 13. d5 Nd8 14. a4 Rb8 15. axb5 axb5 16. b4 Nb7 17. Nf1 Bd7
+18. Be3 Ra8 19. Qd2 Rfc8 20. Bd3 g6 21. Ng3 Bf8 22. Ra2 c4
+23. Bb1 Qd8 24. Ba7 Ne8 25. Bc2 Nc7 26. Rea1 Qe7 27. Bb1 Be8
+28. Ne2 Nd8 29. Nh2 Bg7 30. f4 f6 31. f5 g5 32. Bc2 Bf7
+33. Ng3 Nb7 34. Bd1 h6 35. Bh5 Qe8 36. Qd1 Nd8 37. Ra3 Kf8
+38. R1a2 Kg8 39. Ng4 Kf8 40. Ne3 Kg8 41. Bxf7+ Nxf7 42. Qh5
+Nd8 43. Qg6 Kf8 44. Nh5 1-0
+
+[Event "It (cat.19)"]
+[Site "Dos Hermanas (Spain)"]
+[Date "1996.??.??"]
+[EventDate "?"]
+[Round "6"]
+[Result "0-1"]
+[White "Garry Kasparov"]
+[Black "Vladimir Kramnik"]
+[ECO "D47"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "70"]
+
+1.d4 d5 2.c4 c6 3.Nc3 Nf6 4.Nf3 e6 5.e3 Nbd7 6.Bd3 dxc4 7.Bxc4
+b5 8.Bd3 Bb7 9.O-O a6 10.e4 c5 11.d5 c4 12.Bc2 Qc7 13.Nd4 Nc5
+14.b4 cxb3 15.axb3 b4 16.Na4 Ncxe4 17.Bxe4 Nxe4 18.dxe6 Bd6
+19.exf7+ Qxf7 20.f3 Qh5 21.g3 O-O 22.fxe4 Qh3 23.Nf3 Bxg3
+24.Nc5 Rxf3 25.Rxf3 Qxh2+ 26.Kf1 Bc6 27.Bg5 Bb5+ 28.Nd3 Re8
+29.Ra2 Qh1+ 30.Ke2 Rxe4+ 31.Kd2 Qg2+ 32.Kc1 Qxa2 33.Rxg3 Qa1+
+34.Kc2 Qc3+ 35.Kb1 Rd4 0-1
+
+[Event "Hoogovens A Tournament"]
+[Site "Wijk aan Zee NED"]
+[Date "1999.01.20"]
+[EventDate "?"]
+[Round "4"]
+[Result "1-0"]
+[White "Garry Kasparov"]
+[Black "Veselin Topalov"]
+[ECO "B06"]
+[WhiteElo "2812"]
+[BlackElo "2700"]
+[PlyCount "87"]
+
+1. e4 d6 2. d4 Nf6 3. Nc3 g6 4. Be3 Bg7 5. Qd2 c6 6. f3 b5
+7. Nge2 Nbd7 8. Bh6 Bxh6 9. Qxh6 Bb7 10. a3 e5 11. O-O-O Qe7
+12. Kb1 a6 13. Nc1 O-O-O 14. Nb3 exd4 15. Rxd4 c5 16. Rd1 Nb6
+17. g3 Kb8 18. Na5 Ba8 19. Bh3 d5 20. Qf4+ Ka7 21. Rhe1 d4
+22. Nd5 Nbxd5 23. exd5 Qd6 24. Rxd4 cxd4 25. Re7+ Kb6
+26. Qxd4+ Kxa5 27. b4+ Ka4 28. Qc3 Qxd5 29. Ra7 Bb7 30. Rxb7
+Qc4 31. Qxf6 Kxa3 32. Qxa6+ Kxb4 33. c3+ Kxc3 34. Qa1+ Kd2
+35. Qb2+ Kd1 36. Bf1 Rd2 37. Rd7 Rxd7 38. Bxc4 bxc4 39. Qxh8
+Rd3 40. Qa8 c3 41. Qa4+ Ke1 42. f4 f5 43. Kc1 Rd2 44. Qa7 1-0
+
+[Event "FIDE World Championship"]
+[Site "Tripoli, Libya"]
+[Date "2004.06.29"]
+[EventDate "?"]
+[Round "5.2"]
+[Result "0-1"]
+[White "Andrei Kharlov"]
+[Black "Veselin Topalov"]
+[ECO "C24"]
+[WhiteElo "2593"]
+[BlackElo "2737"]
+[PlyCount "106"]
+
+1. e4 e5 2. Bc4 Nf6 3. d3 c6 4. Nf3 Be7 5. O-O d6 6. a4 O-O
+7. Re1 Nbd7 8. Nc3 Nc5 9. d4 exd4 10. Nxd4 a5 11. Bf4 Ng4
+12. Be2 Nf6 13. Bf3 Re8 14. Qd2 g6 15. h3 Nfd7 16. Rad1 Bf8
+17. g4 Qb6 18. Bg2 Ne5 19. b3 Qb4 20. Nde2 f6 21. Be3 h5
+22. f4 Nxg4 23. hxg4 Bxg4 24. Qc1 f5 25. Rd4 Qb6 26. Qd2 Qc7
+27. Bf2 Re6 28. Rc4 Rae8 29. Nd4 Rxe4 30. Nxe4 Nxe4 31. Bxe4
+fxe4 32. Rc3 d5 33. Rg3 Bd6 34. Be3 Qd7 35. c3 Rf8 36. Rf1 b6
+37. Rf2 c5 38. Nb5 Bb8 39. Rfg2 g5 40. Rf2 Kg7 41. Qc1 Kg6
+42. Qf1 Rf5 43. Rgg2 Qf7 44. fxg5 Bf3 45. Rh2 Bxh2+ 46. Rxh2
+Rf4 47. Bxf4 Qxf4 48. Rg2 h4 49. Qe1 e3 50. Rh2 Qxg5+ 51. Kf1
+h3 52. Qb1+ Be4 53. Qb2 Bd3+ 0-1
+
+[Event "Ukraine"]
+[Site "Ukraine"]
+[Date "1931.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Efim Korchmar"]
+[Black "Abram Borisovich Poliak"]
+[ECO "C62"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "45"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 d6 4. d4 Bd7 5. Nc3 Nf6 6. O-O Nxd4
+7. Bxd7+ Qxd7 8. Nxd4 exd4 9. Qxd4 Be7 10. Rd1 O-O 11. e5 Ne8
+12. Bf4 a5 13. Rd3 Ra6 14. Re1 Qf5 15. Nd5 Bd8 16. exd6 Nxd6
+17. Rg3 f6 18. Bh6 Rf7 19. Nb4 axb4 20. Qxd6 Qd7 21. Qd5 Kf8
+22. Rxg7 Qxd5 23. Rg8+ 1-0
+
+[Event "FIDE World Championship"]
+[Site "Tripoli, Libya"]
+[Date "2004.06.24"]
+[EventDate "?"]
+[Round "3.2"]
+[Result "1-0"]
+[White "Zdenko Kozul"]
+[Black "Sergei Rublevsky"]
+[ECO "D11"]
+[WhiteElo "2627"]
+[BlackElo "2671"]
+[PlyCount "93"]
+
+1. d4 d5 2. c4 c6 3. Nf3 Nf6 4. e3 a6 5. Nbd2 Bf5 6. Be2 e6
+7. O-O Bd6 8. c5 Bc7 9. b4 Nbd7 10. Bb2 Ne4 11. a4 Qf6
+12. Nxe4 dxe4 13. Nd2 Qh6 14. g3 Nf6 15. b5 Qh3 16. b6 Bd8
+17. f3 h5 18. Nxe4 Bxe4 19. Rf2 Ng4 20. Qe1 Nxf2 21. Qxf2 Bg6
+22. Bf1 Qf5 23. e4 Qg5 24. f4 Qe7 25. f5 Bh7 26. d5 O-O
+27. dxc6 bxc6 28. Be5 Qd7 29. Bd6 Be7 30. Rd1 Rfd8 31. Qf4
+Bxd6 32. Rxd6 Qe7 33. Rxc6 Rd7 34. Bxa6 exf5 35. Rc7 g5 36. b7
+Rf8 37. Rxd7 Qxd7 38. Qxg5+ Bg6 39. Qf4 Qd4+ 40. Kg2 Qb2+
+41. Kh3 fxe4 42. c6 Qb3 43. c7 Qe6+ 44. Kg2 Qa2+ 45. Qf2 Qd5
+46. b8=Q e3+ 47. Qf3 1-0
+
+[Event "GMA"]
+[Site "Wijk aan Zee Corus Chess"]
+[Date "2004.01.20"]
+[EventDate "2004.01.10"]
+[Round "9"]
+[Result "1/2-1/2"]
+[White "Vladimir Kramnik"]
+[Black "Viswanathan Anand"]
+[ECO "B92"]
+[WhiteElo "2777"]
+[BlackElo "2766"]
+[PlyCount "49"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be2 e5
+7. Nb3 Be7 8. Bg5 Be6 9. Bxf6 Bxf6 10. Qd3 Nc6 11. O-O-O Be7
+12. Kb1 O-O 13. Nd5 Bg5 14. h4 Bxh4 15. g3 Bf6 16. Qf3 Bg5
+17. Qh5 h6 18. f4 Bf6 19. Nd2 Nd4 20. Bc4 Rc8 21. c3 Nb5
+22. f5 Bxd5 23. Bxd5 Rxc3 24. Qg6 Qb6 25. Rxh6 1/2-1/2
+
+[Event "TCh-RUS"]
+[Site "Sochi RUS"]
+[Date "2005.04.21"]
+[EventDate "2005.04.19"]
+[Round "3"]
+[Result "1-0"]
+[White "Konstantin Landa"]
+[Black "Evgeny Shaposhnikov"]
+[ECO "B19"]
+[WhiteElo "2571"]
+[BlackElo "2550"]
+[PlyCount "47"]
+
+1. e4 c6 2. d4 d5 3. Nc3 dxe4 4. Nxe4 Bf5 5. Ng3 Bg6 6. h4 h6
+7. Nf3 Nd7 8. h5 Bh7 9. Bd3 Bxd3 10. Qxd3 e6 11. Bf4 Qa5+
+12. Bd2 Bb4 13. c3 Be7 14. c4 Qa6 15. O-O Rd8 16. b4 Ngf6
+17. a4 b6 18. Rfe1 O-O 19. Nf5 Rfe8 20. Nxg7 Kxg7 21. Rxe6
+fxe6 22. Bxh6+ Kh8 23. Bg7+ Kxg7 24. Qg6+ 1-0
+
+[Event "USSR vs. Rest of the World"]
+[Site "Belgrade SRB"]
+[Date "1970.03.31"]
+[EventDate "1970.03.29"]
+[Round "2.1"]
+[Result "0-1"]
+[White "Bent Larsen"]
+[Black "Boris Spassky"]
+[ECO "A01"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "34"]
+
+1. b3 e5 2. Bb2 Nc6 3. c4 Nf6 4. Nf3 e4 5. Nd4 Bc5 6. Nxc6
+dxc6 7. e3 Bf5 8. Qc2 Qe7 9. Be2 O-O-O 10. f4 Ng4 11. g3 h5
+12. h3 h4 13. hxg4 hxg3 14. Rg1 Rh1 15. Rxh1 g2 16. Rf1 Qh4+
+17. Kd1 gxf1=Q+ 0-1
+
+[Event "18th DSB Kongress"]
+[Site "Breslau GER"]
+[Date "1912.07.20"]
+[EventDate "1912.07.15"]
+[Round "6"]
+[Result "0-1"]
+[White "Stefan Levitsky"]
+[Black "Frank James Marshall"]
+[ECO "B23"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "46"]
+
+1.d4 e6 2.e4 d5 3.Nc3 c5 4.Nf3 Nc6 5.exd5 exd5 6.Be2 Nf6 7.O-O
+Be7 8.Bg5 O-O 9.dxc5 Be6 10.Nd4 Bxc5 11.Nxe6 fxe6 12.Bg4 Qd6
+13.Bh3 Rae8 14.Qd2 Bb4 15.Bxf6 Rxf6 16.Rad1 Qc5 17.Qe2 Bxc3
+18.bxc3 Qxc3 19.Rxd5 Nd4 20.Qh5 Ref8 21.Re5 Rh6 22.Qg5 Rxh3
+23.Rc5 Qg3 0-1
+
+[Event "Buenos Aires"]
+[Site "OL"]
+[Date "1978.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Liu Wenzhe"]
+[Black "Jan Hein Donner"]
+[ECO "B07"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "39"]
+
+1. e4 d6 2. d4 Nf6 3. Nc3 g6 4. Be2 Bg7 5. g4 h6 6. h3 c5
+7. d5 O-O 8. h4 e6 9. g5 hxg5 10. hxg5 Ne8 11. Qd3 exd5
+12. Nxd5 Nc6 13. Qg3 Be6 14. Qh4 f5 15. Qh7+ Kf7 16. Qxg6+
+Kxg6 17. Bh5+ Kh7 18. Bf7+ Bh6 19. g6+ Kg7 20. Bxh6+ 1-0
+
+[Event "Vienna"]
+[Site "Vienna AUT"]
+[Date "1903.05.05"]
+[EventDate "1903.05.02"]
+[Round "3"]
+[Result "1-0"]
+[White "Geza Maroczy"]
+[Black "Mikhail Chigorin"]
+[ECO "C37"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "47"]
+
+1. e4 e5 2. f4 exf4 3. Nf3 g5 4. Bc4 g4 5. Nc3 gxf3 6. Qxf3 d6
+7. d4 Be6 8. Nd5 c6 9. O-O cxd5 10. exd5 Bf5 11. Bxf4 Bg6
+12. Bb5+ Nd7 13. Rae1+ Be7 14. Bxd6 Kf8 15. Rxe7 Nxe7 16. Re1
+Kg7 17. Bxe7 Qa5 18. Qe2 Nf8 19. Bf6+ Kg8 20. Qe5 h6 21. Bxh8
+f6 22. Qe7 Kxh8 23. Qxf6+ Kg8 24.Re7 1-0
+
+[Event "Rostov"]
+[Site "Rostov"]
+[Date "1962.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Nezhmetdinov"]
+[Black "Oleg L Chernikov"]
+[ECO "B35"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "65"]
+
+1. e4 c5 2. Nf3 Nc6 3. d4 cxd4 4. Nxd4 g6 5. Nc3 Bg7 6. Be3
+Nf6 7. Bc4 O-O 8. Bb3 Ng4 9. Qxg4 Nxd4 10. Qh4 Qa5 11. O-O Bf6
+12. Qxf6 Ne2+ 13. Nxe2 exf6 14. Nc3 Re8 15. Nd5 Re6 16. Bd4
+Kg7 17. Rad1 d6 18. Rd3 Bd7 19. Rf3 Bb5 20. Bc3 Qd8 21. Nxf6
+Be2 22. Nxh7+ Kg8 23. Rh3 Re5 24. f4 Bxf1 25. Kxf1 Rc8 26. Bd4
+b5 27. Ng5 Rc7 28. Bxf7+ Rxf7 29. Rh8+ Kxh8 30. Nxf7+ Kh7
+31. Nxd8 Rxe4 32. Nc6 Rxf4+ 33. Ke2 1-0
+
+[Event "Composition"]
+[Site "Copenhagen"]
+[Date "1927.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Aron Nimzowitsch"]
+[Black "Systemsson"]
+[ECO "C00"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "48"]
+
+1.e4 {AN INGENIOUS EXAMPLE OF MY SYSTEM by Aaron Nimzowitsch -
+Anderssen started the sacrificial style, Morphy and Gruenfeld
+the pure attacking style, Steinitz the positional style,
+Tarrasch the scientific style, Lasker the style of styles,
+Capablanca the mechanical style, Alekhine a style as brilliant
+as sunlight. But it is a generally known fact that originality
+and modernism were introduced by me as my own personal
+inventions and enthusiastically imitated (without being fully
+understood) by the whole world of chess. For the ridiculously
+small sum of ten marks, the reader can confirm all this in my
+monumental work, My System, published by B. Kagan. Before my
+time, chess was so naive and undistinguished! One or two
+brutal opening moves, each one involving a vulgar, obvious
+threat, a common, banal sacrifice, a painfully elementary,
+bestially raw checkmate - such, more or less, was the course
+of chess games before my heyday set in. Then I appeared on the
+scene and the chess world paid heed. The hegemony of matter
+was shattered at a stroke and the era of the spiritual
+began. Under my creative guidance, the chessmen, hitherto
+nothing but highwaymen, pirates and butcher boys, became
+sensitive artists and subtle instruments of immeasurable
+profundity. But why waste words!--accompany me, dear reader to
+the dizzy heights of the following game.} e6 2.h4 $1 {My very
+oldest and latest thought in this opening. To the chess addict
+nurtured on spineless convention, this move comes like a slap
+in the face--but calm down, dear reader; after all, you cannot
+be expected to understand such moves. (Forgive me - it is not
+your fault, until now no one has opened your eyes and ears.)
+Wait just a little while, and there will pass before you a
+miracle of overprotection of more than earthly beauty. (I
+assume that I rightly surmise that you are quite familiar with
+my great theory of overprotection.)} 2...d5 { Black of course
+has no suspicion of What is coming and continues serenely in
+classical style. } 3.e5 $1 {A move of elemental delicacy. (We
+detest, as a matter of principle, such words as "power" and
+"strength"; in the first place, such banal expressions make us
+uncomfortable; and, in the second place, we like even less the
+brutalizing tendency which such words imply.) Wherein lies the
+beauty of 3.e5? Why is this move so strong? The answer is as
+simple as it is astonishing. The move is strong because it is
+weak! Weak, that is, only in the traditional sense! In
+reality, that is to say, it is not the move but the Pawn on e5
+that is weak--a tremendous difference! In former times, it is
+true, it was customary to reject any move which created a
+weakness. Today, thanks to me, this view is obsolete. For,
+look, my dear reader, the fact that the Pawn on e5 is weak
+obliges White to protect the Pawn more and more until at last
+the state of overprotection arises as it were of itself. But,
+as we have seen (cf. My System), overprotection is practically
+equivalent to victory. Hence it follows automatically that the
+"weak" move, 3.e5, is a certain road to triumph. The rest is
+more or less a matter of technique. } 3...c5 { All according
+to a famous precedent.} 4.d4 {Here it is quite clear that it
+is more profitable for White first to provoke c5 and then play
+d4, rather than the other way round, which is the customary
+course. For, if White first plays d4, there follows c5 and
+White's d-pawn is under attack. But my clever transposition of
+moves changes the situation completely. For now Black's c-pawn
+is suddenly attacked by White's d-pawn!} 4...cxd4 {What else
+can Black do?} 5.h5 $1 {All very clever, original and
+decisive! Of course the ordinary run of people who envy my
+every spark of genius but cannot follow my line of reasoning
+for even three paces, outdo themselves in sneering at me with
+the poison-dripping epithet, "bizarre." The text move creates
+confusion in the whole Black army and prepares for the
+annihilating invasion by the Queen 18 moves later.} 5...Qb6
+{Naturally not 5...Nc6 6 Bb5! etc. Why should Black play the
+French Defence only to allow the Ruy Lopez Bishop move after
+all?!} 6.h6 $1 {An avaricious dullard would never hit on this
+deeply conceived Pawn sacrifice.} 6...Nxh6 {After 6...gxh6,
+White has an even more comfortable game.} 7.Qh5 $1 {The reason
+for this becomes clear after next move.} 7...g6 {Black
+threatens to begin a successful siege of the weakling at e5
+with Bg7. But White forestalls this.} 8.Qh2 $1 {To every
+fair-minded observer, this move must come as a revelation! All
+the previous manoeuvres now become clear! White has completed
+his development brilliantly and proceeds to overprotect
+e5. Against this, Black is helpless.} 8...Nf5 9.Bd3 {Note the
+splendid cooperation of White's forces: while the e-pawn and
+the King Bishop completely blockade Black's position, the
+development of the overprotective forces takes place behind
+the broad backs of these sturdy blockaders.} 9...Nc6 10.Nf3
+{As a rule this is a routine move. But here it is strikingly
+original and as such occupies a place in the treasury of my
+intellectual property.} 10...h5 {Old stuff!} 11.b3 {A deep
+trap, as will soon become apparent!} 11...Bg7 {How Black must
+have rejoiced when he anticipated his formidable opponent in
+the occupation of the long diagonal. But...} 12.Bf4 $1 {...how
+bitterly disappointed he must have been to realize that 11.b3
+had only been a trap and Bb2 had not been intended at all. The
+position of Black's Bishop at g7 is now quite
+pointless. 11...Be7 would have been relatively better.}
+12...Bd7 13.Nbd2 Rc8 {Black no longer has any good moves!}
+14.Ke2 $1 {Again, an extraordinarily deep move. White sees
+through Black's plans, and in addition he prepares a
+particularly powerful continuation of his strategy of
+overprotection.} 14...Nb4 {Just what White was waiting for.}
+15.Ne1 $1 {This was the point of his previous move! Black is
+now forced to exchange off the attacking Bishop at d3. But,
+with that, even White's King Knight enters the fray with
+fearful effect at d3, while the square f3 becomes available to
+the Queen Knight. Surely a grandiose piece of strategy. The
+fact is that I'm a marvellous player, even if the whole chess
+world bursts with envy.} 15...Nxd3 16.Nxd3 $1 {Naturally not
+16 cxd3? which would have been quite inconsistent. The Pawn on
+c2 is unimportant, and Black only wastes precious time by
+capturing it.} 16...Rxc2 17.Rae1 $1 {White continues his
+overprotection without much ado.} 17...a5 {This counterattack
+has no punch. Black would naturally like to get a passed Pawn
+plus a Rook on the seventh, but it is too late for that.}
+18.Kd1 $1 {Now the menaced Rook must scurry back, for capture
+on a2 would be much too dangerous.} 18...Rc6 $1 {At last,
+Black gets the right idea: overprotecting his Pawn at e6. But
+it is already too late.} 19.Re2 Ke7 {Introduced into
+tournament play by myself. See note to White's 14th move. The
+King overprotects e6.} 20.Rhe1 Re8 $1 21.Nf3 $1 {Completing
+the overprotection of e5 and thus deciding the fate of the
+game. Black has no defence. Note the aesthetic effect created
+by White's position.} 21...Bf8 {Now Black threatens to
+complete the overprotection of e6 by playing Ng7. But White
+has prepared a brilliant combination.} 22.g4 $1 {Much stronger
+than the obvious Bg5+ etc.} 22...hxg4 23.Qh7 $1 {Now one
+clearly realizes the masterly understanding of position which
+went into White's eighth move (Qh2!).} 23...gxf3 {Had Black
+continued overprotecting by 23...Ng7 there would have followed
+24.Bg5+ f6 25.Bxf6+ Kf7 26.Ng5 mate. Black's basic error was
+that he started overprotecting much too late.} 24.Bg5# {One of
+my best games! I am proud of it if only because Herr
+Systemsson is one of the strongest Scandinavian players. The
+game made an overwhelming impression on the players and
+spectators as well as on my opponent. The game has become
+famous in Denmark as "the immortal overprotection game."} 1-0
+
+[Event "Dream Game (composition)"]
+[Site "?"]
+[Date "1961.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "0-1"]
+[White "NN"]
+[Black "David Bronstein"]
+[ECO "E30"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "38"]
+
+1. d4 {Bronstein reputedly played this game in his dream and
+wrote it down after waking up.} Nf6 2. c4 e6 3. Nc3 Bb4 4. Bg5
+h6 5. Bh4 Qe7 6. Nf3 d6 7. Qa4+ Nc6 8. d5 exd5 9. cxd5 Qe4
+10. Nd2 Qxh4 11. dxc6 O-O 12. a3 Ng4 13. g3 Qf6 14. axb4 Qxf2+
+15. Kd1 b5 16. Qb3 Be6 17. Qa3 Ne3+ 18. Kc1 Qe1+ 19. Nd1 Qxd1#
+0-1
+
+[Event "Halle"]
+[Site "zt"]
+[Date "1963.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Per Ofstad"]
+[Black "Wolfgang Uhlmann"]
+[ECO "C07"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "37"]
+
+1.e4 e6 2.d4 d5 3.Nd2 c5 4.exd5 Qxd5 5.Ngf3 cxd4 6.Bc4 Qd6
+7.O-O Nc6 8.Re1 a6 9.a4 Qc7 10.Ne4 Bd7 11.Nxd4 Be7 12.Nf5 exf5
+13.Nd6+ Kf8 14.Nxf7 Be8 15.Qd5 Qa5 16.Qe6 Nd4 17.Ng5 Bxg5
+18.Qd6+ Be7 19.Rxe7 1-0
+
+[Event "Tbilisi"]
+[Site "Tbilisi"]
+[Date "1989.??.??"]
+[EventDate "?"]
+[Round "14"]
+[Result "1-0"]
+[White "Lembit Oll"]
+[Black "Mikhail Ulibin"]
+[ECO "C18"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "67"]
+
+1. e4 e6 2. d4 d5 3. Nc3 Bb4 4. e5 c5 5. a3 Bxc3+ 6. bxc3 Ne7
+7. Qg4 O-O 8. Bd3 Nbc6 9. Qh5 h6 10. Bxh6 gxh6 11. Qxh6 Nf5
+12. Bxf5 exf5 13. Nh3 f6 14. Qg6+ Kh8 15. Qh6+ Kg8 16. Qg6+
+Kh8 17. O-O-O fxe5 18. Qh6+ Kg8 19. Qg6+ Kh8 20. Rd3 f4
+21. Qh6+ Kg8 22. Qg6+ Kh8 23. Qh6+ Kg8 24. Rg3+ fxg3 25. Qg6+
+Kh8 26. hxg3 Qh4 27. gxh4 Bf5 28. Qh6+ Kg8 29. Ng5 exd4
+30. Rh3 Ne5 31. Rg3 Bg6 32. Ne6 Kf7 33. Nxf8 Rxf8 34. Qf4+ 1-0
+
+[Event "St. Petersburg 1895-96"]
+[Site "Petersburg 1895-96"]
+[Date "1896.01.04"]
+[EventDate "1895.12.13"]
+[Round "10"]
+[Result "0-1"]
+[White "Harry Nelson Pillsbury"]
+[Black "Emanuel Lasker"]
+[ECO "D50"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "60"]
+
+1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Nf3 c5 5. Bg5 cxd4 6. Qxd4 Nc6
+7. Qh4 Be7 8. O-O-O Qa5 9. e3 Bd7 10. Kb1 h6 11. cxd5 exd5
+12. Nd4 O-O 13. Bxf6 Bxf6 14. Qh5 Nxd4 15. exd4 Be6 16. f4
+Rac8 17. f5 Rxc3 18. fxe6 Ra3 19. exf7+ Rxf7 20. bxa3 Qb6+
+21. Bb5 Qxb5+ 22. Ka1 Rc7 23. Rd2 Rc4 24. Rhd1 Rc3 25. Qf5 Qc4
+26. Kb2 Rxa3 27. Qe6+ Kh7 28. Kxa3 Qc3+ 29. Ka4 b5+ 30. Kxb5
+Qc4+ 0-1
+
+[Event "Sochi 28th RSFSR ch"]
+[Site "Sochi 28th RSFSR ch"]
+[Date "1958.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "0-1"]
+[White "Lev Polugaevsky"]
+[Black "Nezhmetdinov"]
+[ECO "A54"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "66"]
+
+1. d4 Nf6 2. c4 d6 3. Nc3 e5 4. e4 exd4 5. Qxd4 Nc6 6. Qd2 g6
+7. b3 Bg7 8. Bb2 O-O 9. Bd3 Ng4 10. Nge2 Qh4 11. Ng3 Nge5
+12. O-O f5 13. f3 Bh6 14. Qd1 f4 15. Nge2 g5 16. Nd5 g4 17. g3
+fxg3 18. hxg3 Qh3 19. f4 Be6 20. Bc2 Rf7 21. Kf2 Qh2+ 22. Ke3
+Bxd5 23. cxd5 Nb4 24. Rh1 Rxf4 25. Rxh2 Rf3+ 26. Kd4 Bg7
+27. a4 c5+ 28. dxc6 bxc6 29. Bd3 Nexd3+ 30. Kc4 d5+ 31. exd5
+cxd5+ 32. Kb5 Rb8+ 33. Ka5 Nc6+ 0-1
+
+[Event "Hostoun"]
+[Site "?"]
+[Date "1890.03.20"]
+[EventDate "?"]
+[Round "?"]
+[Result "0-1"]
+[White "J Reinisch"]
+[Black "Karel Traxler"]
+[ECO "C57"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "34"]
+
+1.e4 {Notes by Karel Traxler} e5 2.Nf3 Nc6 3.Bc4 Nf6 4.Ng5 Bc5
+{An original combination that is better than it looks. A small
+mistake by white can give black a decisive attack. It is not
+easy to find the best defense against it in a practical game
+and it is probably theoretically correct. ... It somewhat
+resembles the Blackmar-Jerome gambit: 1.e4 e5 2.Nf3 Nc6 3.Bc4
+Bc5 4.Bxf7+?! Kxf7 5.Nxe5+?!} 5.Nxf7 Bxf2+ 6.Ke2 {The best
+defense is 6.Kf1! although after 6...Qe7 7.Nxh8 d5 8.exd5 Nd4
+Black gets a strong attack.} Nd4+ 7.Kd3 b5 8.Bb3 Nxe4 9.Nxd8
+{White has no defense; the mating finale is pretty.} Nc5+
+10.Kc3 Ne2+ 11.Qxe2 Bd4+ 12.Kb4 a5+ 13.Kxb5 Ba6+ 14.Kxa5 Bd3+
+15.Kb4 Na6+ 16.Ka4 Nb4+ 17.Kxb4 c5# 0-1
+
+[Event "Baden Baden"]
+[Site "Baden Baden DEU"]
+[Date "1925.04.25"]
+[EventDate "1925.04.16"]
+[Round "8"]
+[Result "0-1"]
+[White "Richard Reti"]
+[Black "Alexander Alekhine"]
+[ECO "A00"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "80"]
+
+1. g3 e5 2. Nf3 e4 3. Nd4 d5 4. d3 exd3 5. Qxd3 Nf6 6. Bg2
+Bb4+ 7. Bd2 Bxd2+ 8. Nxd2 O-O 9. c4 Na6 10. cxd5 Nb4 11. Qc4
+Nbxd5 12. N2b3 c6 13. O-O Re8 14. Rfd1 Bg4 15. Rd2 Qc8 16. Nc5
+Bh3 17. Bf3 Bg4 18. Bg2 Bh3 19. Bf3 Bg4 20. Bh1 h5 21. b4 a6
+22. Rc1 h4 23. a4 hxg3 24. hxg3 Qc7 25. b5 axb5 26. axb5 Re3
+27. Nf3 cxb5 28. Qxb5 Nc3 29. Qxb7 Qxb7 30. Nxb7 Nxe2+ 31. Kh2
+Ne4 32. Rc4 Nxf2 33. Bg2 Be6 34. Rcc2 Ng4+ 35. Kh3 Ne5+
+36. Kh2 Rxf3 37. Rxe2 Ng4+ 38. Kh3 Ne3+ 39. Kh2 Nxc2 40. Bxf3
+Nd4 0-1
+
+[Event "Lodz"]
+[Site "Lodz"]
+[Date "1907.12.26"]
+[EventDate "?"]
+[Round "?"]
+[Result "0-1"]
+[White "Georg Rotlewi"]
+[Black "Akiba Rubinstein"]
+[ECO "D32"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "50"]
+
+1.d4 {Notes by Carl Schlechter and Dr. Savielly Tartakower.}
+d5 2.Nf3 e6 3.e3 c5 4.c4 Nc6 5.Nc3 Nf6 6.dxc5 {Tartakower:
+Less consistent than 6.a3 or 6.Bd3, maintaining as long as
+possible the tension in the center.} Bxc5 7.a3 a6 8.b4 Bd6
+9.Bb2 O-O 10.Qd2 {? Schlechter: A very bad place for the
+queen. The best continuation is 10.cxd5 exd5 11.Be2, followed
+by O-O. *** Tartakower: Loss of time. The queen will soon have
+to seek a better square (14.Qe2). The most useful move is
+10.Qc2.} Qe7 {! Schlechter: A fine sacrifice of a pawn. If
+11.cxd5 exd5 12.Nxd5? Nxd5 13.Qxd5 Rd8! and Black has a strong
+attack.} 11.Bd3 {Schlechter: Better was 11.cxd5 exd5 12.Be2.}
+dxc4 12.Bxc4 b5 13.Bd3 Rd8 14.Qe2 Bb7 15.O-O Ne5 {!
+Schlechter: Introduced by Marshall and Schlechter in a similar
+position with opposite colors, but here with the extra move
+Rd8.} 16.Nxe5 Bxe5 {Tartakower: Threatening to win a pawn by
+17...Bxh2+ 18.Kxh2 Qd6+. White's next move provides against
+this, but loosens the kingside defenses.} 17.f4 Bc7 18.e4 Rac8
+19.e5 Bb6+ 20.Kh1 Ng4 {!} 21.Be4 {Schlechter: There is no
+defense; e.g., 21.Bxh7+ Kxh7 22.Qxg4 Rd2 etc.; or 21.h3 Qh4
+22.Qxg4 Qxg4 23.hxg4 Rxd3, threatening ...Rh3 mate and
+...Rxc3; or 21.Qxg4 Rxd3 22.Ne2 Rc2 23.Bc1 g6! threatening
+...h5; or 21.Ne4 Qh4 22.h3 (if 22.g3 Qxh2+ 23.Qxh2 Nxh2 and
+wins.) 22....Rxd3 23.Qxd3 Bxe4 24.Qxe4 Qg3 25.hxg4 Qh4+ mate.}
+Qh4 22.g3 {Schlechter: Or 22.h3 Rxc3! 23.Bxc3 Bxe4 24.Qxg4
+Qxg4 25.hxg4 Rd3 wins. *** Tartakower: The alternative 22.h3,
+parrying the mate, would lead to the following brilliant lines
+of play: 22...Rxc3! (an eliminating sacrifice, getting rid of
+the knight, which overprotects the bishop on e4) 23.Bxc3 (or
+23.Qxg4 Rxh3+ 24.Qxh3 Qxh3+ 25.gxh3 Bxe4+ 26.Kh2 Rd2+ 27.Kg3
+Rg2+ 28.Kh4 Bd8+ 29.Kh5 Bg6+ mate) 23...Bxe4+ 24.Qxg4 (if
+24.Qxe4 Qg3 25.hxg4 Qh4+ mate) 24...Qxg4 25.hxg4 Rd3 with the
+double threat of 26...Rh3+ mate and 26....Rxc3, and Black
+wins. Beautiful as are these variations, the continuation in
+the text is still more splendid.} Rxc3 {!!} 23.gxh4 Rd2 {!!}
+24.Qxd2 Bxe4+ 25.Qg2 Rh3 {!} 0-1
+
+[Event "Copenhagen"]
+[Site "Copenhagen, DEN"]
+[Date "1923.03.09"]
+[EventDate "1923.03.03"]
+[Round "6"]
+[Result "0-1"]
+[White "Friedrich Saemisch"]
+[Black "Aron Nimzowitsch"]
+[ECO "E18"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "50"]
+
+1. d4 {Notes by Nimzowitsch's "My System"} Nf6 2. c4 e6 3. Nf3
+b6 4. g3 Bb7 5. Bg2 Be7 6. Nc3 O-O 7. O-O d5 8. Ne5 c6
+{Safeguards the position} 9. cxd5 cxd5 10. Bf4 a6 {Protects
+the oupost station c4, i.e., by ...a6 and ...b5.} 11. Rc1 b5
+12. Qb3 Nc6 {The ghost! With noiseless steps he presses on
+towards c4.} 13. Nxc6 {Samisch sacrifices two tempi (exchange
+of the tempo-eating Knight on e5 for the Knight which is
+almost undeveloped) merely to be rid of the ghost.} Bxc6
+14. h3 Qd7 15. Kh2 Nh5 {I could have supplied him with as yet
+a second ghost by ...Qb7 and ...Knight-d7-b6-c4, but I wished
+to turn my attention to the King's side.} 16. Bd2 f5 {!}
+17. Qd1 b4 {!} 18. Nb1 Bb5 19. Rg1 Bd6 20. e4 fxe4 {! This
+sacrifice, which has a quite surprising affect, is based upon
+the following sober calculation: two Pawns and the 7th rank
+and an enemy Queen's wing which cannot be disentangled - all
+this for only one piece!} 21. Qxh5 Rxf2 22. Qg5 Raf8 23. Kh1
+R8f5 24. Qe3 Bd3 25. Rce1 h6 {!! A brilliant move which
+announces the Zugzwang. White has not a move left. If, e.g.,
+Kh2 or g4, then R5f3. Black can now make waiting moves with
+his King, and White must, willy-nilly, eventually throw
+himself upon the sword.} 0-1
+
+[Event "St Petersburg Open"]
+[Site "St Petersburg"]
+[Date "1993.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Grigory Serper"]
+[Black "Ioannis Nikolaidis"]
+[ECO "E70"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "95"]
+
+1.c4 g6 2.e4 Bg7 3.d4 d6 4.Nc3 Nf6 5.Nge2 Nbd7 6.Ng3 c6 7.Be2
+a6 8.Be3 h5 9.f3 b5 10.c5 dxc5 11.dxc5 Qc7 12.O-O h4 13.Nh1
+Nh5 14.Qd2 e5 15.Nf2 Nf8 16.a4 b4 17.Nd5 cxd5 18.exd5 f5 19.d6
+Qc6 20.Bb5 axb5 21.axb5 Qxb5 22.Rxa8 Qc6 23.Rfa1 f4 24.R1a7
+Nd7 25.Rxc8+ Qxc8 26.Qd5 fxe3 27.Qe6+ Kf8 28.Rxd7 exf2+ 29.Kf1
+Qe8 30.Rf7+ Qxf7 31.Qc8+ Qe8 32.d7 Kf7 33.dxe8=Q+ Rxe8 34.Qb7+
+Re7 35.c6 e4 36.c7 e3 37.Qd5+ Kf6 38.Qd6+ Kf7 39.Qd5+ Kf6
+40.Qd6+ Kf7 41.Qxe7+ Kxe7 42.c8=Q Bh6 43.Qc5+ Ke8 44.Qb5+ Kd8
+45.Qb6+ Kd7 46.Qxg6 e2+ 47.Kxf2 Be3+ 48.Ke1 1-0
+
+[Event "Buenos Aires ARG"]
+[Site "Buenos Aires ARG"]
+[Date "1994.??.??"]
+[EventDate "?"]
+[Round "8"]
+[Result "0-1"]
+[White "Alexey Shirov"]
+[Black "Judit Polgar"]
+[ECO "B45"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "58"]
+
+1.e4 c5 2.Nf3 e6 3.d4 cxd4 4.Nxd4 Nc6 5.Nc3 d6 6.g4 a6 7.Be3
+Nge7 8.Nb3 b5 9.f4 Bb7 10.Qf3 g5 11.fxg5 Ne5 12.Qg2 b4 13.Ne2
+h5 14.gxh5 Nf5 15.Bf2 Qxg5 16.Na5 Ne3 17.Qg3 Qxg3 18.Nxg3
+Nxc2+ 19.Kd1 Nxa1 20.Nxb7 b3 21.axb3 Nxb3 22.Kc2 Nc5 23.Nxc5
+dxc5 24.Be1 Nf3 25.Bc3 Nd4+ 26.Kd3 Bd6 27.Bg2 Be5 28.Kc4 Ke7
+29.Ra1 Nc6 0-1
+
+[Event "Gotha"]
+[Site "It"]
+[Date "1957.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Bogdan Sliwa"]
+[Black "David Bronstein"]
+[ECO "A81"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "57"]
+
+1. d4 f5 2. g3 g6 3. Bg2 Bg7 4. Nc3 Nf6 5. Bg5 Nc6 6. Qd2 d6
+7. h4 e6 8. O-O-O h6 9. Bf4 Bd7 10. e4 fxe4 11. Nxe4 Nd5
+12. Ne2 Qe7 13. c4 Nb6 14. c5 dxc5 15. Bxc7 O-O 16. Bd6 Qf7
+17. Bxf8 Rxf8 18. dxc5 Nd5 19. f4 Rd8 20. N2c3 Ndb4 21. Nd6
+Qf8 22. Nxb7 Nd4 23. Nxd8 Bb5 24. Nxe6 Bd3 25. Bd5 Qf5
+26. Nxd4+ Qxd5 27. Nc2 Bxc3 28. bxc3 Qxa2 29. cxb4 1-0
+
+[Event "USSR Championship"]
+[Site "Leningrad (RUS)"]
+[Date "1960.02.20"]
+[EventDate "1960.??.??"]
+[Round "16"]
+[Result "1-0"]
+[White "Boris Spassky"]
+[Black "David Bronstein"]
+[ECO "C36"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "45"]
+
+1. e4 e5 2. f4 exf4 3. Nf3 d5 4. exd5 Bd6 5. Nc3 Ne7 6. d4 O-O
+7. Bd3 Nd7 8. O-O h6 9. Ne4 Nxd5 10. c4 Ne3 11. Bxe3 fxe3
+12. c5 Be7 13. Bc2 Re8 14. Qd3 e2 15. Nd6 {One of the deepest
+sacrifices this side of The Evergreen Game -- Soltis} Nf8
+16. Nxf7 exf1=Q+ 17. Rxf1 Bf5 18. Qxf5 Qd7 19. Qf4 Bf6
+20. N3e5 Qe7 21. Bb3 Bxe5 22. Nxe5+ Kh7 23. Qe4+ 1-0
+
+[Event "Calcutta"]
+[Site "Calcutta"]
+[Date "1886.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Robert Steel"]
+[Black "NN"]
+[ECO "C25"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "51"]
+
+1.e4 e5 2.Nc3 Nc6 3.f4 exf4 4.d4 Qh4+ 5.Ke2 d5 6.exd5 Bg4+
+7.Nf3 O-O-O 8.dxc6 Bc5 9.cxb7+ Kb8 10.Nb5 Nf6 11.c3 Rhe8+
+12.Kd3 Bf5+ 13.Kc4 Be6+ 14.Kxc5 a5 15.Nxc7 Qh5+ 16.Ne5 Nd7+
+17.Kb5 Qxd1 18.Bxf4 Qxa1 19.Ka6 Nxe5 20.Nxe8 f6 21.dxe5 f5
+22.Be3 Rxe8 23.Bb5 Qxh1 24.Ba7+ Kc7 25.Bc5 Rd8 26.Ka7 1-0
+
+[Event "Hastings"]
+[Site "Hastings, England"]
+[Date "1895.08.17"]
+[EventDate "1895.08.05"]
+[Round "10"]
+[Result "1-0"]
+[White "Wilhelm Steinitz"]
+[Black "Curt von Bardeleben"]
+[ECO "C54"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "49"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d4 exd4 6. cxd4
+Bb4+ 7. Nc3 d5 8. exd5 Nxd5 9. O-O Be6 10. Bg5 Be7 11. Bxd5
+Bxd5 12. Nxd5 Qxd5 13. Bxe7 Nxe7 14. Re1 f6 15. Qe2 Qd7
+16. Rac1 c6 17. d5 cxd5 18. Nd4 Kf7 19. Ne6 Rhc8 20. Qg4 g6
+21. Ng5+ Ke8 22. Rxe7+ Kf8 23. Rf7+ Kg8 24. Rg7+ Kh8 25. Rxh7+
+{And black resigned at this point. As Steinitz demonstrated
+immediately afterward, there is a mate in ten moves which can
+only be averted by ruinous loss of material; analysis follows:
+...Kh8 25. Rxh7+ Kg8 26. Rg7+ Kh8 27. Qh4+ Kxg7 28. Qh7+ Kf8
+29. Qh8+ Ke7 30. Qg7+ Ke8 31. Qg8+ Ke7 32. Qf7+ Kd8 33. Qf8+
+Qe8 34. Nf7+ Kd7 35. Qd6#} 1-0
+
+[Event "Hastings 1930/31"]
+[Site "Hastings ENG"]
+[Date "1930.12.31"]
+[EventDate "1930.12.29"]
+[Round "3"]
+[Result "1-0"]
+[White "Mir Sultan Khan"]
+[Black "Jose Raul Capablanca"]
+[ECO "E12"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "129"]
+
+1.Nf3 Nf6 2.d4 b6 3.c4 Bb7 4.Nc3 e6 5.a3 d5 6.cxd5 exd5 7.Bg5
+Be7 8.e3 O-O 9.Bd3 Ne4 10.Bf4 Nd7 11.Qc2 f5 12.Nb5 Bd6 13.Nxd6
+cxd6 14.h4 Rc8 15.Qb3 Qe7 16.Nd2 Ndf6 17.Nxe4 fxe4 18.Be2 Rc6
+19.g4 Rfc8 20.g5 Ne8 21.Bg4 Rc1+ 22.Kd2 R8c2+ 23.Qxc2 Rxc2+
+24.Kxc2 Qc7+ 25.Kd2 Qc4 26.Be2 Qb3 27.Rab1 Kf7 28.Rhc1 Ke7
+29.Rc3 Qa4 30.b4 Qd7 31.Rbc1 a6 32.Rg1 Qa4 33.Rgc1 Qd7 34.h5
+Kd8 35.R1c2 Qh3 36.Kc1 Qh4 37.Kb2 Qh3 38.Rc1 Qh4 39.R3c2 Qh3
+40.a4 Qh4 41.Ka3 Qh3 42.Bg3 Qf5 43.Bh4 g6 44.h6 Qd7 45.b5 a5
+46.Bg3 Qf5 47.Bf4 Qh3 48.Kb2 Qg2 49.Kb1 Qh3 50.Ka1 Qg2 51.Kb2
+Qh3 52.Rg1 Bc8 53.Rc6 Qh4 54.Rgc1 Bg4 55.Bf1 Qh5 56.Re1 Qh1
+57.Rec1 Qh5 58.Kc3 Qh4 59.Bg3 Qxg5 60.Kd2 Qh5 61.Rxb6 Ke7
+62.Rb7+ Ke6 63.b6 Nf6 64.Bb5 Qh3 65.Rb8 1-0
+
+[Event "Tal-Larsen Candidates Semifinal Match"]
+[Site "Bled YUG"]
+[Date "1965.08.08"]
+[EventDate "1965.07.23"]
+[Round "10"]
+[White "Mikhail Tal"]
+[Black "Bent Larsen"]
+[Result "1-0"]
+[ECO "B82"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[MovePly "73"]
+
+1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 e6 5.Nc3 d6 6.Be3 Nf6 7.f4
+Be7 8.Qf3 O-O 9.O-O-O Qc7 10.Ndb5 Qb8 11.g4 a6 12.Nd4 Nxd4
+13.Bxd4 b5 14.g5 Nd7 15.Bd3 b4 16.Nd5 {!} exd5 17.exd5 {The
+piece sacrifice is a positional one, since it has been used to
+erect an invisible barrier on the e-file. A number of squares
+on it (e5 and e6) are controlled by white pawns, and a white
+rook will soon be moved to e1. -- Iakov Damsky} f5 18.Rde1 Rf7
+19.h4 Bb7 20.Bxf5 Rxf5 21.Rxe7 Ne5 22.Qe4 Qf8 23.fxe5 Rf4
+24.Qe3 Rf3 25.Qe2 Qxe7 26.Qxf3 dxe5 27.Re1 Rd8 28.Rxe5 Qd6
+29.Qf4 {! With this simple tactic 29 ...Bxd5 30. Re8+ White
+keeps his two extra pawns. The finish is straightforward. --
+Damsky} Rf8 30.Qe4 b3 31.axb3 Rf1+ 32.Kd2 Qb4+ 33.c3 Qd6
+34.Bc5 Qxc5 35.Re8+ Rf8 36.Qe6+ Kh8 37.Qf7 1-0
+
+[Event "Corus Wijk aan Zee"]
+[Site "Wijk aan Zee NED"]
+[Date "2006.01.25"]
+[EventDate "?"]
+[Round "10"]
+[Result "1-0"]
+[White "Veselin Topalov"]
+[Black "Levon Aronian"]
+[ECO "E15"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "87"]
+
+1.d4 Nf6 2.c4 e6 3.Nf3 b6 4.g3 Ba6 5.b3 Bb4+ 6.Bd2 Be7 7.Bg2
+c6 8.Bc3 d5 9.Ne5 Nfd7 10.Nxd7 Nxd7 11.Nd2 O-O 12.O-O Nf6
+13.e4 b5 14.exd5 exd5 15.Re1 Rb8 16.c5 Bc8 17.Nf3 Ne4 18.Rxe4
+dxe4 19.Ne5 Qd5 20.Qe1 Bf5 21.g4 Bg6 22.f3 b4 23.fxe4 Qe6
+24.Bb2 Bf6 25.Nxc6 Qxc6 26.e5 Qa6 27.exf6 Rfe8 28.Qf1 Qe2
+29.Qf2 Qxg4 30.h3 Qg5 31.Bc1 Qh5 32.Bf4 Rbd8 33.c6 Be4 34.c7
+Rc8 35.Re1 Qg6 36.Rxe4 Rxe4 37.d5 Rce8 38.d6 Re1+ 39.Kh2 Qf5
+40.Qg3 g6 41.Qg5 Qxg5 42.Bxg5 Rd1 43.Bc6 Re2+ 44.Kg3 1-0
+
+[Event "Linares"]
+[Site "Linares ESP"]
+[Date "1998.03.04"]
+[EventDate "1998.02.22"]
+[Round "10"]
+[Result "0-1"]
+[White "Veselin Topalov"]
+[Black "Alexey Shirov"]
+[ECO "D85"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "106"]
+
+1.d4 Nf6 2.c4 g6 3.Nc3 d5 4.cxd5 Nxd5 5.e4 Nxc3 6.bxc3 Bg7
+7.Bb5+ c6 8.Ba4 O-O 9.Ne2 Nd7 10.O-O e5 11.f3 Qe7 12.Be3 Rd8
+13.Qc2 Nb6 14.Bb3 Be6 15.Rad1 Nc4 16.Bc1 b5 17.f4 exd4 18.Nxd4
+Bg4 19.Rde1 Qc5 20.Kh1 a5 21.h3 Bd7 22.a4 bxa4 23.Ba2 Be8
+24.e5 Nb6 25.f5 Nd5 26.Bd2 Nb4 27.Qxa4 Nxa2 28.Qxa2 Bxe5
+29.fxg6 hxg6 30.Bg5 Rd5 31.Re3 Qd6 32.Qe2 Bd7 33.c4 Bxd4
+34.cxd5 Bxe3 35.Qxe3 Re8 36.Qc3 Qxd5 37.Bh6 Re5 38.Rf3 Qc5
+39.Qa1 Bf5 40.Re3 f6 41.Rxe5 Qxe5 42.Qa2+ Qd5 43.Qxd5+ cxd5
+44.Bd2 a4 45.Bc3 Kf7 46.h4 Ke6 47.Kg1 Bh3 48.gxh3 Kf5 49.Kf2
+Ke4 50.Bxf6 d4 51.Be7 Kd3 52.Bc5 Kc4 53.Be7 Kb3 0-1
+
+[Event "Correspondence"]
+[Site "Correspondence"]
+[Date "1919.??.??"]
+[EventDate "?"]
+[Round "-"]
+[Result "1-0"]
+[White "Heinrich Wagner"]
+[Black "Wilhelm Schoenmann"]
+[ECO "D08"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "50"]
+
+1. d4 { Game and comments by Italians IM Giorgio Porreca and
+Adriano Chicco - "Il Libro completo degli scacchi" 8a
+ed. chapter XXIX: fianchetto bishop } 1... d5 2. c4 e5 3. dxe5
+d4 4. Nf3 Nc6 5. Nbd2 f6 6. e6 Bxe6 7. a3 a5 8. b3 f5 9. Bb2
+Bc5 10. Qc2 Qe7 11. g3 O-O-O 12. Qd3 Nh6 13. Bg2 Ng4 14. O-O
+h5 { Here Black looks good, instead his position is almost
+lost! The clash between appareance and the rising in a few
+moves reality makes White combo very nice. } 15. b4 { It looks
+like a common pawn sac--it is instead the beginning of the
+end. } 15... axb4 { Black is forced to take, because if
+15...,Ba7 16.c5 and White's advantage became clear. } 16. axb4
+Nxb4 { If 16...Bxb4 then d4 pawn is lost } 17. Qb3 Nc6 { White
+was threatening at least 18. Ra8+ (or 18. h3!) with revenge on
+d4 pawn. } 18. Qb5 Bb6 19. Bxd4 { !! This sac depends by
+previous one and allows the following, on move 21 } 19... Bxd4
+20. Nxd4 Rxd4 21. Qxb7+ { !! This sac is wonderfully possible,
+thanks to the strategic placement of Bg2. } 21... Kxb7
+22. Rfb1+ Kc8 23. Bxc6 Qa3 { To escape from mating net, in
+fact 23...,Kd8; 24. Rb8+,Bc8 and Rxc8+ } 24. Rb8+ { !! White
+finds the most elegant way to end this genial match, little
+known but that fully deserve to be considered a chess
+masterpiece. } 24... Kxb8 25. Rxa3 {and Black resigned.} 1-0
+
+[Event "London"]
+[Site "London ENG"]
+[Date "1883.05.05"]
+[EventDate "1883.04.26"]
+[Round "6.1"]
+[Result "1-0"]
+[White "Johannes Zukertort"]
+[Black "Joseph Henry Blackburne"]
+[ECO "A13"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "65"]
+
+1. c4 e6 2. e3 Nf6 3. Nf3 b6 4. Be2 Bb7 5. O-O d5 6. d4 Bd6
+7. Nc3 O-O 8. b3 Nbd7 9. Bb2 Qe7 10. Nb5 Ne4 11. Nxd6 cxd6
+12. Nd2 Ndf6 13. f3 Nxd2 14. Qxd2 dxc4 15. Bxc4 d5 16. Bd3
+Rfc8 17. Rae1 Rc7 18. e4 Rac8 19. e5 Ne8 20. f4 g6 21. Re3 f5
+22. exf6 Nxf6 23. f5 Ne4 24. Bxe4 dxe4 25. fxg6 Rc2 26. gxh7+
+Kh8 27. d5+ e5 28. Qb4 R8c5 29. Rf8+ Kxh7 30. Qxe4+ Kg7
+31. Bxe5+ Kxf8 32. Bg7+ Kg8 33. Qxe7 1-0
+

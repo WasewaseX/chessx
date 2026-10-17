@@ -45,8 +45,8 @@ async function main() {
   const games: Record<string, { id: string; color: string; opponent: { username: string; rating: number; provisional: boolean } }> = {}
   const stateCount = { a: 0, b: 0 }
 
-  a.on('match:found', (d: { game: { id: string; color: string; opponent: { username: string; rating: number } } }) => { games.a = d.game })
-  b.on('match:found', (d: { game: { id: string; color: string; opponent: { username: string; rating: number } } }) => { games.b = d.game })
+  a.on('match:found', (d: { game: { id: string; color: string; opponent: { username: string; rating: number; provisional: boolean } } }) => { games.a = d.game })
+  b.on('match:found', (d: { game: { id: string; color: string; opponent: { username: string; rating: number; provisional: boolean } } }) => { games.b = d.game })
   a.on('game:state', () => { stateCount.a++ })
   b.on('game:state', () => { stateCount.b++ })
 
@@ -97,9 +97,9 @@ async function main() {
   console.log('B overall:', JSON.stringify(meB.ratings?.find((r: { pool: string }) => r.pool === 'overall')))
 
   // color-aware expectation: white (result 1-0) should gain, black should lose
-  const aWhite = ra.color === 'w'
-  const aDelta = ra.myDelta
-  const bDelta = rb.myDelta
+  const aWhite = ra?.color === 'w'
+  const aDelta = ra?.myDelta ?? null
+  const bDelta = rb?.myDelta ?? null
   const ok = Boolean(
     ra && rb && ra.rated && rb.rated && ra.result === '1-0' &&
     aDelta != null && bDelta != null &&

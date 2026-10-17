@@ -11,7 +11,7 @@ export const PUZZLES_PACK: Puzzle[] = [
     themes: [
       'mate'
     ],
-    title: 'Two rooks, one rank'
+    title: 'Doubled rooks'
   },
   {
     id: 'p-anastasia-pattern',
@@ -21,7 +21,7 @@ export const PUZZLES_PACK: Puzzle[] = [
     themes: [
       'mate'
     ],
-    title: 'Anastasia finishes'
+    title: 'Knight on the seventh'
   },
   {
     id: 'p-queen-box-center',
@@ -32,7 +32,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'mate',
       'endgame'
     ],
-    title: 'Box mate in the center'
+    title: 'Queen against the king'
   },
   {
     id: 'p-two-rooks-7th',
@@ -42,7 +42,7 @@ export const PUZZLES_PACK: Puzzle[] = [
     themes: [
       'mate'
     ],
-    title: 'The ladder closes'
+    title: 'Rooks on the seventh'
   },
   {
     id: 'p-damiano-pattern',
@@ -52,7 +52,7 @@ export const PUZZLES_PACK: Puzzle[] = [
     themes: [
       'mate'
     ],
-    title: 'Damiano finishes'
+    title: 'Pawn on the sixth'
   },
   {
     id: 'p-black-backrank',
@@ -62,7 +62,7 @@ export const PUZZLES_PACK: Puzzle[] = [
     themes: [
       'mate'
     ],
-    title: 'Black raids the back rank'
+    title: 'Black acts first'
   },
   {
     id: 'p-single-rook-backrank',
@@ -72,7 +72,7 @@ export const PUZZLES_PACK: Puzzle[] = [
     themes: [
       'mate'
     ],
-    title: 'Back rank, no escape'
+    title: 'One rook, one task'
   },
   {
     id: 'p-queen-box-corner',
@@ -83,7 +83,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'mate',
       'endgame'
     ],
-    title: 'Queen delivers in the corner'
+    title: 'Queen and king only'
   },
   {
     id: 'p-family-fork',
@@ -94,7 +94,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'fork',
       'winningMaterial'
     ],
-    title: 'The family fork'
+    title: 'The central invader'
   },
   {
     id: 'p-royal-fork-queen',
@@ -105,7 +105,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'fork',
       'winningMaterial'
     ],
-    title: 'Forked king and queen'
+    title: 'The bold knight'
   },
   {
     id: 'p-black-family-fork',
@@ -116,7 +116,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'fork',
       'winningMaterial'
     ],
-    title: 'Black forks back'
+    title: "Black's counterpunch"
   },
   {
     id: 'p-fork-king-knight',
@@ -127,7 +127,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'fork',
       'winningMaterial'
     ],
-    title: 'Check, then the rider falls'
+    title: 'The high ground'
   },
   {
     id: 'p-black-queen-skewer',
@@ -138,7 +138,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'skewer',
       'winningMaterial'
     ],
-    title: 'Black skewers first'
+    title: 'Open lines'
   },
   {
     id: 'p-queen-skewer-diagonal',
@@ -149,7 +149,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'skewer',
       'winningMaterial'
     ],
-    title: 'Bishop skewers the long diagonal'
+    title: 'The quiet bishop'
   },
   {
     id: 'p-rank-skewer',
@@ -160,7 +160,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'skewer',
       'winningMaterial'
     ],
-    title: 'Down the fifth rank'
+    title: 'Kings in the open'
   },
   {
     id: 'p-long-diagonal-skewer',
@@ -171,18 +171,19 @@ export const PUZZLES_PACK: Puzzle[] = [
       'skewer',
       'winningMaterial'
     ],
-    title: 'The long diagonal bites'
+    title: 'The patient bishop'
   },
   {
     id: 'p-bishop-double-strike',
     fen: '7k/8/8/8/8/7P/5PPK/r1B5 w - - 0 1',
-    solution: 'Bb2+ Kh7 Bxa1',
+    // Kg8 is the engine's best defence; any king move still loses the rook.
+    solution: 'Bb2+ Kg8 Bxa1',
     rating: 750,
     themes: [
       'doubleAttack',
       'winningMaterial'
     ],
-    title: 'The bishop hits two targets'
+    title: 'The waiting bishop'
   },
   {
     id: 'p-double-check-queen',
@@ -193,7 +194,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'discoveredAttack',
       'winningMaterial'
     ],
-    title: 'Double check takes the queen'
+    title: 'The loose queen'
   },
   {
     id: 'p-promo-mate',
@@ -205,7 +206,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'mate',
       'endgame'
     ],
-    title: 'Promotion with a punchline'
+    title: 'One square from glory'
   },
   {
     id: 'p-smothered-full',
@@ -216,7 +217,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'mate',
       'sacrifice'
     ],
-    title: 'The full smothered mate'
+    title: 'The classic finish'
   },
   {
     id: 'p-backrank-loose-rook',
@@ -226,7 +227,7 @@ export const PUZZLES_PACK: Puzzle[] = [
     themes: [
       'mate'
     ],
-    title: 'The back rank guard was loose'
+    title: 'One loose piece'
   },
   {
     id: 'p-black-queen-backrank',
@@ -236,7 +237,7 @@ export const PUZZLES_PACK: Puzzle[] = [
     themes: [
       'mate'
     ],
-    title: 'Black mates on the first rank'
+    title: 'Heavy artillery'
   },
   {
     id: 'p-queen-loose-take',
@@ -246,7 +247,7 @@ export const PUZZLES_PACK: Puzzle[] = [
     themes: [
       'winningMaterial'
     ],
-    title: 'The queen stepped out alone'
+    title: 'Alone in the open'
   },
   {
     id: 'p-black-loose-queen',
@@ -256,7 +257,7 @@ export const PUZZLES_PACK: Puzzle[] = [
     themes: [
       'winningMaterial'
     ],
-    title: 'Black grabs the loose queen'
+    title: 'Even queens fall'
   },
   {
     id: 'p-remove-guard-mate',
@@ -267,7 +268,7 @@ export const PUZZLES_PACK: Puzzle[] = [
       'removingDefender',
       'winningMaterial'
     ],
-    title: 'Remove the guard, loot the rank'
+    title: 'Two rooks clash'
   },
   {
     id: 'p-anastasia-real',
@@ -277,17 +278,18 @@ export const PUZZLES_PACK: Puzzle[] = [
     themes: [
       'mate'
     ],
-    title: 'Anastasia closes the door'
+    title: 'Coordinated pieces'
   },
   {
     id: 'p-queen-skewer-a8',
     fen: 'r5k1/8/8/8/8/8/8/3Q2K1 w - - 0 1',
-    solution: 'Qd5+ Kg7 Qxa8',
+    // Kh7 is the engine's best defence (Kg7 walks into a forced mate).
+    solution: 'Qd5+ Kh7 Qxa8',
     rating: 950,
     themes: [
       'skewer',
       'winningMaterial'
     ],
-    title: 'Check first, loot second'
+    title: 'The far corner'
   }
 ]

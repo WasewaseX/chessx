@@ -45,6 +45,7 @@ export async function GET(req: NextRequest) {
     rated: g.rated,
     result: g.result,
     reason: g.reason,
+    opening: g.opening,
     ratingDelta: g.ratingDelta,
     pgn: g.pgn,
     createdAt: g.createdAt,
@@ -64,6 +65,7 @@ export async function GET(req: NextRequest) {
       rated: g.rated,
       result: myScore,
       reason: g.termination ?? 'finished',
+      opening: null as string | null, // online games have no stored opening
       ratingDelta: (iAmWhite ? g.whiteDelta : g.blackDelta) ?? null,
       pgn: g.pgn,
       createdAt: g.endedAt ?? g.createdAt,

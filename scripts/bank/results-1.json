@@ -1,0 +1,633 @@
+[
+ {
+  "id": "m-0zkc5",
+  "fen": "8/8/8/3r1kpp/4pp2/5P2/4RKPP/8 w - - 0 50",
+  "solution": "fxe4+ Ke6 exd5+",
+  "rating": 875,
+  "themes": [
+   "doubleAttack",
+   "endgame",
+   "fork"
+  ],
+  "title": "Trompowsky Attack",
+  "source": "Real rated game on Lichess, Trompowsky Attack (White 2512 vs Black 2448)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/cf05XxNc/black#98"
+ },
+ {
+  "id": "m-05k1g",
+  "fen": "2kr4/p1p1N2p/8/5b2/2Pb4/8/PP3PPP/R2K4 b - - 2 21",
+  "solution": "Kb7 Nxf5 Bxb2+",
+  "rating": 1575,
+  "themes": [
+   "discoveredAttack",
+   "endgame",
+   "sacrifice"
+  ],
+  "title": "Elephant Gambit",
+  "source": "Real rated game on Lichess, Elephant Gambit (White 1689 vs Black 1739)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/32tZh2p2#41"
+ },
+ {
+  "id": "m-02s84",
+  "fen": "4rk2/R7/8/3b4/R7/2b3PP/5P2/6K1 b - - 0 38",
+  "solution": "Re1+ Kh2 Rh1#",
+  "rating": 875,
+  "themes": [
+   "endgame",
+   "mate"
+  ],
+  "title": "Italian Game",
+  "source": "Real rated game on Lichess, Italian Game: Two Knights Defense, Polerio Defense, Bishop Check Line (White 1628 vs Black 1608)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/joPT7WJb#75"
+ },
+ {
+  "id": "m-02b0d",
+  "fen": "3r1k2/2R3pr/1R6/p4p2/5K2/P6P/1P4P1/8 b - - 7 43",
+  "solution": "g5+ Kxg5 Rxc7",
+  "rating": 1900,
+  "themes": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "title": "Sicilian Defense",
+  "source": "Real rated game on Lichess, Sicilian Defense: Scheveningen Variation (White 2033 vs Black 1970)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/jK2pnCtW#85"
+ },
+ {
+  "id": "m-00tlz",
+  "fen": "8/p3Q2p/5qp1/4p1k1/8/8/Pr4PP/6K1 w - - 2 37",
+  "solution": "h4+ Kf5 g4+ Kxg4 Qxf6",
+  "rating": 1450,
+  "themes": [
+   "removingDefender",
+   "endgame"
+  ],
+  "title": "Sicilian Defense",
+  "source": "Real rated game on Lichess, Sicilian Defense: Bowdler Attack (White 1511 vs Black 1514)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/iQZPp2A2/black#72"
+ },
+ {
+  "id": "m-00oqt",
+  "fen": "8/8/8/p3b3/P1B2p1K/1Pk1p2P/6P1/8 b - - 0 50",
+  "solution": "Kd2 Kg4 e2 Bxe2 Kxe2",
+  "rating": 1725,
+  "themes": [
+   "endgame"
+  ],
+  "title": "Caro-Kann Defense",
+  "source": "Real rated game on Lichess, Caro-Kann Defense (White 1738 vs Black 1700)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/vZaFj9IE#99"
+ },
+ {
+  "id": "m-04rav",
+  "fen": "1kn5/5R2/r4p2/1p6/3BK3/5P2/6PP/8 b - - 1 40",
+  "solution": "Nd6+ Kd5 Nxf7",
+  "rating": 825,
+  "themes": [
+   "endgame",
+   "fork"
+  ],
+  "title": "Indian Defense",
+  "source": "Real rated game on Lichess, Indian Defense (White 1966 vs Black 2057)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/N6rjpToG#79"
+ },
+ {
+  "id": "m-062ej",
+  "fen": "7r/B4pp1/B4n2/3k3p/2b5/8/5PPP/4R1K1 w - - 1 25",
+  "solution": "Rd1+ Kc6 Bxc4",
+  "rating": 1375,
+  "themes": [
+   "removingDefender",
+   "endgame"
+  ],
+  "title": "Scandinavian Defense",
+  "source": "Real rated game on Lichess, Scandinavian Defense: Modern Variation (White 1992 vs Black 2100)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/ddQoBelS/black#48"
+ },
+ {
+  "id": "m-0aake",
+  "fen": "2k5/pp6/7p/5p2/2rR4/5R2/P4PPP/6K1 b - - 0 24",
+  "solution": "Rc1+ Rd1 Rxd1#",
+  "rating": 900,
+  "themes": [
+   "mate",
+   "endgame"
+  ],
+  "title": "King's Indian Defense",
+  "source": "Real rated game on Lichess, King's Indian Defense: Accelerated Averbakh Variation (White 2121 vs Black 2440)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/Xb5l4sra#47"
+ },
+ {
+  "id": "m-0me21",
+  "fen": "2kr4/2p1R1pp/5p2/R7/5PP1/7P/1Pr5/6K1 w - - 1 32",
+  "solution": "Ra8+ Kb7 Rxd8",
+  "rating": 875,
+  "themes": [
+   "removingDefender",
+   "endgame",
+   "skewer"
+  ],
+  "title": "Elephant Gambit",
+  "source": "Real rated game on Lichess, Elephant Gambit (White 1870 vs Black 1846)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/oQczi7Cx/black#62"
+ },
+ {
+  "id": "m-004lz",
+  "fen": "8/7R/5p2/p7/7P/2p5/3k2N1/1K6 b - - 0 48",
+  "solution": "c2+ Ka2 c1=Q Rd7+ Ke2",
+  "rating": 1175,
+  "themes": [
+   "removingDefender",
+   "endgame",
+   "promotion"
+  ],
+  "title": "Sicilian Defense",
+  "source": "Real rated game on Lichess, Sicilian Defense: Smith-Morra Gambit Declined, Center Formation (White 1735 vs Black 1701)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/drahwNdj#95"
+ },
+ {
+  "id": "m-00cts",
+  "fen": "Q7/5qk1/p2p4/b1p1pr2/P7/6P1/4KP1R/8 w - - 4 39",
+  "solution": "Qh8+ Kg6 Qh6#",
+  "rating": 1125,
+  "themes": [
+   "endgame",
+   "mate"
+  ],
+  "title": "Mikenas Defense",
+  "source": "Real rated game on Lichess, Mikenas Defense: Lithuanian Variation (White 1995 vs Black 1924)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/yKolw9vl/black#76"
+ },
+ {
+  "id": "m-0cuex",
+  "fen": "r7/pp3pk1/6p1/8/3r1nPK/1BN5/PP3R1P/R7 b - - 6 25",
+  "solution": "Rh8+ Kg3 Rh3#",
+  "rating": 1825,
+  "themes": [
+   "mate"
+  ],
+  "title": "Sicilian Defense",
+  "source": "Real rated game on Lichess, Sicilian Defense (White 1853 vs Black 1854)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/A1VT2f7C#49"
+ },
+ {
+  "id": "m-04pca",
+  "fen": "8/2R4p/6pk/5p2/2rP1KPP/4PP2/8/2r5 w - - 0 42",
+  "solution": "g5+ Kh5 Rxh7#",
+  "rating": 1025,
+  "themes": [
+   "removingDefender",
+   "endgame",
+   "mate"
+  ],
+  "title": "Queen's Gambit Accepted",
+  "source": "Real rated game on Lichess, Queen's Gambit Accepted: Old Variation (White 1593 vs Black 1583)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/CYh3htEg/black#82"
+ },
+ {
+  "id": "m-0nokc",
+  "fen": "8/3k3p/R3N1p1/1Pb5/8/5r1P/4K3/8 b - - 2 63",
+  "solution": "Re3+ Kf2 Rxe6+",
+  "rating": 1025,
+  "themes": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "title": "Alekhine Defense",
+  "source": "Real rated game on Lichess, Alekhine Defense: Modern Variation, Larsen Variation (White 2536 vs Black 2294)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/dGE8ov1M#125"
+ },
+ {
+  "id": "m-0ozfx",
+  "fen": "8/5k2/8/3PKP1p/6p1/2pQ2P1/1b6/8 b - - 0 61",
+  "solution": "c2+ Kd6 c1=Q",
+  "rating": 850,
+  "themes": [
+   "discoveredAttack",
+   "endgame",
+   "promotion"
+  ],
+  "title": "French Defense",
+  "source": "Real rated game on Lichess, French Defense: Knight Variation (White 1898 vs Black 1934)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/qU3oVDV4#121"
+ },
+ {
+  "id": "m-04kbj",
+  "fen": "8/pR6/5ppk/8/2P4p/1P3P1P/P4BP1/4rn1K b - - 1 43",
+  "solution": "Ng3+ Kh2 Rh1#",
+  "rating": 900,
+  "themes": [
+   "doubleAttack",
+   "endgame",
+   "mate"
+  ],
+  "title": "Nimzo-Larsen Attack",
+  "source": "Real rated game on Lichess, Nimzo-Larsen Attack: Modern Variation (White 1924 vs Black 2146)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/dP1vkSDD#85"
+ },
+ {
+  "id": "m-05jll",
+  "fen": "8/8/6p1/1p1k1p1p/3r4/4KPP1/1R5P/8 w - - 0 48",
+  "solution": "Rxb5+ Kc4 Rb4+ Kxb4 Kxd4",
+  "rating": 1425,
+  "themes": [
+   "removingDefender",
+   "endgame"
+  ],
+  "title": "Sicilian Defense",
+  "source": "Real rated game on Lichess, Sicilian Defense: Old Sicilian (White 1679 vs Black 1717)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/5lkk8kIP/black#94"
+ },
+ {
+  "id": "m-00me0",
+  "fen": "8/1p6/p1b5/4k2p/1PB1p2P/P3P1K1/8/8 w - - 3 36",
+  "solution": "Bf7 Bd7 Bxh5",
+  "rating": 1625,
+  "themes": [
+   "endgame"
+  ],
+  "title": "Horwitz Defense",
+  "source": "Real rated game on Lichess, Horwitz Defense (White 2106 vs Black 2062)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/Z2H5mRQg/black#70"
+ },
+ {
+  "id": "m-008sk",
+  "fen": "8/6pp/3Bp2k/p2pP2P/P3p1PK/8/r4b2/5R2 w - - 3 38",
+  "solution": "Rxf2 g5+ Kg3 Rxf2 Kxf2",
+  "rating": 1975,
+  "themes": [
+   "endgame"
+  ],
+  "title": "Slav Defense",
+  "source": "Real rated game on Lichess, Slav Defense (White 1731 vs Black 1778)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/rah6MiKa/black#74"
+ },
+ {
+  "id": "m-0p6wo",
+  "fen": "1rr3k1/p4ppp/8/8/Q7/4R3/P1P2PPP/6K1 b - - 4 24",
+  "solution": "Rb1+ Re1 Rxe1#",
+  "rating": 800,
+  "themes": [
+   "mate",
+   "endgame"
+  ],
+  "title": "Caro-Kann Defense",
+  "source": "Real rated game on Lichess, Caro-Kann Defense (White 1619 vs Black 1621)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/EQ73NTxX#47"
+ },
+ {
+  "id": "m-02ofv",
+  "fen": "8/p3R3/k4p2/3b2p1/7P/7P/PPr2P1B/6KR b - - 0 33",
+  "solution": "Rc1+ Re1 Rxe1#",
+  "rating": 825,
+  "themes": [
+   "endgame",
+   "mate"
+  ],
+  "title": "Owen Defense",
+  "source": "Real rated game on Lichess, Owen Defense (White 1781 vs Black 1833)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/ZKMjUUSC#65"
+ },
+ {
+  "id": "m-0gro5",
+  "fen": "r4r1k/1p4pp/pQ4q1/8/P7/1P3RBP/5R1K/8 b - - 0 34",
+  "solution": "Rxf3 Qxg6 Rxf2+ Bxf2 hxg6",
+  "rating": 1500,
+  "themes": [
+   "calculation"
+  ],
+  "title": "Sicilian Defense",
+  "source": "Real rated game on Lichess, Sicilian Defense: Smith-Morra Gambit (White 2221 vs Black 2124)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/25wus9EH#67"
+ },
+ {
+  "id": "m-0s5cy",
+  "fen": "8/pp1r1k1p/8/n4pB1/8/8/P2R1PPP/2rR2K1 b - - 0 27",
+  "solution": "Rxd1+ Rxd1 Rxd1#",
+  "rating": 850,
+  "themes": [
+   "mate",
+   "endgame"
+  ],
+  "title": "Grünfeld Defense",
+  "source": "Real rated game on Lichess, Grünfeld Defense: Exchange Variation (White 1963 vs Black 2430)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/GISCIVYP#53"
+ },
+ {
+  "id": "m-066ld",
+  "fen": "7r/6p1/3p4/4pnP1/R1N1k3/2r5/5P1p/R6K w - - 2 46",
+  "solution": "Nxd6+ Kf3 Nxf5",
+  "rating": 1250,
+  "themes": [
+   "removingDefender",
+   "doubleAttack",
+   "endgame"
+  ],
+  "title": "Ruy Lopez",
+  "source": "Real rated game on Lichess, Ruy Lopez: Berlin Defense, Improved Steinitz Defense (White 2199 vs Black 2083)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/ePT7GGwS/black#90"
+ },
+ {
+  "id": "m-077ow",
+  "fen": "8/8/7p/3k2p1/pp1P4/2r2N1P/1K4P1/2R5 b - - 3 46",
+  "solution": "a3+ Kb1 a2+ Kxa2 Rxc1",
+  "rating": 1800,
+  "themes": [
+   "removingDefender",
+   "endgame"
+  ],
+  "title": "French Defense",
+  "source": "Real rated game on Lichess, French Defense: King's Indian Attack (White 1750 vs Black 1785)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/TAEvTXXH#91"
+ },
+ {
+  "id": "m-02fzy",
+  "fen": "7r/6RP/2p5/7K/2k5/1p6/5P2/8 b - - 1 50",
+  "solution": "b2 Rb7 Rxh7+ Rxh7 b1=Q",
+  "rating": 1400,
+  "themes": [
+   "removingDefender",
+   "endgame",
+   "promotion"
+  ],
+  "title": "Sicilian Defense",
+  "source": "Real rated game on Lichess, Sicilian Defense: Nyezhmetdinov-Rossolimo Attack (White 1792 vs Black 1784)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/P16cwZZd#99"
+ },
+ {
+  "id": "m-0jhnz",
+  "fen": "4r1k1/1Q3ppp/5q2/1P6/8/5B2/5RPP/6K1 b - - 0 26",
+  "solution": "Re1+ Rf1 Qd4+ Kh1 Rxf1#",
+  "rating": 1550,
+  "themes": [
+   "mate",
+   "removingDefender",
+   "endgame"
+  ],
+  "title": "Caro-Kann Defense",
+  "source": "Real rated game on Lichess, Caro-Kann Defense: Hillbilly Attack (White 1800 vs Black 1858)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/aPzvclib#51"
+ },
+ {
+  "id": "m-0092z",
+  "fen": "2r3k1/3R1ppp/p1q5/2p2Q2/P7/7P/5PP1/6K1 w - - 4 27",
+  "solution": "Qxf7+ Kh8 Qxg7#",
+  "rating": 1100,
+  "themes": [
+   "endgame",
+   "mate"
+  ],
+  "title": "Ponziani Opening",
+  "source": "Real rated game on Lichess, Ponziani Opening: Jaenisch Counterattack (White 1687 vs Black 1716)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/fjaha7q0/black#52"
+ },
+ {
+  "id": "m-0pbci",
+  "fen": "8/6p1/3k1p1p/1p6/1PnpPPP1/3N1KP1/8/8 b - - 1 42",
+  "solution": "Nd2+ Kg2 Nxe4",
+  "rating": 800,
+  "themes": [
+   "removingDefender",
+   "endgame"
+  ],
+  "title": "Queen's Pawn Game",
+  "source": "Real rated game on Lichess, Queen's Pawn Game: Zukertort Variation (White 2463 vs Black 2316)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/1NEX30ip#83"
+ },
+ {
+  "id": "m-0adxz",
+  "fen": "4rk2/r1p3b1/4R1K1/3P4/8/p7/R7/8 w - - 2 42",
+  "solution": "Rf2+ Bf6 Rfxf6+ Kg8 Rxe8#",
+  "rating": 1575,
+  "themes": [
+   "removingDefender",
+   "endgame",
+   "mate"
+  ],
+  "title": "Philidor Defense",
+  "source": "Real rated game on Lichess, Philidor Defense (White 1688 vs Black 1696)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/APmPS8Ji/black#82"
+ },
+ {
+  "id": "m-00e7h",
+  "fen": "8/7p/p1p4k/1p1p4/3Qpq2/2P3pP/PP1N2K1/8 b - - 1 44",
+  "solution": "c5 Qxc5 Qxd2+",
+  "rating": 1850,
+  "themes": [
+   "removingDefender",
+   "endgame"
+  ],
+  "title": "Ruy Lopez",
+  "source": "Real rated game on Lichess, Ruy Lopez: Open, Bernstein Variation (White 2611 vs Black 2607)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/DTE43D0V#87"
+ },
+ {
+  "id": "m-00qoa",
+  "fen": "6rk/1pR3p1/6Bp/2b4P/8/pP3PK1/P1P5/8 b - - 0 32",
+  "solution": "Bd6+ f4 Bxc7",
+  "rating": 800,
+  "themes": [
+   "endgame",
+   "fork"
+  ],
+  "title": "French Defense",
+  "source": "Real rated game on Lichess, French Defense: Rubinstein Variation (White 2026 vs Black 2031)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/afclLtrR#63"
+ },
+ {
+  "id": "m-089ro",
+  "fen": "6k1/p4ppp/4p3/8/P2r4/8/5PPP/1R4K1 w - - 1 25",
+  "solution": "Rb8+ Rd8 Rxd8#",
+  "rating": 600,
+  "themes": [
+   "mate",
+   "endgame"
+  ],
+  "title": "Caro-Kann Defense",
+  "source": "Real rated game on Lichess, Caro-Kann Defense: Panov Attack, Main Line (White 1641 vs Black 1719)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/2H3UsNSn/black#48"
+ },
+ {
+  "id": "m-0hxiv",
+  "fen": "5rk1/5rpp/4Q3/3B4/4n3/8/Pq4PP/2R4K w - - 0 30",
+  "solution": "Qxf7+ Rxf7 Rc8#",
+  "rating": 1500,
+  "themes": [
+   "mate",
+   "pin",
+   "sacrifice"
+  ],
+  "title": "Sicilian Defense",
+  "source": "Real rated game on Lichess, Sicilian Defense: Alapin Variation (White 2106 vs Black 2129)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/pmtdqBCo/black#58"
+ },
+ {
+  "id": "m-00cud",
+  "fen": "8/5p2/6p1/1p1N1k2/1P1K4/2P3P1/8/5b2 w - - 1 49",
+  "solution": "Ne3+ Ke6 Nxf1",
+  "rating": 825,
+  "themes": [
+   "endgame",
+   "fork"
+  ],
+  "title": "Sicilian Defense",
+  "source": "Real rated game on Lichess, Sicilian Defense: Four Knights Variation, Cobra Variation (White 2275 vs Black 2333)",
+  "mateEnd": false,
+  "gameUrl": "https://lichess.org/XdT6vR6T/black#96"
+ },
+ {
+  "id": "m-00mfe",
+  "fen": "7k/p5pp/2r2q2/2p4Q/8/8/P5PP/3r1R1K w - - 0 30",
+  "solution": "Qe8+ Qf8 Qxf8#",
+  "rating": 1425,
+  "themes": [
+   "endgame",
+   "mate"
+  ],
+  "title": "French Defense",
+  "source": "Real rated game on Lichess, French Defense: Exchange Variation (White 1956 vs Black 1984)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/d1J7UJ4D/black#58"
+ },
+ {
+  "id": "m-0kvcw",
+  "fen": "5r1k/5p1B/5p2/7Q/6R1/4q1P1/8/r4K2 w - - 5 37",
+  "solution": "Bb1+ Qh6 Qxh6#",
+  "rating": 1850,
+  "themes": [
+   "discoveredAttack",
+   "endgame",
+   "mate"
+  ],
+  "title": "Queen's Indian Defense",
+  "source": "Real rated game on Lichess, Queen's Indian Defense: Kasparov Variation (White 1944 vs Black 2043)",
+  "mateEnd": true,
+  "gameUrl": "https://lichess.org/W4UlQQQQ/black#72"
+ },
+ {
+  "id": "f-adolf-anderssen-jean-dufresne-43",
+  "fen": "1r4r1/pbpknp1p/1b3P2/5B2/8/B1P2q2/P4PPP/3R2K1 b - - 1 22",
+  "solution": "Ke8 Bd7+ Kf8 Bxe7#",
+  "rating": 1475,
+  "themes": [
+   "famousGame",
+   "mate"
+  ],
+  "title": "Adolf finishes",
+  "source": "Adolf Anderssen vs Jean Dufresne, Berlin GER 1852",
+  "mateEnd": true
+ },
+ {
+  "id": "f-adolf-anderssen-kieseritzky-41",
+  "fen": "r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1 b kq - 0 21",
+  "solution": "Kd8 Qf6+ Nxf6 Be7#",
+  "rating": 1475,
+  "themes": [
+   "famousGame",
+   "mate"
+  ],
+  "title": "Adolf finishes",
+  "source": "Adolf Anderssen vs Kieseritzky, London 1851",
+  "mateEnd": true
+ },
+ {
+  "id": "f-rudolf-rezso-charousek-jakob-wollner-33",
+  "fen": "r3Qk2/pppb1Pp1/2np3p/2b5/2B2Bnq/2N5/PP4PP/4RR1K b - - 7 17",
+  "solution": "Rxe8 fxe8=Q+ Bxe8 Bxd6#",
+  "rating": 1475,
+  "themes": [
+   "famousGame",
+   "mate"
+  ],
+  "title": "Rudolf finishes",
+  "source": "Rudolf Rezso Charousek vs Jakob Wollner, Kaschau 1893",
+  "mateEnd": true
+ },
+ {
+  "id": "f-glucksberg-miguel-najdorf-42",
+  "fen": "r4rk1/pp4pp/2p5/3pn1N1/2P2PK1/3B2P1/PP5q/R1BQ1RN1 w - - 1 22",
+  "solution": "fxe5 h5#",
+  "rating": 1300,
+  "themes": [
+   "famousGame",
+   "mate"
+  ],
+  "title": "Glucksberg finishes",
+  "source": "Glucksberg vs Miguel Najdorf, Warsaw 1929",
+  "mateEnd": true
+ },
+ {
+  "id": "f-f-alexander-hoffmann-alexander-petrov-36",
+  "fen": "r5k1/ppp3pp/3pb3/5rK1/8/8/PB3bPP/RN1Q3R w - - 2 19",
+  "solution": "Kg4 h5+ Kh3 Rf3#",
+  "rating": 1475,
+  "themes": [
+   "famousGame",
+   "mate"
+  ],
+  "title": "F finishes",
+  "source": "F Alexander Hoffmann vs Alexander Petrov, Warsaw 1844",
+  "mateEnd": true
+ },
+ {
+  "id": "f-nn-david-bronstein-34",
+  "fen": "r4rk1/p1p2pp1/2Ppb2p/1p6/1P6/Q1N1n1P1/1P1NPq1P/R2K1B1R w - - 4 18",
+  "solution": "Kc1 Qe1+ Nd1 Qxd1#",
+  "rating": 1475,
+  "themes": [
+   "famousGame",
+   "mate"
+  ],
+  "title": "NN finishes",
+  "source": "NN vs David Bronstein 1961",
+  "mateEnd": true
+ },
+ {
+  "id": "f-j-reinisch-karel-traxler-30",
+  "fen": "r2Nk2r/2pp2pp/n7/4p3/1K1b4/1B1b4/PPPPQ1PP/RNB4R w kq - 3 16",
+  "solution": "Ka4 Nb4+ Kxb4 c5#",
+  "rating": 1475,
+  "themes": [
+   "famousGame",
+   "mate"
+  ],
+  "title": "J finishes",
+  "source": "J Reinisch vs Karel Traxler 1890",
+  "mateEnd": true
+ }
+]

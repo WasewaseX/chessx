@@ -1,6 +1,10 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+
+// Harden every client fetch (timeout + one silent retry) before anything
+// else in the app talks to the API.
+if (typeof window !== 'undefined') installFetchHardening()
 import { useTheme } from 'next-themes'
 import { useApp, useHashSync, type ProfileData, type PoolRating } from '@/lib/store'
 import { consumeSessionFragment, clearSessionToken } from '@/lib/session'
@@ -17,7 +21,9 @@ import { CoachView } from '@/components/views/coach-view'
 import { AnalysisView } from '@/components/views/analysis-view'
 import { ProfileView } from '@/components/views/profile-view'
 import { SettingsView } from '@/components/views/settings-view'
+import { ToolsView } from '@/components/views/tools-view'
 import { useActivityHeartbeat } from '@/lib/use-activity-heartbeat'
+import { installFetchHardening } from '@/lib/fetch-retry'
 
 function ViewRouter() {
   const { view } = useApp()
@@ -41,6 +47,8 @@ function ViewRouter() {
       return <ProfileView />
     case 'settings':
       return <SettingsView />
+    case 'tools':
+      return <ToolsView />
     default:
       return <HomeView />
   }
@@ -92,15 +100,12 @@ export default function Page() {
     }
   }, [loadSession])
 
-  // apply stored dark mode preference: next-themes owns the class on the
-  // document element so color-scheme and every themed surface stay in sync
+  // apply the stored theme preference: light, dark, or system. next-themes
+  // owns the class on the document element (and resolves system mode), so no
+  // manual class fiddling here — it would fight system mode.
   useEffect(() => {
     if (!profile) return
-    const root = document.documentElement
-    const dark = profile.darkMode === 'dark'
-    setTheme(dark ? 'dark' : 'light')
-    if (dark) root.classList.add('dark')
-    else root.classList.remove('dark')
+    setTheme(profile.darkMode === 'dark' || profile.darkMode === 'light' ? profile.darkMode : 'system')
   }, [profile?.darkMode, setTheme])
 
   if (!loaded) {

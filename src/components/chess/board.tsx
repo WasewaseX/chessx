@@ -13,7 +13,7 @@ export interface Arrow {
 
 export interface Mark {
   square: string
-  color?: 'green' | 'red' | 'yellow' | 'gray'
+  color?: 'green' | 'red' | 'yellow' | 'gold' | 'gray'
 }
 
 /** Pulsing square highlight used by lessons to show where a piece can go. */
@@ -53,6 +53,7 @@ const MARK_COLORS: Record<string, string> = {
   green: 'rgba(130, 182, 76, 0.75)',
   red: 'rgba(202, 52, 49, 0.7)',
   yellow: 'rgba(230, 168, 44, 0.75)',
+  gold: 'rgba(212, 175, 55, 0.75)',
   gray: 'rgba(90, 90, 90, 0.5)',
 }
 
@@ -194,6 +195,12 @@ export function ChessBoard({
   const [drag, setDrag] = useState<{ from: string; x: number; y: number; piece: PieceData } | null>(null)
   const [hoverSquare, setHoverSquare] = useState<string | null>(null)
   const [promotion, setPromotion] = useState<{ from: string; to: string } | null>(null)
+  // Thinking marks (zeechess-style): right-click press-drag-release draws an
+  // arrow while you work out a move; a right-click tap on a square wipes the
+  // marks. They are working memory for the CURRENT decision, so they clear
+  // when the position changes (any move played, any navigation).
+  const [userArrows, setUserArrows] = useState<Arrow[]>([])
+  const [arrowDraft, setArrowDraft] = useState<{ from: string; to: string | null } | null>(null)
 
   const game = useMemo(() => {
     try {
@@ -257,6 +264,9 @@ export function ChessBoard({
     setPrevFen(fen)
     setSelected(null)
     setPromotion(null)
+    // thinking marks are memory for the current decision only
+    setUserArrows([])
+    setArrowDraft(null)
   }
 
   useEffect(() => {
@@ -303,6 +313,12 @@ export function ChessBoard({
   const onSquarePointerDown = useCallback(
     (e: React.PointerEvent, square: string) => {
       if (promotion) return
+      // Right button: thinking-mark mode, never piece selection.
+      if (e.button === 2) {
+        e.preventDefault()
+        setArrowDraft({ from: square, to: square })
+        return
+      }
       if (onSquareTap) {
         onSquareTap(square)
         return
@@ -329,16 +345,33 @@ export function ChessBoard({
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
+      const sq = squareFromPoint(e.clientX, e.clientY)
+      if (arrowDraft) {
+        setArrowDraft((d) => (d ? { ...d, to: sq ?? d.to } : d))
+        return
+      }
       if (!drag) return
       setDrag((d) => (d ? { ...d, x: e.clientX, y: e.clientY } : d))
-      const sq = squareFromPoint(e.clientX, e.clientY)
       setHoverSquare(sq)
     },
-    [drag, squareFromPoint],
+    [drag, arrowDraft, squareFromPoint],
   )
 
   const onPointerUp = useCallback(
     (e: React.PointerEvent) => {
+      if (arrowDraft) {
+        const target = squareFromPoint(e.clientX, e.clientY)
+        const from = arrowDraft.from
+        setArrowDraft(null)
+        if (!target || target === from) {
+          // A right-click tap (no drag) wipes the thinking marks.
+          setUserArrows([])
+        } else {
+          const drawn: Arrow = { from, to: target, color: 'orange' }
+          setUserArrows((a) => (a.some((x) => x.from === drawn.from && x.to === drawn.to) ? a.filter((x) => !(x.from === drawn.from && x.to === drawn.to)) : [...a, drawn].slice(-8)))
+        }
+        return
+      }
       if (!drag) return
       const target = squareFromPoint(e.clientX, e.clientY)
       const from = drag.from
@@ -350,7 +383,7 @@ export function ChessBoard({
       }
       // if released on origin square: keep selection (click-to-move mode)
     },
-    [drag, squareFromPoint, legalTargets, tryMove],
+    [drag, arrowDraft, squareFromPoint, legalTargets, tryMove],
   )
 
   // keyboard support: arrows for accessibility are handled by views; board is pointer-first
@@ -387,6 +420,7 @@ export function ChessBoard({
       aria-label={boardLabel}
       className={cn('relative aspect-square w-full select-none overflow-hidden rounded-md', shake && 'animate-shake', className)}
       style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.25)' }}
+      onContextMenu={(e) => e.preventDefault()}
     >
       <div
         ref={boardRef}
@@ -528,8 +562,8 @@ export function ChessBoard({
           </div>
         )}
 
-        {/* arrows */}
-        {arrows.length > 0 && (
+        {/* arrows: view-provided plus the player's own thinking marks */}
+        {(arrows.length > 0 || userArrows.length > 0 || (arrowDraft && arrowDraft.to && arrowDraft.to !== arrowDraft.from)) && (
           <svg aria-hidden="true" tabIndex={-1} className="pointer-events-none absolute inset-0 z-30" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
               {Object.entries(ARROW_COLORS).map(([k, c]) => (
@@ -538,7 +572,7 @@ export function ChessBoard({
                 </marker>
               ))}
             </defs>
-            {arrows.map((a, i) => {
+            {[...arrows, ...userArrows, ...(arrowDraft && arrowDraft.to && arrowDraft.to !== arrowDraft.from ? [{ from: arrowDraft.from, to: arrowDraft.to, color: 'orange' } as Arrow] : [])].map((a, i) => {
               const x1 = (orientation === 'w' ? fileOf(a.from) : 7 - fileOf(a.from)) * 12.5 + 6.25
               const y1 = (orientation === 'w' ? rankOf(a.from) : 7 - rankOf(a.from)) * 12.5 + 6.25
               const x2 = (orientation === 'w' ? fileOf(a.to) : 7 - fileOf(a.to)) * 12.5 + 6.25

@@ -4,7 +4,7 @@
 // drills and quizzes, each replayable and honestly marked with its result.
 
 import type { ArtifactView } from '@/lib/coach-artifacts'
-import { levelRefLabel } from '@/lib/coach-artifacts'
+import { displayTitle, levelRefLabel } from '@/lib/coach-artifacts'
 import { cn } from '@/lib/utils'
 import { Brain, Check, CircleDot, Puzzle, Sparkles, Target, X } from 'lucide-react'
 
@@ -60,11 +60,16 @@ export function CoachDrillsShelf({
                 >
                   <Icon className="h-4 w-4 shrink-0 text-primary" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold">{d.title}</span>
+                    {/* Unsolved board material shows a neutral name: the real
+                     * headline gives the method away before a move is played. */}
+                    <span className="block truncate text-sm font-semibold">{displayTitle(d)}</span>
                     <span className="block truncate text-[11px] text-muted-foreground">
                       {[
                         levelRefLabel(d.levelRef) ?? 'Made by your coach',
-                        d.rating != null ? `${d.rating} Elo` : null,
+                        // The rating already appears inside the display name
+                        // for unsolved cards; say it here only when the real
+                        // headline took its place (solved or walkthrough).
+                        (d.solved === true || d.kind === 'line') && d.rating != null ? `${d.rating} Elo` : null,
                         d.attempts > 0 ? `${d.attempts} ${d.attempts === 1 ? 'attempt' : 'attempts'}` : null,
                       ]
                         .filter(Boolean)

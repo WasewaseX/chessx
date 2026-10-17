@@ -8,6 +8,7 @@ import { getSessionUser } from '@/lib/auth'
 import { bumpActivity, sanitizeConcepts, updateMastery } from '@/lib/server/skill'
 import { dayKeyLocal } from '@/lib/day'
 import { publicProfile } from '@/lib/api'
+import { artifactFromRow, stripUnsolved } from '@/lib/coach-artifacts'
 
 const XP_FIRST_SOLVE = 10
 
@@ -52,8 +53,11 @@ export async function POST(req: NextRequest) {
   }
 
   const fresh = await db.profile.findUnique({ where: { id: pid } })
+  // Same client view shape as every other artifact endpoint, through the same
+  // spoiler guard: a failed attempt keeps the headline hidden, a solving one
+  // ships the full card so the reveal lands without a second fetch.
   return NextResponse.json({
-    artifact: updated,
+    artifact: stripUnsolved(artifactFromRow(updated as unknown as Record<string, unknown>)),
     xpGain,
     profile: fresh ? publicProfile(fresh) : null,
   })

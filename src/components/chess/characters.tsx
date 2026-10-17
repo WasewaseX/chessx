@@ -382,6 +382,30 @@ function MaximumArt() {
   )
 }
 
+function TorchArt() {
+  return (
+    <g>
+      <Shoulders color="#d95a1e" />
+      {/* collar flame trim */}
+      <path d="M24 46 L28 49.5 L32 46 L36 49.5 L40 46 L40 48.5 L32 53 L24 48.5 Z" fill="#f6a21c" />
+      <Neck skin="#eab98f" />
+      <Head skin="#eab98f" />
+      {/* flame hair: layered fire */}
+      <path d="M19.8 27.5 Q17.2 15.5 26.5 11.2 Q24.4 17.6 29.5 12.8 Q28.4 19.6 33.5 11.2 Q35.6 19.2 39.2 12.4 Q41.8 19 44.4 27.5 Z" fill="#e8641f" />
+      <path d="M22.6 26.5 Q21.4 18.6 27.6 14.8 Q27 19.6 31.6 15.8 Q31.8 20.6 34.6 15.8 Q38.2 19.4 41.6 26.5 Z" fill="#f6a21c" />
+      <path d="M30.4 17.6 Q31.9 14.2 33.9 16.4 Q33 19.2 30.4 17.6 Z" fill="#ffd45e" />
+      <Eyes cy={29.6} dx={4.4} r={1.7} />
+      <circle cx={32 - 4.4 - 0.7} cy={29.6 - 0.7} r="0.6" fill="#fff" />
+      <circle cx={32 + 4.4 - 0.7} cy={29.6 - 0.7} r="0.6" fill="#fff" />
+      <Brows cy={25.6} dx={4.4} tilt={-1.5} w={4.6} width={2} color="#b34a12" />
+      <Smile cy={35.4} w={4.4} open />
+      {/* sparks */}
+      <circle cx="17.5" cy="20.5" r="0.9" fill="#f6a21c" opacity="0.85" />
+      <circle cx="46.5" cy="18.5" r="0.8" fill="#ffd45e" opacity="0.9" />
+    </g>
+  )
+}
+
 /* ---------- coaches ---------- */
 
 function NinaArt() {
@@ -504,6 +528,7 @@ const REGISTRY: Record<string, Art> = {
   grandmaster: { bg: '#eae3ef', ring: '#cfc3da', initials: 'G', art: GrandmasterArt },
   titan: { bg: '#e1e5e2', ring: '#c2c7c3', initials: 'T', art: TitanArt },
   maximum: { bg: '#2b2b30', ring: '#15151a', initials: 'M', ink: '#a8e07a', art: MaximumArt },
+  torch: { bg: '#fdecd9', ring: '#f2c9a0', initials: 'T', art: TorchArt },
   nina: { bg: '#e6eedb', ring: '#c6d6b3', initials: 'N', art: NinaArt },
   victor: { bg: '#f5e7d6', ring: '#dcc3a4', initials: 'V', art: VictorArt },
   elena: { bg: '#dce9e8', ring: '#bccfcc', initials: 'E', art: ElenaArt },

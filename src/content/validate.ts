@@ -144,8 +144,9 @@ function checkGtm(where: string, step: GtmStep) {
     try {
       for (const san of prelude) probeG.move(san)
       for (let j = 0; j < i; j++) {
-        probeG.move(step.moves[j].san)
-        if (step.moves[j].reply) probeG.move(step.moves[j].reply)
+        const mv = step.moves[j]
+        probeG.move(mv.san)
+        if (mv.reply) probeG.move(mv.reply)
       }
       if (probeG.turn() !== expectedSide) {
         err(where, `guess ${i + 1} is not ${expectedSide} to move, check prelude/reply parity`)

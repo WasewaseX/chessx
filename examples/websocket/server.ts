@@ -1,5 +1,27 @@
 import { createServer } from 'http'
-import { Server } from 'socket.io'
+import { createRequire } from 'module'
+
+// The socket.io package is not installed in this repo (only socket.io-client
+// is), so the server surface this example uses is described locally instead of
+// importing the package's types. The real package is still loaded at runtime
+// when this example is run in an environment that provides it.
+interface SocketIOEmitter {
+  emit(event: string, ...args: unknown[]): this
+}
+
+interface SocketIOSocket extends SocketIOEmitter {
+  readonly id: string
+  on<T>(event: string, listener: (...args: T[]) => void): this
+}
+
+interface SocketIOServer extends SocketIOEmitter {
+  on(event: 'connection', listener: (socket: SocketIOSocket) => void): this
+}
+
+type SocketIOServerCtor = new (httpServer: unknown, options?: Record<string, unknown>) => SocketIOServer
+
+const require = createRequire(import.meta.url)
+const { Server } = require('socket.io') as { Server: SocketIOServerCtor }
 
 const httpServer = createServer()
 const io = new Server(httpServer, {

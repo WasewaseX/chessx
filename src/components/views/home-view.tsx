@@ -8,7 +8,9 @@ import { Progress } from '@/components/ui/progress'
 import { ALL_LEVELS } from '@/content/levels'
 import { isLevelUnlocked, nextUnlockedId } from '@/lib/unlock'
 import { potentialElo, titleForXp } from '@/lib/rating'
+import { BOTS } from '@/lib/chess/bots'
 import { GoalCard } from '@/components/shell/streak'
+import { GlobeSection } from '@/components/chess/chess-globe'
 import {
   Swords,
   GraduationCap,
@@ -34,6 +36,11 @@ interface GameRow {
 
 /** One shared card style so every home block lines up. */
 const CARD = 'rounded-lg bg-card p-6 shadow-sm'
+
+/** zeechess-style section eyebrow: a tiny mono index line above card titles. */
+function eyebrowEl(text: string) {
+  return <span aria-hidden="true" className="block text-[10px] font-extrabold uppercase tracking-[0.18em] text-muted-foreground/60">{text}</span>
+}
 
 export function HomeView() {
   const { navigate, profile, ratings } = useApp()
@@ -63,7 +70,7 @@ export function HomeView() {
 
   const loadProgress = useCallback(() => {
     fetch('/api/progress')
-      .then((r) => readJson<unknown>(r))
+      .then((r) => readJson<{ progress?: { lessonId: string; completed: boolean; stepsDone: number; totalSteps: number; updatedAt?: string }[] }>(r))
       .then((d) => setProgress(d.progress ?? []))
       .catch(() => setProgressError(true))
   }, [])
@@ -75,7 +82,7 @@ export function HomeView() {
 
   const loadGames = useCallback(() => {
     fetch('/api/games?limit=5')
-      .then((r) => readJson<unknown>(r))
+      .then((r) => readJson<{ games?: GameRow[] }>(r))
       .then((d) => {
         setGames(d.games ?? [])
         setGamesLoading(false)
@@ -96,7 +103,7 @@ export function HomeView() {
     loadProgress()
     loadGames()
     fetch(`/api/puzzles/daily?day=${dayKey}`)
-      .then((r) => readJson<unknown>(r))
+      .then((r) => readJson<{ completed?: boolean }>(r))
       .then((d) => setDailyDone(Boolean(d.completed)))
       .catch(() => {})
   }, [loadProgress, loadGames, dayKey])
@@ -110,10 +117,12 @@ export function HomeView() {
     : null
   // keep pointing at the most recent started lesson only while it is still
   // open; a stale start in a now locked level falls back to the next unlocked
+  // (the self-assessment steers a fresh student's anchor the same way the
+  // coach and the Study do: Intermediate onboarding means Intermediate start)
   const nextId =
     mostRecent && isLevelUnlocked(mostRecent.lessonId, completed)
       ? mostRecent.lessonId
-      : nextUnlockedId(completed)
+      : nextUnlockedId(completed, profile.skillLevel)
   const nextLesson = ALL_LEVELS.find((l) => l.level.id === nextId)
   const doneCount = completed.size
   const totalLessons = ALL_LEVELS.length
@@ -131,7 +140,10 @@ export function HomeView() {
           </p>
         </div>
         <div className="flex gap-2 text-center">
-          <div className="min-w-20 rounded-lg bg-card px-4 py-2 shadow-sm">
+          <div
+            className="min-w-20 rounded-lg bg-card px-4 py-2 shadow-sm"
+            title={elo ? (elo.games < 5 ? `${elo.rating} Elo, provisional: it sharpens as rated games come in` : `${elo.rating} Elo`) : 'Play a rated game to get an Elo'}
+          >
             <div className="text-lg font-extrabold leading-6 tabular-nums">
               {elo ? (
                 <>
@@ -159,9 +171,12 @@ export function HomeView() {
       <div className="grid gap-4 md:grid-cols-3">
         {/* Continue learning */}
         <section className={`${CARD} flex flex-col md:col-span-2`}>
-          <div className="flex items-center gap-2">
-            <GraduationCap className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-lg font-bold">Continue learning</h2>
+          <div>
+            {eyebrowEl('01 / Study')}
+            <div className="flex items-center gap-2">
+              <GraduationCap className="h-5 w-5 text-primary" />
+              <h2 className="font-display text-lg font-bold">Continue learning</h2>
+            </div>
           </div>
           {progressError ? (
             <>
@@ -213,9 +228,12 @@ export function HomeView() {
 
         {/* Daily puzzle */}
         <button className={`${CARD} pressable flex flex-col text-left hover:shadow-md`} onClick={() => navigate('puzzles')}>
-          <div className="flex items-center gap-2">
-            <CalendarDays className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-lg font-bold">Daily puzzle</h2>
+          <div>
+            {eyebrowEl('02 / Puzzle')}
+            <div className="flex items-center gap-2">
+              <CalendarDays className="h-5 w-5 text-primary" />
+              <h2 className="font-display text-lg font-bold">Daily puzzle</h2>
+            </div>
           </div>
           <div className="mt-3 text-sm text-muted-foreground">{dailyDate}</div>
           <div className="mt-2 flex items-center gap-2 text-sm font-semibold">
@@ -229,12 +247,15 @@ export function HomeView() {
 
         {/* Play */}
         <button className={`${CARD} pressable flex flex-col text-left hover:shadow-md`} onClick={() => navigate('play')}>
-          <div className="flex items-center gap-2">
-            <Swords className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-lg font-bold">Play</h2>
+          <div>
+            {eyebrowEl('03 / Play')}
+            <div className="flex items-center gap-2">
+              <Swords className="h-5 w-5 text-primary" />
+              <h2 className="font-display text-lg font-bold">Play</h2>
+            </div>
           </div>
           <div className="mt-3 text-sm text-muted-foreground">
-            Rated online games move your Elo. Or practice casually against fourteen bot characters, est. 350 to 2600.
+            Rated online games move your Elo. Or practice casually against {BOTS.length} bot characters, est. 350 to 2600.
           </div>
           <div className="mt-auto pt-3 text-sm font-semibold text-primary">
             {(() => {
@@ -246,9 +267,12 @@ export function HomeView() {
 
         {/* Coach */}
         <button className={`${CARD} pressable flex flex-col text-left hover:shadow-md`} onClick={() => navigate('coach')}>
-          <div className="flex items-center gap-2">
-            <MessageSquareText className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-lg font-bold">Coach</h2>
+          <div>
+            {eyebrowEl('04 / Coach')}
+            <div className="flex items-center gap-2">
+              <MessageSquareText className="h-5 w-5 text-primary" />
+              <h2 className="font-display text-lg font-bold">Coach</h2>
+            </div>
           </div>
           <div className="mt-3 text-sm text-muted-foreground">
             Ask anything about your games and positions. Works with the built-in model or your own API key.
@@ -314,6 +338,9 @@ export function HomeView() {
           </div>
         )}
       </section>
+
+      {/* Live chess around the world (lichess TV visualization) */}
+      <GlobeSection />
     </div>
   )
 }

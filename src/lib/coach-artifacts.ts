@@ -34,6 +34,11 @@ export interface ArtifactView {
   steps: LineStep[] | null
   themes: string[]
   rating: number | null
+  /** Where the position came from: a real game's attribution line, when the
+   * material was mined from actual play instead of crafted. */
+  source: string | null
+  /** Link to the original game record, when available. */
+  gameUrl: string | null
   /** Curriculum anchor like "beginner:5", when the artifact was made for a level. */
   levelRef: string | null
   engineVerified: boolean
@@ -74,6 +79,8 @@ export function artifactFromRow(row: Record<string, unknown>): ArtifactView {
     steps: steps && steps.length ? steps : null,
     themes,
     rating: typeof row.rating === 'number' ? row.rating : null,
+    source: typeof payload.source === 'string' && payload.source ? payload.source : null,
+    gameUrl: typeof payload.gameUrl === 'string' && payload.gameUrl ? payload.gameUrl : null,
     levelRef: typeof row.levelRef === 'string' && row.levelRef ? row.levelRef : null,
     engineVerified: Boolean(row.engineVerified),
     attempts: typeof row.attempts === 'number' ? row.attempts : 0,
@@ -126,4 +133,37 @@ export function levelRating(tierN: number, levelN: number): number {
   const base = [550, 800, 1100, 1450, 1800, 2100][Math.min(6, Math.max(1, tierN)) - 1]
   const progress = (Math.min(20, Math.max(1, levelN)) - 1) / 19
   return Math.round(base + progress * 350)
+}
+
+/** Spoiler-safe display name for an artifact. A puzzle or drill headline can
+ * give the whole game away ("Knight sacrifice forces mate" or the mechanical
+ * "White mates with Rxd8" name the winning method before a single move is
+ * played), and a quiz headline like "Spot the fork" names the answer, so
+ * until the material is solved every listing shows a neutral name; the real
+ * headline appears once the win is in. Walkthroughs carry no hidden line, so
+ * they always show their title. The "solve to reveal" note itself lives in
+ * the card's eyebrow chip, so this stays a plain kind + side + rating line. */
+export function displayTitle(a: Pick<ArtifactView, 'kind' | 'title' | 'solved' | 'rating' | 'sideToMove'>): string {
+  if (a.kind === 'line' || a.solved === true) return a.title
+  const kind = a.kind === 'drill' ? 'Drill' : a.kind === 'quiz' ? 'Quiz' : 'Puzzle'
+  const side = a.sideToMove === 'b' ? 'Black to play' : a.sideToMove === 'w' ? 'White to play' : null
+  if (side) return a.rating != null ? `${kind} · ${side} ${a.rating}` : `${kind} · ${side}`
+  return a.rating != null ? `${kind} · ${a.rating}` : kind
+}
+
+/** Client-boundary spoiler guard, the last line of defense for the rule the
+ * students keep checking: an unsolved puzzle or drill headline (and its
+ * stored hint) never leaves the server. Hiding the title in the card UI is
+ * not enough; a title that rides along in the API payload leaks from the
+ * network tab, from a future render site, from a dialog frame that forgot
+ * the rule. So every endpoint that serves an ArtifactView to the browser
+ * ships unsolved board material through this: the real headline is replaced
+ * with the same neutral line the card shows, and the stored hint is dropped
+ * (the card nudges with its own generic process line anyway). Solved cards
+ * and walkthroughs pass through untouched, so the post-solve reveal still
+ * works: the card re-fetches its own copy once it is solved and the real
+ * headline arrives. */
+export function stripUnsolved(a: ArtifactView): ArtifactView {
+  if (a.kind === 'line' || a.solved === true) return a
+  return { ...a, title: displayTitle(a), hint: null }
 }

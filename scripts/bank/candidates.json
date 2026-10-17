@@ -1,0 +1,5440 @@
+[
+ {
+  "id": "13HKU",
+  "rootFen": "4k2r/p3b2p/6p1/8/8/3Q4/Pq3PPP/RN2K2R w KQk - 0 19",
+  "setupUci": "d3c3",
+  "solutionUci": [
+   "e7b4",
+   "e1g1",
+   "b4c3"
+  ],
+  "rating": 1093,
+  "lichessThemes": [
+   "advantage",
+   "middlegame",
+   "pin",
+   "short"
+  ],
+  "concepts": [
+   "pin"
+  ],
+  "opening": "Latvian Gambit: Mason Countergambit",
+  "whiteElo": 1716,
+  "blackElo": 1907,
+  "gameUrl": "https://lichess.org/CiG8Om9C#37"
+ },
+ {
+  "id": "0Zkc5",
+  "rootFen": "8/8/8/3rpkpp/5p2/5P2/4RKPP/8 b - - 3 49",
+  "setupUci": "e5e4",
+  "solutionUci": [
+   "f3e4",
+   "f5e6",
+   "e4d5"
+  ],
+  "rating": 887,
+  "lichessThemes": [
+   "crushing",
+   "doubleCheck",
+   "endgame",
+   "fork",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "doubleAttack",
+   "endgame",
+   "fork"
+  ],
+  "opening": "Trompowsky Attack",
+  "whiteElo": 2512,
+  "blackElo": 2448,
+  "gameUrl": "https://lichess.org/cf05XxNc/black#98"
+ },
+ {
+  "id": "00Kbj",
+  "rootFen": "8/8/6p1/PR3p2/1P3k2/7P/r5P1/7K w - - 1 39",
+  "setupUci": "h3h4",
+  "solutionUci": [
+   "f4g3",
+   "b5d5",
+   "a2a1",
+   "d5d1",
+   "a1d1"
+  ],
+  "rating": 1554,
+  "lichessThemes": [
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3",
+   "rookEndgame"
+  ],
+  "concepts": [
+   "endgame",
+   "mate"
+  ],
+  "opening": "Sicilian Defense: Kalashnikov Variation",
+  "whiteElo": 2231,
+  "blackElo": 2106,
+  "gameUrl": "https://lichess.org/PW8a1JvE#77"
+ },
+ {
+  "id": "00Wyh",
+  "rootFen": "2r5/8/8/pNp1r2p/3kNppP/1P1P4/2R2K2/8 b - - 2 42",
+  "setupUci": "d4d3",
+  "solutionUci": [
+   "c2d2",
+   "d3e4",
+   "b5d6"
+  ],
+  "rating": 1856,
+  "lichessThemes": [
+   "endgame",
+   "mate",
+   "mateIn2",
+   "sacrifice",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "mate",
+   "sacrifice"
+  ],
+  "opening": "King's Indian Attack: French Variation",
+  "whiteElo": 2075,
+  "blackElo": 2128,
+  "gameUrl": "https://lichess.org/2mLJufzX/black#84"
+ },
+ {
+  "id": "02Km7",
+  "rootFen": "5rk1/6p1/8/1r6/4P1B1/5pKP/5P2/4R3 b - - 5 43",
+  "setupUci": "b5b3",
+  "solutionUci": [
+   "g4e6",
+   "g8h7",
+   "e6b3"
+  ],
+  "rating": 800,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "fork",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "fork"
+  ],
+  "opening": "Queen's Gambit Declined: Normal Defense",
+  "whiteElo": 2238,
+  "blackElo": 2244,
+  "gameUrl": "https://lichess.org/COHwfINT/black#86"
+ },
+ {
+  "id": "05K1G",
+  "rootFen": "2kr4/p1p4p/2N5/5b2/2Pb4/8/PP3PPP/R2K4 w - - 1 21",
+  "setupUci": "c6e7",
+  "solutionUci": [
+   "c8b7",
+   "e7f5",
+   "d4b2"
+  ],
+  "rating": 1575,
+  "lichessThemes": [
+   "crushing",
+   "defensiveMove",
+   "discoveredAttack",
+   "endgame",
+   "sacrifice",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame",
+   "sacrifice"
+  ],
+  "opening": "Elephant Gambit",
+  "whiteElo": 1689,
+  "blackElo": 1739,
+  "gameUrl": "https://lichess.org/32tZh2p2#41"
+ },
+ {
+  "id": "00lHu",
+  "rootFen": "8/p7/6P1/4p3/R4pK1/1r2k2P/8/8 b - - 0 47",
+  "setupUci": "f4f3",
+  "solutionUci": [
+   "g6g7",
+   "b3b8",
+   "a4a3"
+  ],
+  "rating": 1965,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "endgame",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Queen's Gambit Declined: Marshall Defense",
+  "whiteElo": 2055,
+  "blackElo": 2068,
+  "gameUrl": "https://lichess.org/kX9fNCdN/black#94"
+ },
+ {
+  "id": "0HEko",
+  "rootFen": "8/R2N2bk/2p3pp/8/P7/2p4P/1r2nPPK/8 b - - 1 30",
+  "setupUci": "g7d4",
+  "solutionUci": [
+   "d7f6",
+   "h7h8",
+   "a7h7"
+  ],
+  "rating": 1468,
+  "lichessThemes": [
+   "arabianMate",
+   "doubleCheck",
+   "endgame",
+   "master",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "doubleAttack",
+   "endgame"
+  ],
+  "opening": "Scandinavian Defense",
+  "whiteElo": 2057,
+  "blackElo": 1963,
+  "gameUrl": "https://lichess.org/b74AvJWe/black#60"
+ },
+ {
+  "id": "02LMw",
+  "rootFen": "6k1/7p/2P3p1/8/2K2pP1/4rP2/8/8 b - - 0 43",
+  "setupUci": "e3f3",
+  "solutionUci": [
+   "c6c7",
+   "f3e3",
+   "c7c8q"
+  ],
+  "rating": 699,
+  "lichessThemes": [
+   "advancedPawn",
+   "advantage",
+   "endgame",
+   "master",
+   "promotion",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "promotion"
+  ],
+  "opening": "Slav Defense: Modern Line",
+  "whiteElo": 2418,
+  "blackElo": 2413,
+  "gameUrl": "https://lichess.org/R32KIiUN/black#86"
+ },
+ {
+  "id": "02s84",
+  "rootFen": "4rk2/R7/8/3b4/p6R/2b3PP/5P2/6K1 w - - 6 38",
+  "setupUci": "h4a4",
+  "solutionUci": [
+   "e8e1",
+   "g1h2",
+   "e1h1"
+  ],
+  "rating": 868,
+  "lichessThemes": [
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "mate"
+  ],
+  "opening": "Italian Game: Two Knights Defense, Polerio Defense, Bishop Check Line",
+  "whiteElo": 1628,
+  "blackElo": 1608,
+  "gameUrl": "https://lichess.org/joPT7WJb#75"
+ },
+ {
+  "id": "0IQo0",
+  "rootFen": "r5k1/2p2p1p/p1p2p1B/8/3P3q/7P/PP6/6RK b - - 3 24",
+  "setupUci": "g8h8",
+  "solutionUci": [
+   "h6g7",
+   "h8g8",
+   "g7f6",
+   "g8f8",
+   "f6h4"
+  ],
+  "rating": 970,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "long"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Ruy Lopez: Classical Variation",
+  "whiteElo": 1754,
+  "blackElo": 1746,
+  "gameUrl": "https://lichess.org/wrMlSBt2/black#48"
+ },
+ {
+  "id": "0wLoE",
+  "rootFen": "6k1/BrN2p1p/6p1/4n3/8/8/P1P2PPP/4R1K1 w - - 1 21",
+  "setupUci": "e1e5",
+  "solutionUci": [
+   "b7b1",
+   "e5e1",
+   "b1e1"
+  ],
+  "rating": 662,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Vienna Game: Max Lange Defense",
+  "whiteElo": 1645,
+  "blackElo": 1611,
+  "gameUrl": "https://lichess.org/fTggFm7P#41"
+ },
+ {
+  "id": "083Io",
+  "rootFen": "8/pp4pk/2pqn2p/4PR2/7P/2P3P1/PPB3K1/8 b - - 0 37",
+  "setupUci": "d6e7",
+  "solutionUci": [
+   "f5f7",
+   "h7g8",
+   "f7e7"
+  ],
+  "rating": 1068,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Bishop's Opening",
+  "whiteElo": 1648,
+  "blackElo": 1634,
+  "gameUrl": "https://lichess.org/MHnbZmZv/black#74"
+ },
+ {
+  "id": "02b0d",
+  "rootFen": "3r1k2/2R3pr/1R6/p4p2/8/P5KP/1P4P1/8 w - - 6 43",
+  "setupUci": "g3f4",
+  "solutionUci": [
+   "g7g5",
+   "f4g5",
+   "h7c7"
+  ],
+  "rating": 1898,
+  "lichessThemes": [
+   "advantage",
+   "discoveredAttack",
+   "endgame",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Scheveningen Variation",
+  "whiteElo": 2033,
+  "blackElo": 1970,
+  "gameUrl": "https://lichess.org/jK2pnCtW#85"
+ },
+ {
+  "id": "0N4co",
+  "rootFen": "6k1/2p2rp1/8/2R2qN1/1pQ5/8/5PPP/2r3K1 w - - 0 33",
+  "setupUci": "c4c1",
+  "solutionUci": [
+   "f5f2",
+   "g1h1",
+   "f2f1",
+   "c1f1",
+   "f7f1"
+  ],
+  "rating": 1082,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Queen's Gambit Declined: Exchange Variation",
+  "whiteElo": 1638,
+  "blackElo": 1613,
+  "gameUrl": "https://lichess.org/qJQgpGoX#65"
+ },
+ {
+  "id": "0LI1r",
+  "rootFen": "6k1/3R2pp/2p5/P1P5/5n2/8/1P3PPP/4rBK1 w - - 1 32",
+  "setupUci": "a5a6",
+  "solutionUci": [
+   "f4e2",
+   "g1h1",
+   "e1f1"
+  ],
+  "rating": 933,
+  "lichessThemes": [
+   "backRankMate",
+   "deflection",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Semi-Slav Defense",
+  "whiteElo": 2164,
+  "blackElo": 2065,
+  "gameUrl": "https://lichess.org/TrSYcjp8#63"
+ },
+ {
+  "id": "05nOx",
+  "rootFen": "8/8/6B1/4kp2/4b1P1/4K3/7P/8 w - - 3 43",
+  "setupUci": "h2h4",
+  "solutionUci": [
+   "f5f4",
+   "e3e2",
+   "e4g6"
+  ],
+  "rating": 1559,
+  "lichessThemes": [
+   "bishopEndgame",
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Dutch Defense: Classical Variation",
+  "whiteElo": 1840,
+  "blackElo": 1762,
+  "gameUrl": "https://lichess.org/fjoLz8z9#85"
+ },
+ {
+  "id": "00TLz",
+  "rootFen": "8/p3Q2p/6p1/4p1k1/5q2/8/Pr4PP/6K1 b - - 1 36",
+  "setupUci": "f4f6",
+  "solutionUci": [
+   "h2h4",
+   "g5f5",
+   "g2g4",
+   "f5g4",
+   "e7f6"
+  ],
+  "rating": 1453,
+  "lichessThemes": [
+   "advantage",
+   "deflection",
+   "endgame",
+   "long"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Bowdler Attack",
+  "whiteElo": 1511,
+  "blackElo": 1514,
+  "gameUrl": "https://lichess.org/iQZPp2A2/black#72"
+ },
+ {
+  "id": "0KWwY",
+  "rootFen": "5k2/8/p4BR1/1p1PP3/8/5q2/Pr2nP1R/3Q3K w - - 2 43",
+  "setupUci": "g6g2",
+  "solutionUci": [
+   "e2g3",
+   "f2g3",
+   "f3d1"
+  ],
+  "rating": 1121,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "middlegame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack"
+  ],
+  "opening": "Ruy Lopez: Morphy Defense, Classical Defense Deferred",
+  "whiteElo": 2450,
+  "blackElo": 2426,
+  "gameUrl": "https://lichess.org/42i1JnUT#85"
+ },
+ {
+  "id": "13lgu",
+  "rootFen": "r7/1p2Rr1k/pq5p/5b2/7Q/2P5/PP4PP/4R2K b - - 8 32",
+  "setupUci": "b6g6",
+  "solutionUci": [
+   "e7f7",
+   "g6f7",
+   "e1e7"
+  ],
+  "rating": 1092,
+  "lichessThemes": [
+   "advantage",
+   "clearance",
+   "middlegame",
+   "pin",
+   "short"
+  ],
+  "concepts": [
+   "pin"
+  ],
+  "opening": "Philidor Defense",
+  "whiteElo": 1866,
+  "blackElo": 1840,
+  "gameUrl": "https://lichess.org/1MgLrmcA/black#64"
+ },
+ {
+  "id": "07HmS",
+  "rootFen": "8/1r6/8/3N4/p1P1p1p1/2K2kB1/P4P2/8 w - - 0 54",
+  "setupUci": "d5f6",
+  "solutionUci": [
+   "e4e3",
+   "f2e3",
+   "f3g3"
+  ],
+  "rating": 1297,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Italian Game: Giuoco Pianissimo, Canal Variation",
+  "whiteElo": 1611,
+  "blackElo": 1615,
+  "gameUrl": "https://lichess.org/1h5jbxUa#107"
+ },
+ {
+  "id": "00OQt",
+  "rootFen": "8/8/8/p3b3/P1B2pKp/1Pk1p2P/6P1/8 w - - 8 50",
+  "setupUci": "g4h4",
+  "solutionUci": [
+   "c3d2",
+   "h4g4",
+   "e3e2",
+   "c4e2",
+   "d2e2"
+  ],
+  "rating": 1729,
+  "lichessThemes": [
+   "advancedPawn",
+   "bishopEndgame",
+   "crushing",
+   "endgame",
+   "long"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Caro-Kann Defense",
+  "whiteElo": 1738,
+  "blackElo": 1700,
+  "gameUrl": "https://lichess.org/vZaFj9IE#99"
+ },
+ {
+  "id": "00yPS",
+  "rootFen": "5k2/p3pp2/7p/2Qp1P2/6B1/6q1/2K5/8 b - - 2 43",
+  "setupUci": "g3g4",
+  "solutionUci": [
+   "c5c8",
+   "f8g7",
+   "f5f6",
+   "g7f6",
+   "c8g4"
+  ],
+  "rating": 1057,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "long",
+   "queenEndgame"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Dragon Variation, Yugoslav Attack",
+  "whiteElo": 1899,
+  "blackElo": 2021,
+  "gameUrl": "https://lichess.org/pyTEOQI7/black#86"
+ },
+ {
+  "id": "008P4",
+  "rootFen": "8/4k3/1p1p4/rP2p1p1/P2nP1P1/3BK3/8/R7 w - - 0 35",
+  "setupUci": "e3d2",
+  "solutionUci": [
+   "d4b3",
+   "d2c3",
+   "b3a1"
+  ],
+  "rating": 779,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "fork",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "fork"
+  ],
+  "opening": "Sicilian Defense: Accelerated Dragon, Mar\u00f3czy Bind",
+  "whiteElo": 1948,
+  "blackElo": 2313,
+  "gameUrl": "https://lichess.org/3GoHPRp3#69"
+ },
+ {
+  "id": "0zQMO",
+  "rootFen": "8/7p/6p1/3k1p2/1B3PP1/2P2K1P/r7/8 b - - 0 43",
+  "setupUci": "a2d2",
+  "solutionUci": [
+   "c3c4",
+   "d5c4",
+   "b4d2"
+  ],
+  "rating": 829,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "master",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Lion Defense: Anti-Philidor, Lion's Cave, Lion Claw Gambit",
+  "whiteElo": 2452,
+  "blackElo": 2435,
+  "gameUrl": "https://lichess.org/W8E6wfPA/black#86"
+ },
+ {
+  "id": "07clM",
+  "rootFen": "4r2k/pp4r1/8/8/4P1qb/4QR1p/PP2R3/5B1K b - - 5 35",
+  "setupUci": "e8e4",
+  "solutionUci": [
+   "f3f8",
+   "h8h7",
+   "e3e4",
+   "g4e4",
+   "e2e4"
+  ],
+  "rating": 1897,
+  "lichessThemes": [
+   "crushing",
+   "exposedKing",
+   "intermezzo",
+   "long",
+   "middlegame"
+  ],
+  "concepts": [
+   "calculation"
+  ],
+  "opening": "Hungarian Opening: Symmetrical Variation",
+  "whiteElo": 2512,
+  "blackElo": 2687,
+  "gameUrl": "https://lichess.org/eOsCQ0hJ/black#70"
+ },
+ {
+  "id": "00TOt",
+  "rootFen": "5bk1/5ppp/8/Q7/3p4/8/P1K1q2P/2R5 w - - 2 33",
+  "setupUci": "a5d2",
+  "solutionUci": [
+   "d4d3",
+   "c2c3",
+   "f8b4"
+  ],
+  "rating": 1534,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Alapin Variation",
+  "whiteElo": 1794,
+  "blackElo": 1852,
+  "gameUrl": "https://lichess.org/azv2NWmg#65"
+ },
+ {
+  "id": "04V7o",
+  "rootFen": "8/8/p3bp2/1p3B1k/3p1K1P/1P6/P1P5/8 b - - 4 45",
+  "setupUci": "e6f5",
+  "solutionUci": [
+   "f4f5",
+   "h5h4",
+   "f5f6"
+  ],
+  "rating": 739,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Scandinavian Defense: Mieses-Kotroc Variation",
+  "whiteElo": 1661,
+  "blackElo": 1672,
+  "gameUrl": "https://lichess.org/kXoyu1Jo/black#90"
+ },
+ {
+  "id": "0JlDf",
+  "rootFen": "8/8/p7/8/1Q6/2pp4/P1k2K2/8 w - - 2 49",
+  "setupUci": "f2e1",
+  "solutionUci": [
+   "d3d2",
+   "e1f2",
+   "d2d1q"
+  ],
+  "rating": 798,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "deflection",
+   "endgame",
+   "promotion",
+   "queenEndgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "promotion"
+  ],
+  "opening": "Queen's Pawn Game: Accelerated London System",
+  "whiteElo": 1899,
+  "blackElo": 1843,
+  "gameUrl": "https://lichess.org/1Sumi7MS#97"
+ },
+ {
+  "id": "04rav",
+  "rootFen": "1kn5/7R/r4p2/1p6/3BK3/5P2/6PP/8 w - - 0 40",
+  "setupUci": "h7f7",
+  "solutionUci": [
+   "c8d6",
+   "e4d5",
+   "d6f7"
+  ],
+  "rating": 828,
+  "lichessThemes": [
+   "advantage",
+   "endgame",
+   "fork",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "fork"
+  ],
+  "opening": "Indian Defense",
+  "whiteElo": 1966,
+  "blackElo": 2057,
+  "gameUrl": "https://lichess.org/N6rjpToG#79"
+ },
+ {
+  "id": "001xl",
+  "rootFen": "8/4R1k1/p5pp/3B4/5q2/8/5P1P/6K1 b - - 5 40",
+  "setupUci": "g7f6",
+  "solutionUci": [
+   "e7f7",
+   "f6e5",
+   "f7f4"
+  ],
+  "rating": 1256,
+  "lichessThemes": [
+   "advantage",
+   "endgame",
+   "master",
+   "masterVsMaster",
+   "short",
+   "skewer",
+   "superGM"
+  ],
+  "concepts": [
+   "endgame",
+   "skewer"
+  ],
+  "opening": "Zukertort Opening: Kingside Fianchetto",
+  "whiteElo": 2960,
+  "blackElo": 2964,
+  "gameUrl": "https://lichess.org/bEQkfPQD/black#80"
+ },
+ {
+  "id": "00Gvr",
+  "rootFen": "8/1b3pp1/1k4Pp/4K2P/4PP2/8/8/8 b - - 0 46",
+  "setupUci": "f7f6",
+  "solutionUci": [
+   "e5e6",
+   "b7e4",
+   "e6f7"
+  ],
+  "rating": 1274,
+  "lichessThemes": [
+   "advantage",
+   "bishopEndgame",
+   "defensiveMove",
+   "endgame",
+   "master",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Scheveningen Variation",
+  "whiteElo": 2360,
+  "blackElo": 2432,
+  "gameUrl": "https://lichess.org/tHhRpYsL/black#92"
+ },
+ {
+  "id": "00FON",
+  "rootFen": "1k6/8/8/6p1/1pp5/p4PP1/N1P4P/7K w - - 0 38",
+  "setupUci": "h2h4",
+  "solutionUci": [
+   "b4b3",
+   "c2b3",
+   "c4b3"
+  ],
+  "rating": 1035,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "knightEndgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Nimzowitsch Defense: Kennedy Variation, de Smet Gambit",
+  "whiteElo": 1661,
+  "blackElo": 1758,
+  "gameUrl": "https://lichess.org/D9f2JIE8#75"
+ },
+ {
+  "id": "062EJ",
+  "rootFen": "7r/B4pp1/B4n2/3k3p/8/8/b4PPP/4R1K1 b - - 0 24",
+  "setupUci": "a2c4",
+  "solutionUci": [
+   "e1d1",
+   "d5c6",
+   "a6c4"
+  ],
+  "rating": 1363,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Scandinavian Defense: Modern Variation",
+  "whiteElo": 1992,
+  "blackElo": 2100,
+  "gameUrl": "https://lichess.org/ddQoBelS/black#48"
+ },
+ {
+  "id": "0AaeI",
+  "rootFen": "5r1k/p2P2p1/4Pq1p/Q7/8/8/5PPP/5RK1 w - - 0 31",
+  "setupUci": "f1e1",
+  "solutionUci": [
+   "f6f2",
+   "g1h1",
+   "f2f1",
+   "e1f1",
+   "f8f1"
+  ],
+  "rating": 1086,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3",
+   "sacrifice"
+  ],
+  "concepts": [
+   "mate",
+   "endgame",
+   "sacrifice"
+  ],
+  "opening": "Queen's Pawn Game",
+  "whiteElo": 1721,
+  "blackElo": 1828,
+  "gameUrl": "https://lichess.org/KyjwHZ2D#61"
+ },
+ {
+  "id": "037lM",
+  "rootFen": "r4r1k/5p1p/2p2b1N/P7/4P3/2n5/6RP/6RK b - - 0 33",
+  "setupUci": "c3e4",
+  "solutionUci": [
+   "g2g8",
+   "f8g8",
+   "h6f7"
+  ],
+  "rating": 1684,
+  "lichessThemes": [
+   "deflection",
+   "mate",
+   "mateIn2",
+   "middlegame",
+   "sacrifice",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "mate",
+   "sacrifice"
+  ],
+  "opening": "Sicilian Defense: Taimanov Variation",
+  "whiteElo": 1817,
+  "blackElo": 1717,
+  "gameUrl": "https://lichess.org/5uxyHi6R/black#66"
+ },
+ {
+  "id": "09vaO",
+  "rootFen": "3r2k1/7B/3q3Q/8/4p3/P1p3PP/5P1K/4r3 b - - 2 44",
+  "setupUci": "g8h8",
+  "solutionUci": [
+   "h7g6",
+   "h8g8",
+   "h6h7",
+   "g8f8",
+   "h7f7"
+  ],
+  "rating": 1492,
+  "lichessThemes": [
+   "discoveredAttack",
+   "endgame",
+   "exposedKing",
+   "long",
+   "mate",
+   "mateIn3"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Owen Defense",
+  "whiteElo": 1842,
+  "blackElo": 1806,
+  "gameUrl": "https://lichess.org/wXzPNfwB/black#88"
+ },
+ {
+  "id": "00AB1",
+  "rootFen": "8/7Q/3p1kp1/1p6/2b5/2P4P/5PPK/4q3 b - - 8 36",
+  "setupUci": "e1c3",
+  "solutionUci": [
+   "h7h8",
+   "f6e6",
+   "h8c3"
+  ],
+  "rating": 1098,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "short",
+   "skewer"
+  ],
+  "concepts": [
+   "endgame",
+   "skewer"
+  ],
+  "opening": "English Opening",
+  "whiteElo": 1772,
+  "blackElo": 1764,
+  "gameUrl": "https://lichess.org/KQDr21Ph/black#72"
+ },
+ {
+  "id": "0lcuU",
+  "rootFen": "5r1k/pp4p1/6Bp/8/P4b2/8/1P4PP/3R2K1 w - - 3 26",
+  "setupUci": "d1d7",
+  "solutionUci": [
+   "f4e3",
+   "g1h1",
+   "f8f1"
+  ],
+  "rating": 665,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Queen's Gambit Declined: Modern Variation, Heral Variation",
+  "whiteElo": 1794,
+  "blackElo": 1814,
+  "gameUrl": "https://lichess.org/dup2aben#51"
+ },
+ {
+  "id": "01srl",
+  "rootFen": "2r1r3/pQ5p/5kp1/1P6/P7/8/5PPP/4R1K1 w - - 1 34",
+  "setupUci": "e1e8",
+  "solutionUci": [
+   "c8c1",
+   "e8e1",
+   "c1e1"
+  ],
+  "rating": 1092,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "queenRookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Scandinavian Defense: Mieses-Kotroc Variation",
+  "whiteElo": 1525,
+  "blackElo": 1527,
+  "gameUrl": "https://lichess.org/T6cxLj6c#67"
+ },
+ {
+  "id": "015pp",
+  "rootFen": "8/8/8/3pp3/5P1R/r3k3/6K1/8 b - - 0 51",
+  "setupUci": "e5f4",
+  "solutionUci": [
+   "h4h3",
+   "e3e2",
+   "h3a3",
+   "d5d4",
+   "a3a2"
+  ],
+  "rating": 1498,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "long",
+   "rookEndgame",
+   "skewer"
+  ],
+  "concepts": [
+   "endgame",
+   "skewer"
+  ],
+  "opening": "Caro-Kann Defense",
+  "whiteElo": 1719,
+  "blackElo": 1697,
+  "gameUrl": "https://lichess.org/gORdjPkR/black#102"
+ },
+ {
+  "id": "05YDe",
+  "rootFen": "8/pr2Q2p/2k5/4p3/8/2q4P/5PP1/R5K1 w - - 5 40",
+  "setupUci": "e7a3",
+  "solutionUci": [
+   "b7b1",
+   "a1b1",
+   "c3a3"
+  ],
+  "rating": 1278,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Owen Defense",
+  "whiteElo": 1882,
+  "blackElo": 1905,
+  "gameUrl": "https://lichess.org/MSYbfrDk#79"
+ },
+ {
+  "id": "008tL",
+  "rootFen": "8/7k/pR5p/3p4/5r2/2P1p2P/P5P1/6K1 w - - 0 40",
+  "setupUci": "b6a6",
+  "solutionUci": [
+   "e3e2",
+   "a6e6",
+   "f4f1"
+  ],
+  "rating": 1049,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "endgame",
+   "master",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Pirc Defense: Austrian Attack",
+  "whiteElo": 2268,
+  "blackElo": 2338,
+  "gameUrl": "https://lichess.org/yhNupFCi#79"
+ },
+ {
+  "id": "0FGR3",
+  "rootFen": "r4r1k/pR1Q1B1p/6p1/4b3/8/6RP/2q5/7K b - - 0 27",
+  "setupUci": "e5g3",
+  "solutionUci": [
+   "d7d4",
+   "g3e5",
+   "d4e5"
+  ],
+  "rating": 1230,
+  "lichessThemes": [
+   "mate",
+   "mateIn2",
+   "middlegame",
+   "short"
+  ],
+  "concepts": [
+   "mate"
+  ],
+  "opening": "Sicilian Defense: Modern Variations",
+  "whiteElo": 1773,
+  "blackElo": 1835,
+  "gameUrl": "https://lichess.org/bpXMHjzB/black#54"
+ },
+ {
+  "id": "02E42",
+  "rootFen": "7k/pp4p1/4n2p/4Q3/1KPrN3/4q2P/PP6/R7 b - - 0 31",
+  "setupUci": "e6g5",
+  "solutionUci": [
+   "e5e8",
+   "h8h7",
+   "e4f6",
+   "g7f6",
+   "e8e3"
+  ],
+  "rating": 1947,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "long"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Bishop's Opening: Calabrese Countergambit",
+  "whiteElo": 1702,
+  "blackElo": 1625,
+  "gameUrl": "https://lichess.org/cZLQX1Bh/black#62"
+ },
+ {
+  "id": "0AakE",
+  "rootFen": "2k5/pp6/7p/5p2/2rr4/5R2/P4PPP/3R2K1 w - - 0 24",
+  "setupUci": "d1d4",
+  "solutionUci": [
+   "c4c1",
+   "d4d1",
+   "c1d1"
+  ],
+  "rating": 893,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "King's Indian Defense: Accelerated Averbakh Variation",
+  "whiteElo": 2121,
+  "blackElo": 2440,
+  "gameUrl": "https://lichess.org/Xb5l4sra#47"
+ },
+ {
+  "id": "02Pu3",
+  "rootFen": "5r2/3R4/6k1/1p6/p1pB3P/3n2K1/5P2/8 b - - 3 43",
+  "setupUci": "f8f7",
+  "solutionUci": [
+   "h4h5",
+   "g6h5",
+   "d7f7"
+  ],
+  "rating": 1751,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Italian Game: Anti-Fried Liver Defense",
+  "whiteElo": 1720,
+  "blackElo": 1877,
+  "gameUrl": "https://lichess.org/lE1ZWltu/black#86"
+ },
+ {
+  "id": "0aiJs",
+  "rootFen": "2R1R3/pp3ppk/8/6r1/8/5P1P/P2n1P2/6K1 w - - 4 27",
+  "setupUci": "g1h2",
+  "solutionUci": [
+   "d2f3",
+   "h2h1",
+   "g5g1"
+  ],
+  "rating": 788,
+  "lichessThemes": [
+   "arabianMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Scandinavian Defense: Icelandic-Palme Gambit",
+  "whiteElo": 1581,
+  "blackElo": 1664,
+  "gameUrl": "https://lichess.org/5fTFkjk2#53"
+ },
+ {
+  "id": "02P6P",
+  "rootFen": "8/8/p1p5/Pp1p3p/1P1Pk1p1/2P3PP/4K3/8 w - - 0 50",
+  "setupUci": "h3g4",
+  "solutionUci": [
+   "h5g4",
+   "e2d2",
+   "e4f3"
+  ],
+  "rating": 820,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "pawnEndgame",
+   "short",
+   "zugzwang"
+  ],
+  "concepts": [
+   "endgame",
+   "zugzwang"
+  ],
+  "opening": "Modern Defense: Standard Defense",
+  "whiteElo": 1923,
+  "blackElo": 1919,
+  "gameUrl": "https://lichess.org/kD3HOQhu#99"
+ },
+ {
+  "id": "0d7BY",
+  "rootFen": "4r1k1/1Q3ppp/5n2/BP6/8/5B2/4pqPP/4R2K w - - 4 31",
+  "setupUci": "b7c6",
+  "solutionUci": [
+   "f2f1",
+   "e1f1",
+   "e2f1q"
+  ],
+  "rating": 1428,
+  "lichessThemes": [
+   "advancedPawn",
+   "mate",
+   "mateIn2",
+   "middlegame",
+   "promotion",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "promotion"
+  ],
+  "opening": "Sicilian Defense: Taimanov Variation",
+  "whiteElo": 1734,
+  "blackElo": 1711,
+  "gameUrl": "https://lichess.org/mmwTz8rE#61"
+ },
+ {
+  "id": "00B3B",
+  "rootFen": "2K5/3P4/5b2/p1B5/P7/3k4/6p1/8 w - - 7 77",
+  "setupUci": "d7d8q",
+  "solutionUci": [
+   "f6d8",
+   "c8d8",
+   "d3c4"
+  ],
+  "rating": 1561,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Dragon Variation, Yugoslav Attack, Early Deviations",
+  "whiteElo": 1933,
+  "blackElo": 1906,
+  "gameUrl": "https://lichess.org/b7iJvp5Z#153"
+ },
+ {
+  "id": "0vi5Q",
+  "rootFen": "2Q2N2/5qpk/5p1p/p3pP1P/1p6/8/5rPK/8 b - - 3 39",
+  "setupUci": "h7h8",
+  "solutionUci": [
+   "f8g6",
+   "h8h7",
+   "c8h8"
+  ],
+  "rating": 954,
+  "lichessThemes": [
+   "doubleCheck",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "doubleAttack",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Philidor Defense",
+  "whiteElo": 1973,
+  "blackElo": 1937,
+  "gameUrl": "https://lichess.org/TbIqIeGk/black#78"
+ },
+ {
+  "id": "0F5p4",
+  "rootFen": "r2r2k1/q4ppp/8/p2RQ3/8/5P2/1P2R1PP/7K b - - 0 29",
+  "setupUci": "d8d5",
+  "solutionUci": [
+   "e5e8",
+   "a8e8",
+   "e2e8"
+  ],
+  "rating": 1071,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "sacrifice",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame",
+   "sacrifice"
+  ],
+  "opening": "Sicilian Defense: French Variation",
+  "whiteElo": 1893,
+  "blackElo": 1812,
+  "gameUrl": "https://lichess.org/rkDRaW5w/black#58"
+ },
+ {
+  "id": "0ME21",
+  "rootFen": "2k3r1/2p1R1pp/5p2/R7/5PP1/7P/1Pr5/6K1 b - - 0 31",
+  "setupUci": "g8d8",
+  "solutionUci": [
+   "a5a8",
+   "c8b7",
+   "a8d8"
+  ],
+  "rating": 864,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "rookEndgame",
+   "short",
+   "skewer"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "skewer"
+  ],
+  "opening": "Elephant Gambit",
+  "whiteElo": 1870,
+  "blackElo": 1846,
+  "gameUrl": "https://lichess.org/oQczi7Cx/black#62"
+ },
+ {
+  "id": "0s7R2",
+  "rootFen": "3r4/5ppp/3bkn2/1Q6/8/8/PPP2PPP/3K4 w - - 1 26",
+  "setupUci": "d1c1",
+  "solutionUci": [
+   "d6f4",
+   "c1b1",
+   "d8d1"
+  ],
+  "rating": 804,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense",
+  "whiteElo": 1642,
+  "blackElo": 1635,
+  "gameUrl": "https://lichess.org/dFblr1wh#51"
+ },
+ {
+  "id": "0AWEW",
+  "rootFen": "1rB4k/pPp3p1/5p1p/8/8/4qP2/PP5P/4RR1K b - - 1 25",
+  "setupUci": "e3b6",
+  "solutionUci": [
+   "e1e8",
+   "h8h7",
+   "c8f5",
+   "g7g6",
+   "e8b8"
+  ],
+  "rating": 1005,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "long"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Queen's Gambit Declined: Marshall Defense",
+  "whiteElo": 1632,
+  "blackElo": 1688,
+  "gameUrl": "https://lichess.org/Qay05IlV/black#50"
+ },
+ {
+  "id": "0X9QO",
+  "rootFen": "8/8/R3P3/6pk/P2B1p1n/1PP2P2/3r2PK/8 w - - 1 40",
+  "setupUci": "e6e7",
+  "solutionUci": [
+   "h4f3",
+   "h2h1",
+   "d2d1",
+   "d4g1",
+   "d1g1"
+  ],
+  "rating": 1900,
+  "lichessThemes": [
+   "arabianMate",
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3",
+   "pin"
+  ],
+  "concepts": [
+   "mate",
+   "endgame",
+   "pin"
+  ],
+  "opening": "Sicilian Defense: French Variation",
+  "whiteElo": 1544,
+  "blackElo": 1569,
+  "gameUrl": "https://lichess.org/T9RLEtN2#79"
+ },
+ {
+  "id": "01zX0",
+  "rootFen": "8/p3npp1/1p4kp/8/3BKP1P/Pr2P1P1/R7/8 b - - 0 35",
+  "setupUci": "e7f5",
+  "solutionUci": [
+   "h4h5",
+   "g6h7",
+   "e4f5"
+  ],
+  "rating": 1292,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "English Opening: Agincourt Defense",
+  "whiteElo": 1866,
+  "blackElo": 1734,
+  "gameUrl": "https://lichess.org/SQEP4ZCv/black#70"
+ },
+ {
+  "id": "00Af3",
+  "rootFen": "8/8/2B2p1p/P4Pp1/3p1kP1/1b1Pb2P/8/4K3 b - - 0 50",
+  "setupUci": "f4g3",
+  "solutionUci": [
+   "a5a6",
+   "b3c4",
+   "a6a7"
+  ],
+  "rating": 987,
+  "lichessThemes": [
+   "advancedPawn",
+   "bishopEndgame",
+   "crushing",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Bishop's Opening: Berlin Defense",
+  "whiteElo": 1639,
+  "blackElo": 1775,
+  "gameUrl": "https://lichess.org/JBQDYKyD/black#100"
+ },
+ {
+  "id": "0Br35",
+  "rootFen": "2kr4/pR2nRpp/2p5/8/8/2Pr1B2/P4PPP/6K1 w - - 1 21",
+  "setupUci": "f7e7",
+  "solutionUci": [
+   "d3d1",
+   "f3d1",
+   "d8d1",
+   "e7e1",
+   "d1e1"
+  ],
+  "rating": 634,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3",
+   "sacrifice"
+  ],
+  "concepts": [
+   "mate",
+   "endgame",
+   "sacrifice"
+  ],
+  "opening": "Danish Gambit Declined: Sorensen Defense",
+  "whiteElo": 2218,
+  "blackElo": 2225,
+  "gameUrl": "https://lichess.org/Y31cCmso#41"
+ },
+ {
+  "id": "02TUT",
+  "rootFen": "5r2/ppp1Nppk/8/1P6/5Bq1/3RQ3/b6p/7K b - - 5 32",
+  "setupUci": "f8e8",
+  "solutionUci": [
+   "e3h3",
+   "g4h3",
+   "d3h3"
+  ],
+  "rating": 1728,
+  "lichessThemes": [
+   "anastasiaMate",
+   "master",
+   "mate",
+   "mateIn2",
+   "middlegame",
+   "short"
+  ],
+  "concepts": [
+   "mate"
+  ],
+  "opening": "King's Pawn Game: Alapin Opening",
+  "whiteElo": 2388,
+  "blackElo": 2255,
+  "gameUrl": "https://lichess.org/VGyhkvZ7/black#64"
+ },
+ {
+  "id": "004LZ",
+  "rootFen": "8/7R/5p2/p7/7P/2p5/3k2r1/1K2N3 w - - 3 48",
+  "setupUci": "e1g2",
+  "solutionUci": [
+   "c3c2",
+   "b1a2",
+   "c2c1q",
+   "h7d7",
+   "d2e2"
+  ],
+  "rating": 1177,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "defensiveMove",
+   "deflection",
+   "endgame",
+   "long",
+   "promotion"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "promotion"
+  ],
+  "opening": "Sicilian Defense: Smith-Morra Gambit Declined, Center Formation",
+  "whiteElo": 1735,
+  "blackElo": 1701,
+  "gameUrl": "https://lichess.org/drahwNdj#95"
+ },
+ {
+  "id": "00MWz",
+  "rootFen": "8/8/2B5/4pK2/3k1pPp/5n1P/8/8 b - - 3 57",
+  "setupUci": "f3g1",
+  "solutionUci": [
+   "g4g5",
+   "g1e2",
+   "g5g6"
+  ],
+  "rating": 785,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "quietMove",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "calculation"
+  ],
+  "opening": "Sicilian Defense: Pin Variation",
+  "whiteElo": 2287,
+  "blackElo": 2111,
+  "gameUrl": "https://lichess.org/1sHbVvW6/black#114"
+ },
+ {
+  "id": "0AzKx",
+  "rootFen": "8/8/6p1/3k1b1p/7P/1pKN2P1/1P6/8 b - - 1 50",
+  "setupUci": "f5e6",
+  "solutionUci": [
+   "d3f4",
+   "d5e4",
+   "f4e6"
+  ],
+  "rating": 865,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",
+  "whiteElo": 2144,
+  "blackElo": 2102,
+  "gameUrl": "https://lichess.org/kCENzbK9/black#100"
+ },
+ {
+  "id": "07AP3",
+  "rootFen": "6k1/1pp2rpp/8/p1P5/4Q3/R7/5PPP/3r1nK1 w - - 1 24",
+  "setupUci": "e4e2",
+  "solutionUci": [
+   "f1e3",
+   "e2d1",
+   "e3d1"
+  ],
+  "rating": 1655,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Italian Game: Giuoco Pianissimo, Italian Four Knights Variation",
+  "whiteElo": 1649,
+  "blackElo": 1655,
+  "gameUrl": "https://lichess.org/LXuF3O3u#47"
+ },
+ {
+  "id": "00CtS",
+  "rootFen": "Q5k1/5q2/p2p4/b1p1pr2/P7/6P1/4KP1R/8 b - - 3 38",
+  "setupUci": "g8g7",
+  "solutionUci": [
+   "a8h8",
+   "g7g6",
+   "h8h6"
+  ],
+  "rating": 1115,
+  "lichessThemes": [
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "mate"
+  ],
+  "opening": "Mikenas Defense: Lithuanian Variation",
+  "whiteElo": 1995,
+  "blackElo": 1924,
+  "gameUrl": "https://lichess.org/yKolw9vl/black#76"
+ },
+ {
+  "id": "05VUp",
+  "rootFen": "5R2/p1p3rk/8/3P2qr/8/1P1Q4/P4KP1/8 b - - 6 42",
+  "setupUci": "h7h6",
+  "solutionUci": [
+   "f8h8",
+   "g7h7",
+   "h8h7"
+  ],
+  "rating": 896,
+  "lichessThemes": [
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "mate"
+  ],
+  "opening": "Queen's Gambit Accepted: Central Variation, McDonnell Defense",
+  "whiteElo": 1734,
+  "blackElo": 1759,
+  "gameUrl": "https://lichess.org/7Ha5LGc6/black#84"
+ },
+ {
+  "id": "0nzY0",
+  "rootFen": "Q7/7p/4pkp1/8/3q3P/6P1/5P1K/1r6 b - - 4 44",
+  "setupUci": "d4d5",
+  "solutionUci": [
+   "a8f8",
+   "f6e5",
+   "f8f4"
+  ],
+  "rating": 1518,
+  "lichessThemes": [
+   "dovetailMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "English Opening: Anglo-Scandinavian Defense",
+  "whiteElo": 1743,
+  "blackElo": 1722,
+  "gameUrl": "https://lichess.org/mi9J11az/black#88"
+ },
+ {
+  "id": "02xwm",
+  "rootFen": "2k4r/pppr4/6pp/8/5Kb1/1B4P1/PPP5/R4R2 b - - 0 30",
+  "setupUci": "h8f8",
+  "solutionUci": [
+   "f4g4",
+   "f8f1",
+   "a1f1"
+  ],
+  "rating": 843,
+  "lichessThemes": [
+   "advantage",
+   "endgame",
+   "hangingPiece",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "winningMaterial"
+  ],
+  "opening": "Bishop's Opening: Calabrese Countergambit",
+  "whiteElo": 1685,
+  "blackElo": 1689,
+  "gameUrl": "https://lichess.org/7zD7YhyS/black#60"
+ },
+ {
+  "id": "0Gib9",
+  "rootFen": "5r1k/6pp/8/1Q6/P2N3q/2P5/1P4PP/R6K w - - 0 30",
+  "setupUci": "a1e1",
+  "solutionUci": [
+   "h4e1",
+   "b5f1",
+   "f8f1"
+  ],
+  "rating": 910,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "hangingPiece",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame",
+   "winningMaterial"
+  ],
+  "opening": "French Defense: Tarrasch Variation, Open System, Euwe-Keres Line",
+  "whiteElo": 2140,
+  "blackElo": 2045,
+  "gameUrl": "https://lichess.org/wjAdZzjj#59"
+ },
+ {
+  "id": "0v8NA",
+  "rootFen": "8/4R3/3p2k1/3P4/5Bp1/2n1P3/3r4/6K1 w - - 9 44",
+  "setupUci": "e3e4",
+  "solutionUci": [
+   "c3e2",
+   "g1g2",
+   "e2f4"
+  ],
+  "rating": 1184,
+  "lichessThemes": [
+   "crushing",
+   "doubleCheck",
+   "endgame",
+   "fork",
+   "master",
+   "short"
+  ],
+  "concepts": [
+   "doubleAttack",
+   "endgame",
+   "fork"
+  ],
+  "opening": "Van't Kruijs Opening",
+  "whiteElo": 2664,
+  "blackElo": 2675,
+  "gameUrl": "https://lichess.org/YtxqH4ps#87"
+ },
+ {
+  "id": "13Wd0",
+  "rootFen": "6nr/p1N1kppp/p7/8/8/4P3/PPP3bP/R3K1NR w KQ - 0 14",
+  "setupUci": "c7d5",
+  "solutionUci": [
+   "g2d5",
+   "e3e4",
+   "d5e4",
+   "g1f3",
+   "e4f3"
+  ],
+  "rating": 955,
+  "lichessThemes": [
+   "advantage",
+   "hangingPiece",
+   "long",
+   "middlegame"
+  ],
+  "concepts": [
+   "winningMaterial"
+  ],
+  "opening": "Sicilian Defense: Marshall Gambit",
+  "whiteElo": 1945,
+  "blackElo": 1946,
+  "gameUrl": "https://lichess.org/Om8YTHsg#27"
+ },
+ {
+  "id": "0pThC",
+  "rootFen": "8/1B3p2/5p1k/4p3/1R1n4/4r3/PK1N3r/6R1 w - - 13 35",
+  "setupUci": "g1g2",
+  "solutionUci": [
+   "h2g2",
+   "b7g2",
+   "e3e2"
+  ],
+  "rating": 1292,
+  "lichessThemes": [
+   "advantage",
+   "middlegame",
+   "pin",
+   "short"
+  ],
+  "concepts": [
+   "pin"
+  ],
+  "opening": "Queen's Pawn Game: Torre Attack",
+  "whiteElo": 2234,
+  "blackElo": 2289,
+  "gameUrl": "https://lichess.org/ep5wiYFN#69"
+ },
+ {
+  "id": "0cUEX",
+  "rootFen": "r7/pp3pk1/6p1/8/3r1nPK/1BN5/PP5P/R4R2 w - - 5 25",
+  "setupUci": "f1f2",
+  "solutionUci": [
+   "a8h8",
+   "h4g3",
+   "h8h3"
+  ],
+  "rating": 1818,
+  "lichessThemes": [
+   "mate",
+   "mateIn2",
+   "middlegame",
+   "short"
+  ],
+  "concepts": [
+   "mate"
+  ],
+  "opening": "Sicilian Defense",
+  "whiteElo": 1853,
+  "blackElo": 1854,
+  "gameUrl": "https://lichess.org/A1VT2f7C#49"
+ },
+ {
+  "id": "00FPo",
+  "rootFen": "7R/1K3p2/6k1/PP4p1/8/6rp/8/8 b - - 2 47",
+  "setupUci": "g5g4",
+  "solutionUci": [
+   "a5a6",
+   "h3h2",
+   "h8h2"
+  ],
+  "rating": 1953,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Scotch Game: Scotch Gambit",
+  "whiteElo": 1819,
+  "blackElo": 1725,
+  "gameUrl": "https://lichess.org/6C03NLdu/black#94"
+ },
+ {
+  "id": "00LH7",
+  "rootFen": "6k1/6Bp/6pP/3q1p2/p2PnQ2/2r5/P5PK/4R3 b - - 1 39",
+  "setupUci": "d5d6",
+  "solutionUci": [
+   "e1e4",
+   "d6f4",
+   "e4f4"
+  ],
+  "rating": 1757,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Three Knights Opening",
+  "whiteElo": 2182,
+  "blackElo": 2260,
+  "gameUrl": "https://lichess.org/7mA63Gfs/black#78"
+ },
+ {
+  "id": "0Sl82",
+  "rootFen": "4r1k1/5p1p/1p6/8/4q3/8/Q4PPP/1n3RK1 w - - 0 29",
+  "setupUci": "f1b1",
+  "solutionUci": [
+   "e4e1",
+   "b1e1",
+   "e8e1"
+  ],
+  "rating": 819,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "sacrifice",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame",
+   "sacrifice"
+  ],
+  "opening": "Nimzo-Indian Defense: Normal Variation, Gligoric System",
+  "whiteElo": 1755,
+  "blackElo": 1728,
+  "gameUrl": "https://lichess.org/3T3EMUvl#57"
+ },
+ {
+  "id": "04PCA",
+  "rootFen": "8/2R4p/6pk/5p2/1rBP1KPP/4PP2/8/2r5 b - - 0 41",
+  "setupUci": "b4c4",
+  "solutionUci": [
+   "g4g5",
+   "h6h5",
+   "c7h7"
+  ],
+  "rating": 1024,
+  "lichessThemes": [
+   "deflection",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Queen's Gambit Accepted: Old Variation",
+  "whiteElo": 1593,
+  "blackElo": 1583,
+  "gameUrl": "https://lichess.org/CYh3htEg/black#82"
+ },
+ {
+  "id": "0gw8Y",
+  "rootFen": "2k5/Kn4pp/1P1P4/4pp2/8/B6P/8/8 b - - 0 58",
+  "setupUci": "e5e4",
+  "solutionUci": [
+   "d6d7",
+   "c8d7",
+   "a7b7"
+  ],
+  "rating": 821,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "deflection",
+   "endgame",
+   "master",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Queen's Pawn Game: London System",
+  "whiteElo": 2309,
+  "blackElo": 2355,
+  "gameUrl": "https://lichess.org/icStT6EH/black#116"
+ },
+ {
+  "id": "0C0vp",
+  "rootFen": "8/8/8/1K6/1P4r1/2k5/6p1/6R1 w - - 2 55",
+  "setupUci": "b5c5",
+  "solutionUci": [
+   "g4g5",
+   "c5d6",
+   "c3b4"
+  ],
+  "rating": 1892,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "master",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Blackmar-Diemer Gambit: von Popiel Gambit",
+  "whiteElo": 2356,
+  "blackElo": 2538,
+  "gameUrl": "https://lichess.org/6LUcQNKK#109"
+ },
+ {
+  "id": "09KJR",
+  "rootFen": "3q3k/6p1/p6p/8/P3Q3/5PR1/5r1P/7K w - - 3 36",
+  "setupUci": "e4g6",
+  "solutionUci": [
+   "d8d1",
+   "g3g1",
+   "d1f3"
+  ],
+  "rating": 1454,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Queen's Gambit Accepted: Central Variation, Alekhine System",
+  "whiteElo": 1810,
+  "blackElo": 1961,
+  "gameUrl": "https://lichess.org/ZCdd4fK6#71"
+ },
+ {
+  "id": "0NoKc",
+  "rootFen": "8/3k3p/R3N1p1/1Pb5/8/3K1r1P/8/8 w - - 1 63",
+  "setupUci": "d3e2",
+  "solutionUci": [
+   "f3e3",
+   "e2f2",
+   "e3e6"
+  ],
+  "rating": 1028,
+  "lichessThemes": [
+   "advantage",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Alekhine Defense: Modern Variation, Larsen Variation",
+  "whiteElo": 2536,
+  "blackElo": 2294,
+  "gameUrl": "https://lichess.org/dGE8ov1M#125"
+ },
+ {
+  "id": "007eS",
+  "rootFen": "6k1/p4p2/1p5p/4r3/P3B3/1P3P2/2PK2PP/8 w - - 0 29",
+  "setupUci": "d2e3",
+  "solutionUci": [
+   "f7f5",
+   "g2g4",
+   "f5e4"
+  ],
+  "rating": 1167,
+  "lichessThemes": [
+   "advantage",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Taimanov Variation, Normal Variation",
+  "whiteElo": 2196,
+  "blackElo": 2127,
+  "gameUrl": "https://lichess.org/8qs8bafy#57"
+ },
+ {
+  "id": "00Aae",
+  "rootFen": "1R6/1P6/4pkp1/5p2/3P3p/3KP3/8/1r6 b - - 0 43",
+  "setupUci": "h4h3",
+  "solutionUci": [
+   "b8f8",
+   "f6e7",
+   "b7b8q",
+   "b1b8",
+   "f8b8"
+  ],
+  "rating": 1019,
+  "lichessThemes": [
+   "advancedPawn",
+   "clearance",
+   "crushing",
+   "endgame",
+   "long",
+   "promotion",
+   "rookEndgame"
+  ],
+  "concepts": [
+   "endgame",
+   "promotion"
+  ],
+  "opening": "Slav Defense: Exchange Variation",
+  "whiteElo": 1826,
+  "blackElo": 1598,
+  "gameUrl": "https://lichess.org/mLIjph1r/black#86"
+ },
+ {
+  "id": "0AneJ",
+  "rootFen": "8/8/3PK2k/4p3/7p/4rp2/8/5R2 b - - 0 49",
+  "setupUci": "h4h3",
+  "solutionUci": [
+   "d6d7",
+   "e3d3",
+   "f1f3",
+   "d3f3",
+   "d7d8q"
+  ],
+  "rating": 1625,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "deflection",
+   "endgame",
+   "long",
+   "master",
+   "promotion",
+   "rookEndgame"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "promotion"
+  ],
+  "opening": "Sicilian Defense: Snyder Variation",
+  "whiteElo": 2366,
+  "blackElo": 2545,
+  "gameUrl": "https://lichess.org/dOlHp2Wm/black#98"
+ },
+ {
+  "id": "0ozFX",
+  "rootFen": "8/5k2/8/4KP1p/3P2p1/2pQ2P1/1b6/8 w - - 3 61",
+  "setupUci": "d4d5",
+  "solutionUci": [
+   "c3c2",
+   "e5d6",
+   "c2c1q"
+  ],
+  "rating": 859,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "promotion",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame",
+   "promotion"
+  ],
+  "opening": "French Defense: Knight Variation",
+  "whiteElo": 1898,
+  "blackElo": 1934,
+  "gameUrl": "https://lichess.org/qU3oVDV4#121"
+ },
+ {
+  "id": "02Oc8",
+  "rootFen": "8/Q5p1/4pk2/p2q4/P1pn4/8/5PPP/R5K1 w - - 2 29",
+  "setupUci": "a1d1",
+  "solutionUci": [
+   "d4e2",
+   "g1f1",
+   "d5d1"
+  ],
+  "rating": 1173,
+  "lichessThemes": [
+   "discoveredAttack",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Queen's Pawn Game: Accelerated London System",
+  "whiteElo": 1663,
+  "blackElo": 1656,
+  "gameUrl": "https://lichess.org/AmB0sTp9#57"
+ },
+ {
+  "id": "01vPy",
+  "rootFen": "8/4k3/4n3/8/2P3PP/P2Q4/6K1/r7 w - - 17 55",
+  "setupUci": "g4g5",
+  "solutionUci": [
+   "e6f4",
+   "g2f3",
+   "f4d3"
+  ],
+  "rating": 754,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "fork",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "fork"
+  ],
+  "opening": "Nimzo-Indian Defense: Three Knights Variation",
+  "whiteElo": 2043,
+  "blackElo": 2011,
+  "gameUrl": "https://lichess.org/igbxGmO9#109"
+ },
+ {
+  "id": "0GpXg",
+  "rootFen": "8/5k2/2pK4/1b1p1P2/pP1Bp3/P7/1P6/8 w - - 10 47",
+  "setupUci": "d6d7",
+  "solutionUci": [
+   "c6c5",
+   "d7d6",
+   "c5d4"
+  ],
+  "rating": 1064,
+  "lichessThemes": [
+   "bishopEndgame",
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "French Defense: Two Knights Variation",
+  "whiteElo": 1635,
+  "blackElo": 1655,
+  "gameUrl": "https://lichess.org/TCEJOA76#93"
+ },
+ {
+  "id": "04KbJ",
+  "rootFen": "8/pR6/5ppk/8/2P4p/1P3P1P/P5P1/4rnBK w - - 0 43",
+  "setupUci": "g1f2",
+  "solutionUci": [
+   "f1g3",
+   "h1h2",
+   "e1h1"
+  ],
+  "rating": 911,
+  "lichessThemes": [
+   "doubleCheck",
+   "endgame",
+   "hookMate",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "doubleAttack",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Nimzo-Larsen Attack: Modern Variation",
+  "whiteElo": 1924,
+  "blackElo": 2146,
+  "gameUrl": "https://lichess.org/dP1vkSDD#85"
+ },
+ {
+  "id": "0CodQ",
+  "rootFen": "8/7k/p3PQ1p/6p1/1P5q/P7/5KP1/8 w - - 1 36",
+  "setupUci": "f2f3",
+  "solutionUci": [
+   "g5g4",
+   "f3e4",
+   "h4f6"
+  ],
+  "rating": 1354,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "queenEndgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Taimanov Variation, Normal Variation",
+  "whiteElo": 1986,
+  "blackElo": 1975,
+  "gameUrl": "https://lichess.org/ySxBUUqk#71"
+ },
+ {
+  "id": "05mc3",
+  "rootFen": "4r3/3qr3/3Rp1kp/3pBpp1/3P4/Q6P/5PPK/8 b - - 11 38",
+  "setupUci": "d7a7",
+  "solutionUci": [
+   "d6e6",
+   "e7e6",
+   "a3a7",
+   "e6e5",
+   "d4e5"
+  ],
+  "rating": 1463,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "long"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Scandinavian Defense: Modern Variation",
+  "whiteElo": 2063,
+  "blackElo": 2056,
+  "gameUrl": "https://lichess.org/LECtz1GC/black#76"
+ },
+ {
+  "id": "00CMj",
+  "rootFen": "7R/8/8/6p1/2p1p1k1/2PbK2p/P7/8 w - - 4 71",
+  "setupUci": "e3f2",
+  "solutionUci": [
+   "e4e3",
+   "f2e3",
+   "g4g3"
+  ],
+  "rating": 1636,
+  "lichessThemes": [
+   "crushing",
+   "defensiveMove",
+   "endgame",
+   "master",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Trompowsky Attack: Classical Defense",
+  "whiteElo": 2443,
+  "blackElo": 2562,
+  "gameUrl": "https://lichess.org/JJZ8AIxT#141"
+ },
+ {
+  "id": "05jlL",
+  "rootFen": "8/8/2p3p1/1P1k1p1p/3r4/4KPP1/1R5P/8 b - - 0 47",
+  "setupUci": "c6b5",
+  "solutionUci": [
+   "b2b5",
+   "d5c4",
+   "b5b4",
+   "c4b4",
+   "e3d4"
+  ],
+  "rating": 1426,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "long",
+   "rookEndgame"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Old Sicilian",
+  "whiteElo": 1679,
+  "blackElo": 1717,
+  "gameUrl": "https://lichess.org/5lkk8kIP/black#94"
+ },
+ {
+  "id": "0bxcc",
+  "rootFen": "3r4/pp1kn1Q1/8/2bN4/6P1/7K/P4r1B/8 b - - 4 30",
+  "setupUci": "d8g8",
+  "solutionUci": [
+   "d5f6",
+   "f2f6",
+   "g7f6"
+  ],
+  "rating": 1361,
+  "lichessThemes": [
+   "advantage",
+   "fork",
+   "middlegame",
+   "short"
+  ],
+  "concepts": [
+   "fork"
+  ],
+  "opening": "Indian Defense",
+  "whiteElo": 2372,
+  "blackElo": 2229,
+  "gameUrl": "https://lichess.org/KsXvcWYI/black#60"
+ },
+ {
+  "id": "05bmj",
+  "rootFen": "R4bk1/5rP1/5pR1/8/2r5/p5P1/1p4K1/8 b - - 0 41",
+  "setupUci": "b2b1q",
+  "solutionUci": [
+   "g7f8q",
+   "g8h7",
+   "f8f7"
+  ],
+  "rating": 1550,
+  "lichessThemes": [
+   "advancedPawn",
+   "deflection",
+   "doubleCheck",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "promotion",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "doubleAttack",
+   "endgame",
+   "mate",
+   "promotion"
+  ],
+  "opening": "Scandinavian Defense: Main Line",
+  "whiteElo": 1703,
+  "blackElo": 1529,
+  "gameUrl": "https://lichess.org/aWfK0QI1/black#82"
+ },
+ {
+  "id": "02wKw",
+  "rootFen": "6R1/ppp3P1/3k4/2qp4/8/1P6/PK6/8 b - - 0 44",
+  "setupUci": "d6e6",
+  "solutionUci": [
+   "g8e8",
+   "e6d7",
+   "g7g8q"
+  ],
+  "rating": 849,
+  "lichessThemes": [
+   "advancedPawn",
+   "advantage",
+   "clearance",
+   "endgame",
+   "promotion",
+   "queenRookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "promotion"
+  ],
+  "opening": "King's Pawn Game: Leonardis Variation",
+  "whiteElo": 1810,
+  "blackElo": 1826,
+  "gameUrl": "https://lichess.org/HYKB0E8O/black#88"
+ },
+ {
+  "id": "00ME0",
+  "rootFen": "8/1p6/p1b5/5k1p/1PB1p2P/P3P1K1/8/8 b - - 2 35",
+  "setupUci": "f5e5",
+  "solutionUci": [
+   "c4f7",
+   "c6d7",
+   "f7h5"
+  ],
+  "rating": 1621,
+  "lichessThemes": [
+   "bishopEndgame",
+   "crushing",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Horwitz Defense",
+  "whiteElo": 2106,
+  "blackElo": 2062,
+  "gameUrl": "https://lichess.org/Z2H5mRQg/black#70"
+ },
+ {
+  "id": "00kF8",
+  "rootFen": "1k6/1p6/8/4r1n1/6P1/6QP/PPPK4/4r3 w - - 9 42",
+  "setupUci": "h3h4",
+  "solutionUci": [
+   "g5e4",
+   "d2e1",
+   "e4g3"
+  ],
+  "rating": 1018,
+  "lichessThemes": [
+   "advantage",
+   "discoveredAttack",
+   "endgame",
+   "fork",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame",
+   "fork"
+  ],
+  "opening": "Sicilian Defense: Najdorf Variation, Adams Attack",
+  "whiteElo": 1787,
+  "blackElo": 1696,
+  "gameUrl": "https://lichess.org/BRKJV5qW#83"
+ },
+ {
+  "id": "0BWas",
+  "rootFen": "8/2r2pK1/4pN2/1k2P3/p5p1/Pp6/5P2/1R6 w - - 0 55",
+  "setupUci": "f6g4",
+  "solutionUci": [
+   "f7f5",
+   "g7f6",
+   "f5g4"
+  ],
+  "rating": 1274,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Caro-Kann Defense: Advance Variation",
+  "whiteElo": 2189,
+  "blackElo": 2155,
+  "gameUrl": "https://lichess.org/VwTLgFqJ#109"
+ },
+ {
+  "id": "08hQ1",
+  "rootFen": "1q5k/3P1Qpp/8/5p2/5P2/5B1P/6PK/2q2b2 b - - 0 39",
+  "setupUci": "c1d2",
+  "solutionUci": [
+   "f7e8",
+   "b8e8",
+   "d7e8q"
+  ],
+  "rating": 1138,
+  "lichessThemes": [
+   "advancedPawn",
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "promotion",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame",
+   "promotion"
+  ],
+  "opening": "Ruy Lopez: Steinitz Defense",
+  "whiteElo": 1908,
+  "blackElo": 1660,
+  "gameUrl": "https://lichess.org/VMG0bKuO/black#78"
+ },
+ {
+  "id": "008Sk",
+  "rootFen": "8/6pp/3Bp2k/p2pP2P/P2bp1PK/8/r7/5R2 b - - 2 37",
+  "setupUci": "d4f2",
+  "solutionUci": [
+   "f1f2",
+   "g7g5",
+   "h4g3",
+   "a2f2",
+   "g3f2"
+  ],
+  "rating": 1984,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "long"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Slav Defense",
+  "whiteElo": 1731,
+  "blackElo": 1778,
+  "gameUrl": "https://lichess.org/rah6MiKa/black#74"
+ },
+ {
+  "id": "0CZkx",
+  "rootFen": "4r1k1/p4ppp/2R5/1p4P1/3q4/7P/1N6/1K6 b - - 0 47",
+  "setupUci": "e8e2",
+  "solutionUci": [
+   "c6c8",
+   "d4d8",
+   "c8d8",
+   "e2e8",
+   "d8e8"
+  ],
+  "rating": 600,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Scandinavian Defense: Mieses-Kotroc Variation",
+  "whiteElo": 1593,
+  "blackElo": 1652,
+  "gameUrl": "https://lichess.org/4dZJuXx8/black#94"
+ },
+ {
+  "id": "017c1",
+  "rootFen": "8/8/8/1p6/4k3/2p4P/rP2RK2/8 b - - 1 49",
+  "setupUci": "e4d4",
+  "solutionUci": [
+   "b2c3",
+   "d4c3",
+   "e2a2"
+  ],
+  "rating": 1075,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Benoni Defense: Benoni-Indian Defense",
+  "whiteElo": 1991,
+  "blackElo": 2202,
+  "gameUrl": "https://lichess.org/xat94cnU/black#98"
+ },
+ {
+  "id": "00hYk",
+  "rootFen": "8/8/1n4p1/4kp1p/7P/1B2KPP1/8/8 b - - 0 54",
+  "setupUci": "b6d5",
+  "solutionUci": [
+   "b3d5",
+   "e5d5",
+   "e3f4"
+  ],
+  "rating": 1303,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Italian Game: Hungarian Defense",
+  "whiteElo": 1947,
+  "blackElo": 2088,
+  "gameUrl": "https://lichess.org/rWJb7AjE/black#108"
+ },
+ {
+  "id": "0p6Wo",
+  "rootFen": "1rr3k1/p4ppp/8/8/8/1Q2R3/P1P2PPP/6K1 w - - 3 24",
+  "setupUci": "b3a4",
+  "solutionUci": [
+   "b8b1",
+   "e3e1",
+   "b1e1"
+  ],
+  "rating": 789,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "queenRookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Caro-Kann Defense",
+  "whiteElo": 1619,
+  "blackElo": 1621,
+  "gameUrl": "https://lichess.org/EQ73NTxX#47"
+ },
+ {
+  "id": "017Vq",
+  "rootFen": "5q1k/pr4pp/2p4B/8/3Q3P/2P5/P1PK4/4R3 w - - 5 30",
+  "setupUci": "d4e5",
+  "solutionUci": [
+   "b7d7",
+   "d2e2",
+   "d7e7",
+   "e5e7",
+   "f8e7"
+  ],
+  "rating": 1778,
+  "lichessThemes": [
+   "advantage",
+   "endgame",
+   "long",
+   "pin"
+  ],
+  "concepts": [
+   "endgame",
+   "pin"
+  ],
+  "opening": "Caro-Kann Defense: Exchange Variation",
+  "whiteElo": 2051,
+  "blackElo": 2035,
+  "gameUrl": "https://lichess.org/bMC4eGik#59"
+ },
+ {
+  "id": "0gCTd",
+  "rootFen": "2r5/8/p5kp/1p6/1P1p1PP1/2b2RK1/P1R5/8 w - - 0 54",
+  "setupUci": "f3d3",
+  "solutionUci": [
+   "c3e1",
+   "g3f3",
+   "c8c2"
+  ],
+  "rating": 818,
+  "lichessThemes": [
+   "advantage",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Richter-Rauzer Variation",
+  "whiteElo": 2178,
+  "blackElo": 1707,
+  "gameUrl": "https://lichess.org/sKVbUsUn#107"
+ },
+ {
+  "id": "0SCZr",
+  "rootFen": "3r2k1/R2N2bp/3P2p1/p3pp2/P7/4P3/8/7K b - - 0 41",
+  "setupUci": "g7f8",
+  "solutionUci": [
+   "d7f6",
+   "g8h8",
+   "a7h7"
+  ],
+  "rating": 875,
+  "lichessThemes": [
+   "arabianMate",
+   "discoveredAttack",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Modern Defense: Kotov Variation",
+  "whiteElo": 2072,
+  "blackElo": 2066,
+  "gameUrl": "https://lichess.org/Zl0rub8y/black#82"
+ },
+ {
+  "id": "02Ofv",
+  "rootFen": "8/p3R3/k4p2/3b2p1/7p/6PP/PPr2P1B/6KR w - - 0 33",
+  "setupUci": "g3h4",
+  "solutionUci": [
+   "c2c1",
+   "e7e1",
+   "c1e1"
+  ],
+  "rating": 831,
+  "lichessThemes": [
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "mate"
+  ],
+  "opening": "Owen Defense",
+  "whiteElo": 1781,
+  "blackElo": 1833,
+  "gameUrl": "https://lichess.org/ZKMjUUSC#65"
+ },
+ {
+  "id": "0Khlr",
+  "rootFen": "2R5/P6R/3kn3/6b1/8/5P1B/P4PKP/4r3 w - - 1 37",
+  "setupUci": "a7a8q",
+  "solutionUci": [
+   "e6f4",
+   "g2g3",
+   "e1g1",
+   "h3g2",
+   "g1g2"
+  ],
+  "rating": 1101,
+  "lichessThemes": [
+   "long",
+   "mate",
+   "mateIn3",
+   "middlegame"
+  ],
+  "concepts": [
+   "mate"
+  ],
+  "opening": "Scandinavian Defense: Kiel Variation",
+  "whiteElo": 1841,
+  "blackElo": 1745,
+  "gameUrl": "https://lichess.org/ZOF3Tbw7#73"
+ },
+ {
+  "id": "0CJjQ",
+  "rootFen": "3r2k1/R5p1/7p/8/5n2/B2b4/PP3PPP/3R3K w - - 5 31",
+  "setupUci": "g2g3",
+  "solutionUci": [
+   "d3e4",
+   "h1g1",
+   "d8d1"
+  ],
+  "rating": 1004,
+  "lichessThemes": [
+   "discoveredAttack",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Sicilian Defense: Modern Variations, Tartakower",
+  "whiteElo": 1875,
+  "blackElo": 1902,
+  "gameUrl": "https://lichess.org/W6grszKZ#61"
+ },
+ {
+  "id": "0H2EI",
+  "rootFen": "r5q1/pp4pk/2p3Np/5Q2/4r3/8/6PP/R6K b - - 3 28",
+  "setupUci": "g8e6",
+  "solutionUci": [
+   "g6f8",
+   "h7g8",
+   "f8e6"
+  ],
+  "rating": 986,
+  "lichessThemes": [
+   "crushing",
+   "doubleCheck",
+   "endgame",
+   "fork",
+   "short"
+  ],
+  "concepts": [
+   "doubleAttack",
+   "endgame",
+   "fork"
+  ],
+  "opening": "Italian Game: Giuoco Pianissimo, Normal",
+  "whiteElo": 1827,
+  "blackElo": 1775,
+  "gameUrl": "https://lichess.org/OKHzYzz6/black#56"
+ },
+ {
+  "id": "0GRO5",
+  "rootFen": "r4r1k/1p4pp/pQ4q1/8/P7/1P2RbBP/5R1K/8 w - - 0 34",
+  "setupUci": "e3f3",
+  "solutionUci": [
+   "f8f3",
+   "b6g6",
+   "f3f2",
+   "g3f2",
+   "h7g6"
+  ],
+  "rating": 1488,
+  "lichessThemes": [
+   "crushing",
+   "intermezzo",
+   "long",
+   "middlegame"
+  ],
+  "concepts": [
+   "calculation"
+  ],
+  "opening": "Sicilian Defense: Smith-Morra Gambit",
+  "whiteElo": 2221,
+  "blackElo": 2124,
+  "gameUrl": "https://lichess.org/25wus9EH#67"
+ },
+ {
+  "id": "04HmU",
+  "rootFen": "4Qb2/6k1/3BBq1p/p1pP4/P7/4n2P/6PK/8 w - - 1 38",
+  "setupUci": "d6g3",
+  "solutionUci": [
+   "e3f1",
+   "h2g1",
+   "f1g3"
+  ],
+  "rating": 1139,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "master",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "King's Indian Defense: Four Pawns Attack, Dynamic Attack",
+  "whiteElo": 2688,
+  "blackElo": 2580,
+  "gameUrl": "https://lichess.org/WQZxMOch#75"
+ },
+ {
+  "id": "0KPLh",
+  "rootFen": "8/8/1R2p2p/1N1pPkp1/3P4/4Pn2/1r6/3K4 b - - 0 37",
+  "setupUci": "h6h5",
+  "solutionUci": [
+   "b5d6",
+   "f5g6",
+   "b6b2"
+  ],
+  "rating": 968,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "French Defense: Advance Variation",
+  "whiteElo": 1765,
+  "blackElo": 1754,
+  "gameUrl": "https://lichess.org/oitCOGAT/black#74"
+ },
+ {
+  "id": "00gyK",
+  "rootFen": "5rk1/5pp1/3p3p/4p1N1/8/PR6/1p3PPP/6K1 w - - 0 33",
+  "setupUci": "g5e4",
+  "solutionUci": [
+   "f8c8",
+   "g2g3",
+   "c8c1"
+  ],
+  "rating": 1800,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "quietMove",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "calculation"
+  ],
+  "opening": "Sicilian Defense: Bowdler Attack",
+  "whiteElo": 1833,
+  "blackElo": 1814,
+  "gameUrl": "https://lichess.org/LK8qER3u#65"
+ },
+ {
+  "id": "0S5cy",
+  "rootFen": "8/pp1r1k1p/8/n4pB1/8/8/P2bRPPP/2rR2K1 w - - 8 27",
+  "setupUci": "e2d2",
+  "solutionUci": [
+   "c1d1",
+   "d2d1",
+   "d7d1"
+  ],
+  "rating": 852,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short",
+   "xRayAttack"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Gr\u00fcnfeld Defense: Exchange Variation",
+  "whiteElo": 1963,
+  "blackElo": 2430,
+  "gameUrl": "https://lichess.org/GISCIVYP#53"
+ },
+ {
+  "id": "06Nmx",
+  "rootFen": "1k3r2/pp6/3p3p/8/1q6/2Q5/P4P2/K1R5 b - - 0 31",
+  "setupUci": "b4f4",
+  "solutionUci": [
+   "c3c7",
+   "b8a8",
+   "c7c8",
+   "f8c8",
+   "c1c8"
+  ],
+  "rating": 1077,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3",
+   "sacrifice"
+  ],
+  "concepts": [
+   "mate",
+   "endgame",
+   "sacrifice"
+  ],
+  "opening": "Scotch Game: G\u00f6ring Gambit",
+  "whiteElo": 2050,
+  "blackElo": 2039,
+  "gameUrl": "https://lichess.org/YuMtj9gg/black#62"
+ },
+ {
+  "id": "04ntl",
+  "rootFen": "5q2/3Q2kp/3p4/p3b1N1/1p2P3/3K4/6rP/8 b - - 9 38",
+  "setupUci": "g7f6",
+  "solutionUci": [
+   "g5h7",
+   "f6g6",
+   "h7f8"
+  ],
+  "rating": 825,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "fork",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "fork"
+  ],
+  "opening": "Sicilian Defense: Najdorf Variation, Lipnitsky Attack",
+  "whiteElo": 1690,
+  "blackElo": 1725,
+  "gameUrl": "https://lichess.org/kkEYRX9X/black#76"
+ },
+ {
+  "id": "0CAjn",
+  "rootFen": "r6k/6p1/p4r1p/Pp4NQ/1q6/8/6PP/R4R1K w - - 0 38",
+  "setupUci": "f1f5",
+  "solutionUci": [
+   "f6f5",
+   "g5f7",
+   "f5f7"
+  ],
+  "rating": 813,
+  "lichessThemes": [
+   "advantage",
+   "hangingPiece",
+   "middlegame",
+   "short"
+  ],
+  "concepts": [
+   "winningMaterial"
+  ],
+  "opening": "French Defense: Advance Variation",
+  "whiteElo": 1728,
+  "blackElo": 1763,
+  "gameUrl": "https://lichess.org/cqlpXwbP#75"
+ },
+ {
+  "id": "066ld",
+  "rootFen": "7r/6p1/3p4/4p1P1/R1Nnk3/2r5/5P1p/R6K b - - 1 45",
+  "setupUci": "d4f5",
+  "solutionUci": [
+   "c4d6",
+   "e4f3",
+   "d6f5"
+  ],
+  "rating": 1253,
+  "lichessThemes": [
+   "advantage",
+   "deflection",
+   "doubleCheck",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "doubleAttack",
+   "endgame"
+  ],
+  "opening": "Ruy Lopez: Berlin Defense, Improved Steinitz Defense",
+  "whiteElo": 2199,
+  "blackElo": 2083,
+  "gameUrl": "https://lichess.org/ePT7GGwS/black#90"
+ },
+ {
+  "id": "06KVw",
+  "rootFen": "8/5k2/5p2/2RPr3/P2Kb3/4P3/8/8 b - - 0 40",
+  "setupUci": "f7e7",
+  "solutionUci": [
+   "d5d6",
+   "e7d6",
+   "c5e5"
+  ],
+  "rating": 1472,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Tarrasch Defense: Symmetrical Variation",
+  "whiteElo": 2156,
+  "blackElo": 2053,
+  "gameUrl": "https://lichess.org/trSOnoSE/black#80"
+ },
+ {
+  "id": "00eLW",
+  "rootFen": "8/8/3q3k/5Q2/4p3/4P2P/5pK1/8 w - - 0 42",
+  "setupUci": "f5f4",
+  "solutionUci": [
+   "d6f4",
+   "e3f4",
+   "e4e3"
+  ],
+  "rating": 1021,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "queenEndgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Nimzo-Larsen Attack: Modern Variation",
+  "whiteElo": 2225,
+  "blackElo": 2219,
+  "gameUrl": "https://lichess.org/jhaADLF2#83"
+ },
+ {
+  "id": "0KHJe",
+  "rootFen": "5bk1/3R3p/4npp1/8/6N1/7P/5KP1/2r5 b - - 1 42",
+  "setupUci": "f6f5",
+  "solutionUci": [
+   "g4f6",
+   "g8h8",
+   "d7h7"
+  ],
+  "rating": 852,
+  "lichessThemes": [
+   "arabianMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Pirc Defense",
+  "whiteElo": 1610,
+  "blackElo": 1640,
+  "gameUrl": "https://lichess.org/LrDzsdut/black#84"
+ },
+ {
+  "id": "077Ow",
+  "rootFen": "8/8/7p/3k2p1/pp1P4/2r2N1P/2K3P1/2R5 w - - 2 46",
+  "setupUci": "c2b2",
+  "solutionUci": [
+   "a4a3",
+   "b2b1",
+   "a3a2",
+   "b1a2",
+   "c3c1"
+  ],
+  "rating": 1790,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "deflection",
+   "endgame",
+   "exposedKing",
+   "long"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "French Defense: King's Indian Attack",
+  "whiteElo": 1750,
+  "blackElo": 1785,
+  "gameUrl": "https://lichess.org/TAEvTXXH#91"
+ },
+ {
+  "id": "05FMy",
+  "rootFen": "5q1k/6p1/2Q1R2p/p1p1p3/3r4/6P1/5PK1/8 b - - 2 38",
+  "setupUci": "f8f5",
+  "solutionUci": [
+   "c6c8",
+   "h8h7",
+   "e6h6",
+   "h7h6",
+   "c8f5"
+  ],
+  "rating": 1854,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "long"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Old Indian Defense",
+  "whiteElo": 2571,
+  "blackElo": 2265,
+  "gameUrl": "https://lichess.org/xztj8woC/black#76"
+ },
+ {
+  "id": "08DmD",
+  "rootFen": "8/6pp/8/4p3/1Pk3PP/3p4/3K1P2/8 b - - 0 44",
+  "setupUci": "h7h6",
+  "solutionUci": [
+   "b4b5",
+   "c4b5",
+   "d2d3",
+   "b5c6",
+   "d3e4"
+  ],
+  "rating": 1415,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "long",
+   "pawnEndgame",
+   "quietMove"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "calculation"
+  ],
+  "opening": "French Defense: Exchange Variation",
+  "whiteElo": 1754,
+  "blackElo": 1759,
+  "gameUrl": "https://lichess.org/Gje59mAg/black#88"
+ },
+ {
+  "id": "0X02H",
+  "rootFen": "3r2k1/5p1p/6p1/2QB4/7P/6P1/4qP1K/8 b - - 2 36",
+  "setupUci": "e2e5",
+  "solutionUci": [
+   "d5f7",
+   "g8f7",
+   "c5e5"
+  ],
+  "rating": 805,
+  "lichessThemes": [
+   "advantage",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Queen's Pawn Game: Accelerated London System",
+  "whiteElo": 1771,
+  "blackElo": 1809,
+  "gameUrl": "https://lichess.org/2PMWXTbV/black#72"
+ },
+ {
+  "id": "02fzY",
+  "rootFen": "7r/6RP/2p5/8/2k4K/1p6/5P2/8 w - - 0 50",
+  "setupUci": "h4h5",
+  "solutionUci": [
+   "b3b2",
+   "g7b7",
+   "h8h7",
+   "b7h7",
+   "b2b1q"
+  ],
+  "rating": 1407,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "deflection",
+   "endgame",
+   "long",
+   "promotion",
+   "rookEndgame"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "promotion"
+  ],
+  "opening": "Sicilian Defense: Nyezhmetdinov-Rossolimo Attack",
+  "whiteElo": 1792,
+  "blackElo": 1784,
+  "gameUrl": "https://lichess.org/P16cwZZd#99"
+ },
+ {
+  "id": "05QJG",
+  "rootFen": "8/1b6/4N1KP/8/2pp4/2k3P1/8/8 w - - 0 62",
+  "setupUci": "h6h7",
+  "solutionUci": [
+   "b7e4",
+   "g6h5",
+   "e4h7"
+  ],
+  "rating": 803,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "short",
+   "skewer"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "skewer"
+  ],
+  "opening": "Horwitz Defense",
+  "whiteElo": 1836,
+  "blackElo": 1911,
+  "gameUrl": "https://lichess.org/8ch0VZUn#123"
+ },
+ {
+  "id": "03Ika",
+  "rootFen": "3r2k1/Q5pp/4p1r1/8/7n/1P3P2/P4RPP/6K1 w - - 3 30",
+  "setupUci": "a7b7",
+  "solutionUci": [
+   "d8d1",
+   "f2f1",
+   "g6g2",
+   "g1h1",
+   "d1f1"
+  ],
+  "rating": 1832,
+  "lichessThemes": [
+   "deflection",
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Caro-Kann Defense",
+  "whiteElo": 1847,
+  "blackElo": 1946,
+  "gameUrl": "https://lichess.org/fbSiD7zr#59"
+ },
+ {
+  "id": "0AO2l",
+  "rootFen": "6k1/p4pp1/7p/8/1P1B4/r2P4/5PPP/2R3K1 w - - 1 28",
+  "setupUci": "c1c3",
+  "solutionUci": [
+   "a3a1",
+   "c3c1",
+   "a1c1"
+  ],
+  "rating": 857,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Italian Game: Two Knights Defense, Fritz Variation",
+  "whiteElo": 1544,
+  "blackElo": 1555,
+  "gameUrl": "https://lichess.org/boeOcqXC#55"
+ },
+ {
+  "id": "0jHnZ",
+  "rootFen": "4r1k1/1Q3ppp/5q2/1P6/8/5B2/5bPP/5RK1 w - - 0 26",
+  "setupUci": "f1f2",
+  "solutionUci": [
+   "e8e1",
+   "f2f1",
+   "f6d4",
+   "g1h1",
+   "e1f1"
+  ],
+  "rating": 1545,
+  "lichessThemes": [
+   "backRankMate",
+   "deflection",
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3"
+  ],
+  "concepts": [
+   "mate",
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Caro-Kann Defense: Hillbilly Attack",
+  "whiteElo": 1800,
+  "blackElo": 1858,
+  "gameUrl": "https://lichess.org/aPzvclib#51"
+ },
+ {
+  "id": "0ptHY",
+  "rootFen": "4r1k1/5ppp/q3Bn2/8/2p5/8/5PPP/3QRN1K b - - 0 31",
+  "setupUci": "e8e6",
+  "solutionUci": [
+   "d1d8",
+   "f6e8",
+   "d8e8",
+   "e6e8",
+   "e1e8"
+  ],
+  "rating": 1561,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3",
+   "xRayAttack"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Delayed Alapin",
+  "whiteElo": 1818,
+  "blackElo": 1816,
+  "gameUrl": "https://lichess.org/XWEKU4o5/black#62"
+ },
+ {
+  "id": "00KOz",
+  "rootFen": "8/r4k2/7R/5PK1/1n6/8/8/8 b - - 3 56",
+  "setupUci": "b4d5",
+  "solutionUci": [
+   "h6h7",
+   "f7f8",
+   "h7a7"
+  ],
+  "rating": 981,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "master",
+   "short",
+   "skewer"
+  ],
+  "concepts": [
+   "endgame",
+   "skewer"
+  ],
+  "opening": "Sicilian Defense: Smith-Morra Gambit Deferred",
+  "whiteElo": 2461,
+  "blackElo": 2444,
+  "gameUrl": "https://lichess.org/QVprMNzR/black#112"
+ },
+ {
+  "id": "08Am3",
+  "rootFen": "8/2p5/1p1bk3/3r4/6Q1/4K3/8/8 b - - 11 59",
+  "setupUci": "e6e5",
+  "solutionUci": [
+   "g4e4",
+   "e5f6",
+   "e4d5"
+  ],
+  "rating": 1196,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "master",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Ruy Lopez: Berlin Defense, Rio Gambit Accepted",
+  "whiteElo": 2650,
+  "blackElo": 2552,
+  "gameUrl": "https://lichess.org/bgpMh5Ic/black#118"
+ },
+ {
+  "id": "0BdAP",
+  "rootFen": "3r2r1/ppQ2p1k/8/8/8/2b1P3/PPP1NP2/1K6 w - - 0 29",
+  "setupUci": "e2c3",
+  "solutionUci": [
+   "g8g1",
+   "c3d1",
+   "g1d1"
+  ],
+  "rating": 1085,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Indian Defense",
+  "whiteElo": 1536,
+  "blackElo": 1632,
+  "gameUrl": "https://lichess.org/pBS66R1S#57"
+ },
+ {
+  "id": "012uN",
+  "rootFen": "8/p2n1k2/5P2/5KPP/2P5/8/n7/8 b - - 1 49",
+  "setupUci": "a2c3",
+  "solutionUci": [
+   "g5g6",
+   "f7f8",
+   "h5h6"
+  ],
+  "rating": 1975,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "knightEndgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Pirc Defense",
+  "whiteElo": 1671,
+  "blackElo": 1640,
+  "gameUrl": "https://lichess.org/wCxVSTya/black#98"
+ },
+ {
+  "id": "0OCMB",
+  "rootFen": "8/8/K3pk2/1p6/2p5/P2b4/1P6/4R3 w - - 0 47",
+  "setupUci": "a6b5",
+  "solutionUci": [
+   "c4c3",
+   "b5b4",
+   "c3b2"
+  ],
+  "rating": 951,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Smith-Morra Gambit",
+  "whiteElo": 1868,
+  "blackElo": 1880,
+  "gameUrl": "https://lichess.org/eudI7tuX#93"
+ },
+ {
+  "id": "01Ie5",
+  "rootFen": "8/3R3p/6pk/5p2/5PP1/1r5P/r2B1K2/8 b - - 0 46",
+  "setupUci": "b3b2",
+  "solutionUci": [
+   "g4g5",
+   "h6h5",
+   "d7h7"
+  ],
+  "rating": 969,
+  "lichessThemes": [
+   "deflection",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Indian Defense",
+  "whiteElo": 1919,
+  "blackElo": 1915,
+  "gameUrl": "https://lichess.org/MSON3n5v/black#92"
+ },
+ {
+  "id": "121La",
+  "rootFen": "6k1/1p4pp/3P4/8/rB2P3/P3K3/7P/7b b - - 0 31",
+  "setupUci": "g8f8",
+  "solutionUci": [
+   "d6d7",
+   "a4b4",
+   "d7d8q"
+  ],
+  "rating": 851,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "promotion",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame",
+   "promotion"
+  ],
+  "opening": "Vienna Game: Stanley Variation",
+  "whiteElo": 1713,
+  "blackElo": 1644,
+  "gameUrl": "https://lichess.org/aWDmPhz0/black#62"
+ },
+ {
+  "id": "01rGW",
+  "rootFen": "6B1/p2R4/5p1p/r5k1/4b3/6P1/P5PK/8 b - - 9 44",
+  "setupUci": "a5c5",
+  "solutionUci": [
+   "d7g7",
+   "g5f5",
+   "g8h7",
+   "f5e6",
+   "h7e4"
+  ],
+  "rating": 1405,
+  "lichessThemes": [
+   "advantage",
+   "deflection",
+   "endgame",
+   "long",
+   "skewer"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "skewer"
+  ],
+  "opening": "Italian Game: Evans Gambit, Anderssen Variation",
+  "whiteElo": 1741,
+  "blackElo": 1740,
+  "gameUrl": "https://lichess.org/Jz8c5wYb/black#88"
+ },
+ {
+  "id": "0ClEz",
+  "rootFen": "RB3bk1/p2r1ppp/1p6/8/1P6/6P1/5P1P/6K1 b - - 5 30",
+  "setupUci": "f8b4",
+  "solutionUci": [
+   "b8d6",
+   "d7d8",
+   "a8d8"
+  ],
+  "rating": 1121,
+  "lichessThemes": [
+   "backRankMate",
+   "discoveredAttack",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Chekhover Variation",
+  "whiteElo": 1872,
+  "blackElo": 1827,
+  "gameUrl": "https://lichess.org/Ygx6wOmQ/black#60"
+ },
+ {
+  "id": "07igg",
+  "rootFen": "5r2/p6k/8/3N1pqn/3Q4/5P2/1r4PP/3R2RK w - - 13 42",
+  "setupUci": "d4b2",
+  "solutionUci": [
+   "h5g3",
+   "h2g3",
+   "g5h5"
+  ],
+  "rating": 1021,
+  "lichessThemes": [
+   "clearance",
+   "mate",
+   "mateIn2",
+   "middlegame",
+   "sacrifice",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "sacrifice"
+  ],
+  "opening": "Pirc Defense",
+  "whiteElo": 1812,
+  "blackElo": 1967,
+  "gameUrl": "https://lichess.org/A4sKXo6G#83"
+ },
+ {
+  "id": "0092z",
+  "rootFen": "2r3k1/2qR1ppp/p7/2p2Q2/P7/7P/5PP1/6K1 b - - 3 26",
+  "setupUci": "c7c6",
+  "solutionUci": [
+   "f5f7",
+   "g8h8",
+   "f7g7"
+  ],
+  "rating": 1091,
+  "lichessThemes": [
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "mate"
+  ],
+  "opening": "Ponziani Opening: Jaenisch Counterattack",
+  "whiteElo": 1687,
+  "blackElo": 1716,
+  "gameUrl": "https://lichess.org/fjaha7q0/black#52"
+ },
+ {
+  "id": "047uP",
+  "rootFen": "6k1/6pp/4pp2/3b4/1P6/1P6/6PP/rBR3K1 b - - 2 34",
+  "setupUci": "d5b3",
+  "solutionUci": [
+   "b1h7",
+   "g8h7",
+   "c1a1"
+  ],
+  "rating": 1447,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: French Variation, Open",
+  "whiteElo": 1760,
+  "blackElo": 1834,
+  "gameUrl": "https://lichess.org/KUhWYgrY/black#68"
+ },
+ {
+  "id": "05dbs",
+  "rootFen": "8/8/2R3kp/6n1/3b3B/7P/3r1PP1/6K1 b - - 5 57",
+  "setupUci": "g6h5",
+  "solutionUci": [
+   "g2g4",
+   "h5h4",
+   "c6h6"
+  ],
+  "rating": 1260,
+  "lichessThemes": [
+   "deflection",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "sacrifice",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "mate",
+   "sacrifice"
+  ],
+  "opening": "London System",
+  "whiteElo": 2180,
+  "blackElo": 2186,
+  "gameUrl": "https://lichess.org/3Wk1eatN/black#114"
+ },
+ {
+  "id": "0tVNo",
+  "rootFen": "8/pp2kpQ1/8/8/8/7R/PPPrq1PP/1R5K w - - 1 32",
+  "setupUci": "g7g3",
+  "solutionUci": [
+   "d2d1",
+   "b1d1",
+   "e2d1",
+   "g3e1",
+   "d1e1"
+  ],
+  "rating": 899,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Zukertort Opening",
+  "whiteElo": 1947,
+  "blackElo": 2145,
+  "gameUrl": "https://lichess.org/ZOAuzSOE#63"
+ },
+ {
+  "id": "0A1NO",
+  "rootFen": "8/7p/4p2k/p3Q3/P1K5/2P3rP/1P4Pq/R5q1 w - - 2 43",
+  "setupUci": "a1g1",
+  "solutionUci": [
+   "g3g4",
+   "h3g4",
+   "h2e5"
+  ],
+  "rating": 1800,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Alekhine Defense: Two Pawn Attack, Lasker Variation",
+  "whiteElo": 2475,
+  "blackElo": 2468,
+  "gameUrl": "https://lichess.org/BuF0ilco#85"
+ },
+ {
+  "id": "0RqBa",
+  "rootFen": "3r3r/p3b1kp/4Rpp1/8/q3NQ2/8/5PPP/5RK1 b - - 2 22",
+  "setupUci": "h8e8",
+  "solutionUci": [
+   "e6e7",
+   "e8e7",
+   "f4f6",
+   "g7g8",
+   "f6e7"
+  ],
+  "rating": 1503,
+  "lichessThemes": [
+   "attraction",
+   "crushing",
+   "fork",
+   "long",
+   "middlegame"
+  ],
+  "concepts": [
+   "fork"
+  ],
+  "opening": "Sicilian Defense: Accelerated Dragon, Exchange Variation",
+  "whiteElo": 2262,
+  "blackElo": 2207,
+  "gameUrl": "https://lichess.org/GmXIox9c/black#44"
+ },
+ {
+  "id": "09uWW",
+  "rootFen": "8/1pR5/p4k2/8/7r/2NB2p1/PPP3P1/4r1K1 w - - 1 29",
+  "setupUci": "d3f1",
+  "solutionUci": [
+   "h4h1",
+   "g1h1",
+   "e1f1"
+  ],
+  "rating": 1464,
+  "lichessThemes": [
+   "attraction",
+   "deflection",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "sacrifice",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "mate",
+   "sacrifice"
+  ],
+  "opening": "King's Gambit Accepted: Kieseritzky Gambit, Kolisch Defense",
+  "whiteElo": 1634,
+  "blackElo": 1640,
+  "gameUrl": "https://lichess.org/B5thutE5#57"
+ },
+ {
+  "id": "0BtUA",
+  "rootFen": "8/5k2/2R3p1/4PpKp/7P/5rP1/8/8 w - - 0 54",
+  "setupUci": "c6g6",
+  "solutionUci": [
+   "f3g3",
+   "g5f4",
+   "g3g6"
+  ],
+  "rating": 665,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "rookEndgame",
+   "short",
+   "skewer"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "skewer"
+  ],
+  "opening": "Queen's Gambit Declined: Orthodox Defense, Botvinnik Variation",
+  "whiteElo": 1985,
+  "blackElo": 2061,
+  "gameUrl": "https://lichess.org/t14uVPOB#107"
+ },
+ {
+  "id": "059Mb",
+  "rootFen": "5k2/5p1p/p3bBp1/4P3/2r4P/8/2R2PP1/6K1 w - - 1 42",
+  "setupUci": "c2a2",
+  "solutionUci": [
+   "c4c1",
+   "g1h2",
+   "e6a2"
+  ],
+  "rating": 764,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Caro-Kann Defense",
+  "whiteElo": 1884,
+  "blackElo": 1890,
+  "gameUrl": "https://lichess.org/XmtxClEG#83"
+ },
+ {
+  "id": "00Tge",
+  "rootFen": "8/5k2/8/1p1p2pN/1PpP1nP1/2P1KP2/8/8 b - - 10 58",
+  "setupUci": "f4h5",
+  "solutionUci": [
+   "g4h5",
+   "f7g7",
+   "f3f4"
+  ],
+  "rating": 1055,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Queen's Pawn Game: London System",
+  "whiteElo": 2281,
+  "blackElo": 2211,
+  "gameUrl": "https://lichess.org/Jri9vZwO/black#116"
+ },
+ {
+  "id": "003jv",
+  "rootFen": "1R6/1p2k2p/p2n2p1/4K3/8/6P1/P6P/8 w - - 10 37",
+  "setupUci": "b8h8",
+  "solutionUci": [
+   "d6f7",
+   "e5e4",
+   "f7h8"
+  ],
+  "rating": 986,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "fork",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "fork"
+  ],
+  "opening": "Caro-Kann Defense: Mar\u00f3czy Variation",
+  "whiteElo": 2230,
+  "blackElo": 2068,
+  "gameUrl": "https://lichess.org/n0UvwK36#73"
+ },
+ {
+  "id": "06fD0",
+  "rootFen": "8/p2Q2kp/5pp1/2p5/3b4/Pq5P/3B2P1/7K b - - 1 33",
+  "setupUci": "b3f7",
+  "solutionUci": [
+   "d2h6",
+   "g7h6",
+   "d7f7"
+  ],
+  "rating": 936,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Old Sicilian",
+  "whiteElo": 1804,
+  "blackElo": 1947,
+  "gameUrl": "https://lichess.org/pafNwWCA/black#66"
+ },
+ {
+  "id": "07vIm",
+  "rootFen": "6k1/5ppp/2N5/1Pp5/P6q/5Q2/2R2KP1/3r4 w - - 8 33",
+  "setupUci": "f3g3",
+  "solutionUci": [
+   "d1f1",
+   "f2f1",
+   "h4g3"
+  ],
+  "rating": 1341,
+  "lichessThemes": [
+   "advantage",
+   "deflection",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Queen's Pawn Game",
+  "whiteElo": 1672,
+  "blackElo": 1658,
+  "gameUrl": "https://lichess.org/w9VKKwbo#65"
+ },
+ {
+  "id": "01Qwv",
+  "rootFen": "5rk1/p3Q1pp/2p5/3q4/4p1B1/6PP/4P1K1/8 b - - 3 31",
+  "setupUci": "d5d1",
+  "solutionUci": [
+   "g4e6",
+   "g8h8",
+   "e7f8"
+  ],
+  "rating": 997,
+  "lichessThemes": [
+   "deflection",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Old Indian Defense",
+  "whiteElo": 1739,
+  "blackElo": 1735,
+  "gameUrl": "https://lichess.org/hT9Udn33/black#62"
+ },
+ {
+  "id": "0E78z",
+  "rootFen": "6k1/5rp1/3p3p/8/1Q6/8/P4qPP/2R1r2K w - - 0 31",
+  "setupUci": "c1e1",
+  "solutionUci": [
+   "f2f1",
+   "e1f1",
+   "f7f1"
+  ],
+  "rating": 997,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "sacrifice",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame",
+   "sacrifice"
+  ],
+  "opening": "Italian Game: Evans Gambit, Tartakower Attack",
+  "whiteElo": 1710,
+  "blackElo": 2179,
+  "gameUrl": "https://lichess.org/OGrC2b5f#61"
+ },
+ {
+  "id": "05hpp",
+  "rootFen": "5q1k/7p/p5p1/1p1B4/3b1P2/7P/P2Q3K/8 b - - 1 33",
+  "setupUci": "d4c5",
+  "solutionUci": [
+   "d2c3",
+   "f8g7",
+   "c3c5"
+  ],
+  "rating": 1077,
+  "lichessThemes": [
+   "advantage",
+   "deflection",
+   "endgame",
+   "master",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Hungarian Opening",
+  "whiteElo": 2234,
+  "blackElo": 1668,
+  "gameUrl": "https://lichess.org/v8cBDOgG/black#66"
+ },
+ {
+  "id": "0pBcI",
+  "rootFen": "8/6p1/3k1p1p/1pN5/1PnpPPP1/5KP1/8/8 w - - 0 42",
+  "setupUci": "c5d3",
+  "solutionUci": [
+   "c4d2",
+   "f3g2",
+   "d2e4"
+  ],
+  "rating": 811,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "knightEndgame",
+   "master",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Queen's Pawn Game: Zukertort Variation",
+  "whiteElo": 2463,
+  "blackElo": 2316,
+  "gameUrl": "https://lichess.org/1NEX30ip#83"
+ },
+ {
+  "id": "0DsUW",
+  "rootFen": "8/5pk1/5pp1/3Qbq2/1P5R/5N2/P1r2PK1/8 w - - 1 40",
+  "setupUci": "a2a4",
+  "solutionUci": [
+   "c2f2",
+   "g2f2",
+   "e5g3",
+   "f2g3",
+   "f5d5"
+  ],
+  "rating": 1611,
+  "lichessThemes": [
+   "advantage",
+   "attraction",
+   "discoveredAttack",
+   "endgame",
+   "long",
+   "sacrifice"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame",
+   "sacrifice"
+  ],
+  "opening": "Queen's Pawn Game: London System",
+  "whiteElo": 1916,
+  "blackElo": 1909,
+  "gameUrl": "https://lichess.org/xRwObmmz#79"
+ },
+ {
+  "id": "0GGH3",
+  "rootFen": "8/8/2q2kpp/1pB1pp2/r7/7P/N1Q2PP1/6K1 b - - 0 35",
+  "setupUci": "a4a2",
+  "solutionUci": [
+   "c5e7",
+   "f6e7",
+   "c2c6"
+  ],
+  "rating": 1387,
+  "lichessThemes": [
+   "advantage",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Ruy Lopez: Steinitz Defense",
+  "whiteElo": 1852,
+  "blackElo": 1734,
+  "gameUrl": "https://lichess.org/BmrM2OFb/black#70"
+ },
+ {
+  "id": "02nyA",
+  "rootFen": "8/1p1R2p1/p1p3r1/P1P5/1P3k1K/7P/8/8 w - - 0 45",
+  "setupUci": "d7f7",
+  "solutionUci": [
+   "g6f6",
+   "f7f6",
+   "g7f6"
+  ],
+  "rating": 850,
+  "lichessThemes": [
+   "crushing",
+   "defensiveMove",
+   "endgame",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Slav Defense: Chameleon Variation",
+  "whiteElo": 1967,
+  "blackElo": 2006,
+  "gameUrl": "https://lichess.org/YRpWtcrv#89"
+ },
+ {
+  "id": "0ADxz",
+  "rootFen": "2r2k2/r1p3b1/4R1K1/3P4/8/p7/R7/8 b - - 1 41",
+  "setupUci": "c8e8",
+  "solutionUci": [
+   "a2f2",
+   "g7f6",
+   "f2f6",
+   "f8g8",
+   "e6e8"
+  ],
+  "rating": 1577,
+  "lichessThemes": [
+   "deflection",
+   "endgame",
+   "exposedKing",
+   "long",
+   "mate",
+   "mateIn3"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Philidor Defense",
+  "whiteElo": 1688,
+  "blackElo": 1696,
+  "gameUrl": "https://lichess.org/APmPS8Ji/black#82"
+ },
+ {
+  "id": "0416t",
+  "rootFen": "7k/1Q4bp/6p1/8/8/8/5RPP/q5K1 w - - 1 27",
+  "setupUci": "f2f1",
+  "solutionUci": [
+   "g7d4",
+   "g1h1",
+   "a1f1"
+  ],
+  "rating": 942,
+  "lichessThemes": [
+   "deflection",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Pirc Defense",
+  "whiteElo": 2208,
+  "blackElo": 2069,
+  "gameUrl": "https://lichess.org/CMNusADV#53"
+ },
+ {
+  "id": "0jQEu",
+  "rootFen": "5k2/1R6/2r5/p7/1P1P4/6B1/PP3PPP/4R1K1 w - - 3 35",
+  "setupUci": "e1e7",
+  "solutionUci": [
+   "c6c1",
+   "e7e1",
+   "c1e1"
+  ],
+  "rating": 600,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Scandinavian Defense: Mieses-Kotroc Variation",
+  "whiteElo": 1844,
+  "blackElo": 1777,
+  "gameUrl": "https://lichess.org/3JD0ENEC#69"
+ },
+ {
+  "id": "0OFhn",
+  "rootFen": "8/1p2k3/p7/2pP4/P3Q3/1q2P3/8/6K1 b - - 5 56",
+  "setupUci": "e7d6",
+  "solutionUci": [
+   "e4e6",
+   "d6c7",
+   "d5d6",
+   "c7c6",
+   "e6b3"
+  ],
+  "rating": 1617,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "long",
+   "queenEndgame"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "English Opening: King's English Variation",
+  "whiteElo": 1804,
+  "blackElo": 1777,
+  "gameUrl": "https://lichess.org/OvXfb4BV/black#112"
+ },
+ {
+  "id": "00e7H",
+  "rootFen": "8/7p/p1p4k/1p1p4/3Qpq2/2P2NpP/PP4K1/8 w - - 0 44",
+  "setupUci": "f3d2",
+  "solutionUci": [
+   "c6c5",
+   "d4c5",
+   "f4d2"
+  ],
+  "rating": 1852,
+  "lichessThemes": [
+   "advantage",
+   "deflection",
+   "endgame",
+   "master",
+   "masterVsMaster",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Ruy Lopez: Open, Bernstein Variation",
+  "whiteElo": 2611,
+  "blackElo": 2607,
+  "gameUrl": "https://lichess.org/DTE43D0V#87"
+ },
+ {
+  "id": "0GhXV",
+  "rootFen": "6k1/8/3p2p1/3Pnbq1/8/1r6/5QB1/3R1RK1 w - - 0 31",
+  "setupUci": "d1c1",
+  "solutionUci": [
+   "e5f3",
+   "f2f3",
+   "b3f3",
+   "c1c8",
+   "f5c8"
+  ],
+  "rating": 1719,
+  "lichessThemes": [
+   "crushing",
+   "long",
+   "middlegame",
+   "pin"
+  ],
+  "concepts": [
+   "pin"
+  ],
+  "opening": "King's Indian Defense: Fianchetto Variation, Yugoslav Variation, Advance Line",
+  "whiteElo": 1834,
+  "blackElo": 2220,
+  "gameUrl": "https://lichess.org/D7TUpIgP#61"
+ },
+ {
+  "id": "022Uz",
+  "rootFen": "8/p7/5kpp/b4p2/2R5/1B4P1/P2r1P1P/4K3 w - - 6 36",
+  "setupUci": "c4c5",
+  "solutionUci": [
+   "d2d5",
+   "c5a5",
+   "d5a5"
+  ],
+  "rating": 1593,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "London System",
+  "whiteElo": 2209,
+  "blackElo": 2204,
+  "gameUrl": "https://lichess.org/apnCE3CT#71"
+ },
+ {
+  "id": "0k7Xb",
+  "rootFen": "6k1/pB5p/8/K5P1/P4p2/3n4/7P/8 w - - 0 33",
+  "setupUci": "a5a6",
+  "solutionUci": [
+   "d3c5",
+   "a6b5",
+   "c5b7"
+  ],
+  "rating": 812,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "English Opening: King's English Variation",
+  "whiteElo": 1987,
+  "blackElo": 1944,
+  "gameUrl": "https://lichess.org/GqautHIv#65"
+ },
+ {
+  "id": "00QOa",
+  "rootFen": "6rk/1pp1R1p1/6Bp/2b4P/8/pP3PK1/P1P5/8 w - - 5 32",
+  "setupUci": "e7c7",
+  "solutionUci": [
+   "c5d6",
+   "f3f4",
+   "d6c7"
+  ],
+  "rating": 800,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "fork",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "fork"
+  ],
+  "opening": "French Defense: Rubinstein Variation",
+  "whiteElo": 2026,
+  "blackElo": 2031,
+  "gameUrl": "https://lichess.org/afclLtrR#63"
+ },
+ {
+  "id": "00l1z",
+  "rootFen": "8/8/2p5/7R/2B4P/KP2knp1/P1P5/8 w - - 0 45",
+  "setupUci": "h5g5",
+  "solutionUci": [
+   "f3g5",
+   "h4g5",
+   "g3g2"
+  ],
+  "rating": 1155,
+  "lichessThemes": [
+   "advancedPawn",
+   "advantage",
+   "endgame",
+   "master",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Modern Defense: Two Knights Variation, Suttles Variation",
+  "whiteElo": 2476,
+  "blackElo": 2459,
+  "gameUrl": "https://lichess.org/rxdwGjw0#89"
+ },
+ {
+  "id": "0k0Ul",
+  "rootFen": "8/6kp/1p2N1p1/2nP4/p3r3/2K5/8/5R2 b - - 1 47",
+  "setupUci": "g7h6",
+  "solutionUci": [
+   "f1h1",
+   "e4h4",
+   "h1h4"
+  ],
+  "rating": 886,
+  "lichessThemes": [
+   "anastasiaMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Queen's Gambit Declined: Exchange Variation, Positional Variation",
+  "whiteElo": 1820,
+  "blackElo": 1834,
+  "gameUrl": "https://lichess.org/2iKFfhGL/black#94"
+ },
+ {
+  "id": "0GpBm",
+  "rootFen": "7k/3b2p1/p2N3p/3P4/4R3/1B4qP/5rP1/6QK w - - 0 30",
+  "setupUci": "e4g4",
+  "solutionUci": [
+   "d7g4",
+   "d6e4",
+   "g3h3",
+   "g2h3",
+   "g4f3"
+  ],
+  "rating": 1969,
+  "lichessThemes": [
+   "crushing",
+   "long",
+   "middlegame",
+   "sacrifice"
+  ],
+  "concepts": [
+   "sacrifice"
+  ],
+  "opening": "Ruy Lopez: Closed",
+  "whiteElo": 2074,
+  "blackElo": 2056,
+  "gameUrl": "https://lichess.org/JIhg0vMK#59"
+ },
+ {
+  "id": "01iLZ",
+  "rootFen": "2r3k1/6pp/2b5/3R4/3P4/R3P1BP/5P1K/1r6 w - - 3 34",
+  "setupUci": "a3c3",
+  "solutionUci": [
+   "b1h1",
+   "h2h1",
+   "c6d5",
+   "h1h2",
+   "c8c3"
+  ],
+  "rating": 1631,
+  "lichessThemes": [
+   "attraction",
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "long"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Dutch Defense",
+  "whiteElo": 1969,
+  "blackElo": 1934,
+  "gameUrl": "https://lichess.org/14MuiCrV#67"
+ },
+ {
+  "id": "0GhM8",
+  "rootFen": "8/5p2/6p1/7p/1Q3P2/6PP/2pk1PK1/3q4 b - - 6 49",
+  "setupUci": "d2e2",
+  "solutionUci": [
+   "b4e4",
+   "e2d2",
+   "e4e3"
+  ],
+  "rating": 1361,
+  "lichessThemes": [
+   "dovetailMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "queenEndgame",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Queen's Pawn Game: Chigorin Variation",
+  "whiteElo": 2149,
+  "blackElo": 1943,
+  "gameUrl": "https://lichess.org/6F5mFL7q/black#98"
+ },
+ {
+  "id": "03mPS",
+  "rootFen": "8/2Q1kppp/3pr3/8/1q5P/8/5PP1/3R2K1 b - - 3 31",
+  "setupUci": "e7f6",
+  "solutionUci": [
+   "c7d8",
+   "e6e7",
+   "d1d6",
+   "b4d6",
+   "d8d6"
+  ],
+  "rating": 1297,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "exposedKing",
+   "long"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Scandinavian Defense: Mieses-Kotroc Variation",
+  "whiteElo": 1663,
+  "blackElo": 1663,
+  "gameUrl": "https://lichess.org/J0QmzD3z/black#62"
+ },
+ {
+  "id": "00gH0",
+  "rootFen": "3r2k1/6pp/8/5Q2/2pP4/2Pq2P1/5RKP/8 b - - 2 35",
+  "setupUci": "d3c3",
+  "solutionUci": [
+   "f5f7",
+   "g8h8",
+   "f7f8",
+   "d8f8",
+   "f2f8"
+  ],
+  "rating": 1371,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3",
+   "sacrifice"
+  ],
+  "concepts": [
+   "mate",
+   "endgame",
+   "sacrifice"
+  ],
+  "opening": "Queen's Gambit Declined: Marshall Defense",
+  "whiteElo": 1519,
+  "blackElo": 1516,
+  "gameUrl": "https://lichess.org/vnNaoc4v/black#70"
+ },
+ {
+  "id": "089RO",
+  "rootFen": "3r2k1/p4ppp/4p3/8/P7/8/5PPP/1R4K1 b - - 0 24",
+  "setupUci": "d8d4",
+  "solutionUci": [
+   "b1b8",
+   "d4d8",
+   "b8d8"
+  ],
+  "rating": 607,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Caro-Kann Defense: Panov Attack, Main Line",
+  "whiteElo": 1641,
+  "blackElo": 1719,
+  "gameUrl": "https://lichess.org/2H3UsNSn/black#48"
+ },
+ {
+  "id": "13nbZ",
+  "rootFen": "8/B4pkp/3Nbbp1/8/8/1n6/5PPP/3B2K1 b - - 2 30",
+  "setupUci": "b3d2",
+  "solutionUci": [
+   "d6e8",
+   "g7f8",
+   "e8f6"
+  ],
+  "rating": 896,
+  "lichessThemes": [
+   "crushing",
+   "deflection",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Smith-Morra Gambit",
+  "whiteElo": 1818,
+  "blackElo": 1824,
+  "gameUrl": "https://lichess.org/m5LERtEZ/black#60"
+ },
+ {
+  "id": "05vpY",
+  "rootFen": "8/8/6RP/2k5/1p2r3/4p3/4K3/8 b - - 0 60",
+  "setupUci": "c5d4",
+  "solutionUci": [
+   "h6h7",
+   "e4h4",
+   "g6g4",
+   "h4g4",
+   "h7h8q"
+  ],
+  "rating": 1964,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "deflection",
+   "endgame",
+   "long",
+   "promotion",
+   "rookEndgame"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame",
+   "promotion"
+  ],
+  "opening": "Van't Kruijs Opening",
+  "whiteElo": 1825,
+  "blackElo": 1856,
+  "gameUrl": "https://lichess.org/oUV2jqqz/black#120"
+ },
+ {
+  "id": "00ZPK",
+  "rootFen": "5r2/R2R1pk1/P7/5pp1/8/1KP5/5r2/8 b - - 0 44",
+  "setupUci": "g5g4",
+  "solutionUci": [
+   "d7f7",
+   "f8f7",
+   "a7f7",
+   "g7f7",
+   "a6a7"
+  ],
+  "rating": 796,
+  "lichessThemes": [
+   "advancedPawn",
+   "advantage",
+   "endgame",
+   "long",
+   "master",
+   "rookEndgame",
+   "sacrifice"
+  ],
+  "concepts": [
+   "endgame",
+   "sacrifice"
+  ],
+  "opening": "French Defense: Two Knights Variation",
+  "whiteElo": 2270,
+  "blackElo": 2665,
+  "gameUrl": "https://lichess.org/Y6yYxIcG/black#88"
+ },
+ {
+  "id": "0HxIV",
+  "rootFen": "5rk1/5rpp/4Q3/3B4/4n3/8/PP3qPP/2R4K b - - 0 29",
+  "setupUci": "f2b2",
+  "solutionUci": [
+   "e6f7",
+   "f8f7",
+   "c1c8"
+  ],
+  "rating": 1506,
+  "lichessThemes": [
+   "mate",
+   "mateIn2",
+   "middlegame",
+   "pin",
+   "sacrifice",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "pin",
+   "sacrifice"
+  ],
+  "opening": "Sicilian Defense: Alapin Variation",
+  "whiteElo": 2106,
+  "blackElo": 2129,
+  "gameUrl": "https://lichess.org/pmtdqBCo/black#58"
+ },
+ {
+  "id": "07C3b",
+  "rootFen": "5rk1/pQ3pp1/1b5p/8/Pq6/1B5P/5PP1/5RK1 w - - 1 30",
+  "setupUci": "b3d1",
+  "solutionUci": [
+   "b6f2",
+   "f1f2",
+   "b4b7"
+  ],
+  "rating": 1300,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Bishop's Opening: Berlin Defense",
+  "whiteElo": 1908,
+  "blackElo": 1777,
+  "gameUrl": "https://lichess.org/vCIXEDWY#59"
+ },
+ {
+  "id": "00AHY",
+  "rootFen": "r6k/3NR1p1/4n2p/5b2/p6P/6R1/8/6K1 w - - 2 43",
+  "setupUci": "h4h5",
+  "solutionUci": [
+   "a4a3",
+   "g3a3",
+   "a8a3",
+   "e7e8",
+   "h8h7"
+  ],
+  "rating": 1394,
+  "lichessThemes": [
+   "advantage",
+   "endgame",
+   "long"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Queen's Gambit Declined: Cambridge Springs Defense",
+  "whiteElo": 2035,
+  "blackElo": 2116,
+  "gameUrl": "https://lichess.org/SFxNjHBp#85"
+ },
+ {
+  "id": "07z5g",
+  "rootFen": "8/8/4k3/r3PPR1/1p6/3K4/8/8 b - - 0 55",
+  "setupUci": "e6e5",
+  "solutionUci": [
+   "f5f6",
+   "e5f6",
+   "g5a5"
+  ],
+  "rating": 857,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "rookEndgame",
+   "short",
+   "skewer"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame",
+   "skewer"
+  ],
+  "opening": "Dutch Defense",
+  "whiteElo": 1937,
+  "blackElo": 2004,
+  "gameUrl": "https://lichess.org/UMiEnkmN/black#110"
+ },
+ {
+  "id": "02yoc",
+  "rootFen": "4k3/7R/1pp3r1/8/P3r2p/1B3K2/1PP5/8 b - - 2 50",
+  "setupUci": "e4b4",
+  "solutionUci": [
+   "b3f7",
+   "e8e7",
+   "f7g6"
+  ],
+  "rating": 1000,
+  "lichessThemes": [
+   "advantage",
+   "discoveredAttack",
+   "endgame",
+   "fork",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame",
+   "fork"
+  ],
+  "opening": "Blackmar-Diemer Gambit: Schlutter Defense",
+  "whiteElo": 2362,
+  "blackElo": 2333,
+  "gameUrl": "https://lichess.org/jnOiltKW/black#100"
+ },
+ {
+  "id": "07YH3",
+  "rootFen": "7k/p4p1p/4rp2/4q3/2Q5/1P6/P4PPP/3R1K2 w - - 5 28",
+  "setupUci": "c4d4",
+  "solutionUci": [
+   "e5e2",
+   "f1g1",
+   "e2e1",
+   "d1e1",
+   "e6e1"
+  ],
+  "rating": 1075,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "long",
+   "mate",
+   "mateIn3",
+   "sacrifice"
+  ],
+  "concepts": [
+   "mate",
+   "endgame",
+   "sacrifice"
+  ],
+  "opening": "Nimzowitsch Defense: Franco-Nimzowitsch Variation",
+  "whiteElo": 1628,
+  "blackElo": 1615,
+  "gameUrl": "https://lichess.org/52Kwtcvv#55"
+ },
+ {
+  "id": "02zuS",
+  "rootFen": "2r3rk/3R2pp/6b1/4B2P/2q1p1Q1/8/6PK/8 b - - 0 40",
+  "setupUci": "g6h5",
+  "solutionUci": [
+   "e5g7",
+   "g8g7",
+   "g4g7"
+  ],
+  "rating": 1350,
+  "lichessThemes": [
+   "mate",
+   "mateIn2",
+   "middlegame",
+   "short"
+  ],
+  "concepts": [
+   "mate"
+  ],
+  "opening": "Philidor Defense: Steinitz Variation",
+  "whiteElo": 1818,
+  "blackElo": 1807,
+  "gameUrl": "https://lichess.org/BHY6onWK/black#80"
+ },
+ {
+  "id": "00dnp",
+  "rootFen": "8/Q7/7r/8/6K1/1r2k1p1/6P1/8 b - - 2 64",
+  "setupUci": "e3e2",
+  "solutionUci": [
+   "a7a2",
+   "e2e3",
+   "a2b3"
+  ],
+  "rating": 1255,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "fork",
+   "master",
+   "queenRookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "fork"
+  ],
+  "opening": "Trompowsky Attack",
+  "whiteElo": 2506,
+  "blackElo": 2450,
+  "gameUrl": "https://lichess.org/hMbf0KPM/black#128"
+ },
+ {
+  "id": "00cud",
+  "rootFen": "8/5p2/6p1/1p1N1k2/1PbK4/2P3P1/8/8 b - - 0 48",
+  "setupUci": "c4f1",
+  "solutionUci": [
+   "d5e3",
+   "f5e6",
+   "e3f1"
+  ],
+  "rating": 821,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "fork",
+   "master",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "fork"
+  ],
+  "opening": "Sicilian Defense: Four Knights Variation, Cobra Variation",
+  "whiteElo": 2275,
+  "blackElo": 2333,
+  "gameUrl": "https://lichess.org/XdT6vR6T/black#96"
+ },
+ {
+  "id": "0DogY",
+  "rootFen": "5Bk1/q4ppp/4p3/3p4/N7/P2n1P2/6PP/2Q4K w - - 0 30",
+  "setupUci": "c1c8",
+  "solutionUci": [
+   "d3f2",
+   "h1g1",
+   "f2h3",
+   "g1f1",
+   "a7f2"
+  ],
+  "rating": 1402,
+  "lichessThemes": [
+   "doubleCheck",
+   "endgame",
+   "long",
+   "master",
+   "mate",
+   "mateIn3"
+  ],
+  "concepts": [
+   "doubleAttack",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Caro-Kann Defense",
+  "whiteElo": 1962,
+  "blackElo": 2523,
+  "gameUrl": "https://lichess.org/MxzanJM1#59"
+ },
+ {
+  "id": "0Edj5",
+  "rootFen": "8/3pk3/4p3/4P3/R2P3p/2nr1P2/5K2/1R6 w - - 3 50",
+  "setupUci": "b1b3",
+  "solutionUci": [
+   "c3d1",
+   "f2e1",
+   "d3b3"
+  ],
+  "rating": 1429,
+  "lichessThemes": [
+   "advantage",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Alapin Variation, Sherzer Variation",
+  "whiteElo": 1907,
+  "blackElo": 1816,
+  "gameUrl": "https://lichess.org/Xntk6Wgr#99"
+ },
+ {
+  "id": "0CspL",
+  "rootFen": "6k1/pR3pp1/1b6/4P3/P7/5NP1/1r3P1P/6K1 w - - 0 29",
+  "setupUci": "a4a5",
+  "solutionUci": [
+   "b6f2",
+   "g1g2",
+   "b2b7"
+  ],
+  "rating": 1512,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Smith-Morra Gambit Declined, Push Variation",
+  "whiteElo": 1887,
+  "blackElo": 1838,
+  "gameUrl": "https://lichess.org/Bb8g3mMv#57"
+ },
+ {
+  "id": "00MFe",
+  "rootFen": "3r3k/p5pp/2r2q2/2p4Q/8/8/P5PP/3R1R1K b - - 5 29",
+  "setupUci": "d8d1",
+  "solutionUci": [
+   "h5e8",
+   "f6f8",
+   "e8f8"
+  ],
+  "rating": 1430,
+  "lichessThemes": [
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "endgame",
+   "mate"
+  ],
+  "opening": "French Defense: Exchange Variation",
+  "whiteElo": 1956,
+  "blackElo": 1984,
+  "gameUrl": "https://lichess.org/d1J7UJ4D/black#58"
+ },
+ {
+  "id": "0vdHV",
+  "rootFen": "5Q2/P1k4p/2p3p1/8/8/q7/3b1PPP/5K2 w - - 2 44",
+  "setupUci": "a7a8q",
+  "solutionUci": [
+   "a3d3",
+   "f1g1",
+   "d3b1"
+  ],
+  "rating": 1629,
+  "lichessThemes": [
+   "backRankMate",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "mate",
+   "endgame"
+  ],
+  "opening": "Sicilian Defense: Old Sicilian",
+  "whiteElo": 2554,
+  "blackElo": 2363,
+  "gameUrl": "https://lichess.org/uLDrlhXw#87"
+ },
+ {
+  "id": "0LJCv",
+  "rootFen": "4q2k/7n/6R1/2p2P2/5QPN/2n4P/4r1BK/2r5 w - - 0 31",
+  "setupUci": "f4c1",
+  "solutionUci": [
+   "e8e5",
+   "h2h1",
+   "e2e1",
+   "c1e1",
+   "e5e1"
+  ],
+  "rating": 1452,
+  "lichessThemes": [
+   "crushing",
+   "fork",
+   "long",
+   "middlegame"
+  ],
+  "concepts": [
+   "fork"
+  ],
+  "opening": "Benoni Defense: Fianchetto Variation, Hastings Defense, Main Line",
+  "whiteElo": 2545,
+  "blackElo": 2498,
+  "gameUrl": "https://lichess.org/EYnzFxyn#61"
+ },
+ {
+  "id": "00pBn",
+  "rootFen": "7R/8/8/P5p1/5k2/1KP3r1/7p/8 b - - 1 51",
+  "setupUci": "g3g2",
+  "solutionUci": [
+   "a5a6",
+   "g2e2",
+   "a6a7"
+  ],
+  "rating": 1474,
+  "lichessThemes": [
+   "advancedPawn",
+   "crushing",
+   "endgame",
+   "master",
+   "rookEndgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "Indian Defense",
+  "whiteElo": 2574,
+  "blackElo": 2502,
+  "gameUrl": "https://lichess.org/rQFsqHTR/black#102"
+ },
+ {
+  "id": "0KvCW",
+  "rootFen": "5r1k/5p1B/5p2/7Q/6R1/r3q1P1/8/5K2 b - - 4 36",
+  "setupUci": "a3a1",
+  "solutionUci": [
+   "h7b1",
+   "e3h6",
+   "h5h6"
+  ],
+  "rating": 1850,
+  "lichessThemes": [
+   "discoveredAttack",
+   "endgame",
+   "mate",
+   "mateIn2",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame",
+   "mate"
+  ],
+  "opening": "Queen's Indian Defense: Kasparov Variation",
+  "whiteElo": 1944,
+  "blackElo": 2043,
+  "gameUrl": "https://lichess.org/W4UlQQQQ/black#72"
+ },
+ {
+  "id": "05GCA",
+  "rootFen": "8/p3r2p/3k4/R4b2/8/P1P1K1P1/1P5P/8 w - - 3 36",
+  "setupUci": "e3d4",
+  "solutionUci": [
+   "e7e4",
+   "d4d3",
+   "e4e5"
+  ],
+  "rating": 1849,
+  "lichessThemes": [
+   "crushing",
+   "discoveredAttack",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "discoveredAttack",
+   "endgame"
+  ],
+  "opening": "French Defense: Classical Variation, Tartakower Variation",
+  "whiteElo": 2189,
+  "blackElo": 2155,
+  "gameUrl": "https://lichess.org/NAXPWwrJ#71"
+ },
+ {
+  "id": "00AoZ",
+  "rootFen": "8/1R6/p1pk4/6bp/1QP5/P7/KP6/3r2q1 b - - 2 44",
+  "setupUci": "g1c5",
+  "solutionUci": [
+   "b7d7",
+   "d6d7",
+   "b4c5"
+  ],
+  "rating": 1070,
+  "lichessThemes": [
+   "advantage",
+   "deflection",
+   "endgame",
+   "short"
+  ],
+  "concepts": [
+   "removingDefender",
+   "endgame"
+  ],
+  "opening": "Caro-Kann Defense: Karpov Variation",
+  "whiteElo": 1909,
+  "blackElo": 1940,
+  "gameUrl": "https://lichess.org/356BAYqk/black#88"
+ },
+ {
+  "id": "012wW",
+  "rootFen": "8/8/7p/7P/2k2Kp1/6P1/8/8 b - - 5 46",
+  "setupUci": "c4d5",
+  "solutionUci": [
+   "f4f5",
+   "d5d4",
+   "f5g6"
+  ],
+  "rating": 1853,
+  "lichessThemes": [
+   "crushing",
+   "endgame",
+   "pawnEndgame",
+   "short"
+  ],
+  "concepts": [
+   "endgame"
+  ],
+  "opening": "French Defense: Exchange Variation",
+  "whiteElo": 1694,
+  "blackElo": 1631,
+  "gameUrl": "https://lichess.org/LUerdvbI/black#92"
+ }
+]

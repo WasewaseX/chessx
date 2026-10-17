@@ -7,7 +7,7 @@ import { readJson } from '@/lib/api-client'
 import { useState } from 'react'
 import { COACHES, type Coach } from '@/lib/coaches'
 import { CharacterFace } from '@/components/chess/characters'
-import { useApp } from '@/lib/store'
+import { useApp, type ProfileData } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Check, Loader2 } from 'lucide-react'
@@ -38,7 +38,7 @@ export function usePickCoach() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ coach: id }),
       })
-      const data = await readJson<{ profile?: { id: string } }>(res)
+      const data = await readJson<{ profile?: ProfileData }>(res)
       if (data.profile) setProfile(data.profile)
       return COACHES.find((c) => c.id === id) ?? null
     } finally {

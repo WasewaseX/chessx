@@ -143,7 +143,7 @@ class EngineClient {
     if (line.startsWith('info')) this.sfLines.push(line)
   }
 
-  private parseLastInfo(lines: string[]): Omit<EngineInfo, 'pv'> {
+  private parseLastInfo(lines: string[]): EngineInfo {
     let depth = 0
     let scoreCp: number | null = null
     let mate: number | null = null
@@ -197,8 +197,9 @@ class EngineClient {
     w.postMessage(`go depth ${req.depth ?? 12}`)
     let uci = await promise
     const elapsed = Date.now() - started
-    if (req.minTime && elapsed < req.minTime) {
-      await new Promise((r) => setTimeout(r, req.minTime - elapsed))
+    const minTime = req.minTime
+    if (minTime && elapsed < minTime) {
+      await new Promise((r) => setTimeout(r, minTime - elapsed))
     }
     if (req.blunder && Math.random() < req.blunder) {
       const rnd = await this.randomLegalMove(req.fen)

@@ -248,8 +248,15 @@ export async function settleStreaks(profileId: string, todayKey?: string) {
   }
   if (chain.has(cursor) && gap.length > 0 && freezes >= gap.length) {
     for (const missing of gap) {
-      await db.activityDay.create({
-        data: { id: `${profileId}:${missing}`, profileId, dayKey: missing, frozen: true },
+      // Upsert, not create: a plain row can already exist for a missed day
+      // (it was created by an activity bump without a goal-met), and the
+      // deterministic id `${profileId}:${missing}` would collide with it and
+      // crash the whole ledger read with P2002. Freezing that existing row
+      // is exactly the right outcome.
+      await db.activityDay.upsert({
+        where: { id: `${profileId}:${missing}` },
+        create: { id: `${profileId}:${missing}`, profileId, dayKey: missing, frozen: true },
+        update: { frozen: true },
       })
     }
     freezes -= gap.length

@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import { getAiConfig } from '@/lib/ai'
 import { SkillError, checkRateLimit, runSkill, SKILL_IDS, type SkillId } from '@/lib/server/coach-skills'
+import { stripUnsolved } from '@/lib/coach-artifacts'
 import { dayKeyLocal } from '@/lib/day'
 
 export const maxDuration = 120
@@ -36,7 +37,10 @@ export async function POST(req: NextRequest) {
       theme: body.theme,
       fen: body.fen,
     })
-    return NextResponse.json({ artifact })
+    // Spoiler guard at the boundary: fresh material is unsolved, so the
+    // stored headline and hint stay on the server; the card pulls the real
+    // title itself once the student cracks it.
+    return NextResponse.json({ artifact: stripUnsolved(artifact) })
   } catch (e) {
     if (e instanceof SkillError) {
       return NextResponse.json({ error: e.message }, { status: 422 })

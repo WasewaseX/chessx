@@ -79,7 +79,8 @@ export function CoachDrawer({
       })
       const data = await readJson<{ content?: string; error?: string }>(res)
       if (!res.ok || !data.content) throw new Error(data.error ?? 'The coach could not answer. Try again.')
-      setMessages((m) => [...m, { role: 'assistant', content: data.content }])
+      const reply: string = data.content
+      setMessages((m) => [...m, { role: 'assistant', content: reply }])
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {

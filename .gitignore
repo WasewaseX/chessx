@@ -57,3 +57,10 @@ reference/
 worklog.md
 tool-results/
 upload/
+
+# local env files
+.env
+.env.*
+!.env.example
+db/.secret
+data/

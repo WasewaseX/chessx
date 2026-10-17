@@ -64,9 +64,9 @@ function LevelRow({
       className={cn(
         'grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition-colors',
         state === 'done' && 'border-[#81b64c] bg-[#81b64c] text-white',
-        current && 'border-[#c07f1d] bg-[#f4f1e8] text-[#c07f1d]',
-        state === 'open' && 'border-[#81b64c]/60 bg-[#81b64c]/10 text-[#4a6b28]',
-        locked && 'border-[#262421]/15 bg-[#f4f1e8] text-[#262421]/45',
+        current && 'border-[#c07f1d] bg-paper-card text-[#c07f1d] dark:text-[#f2b95c]',
+        state === 'open' && 'border-[#81b64c]/60 bg-[#81b64c]/10 text-paper-green-ink',
+        locked && 'border-paper-line bg-paper-card text-paper-faint',
       )}
     >
       {state === 'done' && <Check className="h-3.5 w-3.5" strokeWidth={3.2} />}
@@ -79,7 +79,7 @@ function LevelRow({
   const inner = (
     <>
       {mark}
-      <span className="w-6 shrink-0 text-right font-display text-xs font-extrabold tabular-nums text-[#262421]/40">
+      <span className="w-6 shrink-0 text-right font-display text-xs font-extrabold tabular-nums text-paper-faint">
         {level.n}
       </span>
       <span className="min-w-0 flex-1">
@@ -87,7 +87,7 @@ function LevelRow({
           <span
             className={cn(
               'truncate font-display text-[15px] font-bold',
-              locked ? 'text-[#262421]/60' : 'text-[#262421]',
+              locked ? 'text-paper-muted' : 'text-paper-ink',
             )}
           >
             {level.title}
@@ -95,22 +95,22 @@ function LevelRow({
           {/* dotted leader, the workbook signature */}
           <span
             aria-hidden="true"
-            className="mb-1 hidden h-px flex-1 border-b border-dotted border-[#262421]/25 sm:block"
+            className="mb-1 hidden h-px flex-1 border-b border-dotted border-paper-faint sm:block"
           />
-          <span className="hidden shrink-0 text-[11px] font-bold tabular-nums text-[#262421]/40 sm:inline">
+          <span className="hidden shrink-0 text-[11px] font-bold tabular-nums text-paper-faint sm:inline">
             {level.minutes} min
           </span>
         </span>
-        <span className={cn('block truncate text-xs leading-snug', locked ? 'text-[#262421]/50' : 'text-[#262421]/50')}>
+        <span className="block truncate text-xs leading-snug text-paper-faint">
           {level.subtitle}
         </span>
         {open && (
-          <span className="mt-0.5 block text-[10px] font-extrabold uppercase tracking-widest text-[#4a6b28]">
+          <span className="mt-0.5 block text-[10px] font-extrabold uppercase tracking-widest text-paper-green-ink">
             Open, start here
           </span>
         )}
         {locked && (
-          <span className="mt-0.5 block text-[11px] font-bold leading-snug text-[#262421]/65">
+          <span className="mt-0.5 block text-[11px] font-bold leading-snug text-paper-muted">
             <span className="sr-only">Locked. </span>
             {oneWinAway ? 'One win away' : `Unlocks after ${unlockRequirement(level.id)?.replace(/^Finish /, '')}`}
           </span>
@@ -154,7 +154,7 @@ function LevelRow({
         onClick={() => onSelect(level.id)}
         aria-label={rowAria(level, tierTitle, state)}
         aria-current={current ? 'step' : undefined}
-        className={cn(rowCls, 'hover:bg-[#262421]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#262421]/40')}
+        className={cn(rowCls, 'hover:bg-paper-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-paper-faint')}
       >
         {inner}
       </button>
@@ -185,29 +185,29 @@ function Chapter({
         <div className="flex items-center gap-3">
           <span
             aria-hidden="true"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-md font-display text-sm font-extrabold text-[#262421] shadow-[inset_0_-2px_0_rgba(0,0,0,0.15)]"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-md font-display text-sm font-extrabold text-white shadow-[inset_0_-2px_0_rgba(0,0,0,0.25)]"
             style={{ background: tier.color }}
           >
             {ROMAN[tier.n - 1] ?? tier.n}
           </span>
           <div className="min-w-0 flex-1">
-            <h3 id={`tier-heading-${tier.id}`} className="font-book text-lg font-semibold leading-tight text-[#262421]">
+            <h3 id={`tier-heading-${tier.id}`} className="font-book text-lg font-semibold leading-tight text-paper-ink">
               {tier.title}
             </h3>
-            <p className="truncate text-xs text-[#262421]/50">{tier.tagline}</p>
+            <p className="truncate text-xs text-paper-muted">{tier.tagline}</p>
           </div>
-          <span className="shrink-0 rounded-md bg-[#262421]/8 px-2 py-1 text-[11px] font-extrabold tabular-nums text-[#262421]/60">
+          <span className="shrink-0 rounded-md bg-paper-hover px-2 py-1 text-[11px] font-extrabold tabular-nums text-paper-muted">
             {d}/{tier.levels.length}
           </span>
         </div>
-        <div aria-hidden="true" className="mt-3 h-px w-full bg-[#262421]/12" />
+        <div aria-hidden="true" className="mt-3 h-px w-full bg-paper-line" />
       </header>
 
       {/* the spine threads every row's status mark, like stitches in a binding */}
       <ol className="relative space-y-1">
         <span
           aria-hidden="true"
-          className="absolute bottom-3 left-[41px] top-3 w-px bg-[#262421]/12 sm:left-[51px]"
+          className="absolute bottom-3 left-[41px] top-3 w-px bg-paper-line sm:left-[51px]"
         />
         {tier.levels.map((level) => (
           <LevelRow

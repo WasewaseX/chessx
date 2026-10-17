@@ -4,7 +4,7 @@ import { readJson } from '@/lib/api-client'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useApp } from '@/lib/store'
+import { useApp, type ProfileData } from '@/lib/store'
 import { clearSessionToken } from '@/lib/session'
 import { CoachCards } from '@/components/shell/coach-choice'
 import { cn } from '@/lib/utils'
@@ -37,7 +37,7 @@ export function Onboarding() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim() || 'Player', skillLevel: skill, coach: coachId, onboarded: true }),
       })
-      const data = await readJson<{ profile?: { id: string } }>(res)
+      const data = await readJson<{ profile?: ProfileData }>(res)
       if (!data.profile) throw new Error('no profile in response')
       setProfile(data.profile)
     } catch {

@@ -138,6 +138,8 @@ model Profile {
   aiModel        String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  drills Drill[]
 }
 
 model GameRecord {
@@ -171,6 +173,40 @@ model GameRecord {
   createdAt   DateTime @default(now())
 
   @@index([profileId])
+}
+
+// Mistake Corrector: one stored error (Mistake / Blunder / Missed Win) from
+// the player's own analyzed games, replay-until-mastered. Harvested from
+// GameRecord.labelsJson callouts (FEN rebuilt by replaying the stored PGN) or
+// saved directly from the Game review Key Moments list. bestSan is "" while
+// the engine answer is still being resolved lazily; streakFails counts
+// consecutive wrong answers this cycle (the 2nd consecutive failure reveals
+// the solution); revealed marks that the answer was already shown, so a
+// correct replay after a reveal no longer counts as first-try mastery.
+model Drill {
+  id           String   @id @default(cuid())
+  profileId    String
+  profile      Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  gameRecordId String? // the analyzed game it came from (null for hand-saved moments)
+  fen          String // position BEFORE the error
+  userSan      String // the bad move played in the game
+  bestSan      String // what to find instead ("" while pending engine resolution)
+  bestUci      String?
+  evalLossCp   Int // how much the error cost, in centipawns
+  plyNumber    Int // 0-based index of the bad move in the game's SAN list
+  opening      String?
+  opponent     String?
+  note         String? // coach-style reason line from the stored report (revealed only after solve)
+  mastered     Boolean  @default(false)
+  attempts     Int      @default(0)
+  fails        Int      @default(0)
+  streakFails  Int      @default(0)
+  revealed     Boolean  @default(false)
+  nextDueAt    DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@unique([profileId, gameRecordId, plyNumber])
+  @@index([profileId, nextDueAt])
 }
 
 model LessonProgress {
@@ -318,4 +354,38 @@ model VisionRun {
   createdAt DateTime @default(now())
 
   @@index([profileId])
+}
+
+// A position the student kept ("Save it. Play it another way."): paste a FEN
+// or set up a board, save it, then play it against any bot from either side.
+model SavedPosition {
+  id        String   @id @default(cuid())
+  profileId String   @default("me")
+  name      String
+  fen       String
+  createdAt DateTime @default(now())
+
+  @@index([profileId, createdAt])
+}
+
+// Woodpecker method: one fixed puzzle set per theme. The player replays the
+// SAME set cycle after cycle, chasing a faster time; the next cycle unlocks
+// only on a run that is quicker than the best AND at least as accurate.
+// idsJson holds the exact set composition (bank puzzle ids) so every cycle
+// faces the identical positions; grading stays server-side via the standard
+// puzzle-move pipeline, so solutions never live on the client.
+model WoodpeckerSet {
+  id           String    @id @default(cuid())
+  profileId    String    @default("me")
+  theme        String // app concept id from PUZZLE_THEMES (e.g. "fork")
+  kind         String    @default("lichess") // bank source: lichess | curated
+  idsJson      String    @default("[]") // ordered puzzle ids forming the fixed set
+  size         Int // number of puzzles in the set
+  cycle        Int       @default(1) // current playable cycle
+  bestMs       Int? // fastest completed cycle
+  bestAccuracy Float? // best accuracy (0-100) of a completed cycle
+  lastRunAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@unique([profileId, theme])
 }

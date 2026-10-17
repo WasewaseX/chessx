@@ -33,7 +33,7 @@ export function useActivity(enabled = true): ActivityData | null {
   useEffect(() => {
     if (!enabled) return
     fetch(`/api/activity?day=${dayKeyLocal()}`)
-      .then((r) => readJson<unknown>(r))
+      .then((r) => readJson<ActivityData>(r))
       .then(setData)
       .catch(() => {})
   }, [enabled, view.name])

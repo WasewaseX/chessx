@@ -35,80 +35,149 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* chess.com brand extensions */
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
+  --color-gold: var(--gold);
+  /* "paper" family: the Study screens (lessons) read as printed pages in
+     light mode and as an inked dark book in dark mode. Exposed as utilities
+     (text-paper-ink, bg-paper-card, border-paper-line, ...) so lesson files
+     never hard-code a light-only hex again. */
+  --color-paper-bg: var(--paper-bg);
+  --color-paper-card: var(--paper-card);
+  --color-paper-ink: var(--paper-ink);
+  --color-paper-ink-deep: var(--paper-ink-deep);
+  --color-paper-muted: var(--paper-muted);
+  --color-paper-muted-2: var(--paper-muted-2);
+  --color-paper-faint: var(--paper-faint);
+  --color-paper-line: var(--paper-line);
+  --color-paper-hover: var(--paper-hover);
+  --color-paper-eyebrow: var(--paper-eyebrow);
+  --color-paper-green-ink: var(--paper-green-ink);
+  --color-paper-green-deep: var(--paper-green-deep);
+  --color-paper-gold-ink: var(--paper-gold-ink);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/*
+ * Chess.com design language, reverse-engineered and applied:
+ *  - Dark mode (the signature): warm charcoal stack. Page #312e2b, cards and
+ *    modals #262421 — one step DARKER than the page — wells #21201d, hover
+ *    raise #3d3a36, text #f0f0f0.
+ *  - Light mode: warm white cards on a soft gray page, ink text #262421,
+ *    hairline borders instead of heavy shadows.
+ *  - The left rail stays #262421 in BOTH modes (chess.com keeps its dark
+ *    sidebar in light mode; it anchors the brand).
+ *  - Brand green #81b64c (hover #a3d160, pressed #5d8534) with gold #e6b333
+ *    reserved for streaks/premium and #ca3431 for losses/errors.
+ */
 :root {
   --radius: 0.5rem;
-  color-scheme: light dark;
-  --background: #f7f6f5;
-  --foreground: #2b2926;
+  color-scheme: light;
+  --background: #f6f5f3;
+  --foreground: #262421;
   --card: #ffffff;
-  --card-foreground: #2b2926;
+  --card-foreground: #262421;
   --popover: #ffffff;
-  --popover-foreground: #2b2926;
+  --popover-foreground: #262421;
   --primary: #81b64c;
   --primary-foreground: #ffffff;
-  --secondary: #f0eeec;
-  --secondary-foreground: #2b2926;
-  --muted: #f0eeec;
-  --muted-foreground: #7d7a75;
-  --accent: #eceae6;
-  --accent-foreground: #2b2926;
+  --primary-dark: #5d8534;
   --primary-light: #a3d160;
-  --gold: #e6a82c;
+  --gold: #e6b333;
+  --secondary: #f0eeeb;
+  --secondary-foreground: #262421;
+  --muted: #f0eeeb;
+  --muted-foreground: #79766f;
+  --accent: #e9e7e2;
+  --accent-foreground: #262421;
   --destructive: #ca3431;
-  --border: #e6e4e1;
-  --input: #dcdad7;
+  --border: #e5e3df;
+  --input: #dcdad5;
   --ring: #81b64c;
-  --sidebar: #312e2b;
+  /* the rail: dark in both modes, like chess.com */
+  --sidebar: #262421;
   --sidebar-foreground: #e8e6e3;
   --sidebar-primary: #81b64c;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #3d3a36;
-  --sidebar-accent-foreground: #e8e6e3;
-  --sidebar-border: #262421;
+  --sidebar-accent-foreground: #f5f4f2;
+  --sidebar-border: #1e1c1a;
   --sidebar-ring: #81b64c;
+  /* paper (the Study) */
+  --paper-bg: #f4f1e8;
+  --paper-card: #fdfbf5;
+  --paper-ink: #262421;
+  --paper-ink-deep: #312e2b;
+  --paper-muted: #57534e;
+  --paper-muted-2: #8a8580;
+  --paper-faint: #a29d95;
+  --paper-line: rgba(38, 36, 33, 0.12);
+  --paper-hover: rgba(38, 36, 33, 0.07);
+  --paper-eyebrow: #6f8f42;
+  --paper-green-ink: #4a6b28;
+  --paper-green-deep: #3a5520;
+  --paper-gold-ink: #9a5b00;
+  --paper-grain: rgba(38, 36, 33, 0.028);
 }
 
 .dark {
   color-scheme: dark;
-  --background: #1f1e1c;
-  --foreground: #e8e6e3;
-  --card: #292726;
-  --card-foreground: #e8e6e3;
-  --popover: #292726;
-  --popover-foreground: #e8e6e3;
+  --background: #312e2b;
+  --foreground: #f0efed;
+  --card: #262421;
+  --card-foreground: #f0efed;
+  --popover: #262421;
+  --popover-foreground: #f0efed;
   --primary: #81b64c;
   --primary-foreground: #ffffff;
-  --secondary: #33312e;
-  --secondary-foreground: #e8e6e3;
-  --muted: #33312e;
-  --muted-foreground: #9d9a95;
-  --accent: #33312e;
-  --accent-foreground: #e8e6e3;
+  --primary-dark: #5d8534;
   --primary-light: #a3d160;
-  --gold: #e6a82c;
+  --gold: #e6b333;
+  --secondary: #3a3733;
+  --secondary-foreground: #f0efed;
+  --muted: #3a3733;
+  --muted-foreground: #a3a09a;
+  --accent: #3d3a36;
+  --accent-foreground: #f0efed;
   --destructive: #e05a56;
-  --border: #3a3733;
-  --input: #3a3733;
+  --border: #3c3936;
+  --input: #44403c;
   --ring: #81b64c;
   --sidebar: #262421;
   --sidebar-foreground: #e8e6e3;
   --sidebar-primary: #81b64c;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #312e2b;
-  --sidebar-accent-foreground: #e8e6e3;
-  --sidebar-border: #1c1a18;
+  --sidebar-accent: #3d3a36;
+  --sidebar-accent-foreground: #f5f4f2;
+  --sidebar-border: #1e1c1a;
   --sidebar-ring: #81b64c;
+  /* paper (the Study) turns into a dark book */
+  --paper-bg: #242220;
+  --paper-card: #2e2b28;
+  --paper-ink: #ece9e3;
+  --paper-ink-deep: #f4f1e8;
+  --paper-muted: #b0aba2;
+  --paper-muted-2: #938e87;
+  --paper-faint: #7a756e;
+  --paper-line: rgba(236, 233, 227, 0.14);
+  --paper-hover: rgba(236, 233, 227, 0.08);
+  --paper-eyebrow: #97b95f;
+  --paper-green-ink: #a3d160;
+  --paper-green-deep: #81b64c;
+  --paper-gold-ink: #f2b95c;
+  --paper-grain: rgba(236, 233, 227, 0.03);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  html {
+    scrollbar-color: var(--muted-foreground) transparent;
   }
   body {
     @apply bg-background text-foreground;
@@ -117,17 +186,22 @@
   h1, h2, h3, .font-display {
     font-family: "Montserrat Variable", ui-sans-serif, system-ui, sans-serif;
   }
+  /* chess.com-grade selection color */
+  ::selection {
+    background: rgba(129, 182, 76, 0.32);
+  }
   /* Book serif for lesson titles: the study reads like a well-set chess
      book, not a gaming dashboard. Lora pairs with Inter at small sizes. */
   .font-book {
     font-family: "Lora Variable", Georgia, "Times New Roman", serif;
   }
-  /* Warm paper page with a faint grain. The Study identity: lessons feel
-     like printed diagrams on a desk, the exact opposite of a dark arcade. */
+  /* The Study pages: printed paper in light mode, a dark book in dark mode.
+     Set the ink color once here so lesson screens inherit legibly. */
   .paper {
-    background-color: #f4f1e8;
-    background-image: radial-gradient(rgba(38, 36, 33, 0.028) 1px, transparent 1px);
+    background-color: var(--paper-bg);
+    background-image: radial-gradient(var(--paper-grain) 1px, transparent 1px);
     background-size: 22px 22px;
+    color: var(--paper-ink);
   }
 }
 
@@ -174,6 +248,28 @@
   outline-offset: 2px;
 }
 
+/* chess.com secondary action: quiet gray face, presses like btn-hero */
+.btn-secondary-hero {
+  @apply inline-flex items-center justify-center gap-2 rounded-md font-display font-bold uppercase tracking-wide select-none;
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  box-shadow: 0 4px 0 var(--input);
+  transform: translateY(0);
+  transition: box-shadow 0.12s ease, transform 0.12s cubic-bezier(0.34, 1.3, 0.64, 1), filter 0.15s ease;
+}
+.btn-secondary-hero:hover:not(:disabled) {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+}
+.btn-secondary-hero:active:not(:disabled) {
+  box-shadow: 0 1px 0 var(--input);
+  transform: translateY(3px);
+}
+.btn-secondary-hero:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 /* clickable cards and tiles: lift on hover, settle on press */
 .pressable {
   transition: transform 0.15s cubic-bezier(0.34, 1.3, 0.64, 1), box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
@@ -187,7 +283,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .btn-hero,
-  .pressable {
+  .pressable,
+  .btn-secondary-hero {
     transition: none;
   }
   .btn-hero::after {
@@ -256,4 +353,145 @@
 }
 .btn-alive:active:not(:disabled) {
   transform: translateY(2px) scale(0.99);
+}
+
+/* ==========================================================================
+   FULLSCREEN STABLE BOARD COCKPIT — the play-view sizing law
+   --------------------------------------------------------------------------
+   Why this exists: the play board used to float in a small, content-sized
+   column, so ANY layout change (a capture icon appearing, a status text
+   swapping, a bark bubble rendering, the page scrollbar coming and going)
+   re-flowed the page and visibly MOVED the board mid-game. The fix is the
+   chess.com "cockpit" pattern: a viewport-height shell + FIXED-SIZE slots
+   around a board area that owns all leftover space, with the board sized
+   from the AREA's box (container query units) instead of from content.
+
+   ZERO-SHIFT LAYOUT CHAIN (read top-down; this is the whole contract):
+     viewport 100dvh
+       -> AppFooter clamped to exactly --cockpit-shell-reserve (41px)
+          => shell + footer = 100dvh, the page never scrolls in-game
+       -> .cockpit-shell      = calc(100dvh - 41px), fixed flex column
+       -> top control bar     = fixed lg:h-9 + mb-2 (flex:none; status text
+                                swaps happen INSIDE this fixed row)
+       -> flex row            = flex-1 + min-h-0 (fills the rest, never grows)
+       -> board column (.board-cockpit) = flex-1, stretched to row height
+       -> .cockpit-plate      = flex:none, exactly 50px  (ALWAYS rendered)
+       -> .cockpit-captured   = flex:none, exactly 18px  (ALWAYS rendered,
+                                empty state ok) — a capture fills a slot
+                                that already existed
+       -> .cockpit-board-area = flex:1 1 0% + container-type:size (owns ALL
+                                leftover height; its box is the sole measuring
+                                stick for the board)
+       -> .cockpit-board      = width: min(100cqw, 100cqh) + aspect-ratio:1
+                                => min(area width, area height), recomputed
+                                ONLY when the viewport itself resizes
+   Nothing below the shell can change size during play, so the board cannot
+   move. Height-driven sizing means wide windows CENTER the board instead of
+   stretching it (the chess.com look on every window shape).
+   ========================================================================== */
+
+:root {
+  /* chrome heights the cockpit reserves (keep in sync with AppFooter) */
+  --cockpit-shell-reserve: 41px; /* footer: 1px border + 24px padding + line */
+  --cockpit-plate-h: 50px;       /* player/bot identity + clock plate */
+  --cockpit-captured-h: 18px;    /* captured-material mini icon row */
+}
+
+/* The app shell permanently reserves the page-scrollbar slot, so a scrollbar
+   appearing (or vanishing) mid-game can never re-flow — and resize — the
+   board. Overlay-scrollbar platforms (mobile) reserve nothing, as designed. */
+html {
+  scrollbar-gutter: stable;
+}
+/* Same guarantee for inner scrolling panels (move lists, side rails). */
+.sb-stable {
+  scrollbar-gutter: stable;
+}
+
+/* Pin the desktop footer to the reserved height: its 11px line at the
+   inherited line-height measures ~41.5px, and even a half-pixel of page
+   overflow would allow a nudge-scroll that moves the board. Exactly 41px
+   keeps cockpit-shell + footer = 100dvh with zero page scroll. Mobile keeps
+   its natural (possibly wrapped, taller) footer — it scrolls normally. */
+@media (min-width: 64rem) {
+  footer {
+    height: var(--cockpit-shell-reserve);
+    overflow: hidden;
+  }
+}
+
+/* Play screen root. Mobile keeps normal stacked flow (the page scrolls under
+   the fixed bottom nav); desktop (lg+) becomes a fixed-height flex shell that
+   exactly fills the space above the footer. */
+@media (min-width: 64rem) {
+  .cockpit-shell {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - var(--cockpit-shell-reserve));
+  }
+}
+
+/* Board column: a flex column of fixed slots + one flexible board area.
+   min-h-0/min-w-0 let the surrounding row shrink it instead of overflowing. */
+.board-cockpit {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Player plate (identity + status + clock). Fixed height on desktop, so a
+   status swap or a rating chip can never resize the board. Mobile: auto. */
+.cockpit-plate {
+  flex: none;
+}
+@media (min-width: 64rem) {
+  .cockpit-plate {
+    height: var(--cockpit-plate-h);
+  }
+}
+
+/* Captured-material row: RESERVED ALWAYS (the chess.com rule — captures
+   render icons into a slot that already existed; the empty state is just an
+   empty 18px row). flex:none keeps it out of the flex negotiation. */
+.cockpit-captured {
+  flex: none;
+  min-height: var(--cockpit-captured-h);
+}
+@media (min-width: 64rem) {
+  .cockpit-captured {
+    height: var(--cockpit-captured-h);
+  }
+}
+
+/* Board area: owns ALL leftover height. It is a SIZE container so the board
+   can measure itself against this box (cqw/cqh) rather than against content.
+   position:relative lets overlays (bot speech bubble) anchor here with zero
+   layout impact. */
+.cockpit-board-area {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+@media (min-width: 64rem) {
+  .cockpit-board-area {
+    flex: 1 1 0%;
+    container-type: size;
+  }
+}
+
+/* THE chess.com sizing rule. Mobile: full column width, square. Desktop:
+   height-driven — the board is min(area width, area height) — so it fills
+   the screen edge to edge and is recomputed ONLY on real viewport resizes
+   (the board's ResizeObserver re-measures once for drag math). */
+.cockpit-board {
+  width: 100%;
+  aspect-ratio: 1;
+}
+@media (min-width: 64rem) {
+  .cockpit-board {
+    width: min(100cqw, 100cqh);
+    aspect-ratio: 1;
+  }
 }

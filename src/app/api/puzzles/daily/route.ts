@@ -3,6 +3,7 @@ import { PUZZLES } from '@/content/puzzles'
 import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import { dailyPuzzleIndex } from '@/lib/api'
+import { lichessAvailable, lichessDaily } from '@/lib/server/lichess-bank'
 
 // The deterministic rotation itself lives in src/lib/api.ts so the attempt
 // route validates daily completions against the very same pick.
@@ -22,8 +23,21 @@ export async function GET(req: NextRequest) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dayKey)) {
     return NextResponse.json({ error: 'bad day param' }, { status: 400 })
   }
-  const idx = dailyPuzzleIndex(dayKey)
-  const puzzle = PUZZLES[idx]
+  // The Lichess bank serves the daily when installed (deterministic per
+  // dayKey — the same position for everyone, from the 5M+ real-game pool).
+  let full: { id: string; fen: string; rating: number } | undefined
+  if (lichessAvailable()) {
+    const lp = lichessDaily(dayKey)
+    if (lp) full = { id: lp.id, fen: lp.fen, rating: lp.rating }
+  }
+  if (!full) {
+    const idx = dailyPuzzleIndex(dayKey)
+    full = PUZZLES[idx]
+  }
+  // Spoiler-safe payload: position, rating, nothing else. The solution, the
+  // title, the themes and the source cross the wire only after the solve,
+  // through /api/puzzles/move (scriptDone) or /api/puzzles/reveal.
+  const puzzle = full ? { id: full.id, fen: full.fen, rating: full.rating } : null
   return NextResponse.json({
     puzzle,
     dayKey,

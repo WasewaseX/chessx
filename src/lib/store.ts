@@ -13,6 +13,7 @@ export type ViewName =
   | 'analysis'
   | 'profile'
   | 'settings'
+  | 'tools'
 
 export interface ViewState {
   name: ViewName
@@ -94,12 +95,22 @@ interface AppState {
   /** Saved game id waiting for the coach to walk through it (set by Analysis). */
   pendingCoachGame: string | null
   setPendingCoachGame: (id: string | null) => void
+  /**
+   * A "replay from this position" request, set by the Analysis view when the
+   * student wants to refight a game from its turning move. PlayView consumes
+   * it on arrival: it starts a bot game from `fen` with the mover's color.
+   */
+  playRequest: { fen: string; botLevel?: number; color: 'w' | 'b'; label?: string } | null
+  setPlayRequest: (req: AppState['playRequest']) => void
 }
 
 function viewFromHash(): ViewState {
   const h = window.location.hash.replace(/^#\/?/, '')
-  const [name, lessonId] = h.split('/')
-  const valid: ViewName[] = ['home', 'play', 'lessons', 'lesson', 'puzzles', 'review', 'coach', 'analysis', 'profile', 'settings']
+  // views may carry a query (#/analysis?fen=...) — the query belongs to the
+  // view, never the router; strip it before name parsing
+  const path = h.split('?')[0]
+  const [name, lessonId] = path.split('/')
+  const valid: ViewName[] = ['home', 'play', 'lessons', 'lesson', 'puzzles', 'review', 'coach', 'analysis', 'profile', 'settings', 'tools']
   if (valid.includes(name as ViewName)) {
     return { name: name as ViewName, lessonId: lessonId || undefined }
   }
@@ -128,6 +139,8 @@ export const useApp = create<AppState>((set) => ({
   setPendingReview: (item) => set({ pendingReview: item }),
   pendingCoachGame: null,
   setPendingCoachGame: (id) => set({ pendingCoachGame: id }),
+  playRequest: null,
+  setPlayRequest: (req) => set({ playRequest: req }),
 }))
 
 /** Keeps the hash and the store in sync (deep links, back button). */

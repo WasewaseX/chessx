@@ -1,7 +1,12 @@
 // Server-side AI execution: built-in Z.ai SDK or bring-your-own key
 // (OpenAI-compatible endpoints, Anthropic, Google Gemini).
+//
+// Security posture: BYO keys are encrypted at rest (decrypted only here),
+// custom base URLs pass an SSRF guard before any server-side request leaves
+// the box, and every provider gets an explicit output-token budget.
 import { db } from '@/lib/db'
 import { PROVIDERS, type AiConfig, type ChatMessage } from '@/lib/ai-providers'
+import { assertSafeAiEndpoint, decryptSecret } from '@/lib/server/security'
 
 export { PROVIDERS }
 export type { AiConfig, ChatMessage }
@@ -11,7 +16,7 @@ export async function getAiConfig(profileId: string): Promise<AiConfig> {
   return {
     provider: p?.aiProvider ?? 'builtin',
     baseUrl: p?.aiBaseUrl ?? null,
-    apiKey: p?.aiApiKey ?? null,
+    apiKey: decryptSecret(p?.aiApiKey),
     model: p?.aiModel ?? null,
   }
 }
@@ -24,13 +29,18 @@ export async function runChat(
 ): Promise<string> {
   const provider = PROVIDERS[cfg.provider] ?? PROVIDERS.builtin
   if (provider.kind === 'builtin') {
-    return runBuiltin(system, messages)
+    return runBuiltin(system, messages, maxTokens)
   }
   if (cfg.provider === 'custom' && !cfg.baseUrl) {
     throw new Error('No base URL set for the custom provider.')
   }
   if (!cfg.apiKey) {
     throw new Error('No API key set for this provider.')
+  }
+  if (cfg.baseUrl) {
+    // The model config could have been written before the guard existed:
+    // re-validate at call time, never trust a stored URL blindly.
+    assertSafeAiEndpoint(cfg.baseUrl)
   }
   switch (provider.kind) {
     case 'openai':
@@ -40,16 +50,18 @@ export async function runChat(
     case 'gemini':
       return runGemini(cfg, system, messages, maxTokens)
     default:
-      return runBuiltin(system, messages)
+      return runBuiltin(system, messages, maxTokens)
   }
 }
 
-async function runBuiltin(system: string, messages: ChatMessage[]): Promise<string> {
+async function runBuiltin(system: string, messages: ChatMessage[], maxTokens: number): Promise<string> {
   const { default: ZAI } = await import('z-ai-web-dev-sdk')
   const zai = await ZAI.create()
   const completion = await zai.chat.completions.create({
     messages: [{ role: 'assistant', content: system }, ...messages],
     thinking: { type: 'disabled' },
+    // Every provider carries an explicit output budget, built-in included.
+    max_tokens: Math.max(64, Math.min(4000, Math.round(maxTokens))),
   })
   const content = completion.choices[0]?.message?.content
   if (!content) throw new Error('Empty response from the built-in model.')
@@ -66,20 +78,24 @@ async function runOpenAICompatible(
   const model = cfg.model || PROVIDERS[cfg.provider]?.defaultModel || 'gpt-4o-mini'
   // OpenRouter reads these for app attribution; other OpenAI-compatible
   // endpoints ignore them.
-  const extra = cfg.provider === 'openrouter' ? { 'X-Title': 'ChessX' } : {}
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${cfg.apiKey ?? ''}`,
+  }
+  if (cfg.provider === 'openrouter') headers['X-Title'] = 'ChessX'
+  const isCustom = cfg.provider === 'custom'
   const res = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${cfg.apiKey}`,
-      ...extra,
-    },
+    headers,
     body: JSON.stringify({
       model,
       max_tokens: maxTokens,
       messages: [{ role: 'system', content: system }, ...messages],
     }),
     signal: AbortSignal.timeout(45_000),
+    // A student-supplied URL must not be able to bounce the request (and its
+    // Authorization header) somewhere the guard never vetted.
+    redirect: isCustom ? 'error' : 'follow',
   })
   const data = await parseProviderJson(res, cfg.provider)
   const content = data?.choices?.[0]?.message?.content

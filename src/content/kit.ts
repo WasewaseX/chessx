@@ -129,7 +129,7 @@ export function playout(
   return {
     type: 'playout',
     title,
-    body: [body],
+    body,
     fen,
     side,
     goal,

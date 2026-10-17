@@ -108,17 +108,6 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
     e.preventDefault()
     if (busy) return
     setError(null)
-
-    // same neutral answer the server gives, just without the round trip
-    if (mode === 'signup') {
-      const at = email.lastIndexOf('@')
-      const domain = at > 0 ? email.slice(at + 1).trim().toLowerCase() : ''
-      if (domain !== 'gmail.com') {
-        setError('This account is not supported')
-        return
-      }
-    }
-
     setBusy(true)
     try {
       const url = mode === 'signup' ? '/api/auth/signup' : '/api/auth/login'
@@ -321,14 +310,14 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@gmail.com"
+                      placeholder="you@example.com"
                       autoComplete="email"
                       maxLength={254}
                       className="pl-9"
                       required
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">Gmail addresses only for new accounts.</p>
+                  <p className="text-xs text-muted-foreground">Any email provider works. We send nothing without asking.</p>
                 </div>
               </>
             ) : (
@@ -340,7 +329,7 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
                     id="li-identity"
                     value={identity}
                     onChange={(e) => setIdentity(e.target.value)}
-                    placeholder="you@gmail.com"
+                    placeholder="Email or username"
                     autoComplete="username"
                     maxLength={254}
                     className="pl-9"

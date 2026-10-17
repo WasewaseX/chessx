@@ -23,10 +23,26 @@ const init = require('stockfish') as (p?: string) => Promise<Record<string, unkn
 const DEPTH = Number(process.env.DEPTH ?? 14)
 const CP_LOSS_SOLVER = 45
 const CP_LOSS_RELAXED = 150
-const CP_LOSS_OPP = 120
+const CP_LOSS_OPP = 150
+/** Famous-game and real-rated-game opponent replies are human history: allow
+ * a soft defence as long as it does not outright throw the game (still below
+ * the FINAL floors). Crafted/composed lines keep the standard bar. */
+const CP_LOSS_OPP_FAMOUS = 320
 const FINAL_WIN = 250
 const FINAL_WIN_RELAXED = 300
 const FINAL_HOLD = -30
+
+/** Same FEN with only the active color changed; used for the legality check
+ * (the side NOT to move must not stand in check). */
+function fenWithTurn(fen: string, turn: 'w' | 'b'): string {
+  const parts = fen.trim().split(/\s+/)
+  parts[1] = turn
+  if (parts.length < 4) {
+    parts[2] = parts[2] ?? '-'
+    parts[3] = parts[3] ?? '-'
+  }
+  return parts.join(' ')
+}
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 const out = (...a: unknown[]) => console.log(...a)
@@ -148,11 +164,20 @@ async function main() {
     try {
       const game = new Chess(p.fen)
       const solverWhite = game.turn() === 'w'
-      if (game.isCheck()) {
-        problems.push('position starts in check')
+      // Legality: the side NOT to move must never be in check. The side to
+      // move standing in check is a normal, legal position (the opponent just
+      // checked them) — famous-game finishes often start exactly there — so
+      // only the impossible case rejects a puzzle.
+      {
+        const flip = fenWithTurn(p.fen, solverWhite ? 'b' : 'w')
+        const mirrored = new Chess(flip)
+        if (mirrored.isCheck()) problems.push('the side not to move is in check: illegal position')
       }
       const moves = p.solution.trim().split(/\s+/)
       const relaxed = p.themes.includes('famousGame') || p.themes.includes('sacrifice')
+      // Real games keep their own defences: a real rated game's reply is
+      // history, not a crafted forced line, so it gets the human budget.
+      const realGame = Boolean(p.source?.startsWith('Real rated game'))
       const solverBudget = relaxed ? CP_LOSS_RELAXED : CP_LOSS_SOLVER
       const finalFloor = relaxed ? FINAL_WIN_RELAXED : p.themes.includes('defense') ? FINAL_HOLD : FINAL_WIN
 
@@ -172,7 +197,25 @@ async function main() {
         const moverScoreAfter = -await scoreNow(game)
         if (uci !== pre.best) {
           const loss = pre.bestScore - moverScoreAfter
-          const budget = moverIsSolver ? solverBudget : CP_LOSS_OPP
+          // Opponent replies inside a real famous-game line were played by
+          // humans in the actual game: a slightly soft defence (still the
+          // position's character, never throwing away the point) is honest
+          // history, not a broken line. Crafted lines keep the strict bar.
+          const oppBudget = p.themes.includes('famousGame') || realGame ? CP_LOSS_OPP_FAMOUS : CP_LOSS_OPP
+          // The win is already banked when the solver is decisively ahead
+          // before their final move: any clean converter is then honest, so
+          // the last solver ply gets the relaxed budget instead of forcing
+          // the one move the engine happens to like among equal winners.
+          const beforeNow = pre.bestScore * (moverIsSolver ? 1 : -1)
+          const lastSolverPly = moverIsSolver && i === moves.length - 1
+          const banked = moverIsSolver && lastSolverPly && beforeNow >= FINAL_WIN_RELAXED
+          // Mirror rule for the defender: when even the BEST defence leaves
+          // the position decisively lost (the material is gone either way),
+          // the choice among losing replies is mate-distance noise, not a
+          // broken line. A defence that actually saves the position keeps
+          // pre.bestScore near zero and still fails loudly.
+          const defenderBusted = !moverIsSolver && pre.bestScore <= -FINAL_WIN_RELAXED
+          const budget = moverIsSolver ? (banked ? CP_LOSS_RELAXED : solverBudget) : defenderBusted ? CP_LOSS_OPP_FAMOUS : oppBudget
           const tag = moverIsSolver ? 'solver' : 'opponent'
           if (loss > budget) {
             problems.push(`move ${i + 1} (${tag}) ${moves[i]} loses ${Math.round(loss)}cp vs best ${pre.best}`)

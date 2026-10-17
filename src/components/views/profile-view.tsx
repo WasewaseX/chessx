@@ -7,6 +7,8 @@ import { ALL_LEVELS, TIERS } from '@/content/levels'
 import { potentialElo, tcLabel, titleForXp } from '@/lib/rating'
 import { Progress } from '@/components/ui/progress'
 import { useActivity, StreakCalendar } from '@/components/shell/streak'
+import { WrappedCard } from '@/components/views/wrapped-card'
+import { OpponentsCard } from '@/components/views/opponents-card'
 import { cn } from '@/lib/utils'
 import { Zap } from 'lucide-react'
 
@@ -20,6 +22,7 @@ interface GameRow {
   opponent: string
   result: string
   reason: string
+  opening?: string | null
   rated: boolean
   ratingDelta: number | null
   createdAt: string
@@ -34,11 +37,11 @@ export function ProfileView() {
 
   useEffect(() => {
     fetch('/api/games?limit=50')
-      .then((r) => readJson<unknown>(r))
+      .then((r) => readJson<{ games?: GameRow[] }>(r))
       .then((d) => setGames(d.games ?? []))
       .catch(() => {})
     fetch('/api/progress')
-      .then((r) => readJson<unknown>(r))
+      .then((r) => readJson<{ progress?: { lessonId: string; completed: boolean; stepsDone: number }[] }>(r))
       .then((d) => setProgress(d.progress ?? []))
       .catch(() => {})
   }, [])
@@ -117,6 +120,12 @@ export function ProfileView() {
         />
         <StatCard label="Puzzle streak" value={profile.puzzleStreak} sub={`Best: ${profile.bestPuzzleStreak}`} />
         <StatCard label="Games" value={total} sub={winRate != null ? `${winRate}% won` : 'No games yet'} />
+      </div>
+
+      {/* Chess Wrapped + opponent tracking (both fed by stored reports) */}
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <WrappedCard />
+        <OpponentsCard />
       </div>
 
       {/* Daily goal, streak calendar, rush bests */}
@@ -273,9 +282,23 @@ export function ProfileView() {
                       g.result === 'win' ? 'bg-primary' : g.result === 'loss' ? 'bg-destructive' : 'bg-muted-foreground',
                     )}
                   />
-                  <span className="font-semibold">
+                  <span
+                    className={cn(
+                      'shrink-0 rounded-full px-2 py-0.5 text-xs font-bold',
+                      g.result === 'win'
+                        ? 'bg-primary text-primary-foreground'
+                        : g.result === 'loss'
+                          ? 'bg-destructive text-white'
+                          : 'bg-muted text-muted-foreground',
+                    )}
+                  >
                     {g.result === 'win' ? 'Won' : g.result === 'loss' ? 'Lost' : 'Drew'} as {g.color === 'w' ? 'White' : 'Black'}
                   </span>
+                  {g.opening ? (
+                    <span className="min-w-0 max-w-[10rem] truncate rounded bg-secondary px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+                      {g.opening}
+                    </span>
+                  ) : null}
                   <span className="truncate text-muted-foreground">vs {g.opponent}</span>
                   {g.kind === 'online' && g.rated && g.initialSec != null && (
                     <span className="hidden rounded bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground sm:inline">

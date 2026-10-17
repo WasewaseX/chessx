@@ -14,7 +14,16 @@ import { readJson } from '@/lib/api-client'
 import { toast } from '@/hooks/use-toast'
 import { CharacterFace } from '@/components/chess/characters'
 import { cn } from '@/lib/utils'
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
+import { Loader2, CheckCircle2, XCircle, Sun, Moon, Monitor } from 'lucide-react'
+
+// Decorative pieces on the 4x4 theme preview boards (key = grid cell, row-major).
+// White pieces use the solid glyph filled white, black pieces filled black; the
+// drop shadows keep both readable on light and dark squares of every theme.
+const MINI_PIECES: Record<number, { glyph: string; white: boolean }> = {
+  2: { glyph: '♚', white: true },
+  9: { glyph: '♞', white: false },
+  13: { glyph: '♟', white: true },
+}
 
 export function SettingsView() {
   const { profile, patchProfile } = useApp()
@@ -124,27 +133,45 @@ export function SettingsView() {
       {/* board */}
       <section className="mt-6 rounded-lg bg-card p-6 shadow-sm">
         <h2 className="font-display text-lg font-bold">Board</h2>
-        <div className="mt-3 flex flex-wrap gap-3">
+        <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
           {Object.entries(BOARD_THEMES).map(([key, t]) => (
             <button
               key={key}
               onClick={() => save({ theme: key })}
               className={cn(
-                'overflow-hidden rounded-md border-2 shadow-sm transition',
-                profile.theme === key ? 'border-primary' : 'border-transparent hover:border-muted-foreground/40',
+                'rounded-lg p-1.5 transition',
+                profile.theme === key
+                  ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+                  : 'hover:bg-accent/40',
               )}
               aria-pressed={profile.theme === key}
               aria-label={`Board theme ${t.name}`}
             >
-              <div className="grid h-12 w-16 grid-cols-4">
-                {Array.from({ length: 8 }, (_, i) => {
+              <div className="grid aspect-square w-full grid-cols-4 overflow-hidden rounded-md shadow-sm">
+                {Array.from({ length: 16 }, (_, i) => {
                   const row = Math.floor(i / 4)
                   const col = i % 4
                   const light = (row + col) % 2 === 0
-                  return <div key={i} style={{ background: light ? t.light : t.dark }} />
+                  const piece = MINI_PIECES[i]
+                  return (
+                    <div key={i} className="flex items-center justify-center" style={{ background: light ? t.light : t.dark }}>
+                      {piece && (
+                        <span
+                          className={cn(
+                            'text-[15px] leading-none',
+                            piece.white
+                              ? 'text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]'
+                              : 'text-black drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]',
+                          )}
+                        >
+                          {piece.glyph}
+                        </span>
+                      )}
+                    </div>
+                  )
                 })}
               </div>
-              <div className="bg-secondary py-0.5 text-center text-[10px] font-bold">{t.name}</div>
+              <div className="mt-1 truncate text-center text-[11px] font-medium">{t.name}</div>
             </button>
           ))}
         </div>
@@ -167,14 +194,28 @@ export function SettingsView() {
       {/* appearance */}
       <section className="mt-6 rounded-lg bg-card p-6 shadow-sm">
         <h2 className="font-display text-lg font-bold">Appearance</h2>
-        <div className="mt-3 flex overflow-hidden rounded-md border">
-          {(['light', 'dark'] as const).map((m) => (
+        <p className="mt-1 text-sm text-muted-foreground">
+          Light, dark, or follow your system. You can also flip it any time from the toggle in the sidebar.
+        </p>
+        <div className="mt-3 grid max-w-md grid-cols-3 gap-1 rounded-lg bg-secondary p-1" role="group" aria-label="Color theme">
+          {([
+            { m: 'light', label: 'Light', Icon: Sun },
+            { m: 'dark', label: 'Dark', Icon: Moon },
+            { m: 'system', label: 'System', Icon: Monitor },
+          ] as const).map(({ m, label, Icon }) => (
             <button
               key={m}
               onClick={() => save({ darkMode: m })}
-              className={cn('px-5 py-2 text-sm font-semibold capitalize', profile.darkMode === m ? 'bg-primary text-primary-foreground' : 'bg-secondary')}
+              aria-pressed={profile.darkMode === m}
+              className={cn(
+                'flex items-center justify-center gap-1.5 rounded-md py-2 text-sm font-bold transition-all duration-150 active:scale-[0.98]',
+                profile.darkMode === m
+                  ? 'bg-card text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
             >
-              {m}
+              <Icon className="h-4 w-4" aria-hidden="true" />
+              {label}
             </button>
           ))}
         </div>

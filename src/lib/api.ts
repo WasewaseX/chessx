@@ -30,15 +30,45 @@ export function publicProfile(p: unknown): Record<string, unknown> {
 }
 
 /**
- * Deterministic daily puzzle: same position for everyone on a given day,
- * rotating through the whole pool before repeating.
+ * Deterministic daily puzzle: same position for everyone on a given day, and
+ * a GUARANTEED full cycle: a fixed seeded permutation of the pool walked by
+ * the day counter, so every puzzle appears exactly once per cycle before any
+ * repeats (a plain hash % len can repeat early and skip others entirely).
  */
-export function dailyPuzzleIndex(dayKey: string): number {
-  let h = 0
-  for (let i = 0; i < dayKey.length; i++) {
-    h = (h * 31 + dayKey.charCodeAt(i)) >>> 0
+function seededPermutation(n: number): number[] {
+  const idx = Array.from({ length: n }, (_, i) => i)
+  // xorshift on a fixed seed: deterministic forever, well-shuffled.
+  let s = 0x9e3779b9 >>> 0
+  const next = () => {
+    s ^= s << 13
+    s >>>= 0
+    s ^= s >>> 17
+    s ^= s << 5
+    s >>>= 0
+    return s
   }
-  return h % PUZZLES.length
+  for (let i = n - 1; i > 0; i--) {
+    const j = next() % (i + 1)
+    ;[idx[i], idx[j]] = [idx[j], idx[i]]
+  }
+  return idx
+}
+
+let permCache: { len: number; perm: number[] } | null = null
+function poolPermutation(len: number): number[] {
+  if (permCache?.len === len) return permCache.perm
+  const perm = seededPermutation(len)
+  permCache = { len, perm }
+  return perm
+}
+
+export function dailyPuzzleIndex(dayKey: string): number {
+  // Days since 1970-01-01 UTC parsed straight from the yyyy-mm-dd key, so
+  // the sequence is stable regardless of timezone interpretation.
+  const [y, m, d] = dayKey.split('-').map(Number)
+  const days = Math.floor(Date.UTC(y ?? 1970, (m ?? 1) - 1, d ?? 1) / 86_400_000)
+  const perm = poolPermutation(PUZZLES.length)
+  return perm[((days % PUZZLES.length) + PUZZLES.length) % PUZZLES.length]
 }
 
 /** The puzzle id that owns `dayKey`; used to validate daily completions. */

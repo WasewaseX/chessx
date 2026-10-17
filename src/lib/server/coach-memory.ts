@@ -20,7 +20,7 @@ export interface MemoryFacts {
 }
 
 const CACHE_TTL_MS = 60_000
-const cache = new Map<string, { at: number; facts: MemoryFacts; brief: string }>()
+const cache = new Map<string, { at: number; facts: MemoryFacts; brief: string | null }>()
 
 /** All memory facts in one pass. Every field is nullable: a fresh account
  * has almost nothing, and the brief degrades gracefully. */
@@ -38,7 +38,7 @@ export async function buildMemoryFacts(profileId: string): Promise<MemoryFacts> 
   // course position
   let courseLine: string | null = null
   const done = new Set(progress.map((p) => p.lessonId))
-  const nextId = nextUnlockedId(done)
+  const nextId = nextUnlockedId(done, profile?.skillLevel)
   const ref = nextId ? findLevel(nextId) : undefined
   if (ref) courseLine = `Working through ${ref.tier.title}, Level ${ref.level.n}: "${ref.level.title}" (${progress.length} lessons completed).`
 
@@ -142,7 +142,11 @@ export async function memoryHook(profileId: string): Promise<string | null> {
   if (!facts) return null
   const hooks: string[] = []
   if (facts.weakestConcept) {
-    hooks.push(`Your ${facts.weakestConcept.split(' (')[0]} could use some reps. Want a puzzle on it? Just say /puzzle ${facts.weakestConcept.split(' (')[0]}.`)
+    const pretty = facts.weakestConcept
+      .split(' (')[0]
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .toLowerCase()
+    hooks.push(`Your ${pretty} could use some reps. Want a puzzle on it? Just say /puzzle ${pretty}.`)
   }
   if (facts.topMissedTheme) {
     hooks.push(`There is still unsolved material waiting in your drills shelf.`)

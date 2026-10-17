@@ -10,7 +10,7 @@ export interface Arrow {
 
 export interface SquareMark {
   square: string // e.g. "e4"
-  color?: 'green' | 'red' | 'yellow' | 'gray'
+  color?: 'green' | 'red' | 'yellow' | 'gold' | 'gray'
 }
 
 export interface TextStep {
@@ -164,4 +164,59 @@ export interface Puzzle {
   title: string
   /** Real game it came from, if any, e.g. "Morphy, Duke of Brunswick, Paris 1858". */
   source?: string
+}
+
+/**
+ * What a client may hold before solving: the position on the board, the
+ * rating and the theme tags behind the user-chosen practice filter. No
+ * solution, no title, no source — those cross the wire only after the
+ * solver has earned them (see /api/puzzles/move and /api/puzzles/reveal).
+ */
+export interface PuzzleStub {
+  id: string
+  fen: string
+  rating: number
+}
+
+export interface PublicPuzzle extends PuzzleStub {
+  themes: string[]
+}
+
+/**
+ * Humanize any theme id that has no curated label: camelCase split, acronym
+ * pairs kept ("GM" stays "GM"), every word capitalized. "advancedPawn" ->
+ * "Advanced pawn", "doubleBishopMate" -> "Double bishop mate". Raw ids must
+ * never reach the UI — that is developer spelling, not user language.
+ */
+export function humanizeTheme(id: string): string {
+  if (PUZZLE_THEMES[id]) return PUZZLE_THEMES[id]
+  const words = id
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .split(/\s+/)
+    .filter(Boolean)
+  return words
+    .map((w) => (w === w.toUpperCase() && w.length <= 3 ? w : w[0].toUpperCase() + w.slice(1).toLowerCase()))
+    .join(' ')
+}
+
+/** Display labels for theme tags. Pure naming, no puzzle data — safe to ship. */
+export const PUZZLE_THEMES: Record<string, string> = {
+  mate: 'Mate',
+  fork: 'Fork',
+  pin: 'Pin',
+  skewer: 'Skewer',
+  discoveredAttack: 'Discovered attack',
+  doubleAttack: 'Double attack',
+  deflection: 'Deflection',
+  removingDefender: 'Removing the defender',
+  promotion: 'Promotion',
+  endgame: 'Endgame',
+  winningMaterial: 'Winning material',
+  sacrifice: 'Sacrifice',
+  defense: 'Defense',
+  famousGame: 'Famous game',
+  calculation: 'Calculation',
+  kingSafety: 'King safety',
+  zugzwang: 'Zugzwang',
 }

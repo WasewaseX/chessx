@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getSessionUser } from '@/lib/auth'
+import { clientIp, getSessionUser, rateLimit } from '@/lib/auth'
 import { runChat, getAiConfig, type ChatMessage } from '@/lib/ai'
 import { coachById } from '@/lib/coaches'
 import {
@@ -14,6 +14,7 @@ import {
   type SkillId,
 } from '@/lib/server/coach-skills'
 import { routeMessage, hasGenerationIntent, type CommandOutcome, type CoachAction } from '@/lib/server/coach-commands'
+import { stripUnsolved, type ArtifactView } from '@/lib/coach-artifacts'
 import { describeFen } from '@/lib/server/chess-describe'
 import { coachMemoryBrief } from '@/lib/server/coach-memory'
 import { dayKeyLocal } from '@/lib/day'
@@ -60,6 +61,14 @@ function stripActionBlock(raw: string): string {
 export async function POST(req: NextRequest) {
   const user = await getSessionUser()
   if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+
+  // Resource guard: chat is the most model-hungry endpoint in the app, so it
+  // carries its own per-account and per-IP budgets (separate from the
+  // generation limiter, which only covers material creation).
+  if (!rateLimit(`chat:${user.id}`, 20, 60_000) || !rateLimit(`chat-ip:${clientIp(req)}`, 40, 60_000)) {
+    return NextResponse.json({ error: 'Slow down a moment, the coach needs to breathe. Try again shortly.' }, { status: 429 })
+  }
+
   let profile = await db.profile.findUnique({ where: { userId: user.id } })
   if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
 
@@ -75,14 +84,26 @@ export async function POST(req: NextRequest) {
   }
   const lastUser = [...messages].reverse().find((m) => m.role === 'user')?.content ?? ''
 
-  const ctx = body.context ?? {}
+  const ctx = (body.context ?? {}) as Record<string, unknown>
+  const str = (v: unknown, max: number): string => (typeof v === 'string' ? v.slice(0, max) : '')
+  const ctxIn = {
+    fen: typeof ctx.fen === 'string' && ctx.fen.length < 200 ? ctx.fen : undefined,
+    tier: ctx.tier,
+    level: ctx.level,
+    theme: ctx.theme,
+    lessonTitle: str(ctx.lessonTitle, 200),
+    stepHint: str(ctx.stepHint, 400),
+    pgn: str(ctx.pgn, 3000),
+    moves: str(ctx.moves, 1200),
+    gameId: str(ctx.gameId, 64),
+  }
   const skill = String(ctx.skillLevel ?? 'beginner')
   const coach = coachById(typeof ctx.coach === 'string' ? ctx.coach : 'nina')
   const cfg = await getAiConfig(profile.id)
 
   // Generation runner shared by commands, direct requests and model blocks:
   // one place for rate limits and skill execution.
-  const runGeneration = async (skillId: SkillId, theme?: unknown): Promise<ReturnType<typeof runSkill>> => {
+  const runGeneration = async (skillId: SkillId, theme?: unknown) => {
     const limited = checkRateLimit(profile.id, dayKeyLocal())
     if (limited) throw new SkillError(limited)
     return runSkill({
@@ -93,7 +114,7 @@ export async function POST(req: NextRequest) {
       tier: ctx.tier,
       level: ctx.level,
       theme,
-      fen: ctx.fen,
+      fen: ctxIn.fen,
     })
   }
 
@@ -117,18 +138,23 @@ export async function POST(req: NextRequest) {
         darkMode: profile.darkMode,
         soundEnabled: profile.soundEnabled,
       },
-      ctx: { fen: ctx.fen, tier: ctx.tier, level: ctx.level, theme: ctx.theme },
+      ctx: { fen: ctxIn.fen, tier: ctxIn.tier, level: ctxIn.level, theme: ctxIn.theme },
       coach,
       runGeneration,
     })
     if (routed) {
       const out = routed as CommandOutcome
+      // Spoiler guard at the boundary: fresh generated material is unsolved,
+      // so its headline and hint do not ride to the browser; the card pulls
+      // the real title itself once the student cracks the line.
+      const shipped = (out.artifacts ?? []).map(stripUnsolved)
       return NextResponse.json({
         content: out.content,
         provider: cfg.provider,
-        ...(out.artifacts?.length ? { artifacts: out.artifacts } : {}),
-        ...(out.artifacts?.length === 1 ? { artifact: out.artifacts[0] } : {}),
+        ...(shipped.length ? { artifacts: shipped } : {}),
+        ...(shipped.length === 1 ? { artifact: shipped[0] } : {}),
         ...(out.action ? { action: out.action } : {}),
+        ...(out.agentTaskId ? { agentTaskId: out.agentTaskId } : {}),
       })
     }
   } catch (e) {
@@ -143,15 +169,15 @@ export async function POST(req: NextRequest) {
   // Conversation context
   // ---------------------------------------------------------------
   const contextLines: string[] = []
-  if (ctx.fen) {
-    contextLines.push(`Current position FEN: ${ctx.fen}`)
-    const described = describeFen(String(ctx.fen))
+  if (ctxIn.fen) {
+    contextLines.push(`Current position FEN: ${ctxIn.fen}`)
+    const described = describeFen(String(ctxIn.fen))
     if (described) contextLines.push(described)
   }
-  if (ctx.lessonTitle) contextLines.push(`The student is working on the lesson "${ctx.lessonTitle}".`)
-  if (ctx.stepHint) contextLines.push(`Current exercise: ${ctx.stepHint}`)
-  if (ctx.pgn) contextLines.push(`Game so far (PGN):\n${String(ctx.pgn).slice(0, 3000)}`)
-  if (ctx.moves) contextLines.push(`Moves played so far: ${ctx.moves}`)
+  if (ctxIn.lessonTitle) contextLines.push(`The student is working on the lesson "${ctxIn.lessonTitle}".`)
+  if (ctxIn.stepHint) contextLines.push(`Current exercise: ${ctxIn.stepHint}`)
+  if (ctxIn.pgn) contextLines.push(`Game so far (PGN):\n${ctxIn.pgn}`)
+  if (ctxIn.moves) contextLines.push(`Moves played so far: ${ctxIn.moves}`)
   if (ctx.tier != null || ctx.level != null) {
     contextLines.push(`Course progress: ${levelCtx.tierTitle}, Level ${levelCtx.levelN} ("${levelCtx.levelTitle}").`)
   }
@@ -165,9 +191,9 @@ export async function POST(req: NextRequest) {
   // A saved game the student wants to talk about. The report facts come straight
   // from this app's stored analysis, never from the client, so the coach can
   // only quote numbers the engine actually produced.
-  if (typeof ctx.gameId === 'string' && ctx.gameId.length > 5 && ctx.gameId.length < 64) {
+  if (typeof ctxIn.gameId === 'string' && ctxIn.gameId.length > 5 && ctxIn.gameId.length < 64) {
     const saved = await db.gameRecord.findFirst({
-      where: { id: ctx.gameId, profileId: profile.id },
+      where: { id: ctxIn.gameId, profileId: profile.id },
     })
     if (saved) {
       contextLines.push(
@@ -215,6 +241,7 @@ export async function POST(req: NextRequest) {
     '- In a lesson exercise, guide with questions and ideas. Do NOT hand over the solution move unless the student explicitly asks for it after trying.',
     '- You may be wrong about deep calculation; hedge when unsure and suggest checking with the engine.',
     '- The student can type / to see your skills (commands like /puzzle, /mate, /analyze, /recap). Mention one fitting command when it is the fastest path to what they want. There is also /help.',
+    '- Long-form work: for goals that need several steps (a training plan, a game autopsy, a bootcamp, a weakness scan), the agent runs MISSIONS with a visible checklist: /plan, /autopsy, /bootcamp, /radar, /repertoire, /lab, /gauntlet, /masterclass, /regimen, /sparring, and /agent followed by any goal. When the student wants that kind of multi-step work, tell them you are on it and name the exact command; the app launches the mission when the request is unambiguous, and you do not need to do anything else.',
     '- When the memory section is present, use it like a coach who remembers their student: reference at most one fact when it genuinely helps, never recite, and never invent facts beyond it.',
     ...skillProtocolLines(),
     'Controlling the app (your hands):',
@@ -231,7 +258,7 @@ export async function POST(req: NextRequest) {
     const raw = await runChat(cfg, system, messages)
 
     let content = raw
-    let artifact: unknown = null
+    let artifact: ArtifactView | null = null
     let action: CoachAction | null = null
     let extraNote = ''
 
@@ -270,7 +297,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       content: (content + extraNote).trim(),
       provider: cfg.provider,
-      ...(artifact ? { artifact } : {}),
+      // Same spoiler guard as the routed path above: fresh generated material
+      // leaves the server nameless until the student solves it.
+      ...(artifact ? { artifact: stripUnsolved(artifact) } : {}),
       ...(action ? { action } : {}),
     })
   } catch (e) {

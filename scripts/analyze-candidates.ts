@@ -1,4 +1,7 @@
 // Deep-dive: MultiPV analysis of problem positions.
+// NOTE: `export {}` marks this as a module so top-level names don't collide
+// with the other standalone scripts in scripts/.
+export {}
 ;(globalThis as unknown as { self: unknown }).self = globalThis
 const G = globalThis as Record<string, unknown>
 G.self = G

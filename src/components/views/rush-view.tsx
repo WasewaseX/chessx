@@ -5,7 +5,8 @@ import { readJson } from '@/lib/api-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
 import { ChessBoard, type FlashMark } from '@/components/chess/board'
-import type { Puzzle } from '@/content/schema'
+import type { PuzzleStub } from '@/content/schema'
+import { gradePuzzleMove } from '@/lib/chess/solver'
 import { useApp, type ProfileData } from '@/lib/store'
 import { playSound } from '@/lib/chess/sounds'
 import { Button } from '@/components/ui/button'
@@ -30,7 +31,7 @@ export function RushPanel() {
   const { profile, setProfile } = useApp()
   const [phase, setPhase] = useState<Phase>('idle')
   const [mode, setMode] = useState<Mode>('threeMin')
-  const [batch, setBatch] = useState<Puzzle[]>([])
+  const [batch, setBatch] = useState<PuzzleStub[]>([])
   const [idx, setIdx] = useState(0)
   const [score, setScore] = useState(0)
   const [misses, setMisses] = useState(0)
@@ -43,7 +44,7 @@ export function RushPanel() {
   const [result, setResult] = useState<RunResult | null>(null)
 
   const gameRef = useRef(new Chess())
-  const plyRef = useRef(0)
+  const userMovesRef = useRef<string[]>([])
   const busyRef = useRef(false)
   const finishedRef = useRef(false)
   const soundEnabled = profile?.soundEnabled ?? true
@@ -70,9 +71,9 @@ export function RushPanel() {
     setPhase('loading')
     try {
       const res = await fetch('/api/puzzles/rush')
-      const d = await readJson<{ puzzles?: Puzzle[] }>(res)
+      const d = await readJson<{ puzzles?: PuzzleStub[] }>(res)
       setBatch(d.puzzles ?? [])
-      return (d.puzzles ?? []) as Puzzle[]
+      return (d.puzzles ?? []) as PuzzleStub[]
     } catch {
       setBatch([])
       return []
@@ -99,7 +100,7 @@ export function RushPanel() {
       finishedRef.current = false
       const first = puzzles[0]
       gameRef.current = new Chess(first.fen)
-      plyRef.current = 0
+      userMovesRef.current = []
       setFen(first.fen)
       setLastMove(null)
       setPhase('running')
@@ -125,7 +126,7 @@ export function RushPanel() {
             dayKey: new Date().toLocaleDateString('sv-SE'),
           }),
         })
-        const d = await readJson<{ profile?: ProfileData }>(res)
+        const d = await readJson<{ profile?: ProfileData | null; xpGain?: number; isNewBest?: boolean; previousBest?: number }>(res)
         if (d.profile) setProfile(d.profile)
         setResult({
           score: finalScore,
@@ -177,7 +178,7 @@ export function RushPanel() {
       }
       const p = batch[next]
       gameRef.current = new Chess(p.fen)
-      plyRef.current = 0
+      userMovesRef.current = []
       setIdx(next)
       setFen(p.fen)
       setLastMove(null)
@@ -186,29 +187,25 @@ export function RushPanel() {
     [batch, idx, mode, finishRun],
   )
 
-  const applyScriptedReply = useCallback(
-    (p: Puzzle) => {
+  const applyReply = useCallback(
+    (replySan: string) => {
       const g = gameRef.current
-      const expected = p.solution.split(' ').filter(Boolean)
-      const reply = expected[plyRef.current]
-      if (!reply) return
       try {
-        const rmv = g.move(reply)
+        const rmv = g.move(replySan)
         if (rmv) {
-          plyRef.current += 1
           setFen(g.fen())
           setLastMove({ from: rmv.from, to: rmv.to })
           playSound(rmv.captured ? 'capture' : 'move', soundEnabled)
         }
       } catch {
-        /* validated content */
+        /* graded content */
       }
     },
     [soundEnabled],
   )
 
   const onMove = useCallback(
-    (from: Square, to: Square, promotion?: string) => {
+    async (from: Square, to: Square, promotion?: string) => {
       if (phase !== 'running' || busyRef.current || !puzzle) return
       const g = gameRef.current
       let mv
@@ -219,25 +216,30 @@ export function RushPanel() {
       }
       if (!mv) return
 
-      const expected = puzzle.solution.split(' ').filter(Boolean)
-      const expectedSan = expected[plyRef.current]?.replace(/[+#]/g, '')
-      const sanNorm = mv.san.replace(/[+#]/g, '')
+      busyRef.current = true
+      let verdict
+      try {
+        verdict = await gradePuzzleMove(puzzle.id, [...userMovesRef.current, mv.san])
+      } catch {
+        // grading unreachable: rewind rather than guess
+        g.undo()
+        busyRef.current = false
+        return
+      }
+      if (gameRef.current !== g) {
+        busyRef.current = false
+        return
+      }
 
-      if (sanNorm !== expectedSan) {
-        // miss: undo, show the idea briefly, strike
+      if (!verdict.correct) {
+        // miss: undo, show the idea briefly, strike. The glowing from-square
+        // comes from the grading server with the verdict.
         g.undo()
         playSound('wrong', soundEnabled)
         setFeedback('bad')
         const newMisses = misses + 1
         setMisses(newMisses)
-        busyRef.current = true
-        try {
-          const probe = new Chess(g.fen())
-          const next = probe.move(expected[plyRef.current])
-          if (next) flash([{ square: next.from, color: 'gold' }], 800)
-        } catch {
-          /* validated content */
-        }
+        if (verdict.hintFrom) flash([{ square: verdict.hintFrom as Square, color: 'gold' }], 800)
         const gAtMiss = g
         setTimeout(() => {
           busyRef.current = false
@@ -248,34 +250,41 @@ export function RushPanel() {
       }
 
       // correct
-      plyRef.current += 1
+      userMovesRef.current = [...userMovesRef.current, mv.san]
       setFen(g.fen())
       setLastMove({ from: mv.from, to: mv.to })
       playSound(mv.captured ? 'capture' : 'move', soundEnabled)
 
-      const remaining = expected.length - plyRef.current
-      if (remaining === 0) {
+      if (verdict.scriptDone) {
         const newScore = score + 1
         setScore(newScore)
         setFeedback('good')
         playSound('correct', soundEnabled)
         busyRef.current = true
+        const gAtEnd = g
         setTimeout(() => {
+          if (gameRef.current !== gAtEnd) return
+          if (verdict.reply) applyReply(verdict.reply)
           busyRef.current = false
           advance(newScore, misses)
         }, 450)
-      } else if (expected[plyRef.current]) {
+        return
+      }
+      if (verdict.reply) {
         // opponent reply comes fast in rush; bail if the board moved on
         busyRef.current = true
+        const replySan = verdict.reply
         const gAtMove = g
         setTimeout(() => {
           busyRef.current = false
           if (gameRef.current !== gAtMove) return
-          applyScriptedReply(puzzle)
+          applyReply(replySan)
         }, 220)
+        return
       }
+      busyRef.current = false
     },
-    [phase, puzzle, misses, score, advance, flash, soundEnabled, applyScriptedReply],
+    [phase, puzzle, misses, score, advance, flash, soundEnabled, applyReply],
   )
 
   if (phase === 'idle' || phase === 'loading') {

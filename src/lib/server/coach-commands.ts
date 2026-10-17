@@ -18,7 +18,9 @@ import { CONCEPTS } from '@/content/schema'
 import { findLevel } from '@/content/levels'
 import { nextUnlockedId } from '@/lib/unlock'
 import { levelRating, artifactFromRow, type ArtifactView, type LineStep } from '@/lib/coach-artifacts'
-import { COMMANDS, parseClientCommand, type CoachAction, type CommandDef } from '@/lib/coach-commands-catalog'
+import { COMMANDS, parseClientCommand, type CoachAction, type CommandDef, AGENT_COMMAND_IDS } from '@/lib/coach-commands-catalog'
+import { superSkillById } from '@/lib/agent-types'
+import { launchMission } from '@/lib/server/agent/launch'
 import { resolveLevelContext, runSkill, verifyLine, writeCopy, checkRateLimit, SkillError, type SkillId } from '@/lib/server/coach-skills'
 import { memoryHook } from '@/lib/server/coach-memory'
 import { dayKeyLocal } from '@/lib/day'
@@ -33,6 +35,9 @@ export interface CommandOutcome {
   content: string
   artifacts?: ArtifactView[]
   action?: CoachAction
+  /** Set when the outcome started an agent mission; the client subscribes
+   * to /api/agent/stream with this id and renders the live checklist. */
+  agentTaskId?: string
 }
 
 export interface CommandRequest {
@@ -282,11 +287,145 @@ function gotoIntent(t: string): CoachAction | null {
 }
 
 // ---------------------------------------------------------------------------
+// Agent missions (superskills and the free-form planner)
+// ---------------------------------------------------------------------------
+
+function missionLeadIn(def: CommandDef): string {
+  if (def.id === 'agent') {
+    return pick([
+      'Mission accepted. I planned the steps myself, and every drill I build gets engine-verified before you see it.',
+      'On it. I broke that goal into steps; watch the checklist run.',
+    ])
+  }
+  const name = superSkillById(def.id)?.name ?? 'Mission'
+  return pick([
+    `Mission accepted: ${name}. It runs as a checklist; every task the engine has to bless, it blesses before landing.`,
+    `${name}, coming up. I will work through the steps live below.`,
+    `Deploying ${name}. Watch the checklist; the verified material lands on your shelf as it clears.`,
+  ])
+}
+
+async function runAgentCommand(req: CommandRequest, def: CommandDef, arg: string): Promise<CommandOutcome> {
+  const result = await launchMission({
+    profileId: req.profile.id,
+    name: req.profile.name,
+    skillLevel: req.profile.skillLevel,
+    cfg: req.cfg,
+    ctx: {
+      fen: req.ctx.fen,
+      tier: req.ctx.tier,
+      level: req.ctx.level,
+      // /repertoire black|white travels through the theme slot; other missions
+      // keep whatever theme the chat context carried.
+      theme: def.id === 'repertoire' ? arg || req.ctx.theme : req.ctx.theme,
+    },
+    skill: def.id,
+    goal: def.id === 'agent' ? arg : undefined,
+  })
+  if (!result.ok) return { content: result.error }
+  return { content: missionLeadIn(def), agentTaskId: result.task.id }
+}
+
+const AGENT_PATTERNS: [RegExp, string][] = [
+  [/\b(training plan|study plan|improvement plan|practice plan|weekly plan|build me a plan|make me a plan|plan my (week|training))\b/, 'plan'],
+  [/\b(bootcamp|boot camp|full training|intense session)\b/, 'bootcamp'],
+  [/\b(autopsy|postmortem|post-mortem|dissect (my|the) (game|last))\b|\bwhy did i lose\b|\bwhat went wrong in (my|the)\b/, 'autopsy'],
+  [/\b(weakness radar|scan my weaknesses|scan my (stats|skills|progress)|what am i bad at|my weak (spots?|points?|areas?))\b/, 'radar'],
+  [/\b(repertoire|opening (plan|system|repertoire) for (white|black)|build me an opening)\b/, 'repertoire'],
+  [/\b(endgame lab|endgame course|endgame training)\b/, 'lab'],
+  [/\b(gauntlet|tactics gauntlet|tactics marathon|five rounds|5 rounds)\b/, 'gauntlet'],
+  [/\b(masterclass|master class|study a (famous|master|legendary) game|legendary game)\b/, 'masterclass'],
+  [/\b(daily regimen|daily routine|daily session|full daily)\b/, 'regimen'],
+  [/\b(sparring|spar with|warm me up for|prep me for|prepare me for a (game|bot)|opponent prep)\b/, 'sparring'],
+]
+
+/** Natural language into a mission: "build me a training plan" launches the
+ * Training Plan superskill. Only unambiguous phrasings match; everything
+ * else still reaches the conversation layer untouched. */
+export function detectAgentIntent(text: string): { skill: string; arg?: string } | null {
+  const t = text.trim().toLowerCase()
+  if (!t || t.startsWith('/')) return null
+  if (t.length > 160) return null // long multi-part asks belong to the model
+  for (const [re, id] of AGENT_PATTERNS) {
+    if (re.test(t)) {
+      const arg = id === 'repertoire' ? (/\bblack\b/.test(t) ? 'black' : /\bwhite\b/.test(t) ? 'white' : '') : ''
+      return { skill: id, arg: arg || undefined }
+    }
+  }
+  return null
+}
+
+// ---------------------------------------------------------------------------
+// Material complaints: "the puzzle is wrong fix it" never reaches the model.
+// The coach takes the report seriously, pulls a different real-game puzzle
+// (the one being replaced is already in the served history, so it cannot
+// come back), and says so plainly.
+// ---------------------------------------------------------------------------
+
+const COMPLAINT_RE =
+  /\b(wrong|incorrect|illegal|broken|bugged|buggy|bogus|busted|nonsense|garbage|trash|slop|fix it|fix the|fix that|redo|too easy|to easy|way too easy|trivial|not real|fake|dumb|stupid|bad puzzle|terrible|awful)\b/
+const MATERIAL_RE = /\b(puzzle|puzzles|mate|quiz|drill|tactic|problem|exercise|material)\b/
+
+/** True when the message reports bad material and asks for it to be fixed. */
+export function detectMaterialComplaint(text: string): boolean {
+  const t = text.trim().toLowerCase()
+  if (!t || t.startsWith('/') || t.length > 160) return false
+  if (!MATERIAL_RE.test(t)) return false
+  if (!COMPLAINT_RE.test(t)) return false
+  // "what's wrong with my position" is a board question, not a complaint
+  if (/\b(what('s| is) wrong|whats wrong)\b/.test(t)) return false
+  return true
+}
+
+async function runComplaintReplacement(req: CommandRequest): Promise<CommandOutcome> {
+  // A complaint is work, not a deflection: launch the Material Check mission,
+  // which pulls the exact artifact that was served, re-plays every solution
+  // move with chess.js, re-scores the root with the engine (MultiPV), issues
+  // a real verdict, retires flawed material and then builds the replacement.
+  try {
+    const result = await launchMission({
+      profileId: req.profile.id,
+      name: req.profile.name,
+      skillLevel: req.profile.skillLevel,
+      cfg: req.cfg,
+      ctx: { fen: req.ctx.fen, tier: req.ctx.tier, level: req.ctx.level, theme: req.ctx.theme },
+      skill: 'fixit',
+      goal: req.message.slice(0, 200),
+    })
+    if (result.ok) {
+      return {
+        content: pick([
+          'On it. I am pulling that exact one and re-checking every move with the engine right now.',
+          'Fair call. Running a full re-check on it: legality, the engine score, the uniqueness. Verdict in a moment.',
+          'Taken seriously. Watch the checklist: I re-verify the material, retire it if it is flawed, then build you a better one.',
+        ]),
+        agentTaskId: result.task.id,
+      }
+    }
+  } catch {
+    /* fall through to the instant swap */
+  }
+  // Mission slot busy (one runs at a time): at minimum, replace immediately.
+  const ack = pick([
+    'Fair call. One mission is already running, so here is a different one right away, from a real game.',
+    'You are right to push back. New one, straight from a real rated game.',
+    'Noted. Fresh position, real game, every move engine-checked.',
+  ])
+  try {
+    const artifact = await req.runGeneration('level_puzzle', req.ctx.theme)
+    return { content: ack, artifacts: [artifact] }
+  } catch (e) {
+    const reason = e instanceof SkillError ? e.message : 'generation failed'
+    return { content: `${ack}\n\nThe replacement did not land this second (${reason}). Give it another go in a moment.` }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Persona-flavored lead-ins and social replies
 // ---------------------------------------------------------------------------
 
 const LEAD: Record<string, string[]> = {
-  puzzle: ['Fresh one, calibrated to your level.', 'Here is a new one for you.', 'Straight from the engine, verified. Your move.'],
+  puzzle: ['Straight from a real game, engine-verified. Your move.', 'Fresh position from actual play. Find the point.', 'Real game, real tactics. Solve it.'],
   mate: ['Mate is hiding in there. Find it.', 'A forced mate, engine-checked. Hunt it down.'],
   endgame: ['Endgame technique, verified move by move.', 'A clean endgame task for you.'],
   drill: ['Built from your position, every move verified.', 'Your position, now a training task.'],
@@ -302,22 +441,26 @@ function leadIn(kind: string): string {
 
 function greetingReply(coach: Coach, name: string): string {
   const who = name || 'friend'
+  // Short, persona-consistent, no canned sales pitch: the memory hook that
+  // follows carries the real anchor (weakest motif, last game, open goal),
+  // so the base line only has to greet like a person, not like a menu.
   const lines: Record<string, string[]> = {
     nina: [
-      `Hey ${who}! Good to see you. Want a puzzle at your level? Just ask, or type / to see everything I can do.`,
-      `Hi ${who}! Ready when you are. I can generate puzzles, drills and quizzes, or read the board in front of you. Type / for the full list.`,
+      `Hey ${who}! Good to see you.`,
+      `Hi ${who}! Ready when you are.`,
+      `There you are, ${who}. Board's yours.`,
     ],
     victor: [
-      `There ${who} is. Checks, captures, threats: want to train them? Type / for my whole toolbox.`,
-      `Hey ${who}. Sharp mind, fresh puzzle? Say the word or type /.`,
+      `Back again, ${who}. Good.`,
+      `${who}. Let's get to work.`,
     ],
     elena: [
-      `Hello ${who}. Sit down at the board. We can study a plan, generate training, or just talk chess. Type / to see my skills.`,
-      `Good to see you, ${who}. Position on the board? Ask me anything, or type / for commands.`,
+      `Hello ${who}. Sit down at the board.`,
+      `Good to see you, ${who}.`,
     ],
     sasha: [
-      `${who}. Punctual. Shall we work? Type / to see what I can generate and control.`,
-      `Welcome back, ${who}. High standards today too, I hope. Type / for the command list.`,
+      `${who}. Punctual. Shall we work?`,
+      `Welcome back, ${who}. High standards today too, I hope.`,
     ],
   }
   return pick(lines[coach.id] ?? lines.nina)
@@ -356,7 +499,7 @@ function evalVerdict(cpForMover: number): string {
   return 'practically balanced'
 }
 
-async function boardAnalyze(req: CommandRequest): Promise<CommandOutcome> {
+export async function boardAnalyze(req: CommandRequest): Promise<CommandOutcome> {
   const fen = typeof req.ctx.fen === 'string' ? req.ctx.fen : ''
   if (!fen) return { content: NO_FEN }
   let game: Chess
@@ -392,7 +535,7 @@ async function boardAnalyze(req: CommandRequest): Promise<CommandOutcome> {
   return { content: lines.join(' ') }
 }
 
-async function boardBest(req: CommandRequest): Promise<CommandOutcome> {
+export async function boardBest(req: CommandRequest): Promise<CommandOutcome> {
   const fen = typeof req.ctx.fen === 'string' ? req.ctx.fen : ''
   if (!fen) return { content: NO_FEN }
   let game: Chess
@@ -455,7 +598,7 @@ async function boardHint(req: CommandRequest): Promise<CommandOutcome> {
   }
 }
 
-async function boardEval(req: CommandRequest): Promise<CommandOutcome> {
+export async function boardEval(req: CommandRequest): Promise<CommandOutcome> {
   const fen = typeof req.ctx.fen === 'string' ? req.ctx.fen : ''
   if (!fen) return { content: NO_FEN }
   let game: Chess
@@ -497,7 +640,7 @@ function mateScoreText(cp: number, mover: string): string | null {
   return null
 }
 
-async function boardThreats(req: CommandRequest): Promise<CommandOutcome> {
+export async function boardThreats(req: CommandRequest): Promise<CommandOutcome> {
   const fen = typeof req.ctx.fen === 'string' ? req.ctx.fen : ''
   if (!fen) return { content: NO_FEN }
   let game: Chess
@@ -532,7 +675,7 @@ async function boardThreats(req: CommandRequest): Promise<CommandOutcome> {
   return { content: parts.join(' ') }
 }
 
-function boardDescribe(req: CommandRequest): CommandOutcome {
+export function boardDescribe(req: CommandRequest): CommandOutcome {
   const fen = typeof req.ctx.fen === 'string' ? req.ctx.fen : ''
   if (!fen) return { content: NO_FEN }
   let game: Chess
@@ -544,26 +687,35 @@ function boardDescribe(req: CommandRequest): CommandOutcome {
   const { w, b } = materialCount(fen)
   const { w: wp, b: bp } = pawnCount(fen)
   const turn = game.turn() === 'w' ? 'White' : 'Black'
-  const rights: string[] = []
   const castling = fen.split(' ')[2] ?? '-'
-  if (castling.includes('K')) rights.push('White can still castle kingside')
-  if (castling.includes('Q')) rights.push('White can still castle queenside')
-  if (castling.includes('k')) rights.push('Black can still castle kingside')
-  if (castling.includes('q')) rights.push('Black can still castle queenside')
+  // Per-side castling rights, said the way a person would: "Both sides keep
+  // castling on both wings", not four clipped clauses in a semicolon chain.
+  const rightsLine = (() => {
+    if (castling === 'KQkq') return 'Both sides keep castling on both wings.'
+    if (castling === '-') return 'Neither side can castle anymore.'
+    const side = (k: boolean, q: boolean, name: 'White' | 'Black'): string => {
+      if (k && q) return `${name} keeps castling on both wings`
+      if (k) return `${name} can only castle kingside`
+      if (q) return `${name} can only castle queenside`
+      return `${name} has no castling left`
+    }
+    const wr = side(castling.includes('K'), castling.includes('Q'), 'White')
+    const br = side(castling.includes('k'), castling.includes('q'), 'Black')
+    return wr === br ? `${wr}.` : `${wr}; ${br.toLowerCase()}.`
+  })()
   const parts: string[] = []
   parts.push(
     w === b
-      ? `Material is fully level (${w} against ${w} points).`
+      ? `Material is balanced, ${w} points a side.`
       : w > b
         ? `White holds a ${w - b}-point material edge.`
         : `Black holds a ${b - w}-point material edge.`,
   )
   if (wp !== bp) parts.push(`The pawn count is ${wp} against ${bp}.`)
-  if (rights.length) parts.push(`${rights.join('; ')}.`)
-  else parts.push('Neither side can castle anymore.')
+  parts.push(rightsLine)
   const detail = describeFen(fen)
   parts.push(`It is ${turn} to move.`)
-  if (detail) parts.push('The full piece list is below, square by square.')
+  if (detail) parts.push('Square by square, the full board:')
   return { content: parts.join(' ') + (detail ? `\n\n${detail}` : '') }
 }
 
@@ -688,7 +840,7 @@ async function progressNext(req: CommandRequest): Promise<CommandOutcome> {
   const done = new Set(
     (await db.lessonProgress.findMany({ where: { profileId: req.profile.id, completed: true } })).map((r) => r.lessonId),
   )
-  const nextId = nextUnlockedId(done)
+  const nextId = nextUnlockedId(done, req.profile.skillLevel)
   if (!nextId) {
     return { content: 'You have finished every unlocked level in the course. Outstanding. More content is on the roadmap; keep sharp with /puzzle meanwhile.' }
   }
@@ -1194,6 +1346,7 @@ function helpReply(): CommandOutcome {
     byCat.set(c.category, arr)
   }
   const labels: Record<string, string> = {
+    agent: 'Missions (the agent plans steps and runs them live)',
     generate: 'Generate (verified before you see it)',
     board: 'Board (reads your position)',
     progress: 'Progress (your real numbers)',
@@ -1201,7 +1354,7 @@ function helpReply(): CommandOutcome {
     fun: 'Fun',
   }
   const lines: string[] = ['Type a command, or tap / in the box to browse them. Plain words work too.']
-  for (const cat of ['generate', 'board', 'progress', 'app', 'fun']) {
+  for (const cat of ['agent', 'generate', 'board', 'progress', 'app', 'fun']) {
     const defs = byCat.get(cat) ?? []
     if (!defs.length) continue
     lines.push('')
@@ -1216,6 +1369,9 @@ function helpReply(): CommandOutcome {
 // ---------------------------------------------------------------------------
 
 async function runCommand(req: CommandRequest, def: CommandDef, arg: string): Promise<CommandOutcome> {
+  // agent missions (the 10 superskills + the free-form planner)
+  if (AGENT_COMMAND_IDS.includes(def.id)) return await runAgentCommand(req, def, arg)
+
   switch (def.id) {
     // generation (via the injected runner: rate limits live there)
     case 'puzzle':
@@ -1385,6 +1541,18 @@ export async function routeMessage(req: CommandRequest): Promise<CommandOutcome 
     }
     const confirm = pick(confirmations[action.type] ?? ['Done.'])
     return { content: confirm, action }
+  }
+
+  // 3.5 agent missions in natural language ("build me a training plan")
+  const agentAsk = detectAgentIntent(text)
+  if (agentAsk) {
+    const def = COMMANDS.find((c) => c.id === agentAsk.skill)
+    if (def) return await runCommand(req, def, agentAsk.arg ?? '')
+  }
+
+  // 3.6 material complaints ("the puzzle is wrong, fix it"): replace, never deflect
+  if (detectMaterialComplaint(text)) {
+    return await runComplaintReplacement(req)
   }
 
   // 4. engine questions in plain words: the engine answers, not a guess

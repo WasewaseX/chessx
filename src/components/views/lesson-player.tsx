@@ -18,7 +18,7 @@ import { ChessBoard, type Arrow, type FlashMark, type Mark } from '@/components/
 import { ALL_LEVELS, TIERS, findLevel } from '@/content/levels'
 import { GRADUATION } from '@/content/graduation'
 import type { ExerciseStep, GtmStep, LessonStep, PlayoutStep } from '@/content/schema'
-import { useApp } from '@/lib/store'
+import { useApp, type ProfileData } from '@/lib/store'
 import { isLevelUnlocked, nextUnlockedId, unlockRequirement } from '@/lib/unlock'
 import { engine } from '@/lib/chess/engine-client'
 import { playSound } from '@/lib/chess/sounds'
@@ -102,7 +102,7 @@ const FIRE_QUIPS_EIGHT: Record<string, string> = {
 
 /** One sound for every kind of move: castling, promotion and check get their
     own voice, so delivering a first checkmate never sounds like a pawn push. */
-function moveSound(g: Chess, mv: { san: string; captured?: boolean; promotion?: string | null } | null | undefined, enabled: boolean) {
+function moveSound(g: Chess, mv: { san: string; captured?: string | boolean; promotion?: string | null } | null | undefined, enabled: boolean) {
   if (!mv) return
   if (mv.san.startsWith('O-O')) playSound('castle', enabled)
   else if (mv.promotion) playSound('promote', enabled)
@@ -158,7 +158,7 @@ function ToolButton({
       disabled={disabled}
       aria-label={ariaLabel}
       className={cn(
-        'border border-[#262421]/10 bg-[#262421]/10 text-xs font-bold text-[#262421] hover:bg-[#262421]/15 hover:text-[#262421]',
+        'border border-paper-line bg-paper-hover text-xs font-bold text-paper-ink hover:bg-paper-line hover:text-paper-ink',
         className,
       )}
     >
@@ -188,8 +188,8 @@ function CoachPanel({
   const { pick, busyId } = usePickCoach()
   if (!coach) {
     return (
-      <div className="rounded-2xl bg-[#fdfbf5] p-4 shadow-lg">
-        <p className="text-sm font-extrabold text-[#312e2b]">Pick your coach. Every hint and success message is theirs.</p>
+      <div className="rounded-2xl bg-paper-card p-4 shadow-lg">
+        <p className="text-sm font-extrabold text-paper-ink-deep">Pick your coach. Every hint and success message is theirs.</p>
         <div className="mt-2.5">
           <CoachCards value={busyId} onChange={(id) => void pick(id)} columns={2} compact />
         </div>
@@ -205,14 +205,14 @@ function CoachPanel({
       />
       <div
         className={cn(
-          'relative min-w-0 flex-1 rounded-2xl bg-[#fdfbf5] px-4 py-3 text-[#312e2b] shadow-lg',
+          'relative min-w-0 flex-1 rounded-2xl bg-paper-card px-4 py-3 text-paper-ink-deep shadow-lg',
           tone === 'guide' && 'ring-2 ring-[#e6a82c]/70',
           tone === 'hint' && 'ring-2 ring-[#e6a82c]/45',
           tone === 'praise' && 'ring-2 ring-[#81b64c]/60',
         )}
       >
-        <span aria-hidden className="absolute -left-1 top-5 h-3 w-3 rotate-45 rounded-[2px] bg-[#fdfbf5]" />
-        <p className="text-[10px] font-bold uppercase tracking-widest text-[#6f8f42]">
+        <span aria-hidden className="absolute -left-1 top-5 h-3 w-3 rotate-45 rounded-[2px] bg-paper-card" />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-paper-eyebrow">
           {coach.name} · {coach.title}
         </p>
         <div className="mt-0.5 flex items-start justify-between gap-2">
@@ -246,7 +246,7 @@ function StepChip({ state, index }: { state: 'done' | 'current' | 'locked'; inde
         state === 'done' && 'bg-[#81b64c] text-white shadow-[0_2px_0_#5d8534]',
         state === 'current' &&
           'bg-[#e8a33d] text-white shadow-[0_0_0_3px_rgba(232,163,61,0.25),0_0_16px_rgba(232,163,61,0.55)]',
-        state === 'locked' && 'bg-[#262421]/10 text-[#262421]/40',
+        state === 'locked' && 'bg-paper-hover text-paper-faint',
       )}
     >
       {state === 'done' ? <Check className="h-4 w-4" strokeWidth={3} /> : index + 1}
@@ -375,7 +375,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           dayKey: new Date().toLocaleDateString('sv-SE'),
         }),
       })
-        .then((r) => readJson<unknown>(r))
+        .then((r) => readJson<{ profile?: ProfileData | null; xpGain?: number }>(r))
         .then((d) => {
           if (d.profile) useApp.getState().setProfile(d.profile)
           if (reviewItemId) setPendingReview(null)
@@ -437,7 +437,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   // the completion screen celebrates the unlock this finish just caused, but
   // only on a FIRST completion: a replay of an already-done lesson did not
   // unlock anything, so the badge stays quiet there
-  const unlockedNow = doneIds !== null && !doneIds.has(lesson.id) && nextLevel != null && nextLevel.n > 1
+  const unlockedNow = lesson != null && doneIds !== null && !doneIds.has(lesson.id) && nextLevel != null && nextLevel.n > 1
   // skip-ahead or replay: the flat-next level may already be done, so the real
   // next step is the first unlocked and uncompleted level this finish leaves
   const nextAlreadyDone = nextLevel != null && (doneIds?.has(nextLevel.id) ?? false)
@@ -451,8 +451,8 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
   if (!lesson || !tier) {
     return (
-      <div className="flex min-h-screen w-full flex-col items-center justify-center paper px-4 text-center text-[#262421]">
-        <p className="text-sm font-semibold text-[#262421]/70">Lesson not found.</p>
+      <div className="flex min-h-screen w-full flex-col items-center justify-center paper px-4 text-center text-paper-ink">
+        <p className="text-sm font-semibold text-paper-muted">Lesson not found.</p>
         <Button className="btn-hero mt-4 h-11 px-6" onClick={() => navigate('lessons')}>
           Back to lessons
         </Button>
@@ -465,20 +465,20 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   if (!gateOpen) {
     const req = unlockRequirement(lesson.id)
     return (
-      <div className="flex min-h-screen w-full flex-col items-center justify-center paper px-4 text-center text-[#262421]">
-        <span aria-hidden="true" className="grid h-16 w-16 place-items-center rounded-full border-2 border-[#262421]/15 bg-[#262421]/5">
+      <div className="flex min-h-screen w-full flex-col items-center justify-center paper px-4 text-center text-paper-ink">
+        <span aria-hidden="true" className="grid h-16 w-16 place-items-center rounded-full border-2 border-paper-line bg-paper-hover">
           {doneIds === null ? (
-            <Loader2 className="h-6 w-6 motion-reduce:animate-none animate-spin text-[#262421]/50" />
+            <Loader2 className="h-6 w-6 motion-reduce:animate-none animate-spin text-paper-faint" />
           ) : (
-            <Lock className="h-7 w-7 text-[#262421]/40" strokeWidth={2.2} />
+            <Lock className="h-7 w-7 text-paper-faint" strokeWidth={2.2} />
           )}
         </span>
         {doneIds === null ? (
-          <p className="mt-5 text-sm font-semibold text-[#262421]/60">Checking the course map.</p>
+          <p className="mt-5 text-sm font-semibold text-paper-muted">Checking the course map.</p>
         ) : (
           <div role="status">
             <h1 className="mt-5 font-book text-2xl font-semibold">Level {lesson.n} is still locked</h1>
-            <p className="mt-2 max-w-sm text-sm leading-relaxed text-[#262421]/60">
+            <p className="mt-2 max-w-sm text-sm leading-relaxed text-paper-muted">
               {req ? `${req} and this level opens. Chapter openers are always open, so you can also start any later chapter from its first level.` : 'Finish the earlier levels of this chapter and it opens.'}
             </p>
           </div>
@@ -489,7 +489,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         {doneIds !== null && req && (
           <Button
             variant="outline"
-            className="mt-3 h-11 border-[#262421]/15 bg-transparent px-6 text-sm font-bold text-[#262421]/75 hover:bg-[#262421]/5 hover:text-[#262421]"
+            className="mt-3 h-11 border-paper-line bg-transparent px-6 text-sm font-bold text-paper-muted hover:bg-paper-hover hover:text-paper-ink"
             onClick={() => navigate('lesson', tier.levels[0].id)}
           >
             Start the first level of this chapter
@@ -560,22 +560,22 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           : 'Continue'
 
   return (
-    <div className="min-h-screen w-full paper text-[#262421]">
+    <div className="min-h-screen w-full paper text-paper-ink">
       {/* top bar with slim green progress */}
-      <header className="sticky top-0 z-40 border-b border-[#262421]/10 bg-[#f4f1e8]/95 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-paper-line bg-paper-bg/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-5xl items-center gap-2.5 px-4 py-2.5 sm:gap-3">
           <button
             onClick={() => navigate('lessons')}
             aria-label="Back to lessons"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#262421]/70 transition hover:bg-[#262421]/10 hover:text-[#262421]"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-paper-muted transition hover:bg-paper-hover hover:text-paper-ink"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[10px] font-bold uppercase tracking-[0.18em] text-[#262421]/45">
+            <div className="truncate text-[10px] font-bold uppercase tracking-[0.18em] text-paper-faint">
               Chapter {tier.n} · {tier.title}
             </div>
-            <h1 className="truncate font-book text-base font-semibold text-[#262421] sm:text-lg">{lesson.title}</h1>
+            <h1 className="truncate font-book text-base font-semibold text-paper-ink sm:text-lg">{lesson.title}</h1>
           </div>
           {xpFlash != null && (
             <span className="inline-flex shrink-0 animate-pulse items-center gap-1 rounded-full bg-[#81b64c] px-2.5 py-1 text-xs font-extrabold text-white shadow">
@@ -584,7 +584,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           )}
           {streak >= 2 && (
             <span
-              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#e8a33d]/40 bg-[#e8a33d]/15 px-2.5 py-1 text-xs font-extrabold text-[#9a5b00]"
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#e8a33d]/40 bg-[#e8a33d]/15 px-2.5 py-1 text-xs font-extrabold text-paper-gold-ink"
               aria-label={`${streak} correct answers in a row`}
             >
               <Flame className="h-3.5 w-3.5 text-[#e8681d]" />
@@ -597,13 +597,13 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           </ToolButton>
           <div className="hidden shrink-0 items-center gap-2.5 sm:flex">
             <span
-              className="text-xs font-extrabold tabular-nums text-[#262421]/60"
+              className="text-xs font-extrabold tabular-nums text-paper-muted"
               aria-label={`${completedSteps} of ${total} steps completed`}
             >
               {completedSteps}/{total}
             </span>
             <div
-              className="h-1.5 w-28 overflow-hidden rounded-full bg-[#262421]/10 lg:w-40"
+              className="h-1.5 w-28 overflow-hidden rounded-full bg-paper-hover lg:w-40"
               role="progressbar"
               aria-label="Lesson progress"
               aria-valuemin={0}
@@ -619,11 +619,11 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         </div>
         {/* mobile progress strip */}
         <div className="flex items-center gap-2 px-4 pb-2 sm:hidden">
-          <span className="shrink-0 text-[10px] font-extrabold tabular-nums text-[#262421]/50">
+          <span className="shrink-0 text-[10px] font-extrabold tabular-nums text-paper-faint">
             {completedSteps}/{total} steps
           </span>
           <div
-            className="h-1 flex-1 overflow-hidden rounded-full bg-[#262421]/10"
+            className="h-1 flex-1 overflow-hidden rounded-full bg-paper-hover"
             role="progressbar"
             aria-label="Lesson progress"
             aria-valuemin={0}
@@ -641,7 +641,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           <motion.span
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#262421] px-4 py-1.5 text-xs font-bold text-[#f4f1e8] shadow-lg"
+            className="inline-flex items-center gap-1.5 rounded-full bg-paper-ink px-4 py-1.5 text-xs font-bold text-paper-bg shadow-lg"
           >
             <Flame className="h-3.5 w-3.5 text-[#e8a33d]" />
             {fireQuip}
@@ -697,7 +697,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                         disabled={i > reached}
                         aria-label={`Step ${i + 1}: ${s.title}`}
                         aria-current={i === stepIdx ? 'step' : undefined}
-                        className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#262421]/40"
+                        className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-paper-ink/40"
                       >
                         <StepChip state={st} index={i} />
                       </button>
@@ -708,7 +708,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
               {/* desktop: vertical rail with labels */}
               <nav aria-label="Lesson steps" className="relative hidden lg:block">
-                <span aria-hidden="true" className="absolute bottom-4 left-[15px] top-4 w-px bg-[#262421]/10" />
+                <span aria-hidden="true" className="absolute bottom-4 left-[15px] top-4 w-px bg-paper-hover" />
                 <ol className="relative space-y-1">
                   {lesson.steps.map((s, i) => {
                     const st = railState(i, stepIdx, reached, done)
@@ -720,7 +720,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                           aria-current={i === stepIdx ? 'step' : undefined}
                           className={cn(
                             'flex w-full items-center gap-3 rounded-xl px-1.5 py-1.5 text-left transition-colors',
-                            st === 'current' ? 'bg-[#262421]/5' : st !== 'locked' && 'hover:bg-[#262421]/5',
+                            st === 'current' ? 'bg-paper-hover' : st !== 'locked' && 'hover:bg-paper-hover',
                             st === 'locked' && 'opacity-60',
                           )}
                         >
@@ -729,12 +729,12 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                             <span
                               className={cn(
                                 'block truncate text-xs font-extrabold',
-                                st === 'current' ? 'text-[#262421]' : 'text-[#262421]/70',
+                                st === 'current' ? 'text-paper-ink' : 'text-paper-muted',
                               )}
                             >
                               {STEP_LABELS[s.type]}
                             </span>
-                            <span className="block truncate text-[11px] text-[#262421]/40">{s.title}</span>
+                            <span className="block truncate text-[11px] text-paper-faint">{s.title}</span>
                           </span>
                         </button>
                       </li>
@@ -747,20 +747,20 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
             {/* board column */}
             <section className="min-w-0">
               <div className="mb-4">
-                <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.22em] text-[#4a6b28]">
+                <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.22em] text-paper-green-ink">
                   <span>{STEP_LABELS[step.type]}</span>
                   {step.type === 'playout' && (
-                    <span className="rounded-full bg-[#262421]/10 px-2 py-0.5 text-[9px] font-bold tracking-normal text-[#262421]/60">
+                    <span className="rounded-full bg-paper-hover px-2 py-0.5 text-[9px] font-bold tracking-normal text-paper-muted">
                       Global level {globalLevel}
                     </span>
                   )}
                 </div>
-                <h2 className="font-book text-2xl font-semibold text-[#262421] sm:text-[1.7rem]">{step.title}</h2>
-                {step.type === 'gtm' && <p className="mt-0.5 text-[11px] font-semibold text-[#262421]/40">{step.source}</p>}
+                <h2 className="font-book text-2xl font-semibold text-paper-ink sm:text-[1.7rem]">{step.title}</h2>
+                {step.type === 'gtm' && <p className="mt-0.5 text-[11px] font-semibold text-paper-faint">{step.source}</p>}
                 {introLines.length > 0 && (
                   <div className="mt-1 space-y-1">
                     {introLines.map((p, i) => (
-                      <p key={i} className="max-w-2xl text-sm leading-relaxed text-[#262421]/60">
+                      <p key={i} className="max-w-2xl text-sm leading-relaxed text-paper-muted">
                         {p}
                       </p>
                     ))}
@@ -863,13 +863,13 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
               {/* action bar */}
               <div className="sticky bottom-20 z-30 mt-6 lg:bottom-4">
-                <div className="flex items-center gap-3 rounded-2xl border border-[#262421]/10 bg-[#fdfbf5]/95 p-3 shadow-[0_8px_30px_rgba(38,36,33,0.12)] backdrop-blur sm:p-4">
+                <div className="flex items-center gap-3 rounded-2xl border border-paper-line bg-paper-card/95 p-3 shadow-[0_8px_30px_rgba(38,36,33,0.12)] backdrop-blur sm:p-4">
                   <Button
                     variant="ghost"
                     onClick={goPrev}
                     disabled={stepIdx === 0}
                     aria-label="Previous step"
-                    className="h-12 shrink-0 border border-[#262421]/15 bg-transparent px-3 font-display text-sm font-bold text-[#262421] hover:bg-[#262421]/10 hover:text-[#262421] sm:px-4"
+                    className="h-12 shrink-0 border border-paper-line bg-transparent px-3 font-display text-sm font-bold text-paper-ink hover:bg-paper-hover hover:text-paper-ink sm:px-4"
                   >
                     <ChevronLeft className="h-4 w-4" /> Back
                   </Button>
@@ -881,7 +881,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                     <Button
                       variant="ghost"
                       disabled
-                      className="h-12 flex-1 cursor-not-allowed border border-[#262421]/15 bg-transparent text-sm font-bold text-[#262421]/40 hover:bg-transparent"
+                      className="h-12 flex-1 cursor-not-allowed border border-paper-line bg-transparent text-sm font-bold text-paper-faint hover:bg-transparent"
                     >
                       {lockLabel}
                     </Button>
@@ -963,7 +963,7 @@ function CompletionScreen({
   onPlay,
   onPuzzles,
 }: {
-  lesson: NonNullable<ReturnType<typeof findLevel>['level']>
+  lesson: NonNullable<ReturnType<typeof findLevel>>['level']
   coach?: Coach
   message: string | null
   hintsUsed: number
@@ -971,7 +971,7 @@ function CompletionScreen({
   bestStreak: number
   tierTitle: string
   tierColor: string
-  nextLevel: NonNullable<ReturnType<typeof findLevel>['level']> | null
+  nextLevel: NonNullable<ReturnType<typeof findLevel>>['level'] | null
   nextTierTitle: string | null
   unlockedNow: boolean
   nextAlreadyDone: boolean
@@ -1025,10 +1025,10 @@ function CompletionScreen({
           className="absolute right-0 top-3 h-24 w-24 rotate-6 drop-shadow-[0_10px_14px_rgba(0,0,0,0.5)]"
         />
       </div>
-      <h2 className="mt-2 font-book text-4xl font-semibold text-[#262421] sm:text-5xl">
+      <h2 className="mt-2 font-book text-4xl font-semibold text-paper-ink sm:text-5xl">
         {courseComplete ? '120 levels. Every one of them yours.' : chapterEnd ? 'Chapter complete' : 'Lesson complete'}
       </h2>
-      <p className="mt-1 text-sm font-semibold text-[#262421]/55">
+      <p className="mt-1 text-sm font-semibold text-paper-faint">
         {courseComplete
           ? 'You started not knowing how the knights jump. You finish reading positions like a grandmaster.'
           : chapterEnd
@@ -1036,7 +1036,7 @@ function CompletionScreen({
             : lesson.title}
       </p>
 
-      <div className="relative mx-auto mt-6 flex max-w-md items-start gap-3 rounded-2xl bg-[#fdfbf5] p-4 text-left shadow-xl">
+      <div className="relative mx-auto mt-6 flex max-w-md items-start gap-3 rounded-2xl bg-paper-card p-4 text-left shadow-xl">
         {coach ? (
           <CharacterFace
             id={coach.id}
@@ -1047,13 +1047,13 @@ function CompletionScreen({
           <img
             src="/brand.svg"
             alt="ChessX"
-            className="h-12 w-12 shrink-0 rounded-full border-2 border-[#262421]/10 bg-[#f4f1e8] p-1"
+            className="h-12 w-12 shrink-0 rounded-full border-2 border-paper-line bg-paper-bg p-1"
           />
         )}
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#6f8f42]">{coach ? coach.name : 'ChessX'}</p>
-          <p className="mt-0.5 text-sm font-semibold leading-snug text-[#312e2b]">{coachLine}</p>
-          {nextLine && <p className="mt-2 text-xs font-semibold leading-snug text-[#262421]/55">{nextLine}</p>}
+          <p className="text-[10px] font-bold uppercase tracking-widest text-paper-eyebrow">{coach ? coach.name : 'ChessX'}</p>
+          <p className="mt-0.5 text-sm font-semibold leading-snug text-paper-ink-deep">{coachLine}</p>
+          {nextLine && <p className="mt-2 text-xs font-semibold leading-snug text-paper-faint">{nextLine}</p>}
         </div>
       </div>
 
@@ -1069,7 +1069,7 @@ function CompletionScreen({
           <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#81b64c] text-white shadow-[0_2px_0_#5d8534]">
             <LockOpen className="h-4 w-4" strokeWidth={2.5} />
           </span>
-          <p className="min-w-0 text-sm font-extrabold text-[#3d5c1e]">
+          <p className="min-w-0 text-sm font-extrabold text-paper-green-ink">
             Unlocked: Level {nextLevel.n}, {nextLevel.title}
           </p>
         </motion.div>
@@ -1077,26 +1077,26 @@ function CompletionScreen({
 
       {/* real stats from this session: steps completed, hints, best first-try streak, xp from the server */}
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#262421]/10 bg-[#262421]/5 px-3.5 py-1.5 text-xs font-extrabold text-[#262421]/75">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-paper-line bg-paper-hover px-3.5 py-1.5 text-xs font-extrabold text-paper-muted">
           <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ background: tierColor }} />
           {tierTitle} level {lesson.n} of 20
         </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#262421]/10 bg-[#262421]/5 px-3.5 py-1.5 text-xs font-extrabold text-[#262421]/75">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-paper-line bg-paper-hover px-3.5 py-1.5 text-xs font-extrabold text-paper-muted">
           <Check className="h-3.5 w-3.5 text-[#81b64c]" strokeWidth={3} />
           {lesson.steps.length} of {lesson.steps.length} steps
         </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#262421]/10 bg-[#262421]/5 px-3.5 py-1.5 text-xs font-extrabold text-[#262421]/75">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-paper-line bg-paper-hover px-3.5 py-1.5 text-xs font-extrabold text-paper-muted">
           <Lightbulb className="h-3.5 w-3.5 text-[#e8a33d]" />
           {hintsUsed === 0 ? 'No hints needed' : `Hints borrowed: ${hintsUsed}`}
         </span>
         {bestStreak >= 2 && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e8a33d]/40 bg-[#e8a33d]/15 px-3.5 py-1.5 text-xs font-extrabold text-[#9a5b00]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e8a33d]/40 bg-[#e8a33d]/15 px-3.5 py-1.5 text-xs font-extrabold text-paper-gold-ink">
             <Flame className="h-3.5 w-3.5 text-[#e8681d]" />
             Best streak: {bestStreak}
           </span>
         )}
         {xpGain != null && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#81b64c]/40 bg-[#81b64c]/15 px-3.5 py-1.5 text-xs font-extrabold text-[#4a6b28]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#81b64c]/40 bg-[#81b64c]/15 px-3.5 py-1.5 text-xs font-extrabold text-paper-green-ink">
             <Sparkles className="h-3.5 w-3.5" />+{xpGain} XP
           </span>
         )}
@@ -1109,7 +1109,7 @@ function CompletionScreen({
           </Button>
           <Button
             variant="outline"
-            className="h-13 flex-1 border-[#262421]/15 bg-transparent px-6 text-base font-bold text-[#262421] hover:bg-[#262421]/5 hover:text-[#262421]"
+            className="h-13 flex-1 border-paper-line bg-transparent px-6 text-base font-bold text-paper-ink hover:bg-paper-hover hover:text-paper-ink"
             onClick={onPuzzles}
           >
             Puzzles <Puzzle className="h-5 w-5" />
@@ -1146,7 +1146,7 @@ function TextStepView({
     onBubble({ tone: 'neutral', text: bubbleText, speak: spoken })
   }, [onBubble, bubbleText, spoken])
   return (
-    <div className="mx-auto w-full max-w-2xl rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)] sm:p-6">
+    <div className="mx-auto w-full max-w-2xl rounded-2xl border border-paper-line bg-paper-card p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)] sm:p-6">
       {/* float the speaker so the first lines wrap around it instead of hiding under it */}
       <div className="space-y-3">
         {coach && (
@@ -1155,13 +1155,13 @@ function TextStepView({
           </span>
         )}
         {step.body.map((p, i) => (
-          <p key={i} className="leading-relaxed text-[#262421]/85">
+          <p key={i} className="leading-relaxed text-paper-ink/85">
             {p}
           </p>
         ))}
       </div>
       {step.keyIdea && (
-        <div className="mt-4 rounded-xl border border-[#81b64c]/30 bg-[#81b64c]/10 px-4 py-3 text-sm font-semibold text-[#262421]">
+        <div className="mt-4 rounded-xl border border-[#81b64c]/30 bg-[#81b64c]/10 px-4 py-3 text-sm font-semibold text-paper-ink">
           {step.keyIdea}
         </div>
       )}
@@ -1189,11 +1189,11 @@ function DemoTextCard({
     onBubble({ tone: 'neutral', text: bubbleText, speak: spoken })
   }, [onBubble, bubbleText, spoken])
   return (
-    <div className="mt-4 w-full max-w-2xl rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)]">
+    <div className="mt-4 w-full max-w-2xl rounded-2xl border border-paper-line bg-paper-card p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)]">
       <div className="flex items-start justify-between gap-2">
         <div className="space-y-2.5">
           {step.body.map((p, i) => (
-            <p key={i} className="leading-relaxed text-[#262421]/85">
+            <p key={i} className="leading-relaxed text-paper-ink/85">
               {p}
             </p>
           ))}
@@ -1358,7 +1358,7 @@ function DemoBoard({
         )}
       </div>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-        <div className="text-xs font-semibold text-[#262421]/50">{caption ?? ''}</div>
+        <div className="text-xs font-semibold text-paper-faint">{caption ?? ''}</div>
         <div className="flex flex-wrap gap-1.5">
           {moves && moves.length > 0 && (
             <ToolButton onClick={() => playLine(150)} disabled={autoplay} ariaLabel="Watch the line">
@@ -1374,7 +1374,7 @@ function DemoBoard({
         </div>
       </div>
       {!autoplay && depth === 0 && (
-        <p className="mt-1 text-xs text-[#262421]/40">
+        <p className="mt-1 text-xs text-paper-faint">
           {moves?.length
             ? 'Call your guess first, then tap Watch the line. After that, the board is yours to explore.'
             : 'This board is yours to explore. Pick up any piece and try moves.'}
@@ -1437,8 +1437,8 @@ function QuizStepView({
   }, [onBubble, bubbleTone, bubbleText, coachId])
 
   return (
-    <div className="mx-auto w-full max-w-2xl rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)] sm:p-6">
-      {step.body && <p className="text-sm leading-relaxed text-[#262421]/60">{step.body}</p>}
+    <div className="mx-auto w-full max-w-2xl rounded-2xl border border-paper-line bg-paper-card p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)] sm:p-6">
+      {step.body && <p className="text-sm leading-relaxed text-paper-muted">{step.body}</p>}
       {step.fen && (
         <div className="mt-3">
           <BoardPlate>
@@ -1446,7 +1446,7 @@ function QuizStepView({
           </BoardPlate>
         </div>
       )}
-      <p className="mt-3 font-book text-lg font-semibold text-[#262421] sm:text-xl">{step.question}</p>
+      <p className="mt-3 font-book text-lg font-semibold text-paper-ink sm:text-xl">{step.question}</p>
       <div className="mt-4 grid gap-2">
         {step.options.map((o, i) => {
           const isChosen = chosen === i
@@ -1458,8 +1458,8 @@ function QuizStepView({
               onClick={() => choose(i)}
               disabled={answeredCorrect}
               className={cn(
-                'flex items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold text-[#262421] transition',
-                state === 'idle' && 'border-[#262421]/10 bg-[#262421]/5 hover:border-[#81b64c]/50 hover:bg-[#262421]/10',
+                'flex items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold text-paper-ink transition',
+                state === 'idle' && 'border-paper-line bg-paper-hover hover:border-[#81b64c]/50 hover:bg-paper-hover',
                 state === 'correct' && 'border-[#81b64c] bg-[#81b64c]/15',
                 state === 'off' && 'border-[#e6a82c]/60 bg-[#e6a82c]/10',
                 revealed && 'animate-pulse border-[#81b64c] bg-[#81b64c]/10',
@@ -1467,29 +1467,29 @@ function QuizStepView({
               )}
             >
               {state === 'correct' ? (
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#4a6b28]" />
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-paper-green-ink" />
               ) : state === 'off' ? (
                 <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-[#e6a82c]" />
               ) : (
-                <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-[#262421]/30" />
+                <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-paper-faint" />
               )}
               <span>
                 {o.text}
-                {isChosen && <span className="mt-1 block text-xs font-normal text-[#262421]/60">{o.why}</span>}
+                {isChosen && <span className="mt-1 block text-xs font-normal text-paper-muted">{o.why}</span>}
               </span>
             </button>
           )
         })}
       </div>
       {answeredCorrect ? (
-        <p className="mt-3 text-sm font-semibold text-[#4a6b28]">Correct. {step.options[correctIdx]?.why}</p>
+        <p className="mt-3 text-sm font-semibold text-paper-green-ink">Correct. {step.options[correctIdx]?.why}</p>
       ) : chosen != null && !step.options[chosen].correct ? (
-        <div className="mt-3 rounded-xl border border-[#e6a82c]/50 bg-[#e6a82c]/10 px-3 py-2 text-sm font-semibold text-[#262421]">
+        <div className="mt-3 rounded-xl border border-[#e6a82c]/50 bg-[#e6a82c]/10 px-3 py-2 text-sm font-semibold text-paper-ink">
           Tempting, but not the idea here. {step.options[chosen].why} Take another look.
         </div>
       ) : null}
       {misses >= 2 && !answeredCorrect && (
-        <p className="mt-2 text-sm text-[#262421]/50">The right answer is glowing now. Tap it, and keep the why in mind for the board.</p>
+        <p className="mt-2 text-sm text-paper-faint">The right answer is glowing now. Tap it, and keep the why in mind for the board.</p>
       )}
     </div>
   )
@@ -1757,12 +1757,12 @@ function ExerciseView({
         />
       </BoardPlate>
 
-      <div className="mt-4 w-full max-w-[620px] text-center text-sm text-[#262421]/55">
+      <div className="mt-4 w-full max-w-[620px] text-center text-sm text-paper-faint">
         {status === 'done' ? (
-          <span className="font-semibold text-[#4a6b28]">Line complete.</span>
+          <span className="font-semibold text-paper-green-ink">Line complete.</span>
         ) : movesSoFar.length > 0 ? (
           <>
-            Line so far: <span className="font-mono font-bold text-[#262421]">{movesSoFar.join(' ')}</span>
+            Line so far: <span className="font-mono font-bold text-paper-ink">{movesSoFar.join(' ')}</span>
           </>
         ) : (
           'Your move.'
@@ -1782,7 +1782,7 @@ function ExerciseView({
       </div>
 
       {status === 'done' && step.explanation && (
-        <p className="mt-3 max-w-[620px] text-center text-sm leading-relaxed text-[#262421]/60">{step.explanation}</p>
+        <p className="mt-3 max-w-[620px] text-center text-sm leading-relaxed text-paper-muted">{step.explanation}</p>
       )}
     </div>
   )
@@ -2041,7 +2041,7 @@ function GtmStepView({
       </BoardPlate>
 
       <div className="mt-3 flex w-full max-w-[620px] flex-wrap items-center justify-center gap-2">
-        <div className="flex items-center gap-1.5 rounded-full border border-[#262421]/10 bg-[#262421]/5 px-3 py-1.5">
+        <div className="flex items-center gap-1.5 rounded-full border border-paper-line bg-paper-hover px-3 py-1.5">
           {step.moves.map((_, i) => (
             <span
               key={i}
@@ -2051,7 +2051,7 @@ function GtmStepView({
                 i >= results.length
                   ? i === idx && phase === 'guess'
                     ? 'bg-[#81b64c] ring-2 ring-[#81b64c]/30'
-                    : 'bg-[#262421]/15'
+                    : 'bg-paper-hover'
                   : results[i] === 'full'
                     ? 'bg-[#81b64c]'
                     : results[i] === 'half'
@@ -2060,7 +2060,7 @@ function GtmStepView({
               )}
             />
           ))}
-          <span className="ml-1 font-mono text-xs font-bold text-[#262421]/80">
+          <span className="ml-1 font-mono text-xs font-bold text-paper-ink/80">
             {score} / {total}
           </span>
         </div>
@@ -2069,15 +2069,15 @@ function GtmStepView({
         </ToolButton>
       </div>
 
-      <div className="mt-2 w-full max-w-[620px] text-center text-sm text-[#262421]/55">
+      <div className="mt-2 w-full max-w-[620px] text-center text-sm text-paper-faint">
         {phase === 'guess' ? (
           <p>
             Move {idx + 1} of {total}. {guessSide === 'w' ? 'White' : 'Black'} to move. What did the master play?
           </p>
         ) : (
-          <p className="font-semibold text-[#4a6b28]">Game complete.</p>
+          <p className="font-semibold text-paper-green-ink">Game complete.</p>
         )}
-        {lineSoFar.length > 0 && <p className="mt-1 font-mono text-xs text-[#262421]/40">{lineSoFar.join(' ')}</p>}
+        {lineSoFar.length > 0 && <p className="mt-1 font-mono text-xs text-paper-faint">{lineSoFar.join(' ')}</p>}
       </div>
     </div>
   )
@@ -2278,17 +2278,17 @@ function PlayoutStepView({
         />
       </BoardPlate>
 
-      <div className="mt-3 text-center text-sm text-[#262421]/55">
+      <div className="mt-3 text-center text-sm text-paper-faint">
         <p>{thinking ? 'Opponent thinking…' : `Move ${Math.floor(moves.length / 2) + 1} of ${step.maxMoves ?? 12}`}</p>
         {step.success === 'material' && (
-          <p className="mt-1 font-semibold text-[#262421]/70">
+          <p className="mt-1 font-semibold text-paper-muted">
             Material: {bal > 0 ? `you +${bal}` : bal < 0 ? `them +${-bal}` : 'even'}
           </p>
         )}
       </div>
 
       {hintShown && status === 'playing' && (
-        <p className="mt-2 max-w-[620px] rounded-xl border border-[#e6a82c]/40 bg-[#e6a82c]/10 px-3 py-2 text-center text-sm font-semibold text-[#262421]">
+        <p className="mt-2 max-w-[620px] rounded-xl border border-[#e6a82c]/40 bg-[#e6a82c]/10 px-3 py-2 text-center text-sm font-semibold text-paper-ink">
           {hint}
         </p>
       )}

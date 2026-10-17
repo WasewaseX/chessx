@@ -10,8 +10,8 @@ import { readJson } from '@/lib/api-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Chess, type Square } from 'chess.js'
 import { ChessBoard, type FlashMark } from '@/components/chess/board'
-import { PUZZLES } from '@/content/puzzles'
-import type { Puzzle } from '@/content/schema'
+import type { PuzzleStub } from '@/content/schema'
+import { fetchPuzzleIndex } from '@/lib/chess/solver'
 import { useApp, type ProfileData } from '@/lib/store'
 import { playSound } from '@/lib/chess/sounds'
 import { Button } from '@/components/ui/button'
@@ -134,7 +134,9 @@ export function VisionPanel() {
   const mistakesRef = useRef(0)
   const finishedRef = useRef(false)
   const soundEnabled = profile?.soundEnabled ?? true
-  const huntPuzzlesRef = useRef<Puzzle[]>([])
+  const huntPuzzlesRef = useRef<PuzzleStub[]>([])
+  // The sanitized pool, held in a ref so startHunt never goes stale.
+  const poolRef = useRef<PuzzleStub[]>([])
   const huntTokenRef = useRef(0)
   const huntTimersRef = useRef<ReturnType<typeof setTimeout>[]>([])
   const memTimeRef = useRef(MEMORIZE_SECONDS)
@@ -163,6 +165,16 @@ export function VisionPanel() {
   useEffect(() => {
     fetchBests()
   }, [fetchBests])
+
+  useEffect(() => {
+    fetchPuzzleIndex()
+      .then((puzzles) => {
+        poolRef.current = puzzles
+      })
+      .catch(() => {
+        /* the piece hunt starts once the pool arrives */
+      })
+  }, [])
 
   const advanceTarget = useCallback((m: Mode) => {
     setTarget(randomSquare())
@@ -252,10 +264,12 @@ export function VisionPanel() {
   )
 
   const startHunt = useCallback(() => {
+    if (poolRef.current.length === 0) return
     finishedRef.current = false
     clearHuntTimers()
     const target = profile?.puzzleRating ?? 800
-    const deal = shuffle([...PUZZLES].sort((a, b) => Math.abs(a.rating - target) - Math.abs(b.rating - target)).slice(0, Math.min(14, PUZZLES.length))).slice(0, HUNT_ROUNDS)
+    const source = poolRef.current
+    const deal = shuffle([...source].sort((a, b) => Math.abs(a.rating - target) - Math.abs(b.rating - target)).slice(0, Math.min(14, source.length))).slice(0, HUNT_ROUNDS)
     if (deal.length === 0) return
     huntPuzzlesRef.current = deal
     scoreRef.current = 0
@@ -419,7 +433,7 @@ export function VisionPanel() {
         <div className="rounded-xl bg-card p-6 shadow-sm">
           <h2 className="font-display text-xl font-extrabold">Vision training</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Two drills, one goal: know the board without thinking. The sprint trains coordinates, the hunt trains your blindfold memory. Both run on real positions and honest bests.
+            Four cards, one goal: know the board without thinking. Three coordinate sprints (White's eyes, Black's eyes, or both mixed) and a piece hunt for your blindfold memory. Every run uses real positions and honest bests.
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {(['white', 'black', 'both'] as const).map((m) => (

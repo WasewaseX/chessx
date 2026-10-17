@@ -1,0 +1,11 @@
+{
+  "name": "chessx-mcp-server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun --hot index.ts"
+  },
+  "dependencies": {
+    "chess.js": "^1.4.0"
+  }
+}

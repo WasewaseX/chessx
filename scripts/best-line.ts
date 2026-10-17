@@ -1,5 +1,8 @@
 // Query the engine for its best lines in a position.
 // Usage: bun scripts/best-line.ts "<fen>" [depth] [multiPv]
+// NOTE: `export {}` marks this as a module so top-level names (and the
+// top-level await below) don't collide with the other scripts in scripts/.
+export {}
 ;(globalThis as unknown as { self: unknown }).self = globalThis
 const G = globalThis as Record<string, unknown>
 G.self = G

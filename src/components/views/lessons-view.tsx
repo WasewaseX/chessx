@@ -24,6 +24,7 @@ interface ProgressRow {
   completed: boolean
   stepsDone: number
   totalSteps: number
+  updatedAt?: string
 }
 
 export function LessonsView() {
@@ -34,7 +35,7 @@ export function LessonsView() {
 
   const loadProgress = useCallback(() => {
     fetch('/api/progress')
-      .then((r) => readJson<unknown>(r))
+      .then((r) => readJson<{ progress?: ProgressRow[] }>(r))
       .then((d) => setProgress(d.progress ?? []))
       .catch(() => setProgressError(true))
       .finally(() => setLoading(false))
@@ -57,6 +58,7 @@ export function LessonsView() {
 
   // the resume target: the most recent started lesson while it is still open,
   // otherwise the first unlocked and uncompleted level in course order
+  // (steered by the onboarding self-assessment while nothing is done yet)
   const nextId = useMemo(() => {
     const started = progress.filter((p) => !p.completed && p.stepsDone > 0)
     const mostRecent = started.length
@@ -64,8 +66,8 @@ export function LessonsView() {
       : null
     return mostRecent && isLevelUnlocked(mostRecent.lessonId, doneSet)
       ? mostRecent.lessonId
-      : nextUnlockedId(doneSet)
-  }, [progress, doneSet])
+      : nextUnlockedId(doneSet, profile?.skillLevel)
+  }, [progress, doneSet, profile?.skillLevel])
 
   // plain value: the React Compiler memoizes it, manual useMemo upset the lint rule
   const nextRef = nextId ? (findLevel(nextId) ?? null) : null
@@ -87,13 +89,13 @@ export function LessonsView() {
   const tierDone = (tier: Tier) => tier.levels.filter((l) => doneSet.has(l.id)).length
 
   return (
-    <div className="w-full paper text-[#262421]">
+    <div className="w-full paper text-paper-ink">
       <div className="mx-auto w-full max-w-3xl px-4 pb-32 pt-6 sm:px-6 sm:pt-8">
         {/* page head: title, the honest difference, progress */}
         <header>
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.24em] text-[#6f8f42]">ChessX course</p>
-          <h1 className="mt-1 font-book text-3xl font-semibold text-[#262421] sm:text-4xl">The Study</h1>
-          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-[#262421]/70">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.24em] text-paper-eyebrow">ChessX course</p>
+          <h1 className="mt-1 font-book text-3xl font-semibold text-paper-ink sm:text-4xl">The Study</h1>
+          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-paper-muted">
             Videos have you watch. Here you play: every lesson hands you the winning move, and you are the one who
             finds it on a real board. Make a mistake and it is caught on the spot: the move comes back, your coach
             explains the idea in one line, and you try again before you go on. Every level ends with the result in your own hands: usually a win to deliver, sometimes a fortress to hold. Answer on the first try and your streak builds
@@ -103,7 +105,7 @@ export function LessonsView() {
 
           <div className="mt-5 flex items-center gap-3">
             <div
-              className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-[#262421]/10"
+              className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-paper-hover"
               role="progressbar"
               aria-label="Course progress"
               aria-valuemin={0}
@@ -112,7 +114,7 @@ export function LessonsView() {
             >
               <div className="h-full rounded-full bg-[#81b64c] transition-all duration-500" style={{ width: `${pct}%` }} />
             </div>
-            <span className="shrink-0 text-xs font-extrabold tabular-nums text-[#262421]/55">
+            <span className="shrink-0 text-xs font-extrabold tabular-nums text-paper-faint">
               {progressError ? '-' : `${doneCount}/${totalLessons}`}
             </span>
           </div>
@@ -127,13 +129,13 @@ export function LessonsView() {
                   onClick={() => jumpToTier(tier.id)}
                   aria-label={`Jump to chapter ${tier.title}, ${d} of ${tier.levels.length} levels complete`}
                   className={cn(
-                    'flex shrink-0 items-center gap-1.5 rounded-full border border-[#262421]/12 bg-[#fdfbf5] py-1.5 pl-1.5 pr-3 text-xs font-bold text-[#262421]/70 transition-colors hover:border-[#262421]/25 hover:text-[#262421]',
-                    d === tier.levels.length && 'border-[#81b64c]/40 text-[#4a6b28]',
+                    'flex shrink-0 items-center gap-1.5 rounded-full border border-paper-line bg-paper-card py-1.5 pl-1.5 pr-3 text-xs font-bold text-paper-muted transition-colors hover:border-paper-faint hover:text-paper-ink',
+                    d === tier.levels.length && 'border-[#81b64c]/40 text-paper-green-ink',
                   )}
                 >
                   <span
                     aria-hidden="true"
-                    className="grid h-5 w-5 place-items-center rounded-full text-[10px] font-extrabold text-[#262421]"
+                    className="grid h-5 w-5 place-items-center rounded-full text-[10px] font-extrabold text-paper-ink"
                     style={{ background: tier.color }}
                   >
                     {d === tier.levels.length ? <Check className="h-3 w-3" strokeWidth={3} /> : tier.n}
@@ -146,7 +148,7 @@ export function LessonsView() {
         </header>
 
         {/* coach margin note */}
-        <aside className="mt-6 flex items-start gap-3 rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] p-4 shadow-sm">
+        <aside className="mt-6 flex items-start gap-3 rounded-2xl border border-paper-line bg-paper-card p-4 shadow-sm">
           {coach ? (
             <CharacterFace
               id={coach.id}
@@ -157,26 +159,26 @@ export function LessonsView() {
             <img
               src="/brand.svg"
               alt="ChessX"
-              className="h-12 w-12 shrink-0 rounded-xl border-2 border-[#262421]/10 bg-[#f4f1e8] p-1"
+              className="h-12 w-12 shrink-0 rounded-xl border-2 border-paper-line bg-paper-bg p-1"
             />
           )}
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#6f8f42]">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-paper-eyebrow">
               {coach ? `${coach.name} · ${coach.title}` : 'Your coach'}
             </p>
             {loading ? (
-              <p className="mt-0.5 text-sm text-[#8a8580]">Loading your progress.</p>
+              <p className="mt-0.5 text-sm text-paper-muted-2">Loading your progress.</p>
             ) : progressError ? (
               <p className="mt-0.5 text-sm text-destructive">Could not load your progress.</p>
             ) : nextRef ? (
               <>
-                <p className="mt-0.5 font-display text-sm font-extrabold text-[#262421]">{nextRef.level.title}</p>
-                <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-[#57534e]">{nextRef.level.subtitle}</p>
+                <p className="mt-0.5 font-display text-sm font-extrabold text-paper-ink">{nextRef.level.title}</p>
+                <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-paper-muted">{nextRef.level.subtitle}</p>
               </>
             ) : (
               <>
-                <p className="mt-0.5 font-display text-sm font-extrabold text-[#262421]">Every level complete</p>
-                <p className="mt-0.5 text-xs leading-snug text-[#57534e]">
+                <p className="mt-0.5 font-display text-sm font-extrabold text-paper-ink">Every level complete</p>
+                <p className="mt-0.5 text-xs leading-snug text-paper-muted">
                   All {totalLessons} levels finished. Replay any row, or take your skills to Play.
                 </p>
               </>
@@ -185,7 +187,7 @@ export function LessonsView() {
               <button
                 type="button"
                 onClick={() => navigate('coach')}
-                className="mt-1.5 text-[11px] font-bold text-[#4a6b28] underline underline-offset-2 hover:text-[#3a5520]"
+                className="mt-1.5 text-[11px] font-bold text-paper-green-ink underline underline-offset-2 hover:text-paper-green-deep"
               >
                 Choose a coach so every hint and correction is theirs.
               </button>
@@ -197,12 +199,12 @@ export function LessonsView() {
         <main className="mt-8">
           {loading ? (
             <div className="flex h-40 items-center justify-center" aria-label="Loading progress">
-              <Loader2 className="h-6 w-6 animate-spin text-[#262421]/50" />
+              <Loader2 className="h-6 w-6 animate-spin text-paper-faint" />
             </div>
           ) : progressError ? (
-            <div className="rounded-2xl border border-[#262421]/10 bg-[#fdfbf5] p-8 text-center shadow-sm" role="alert">
-              <p className="font-display text-lg font-bold text-[#262421]">Could not load your progress.</p>
-              <p className="mx-auto mt-1 max-w-md text-sm text-[#57534e]">
+            <div className="rounded-2xl border border-paper-line bg-paper-card p-8 text-center shadow-sm" role="alert">
+              <p className="font-display text-lg font-bold text-paper-ink">Could not load your progress.</p>
+              <p className="mx-auto mt-1 max-w-md text-sm text-paper-muted">
                 The course needs it to unlock the right levels, so the ledger stays closed until it loads.
               </p>
               <Button variant="secondary" className="mt-4" onClick={retryProgress}>

@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import { seedForSkill } from '@/lib/rating'
 import { publicProfile } from '@/lib/api'
+import { assertSafeAiEndpoint, encryptSecret, EndpointError } from '@/lib/server/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,6 +20,39 @@ export async function ensureRatingRow(userId: string, skillLevel: string) {
     data: { userId, pool: 'overall', rating: seedForSkill(skillLevel) },
   })
 }
+
+// ---------------------------------------------------------------------------
+// Strict PATCH schema: real booleans, real enums, no silent coercion.
+// A string "false" used to become true via Boolean(); Zod rejects it now.
+// Unknown keys are stripped instead of blindly written to the database.
+// ---------------------------------------------------------------------------
+
+const SKILL_LEVELS = ['new', 'beginner', 'intermediate', 'advanced', 'expert'] as const
+const COACHES = ['', 'nina', 'victor', 'elena', 'sasha'] as const
+const THEMES = ['green', 'brown', 'slate', 'walnut'] as const
+const DARK_MODES = ['light', 'dark', 'system'] as const
+const AI_PROVIDERS = ['builtin', 'openai', 'anthropic', 'gemini', 'openrouter', 'groq', 'deepseek', 'custom'] as const
+
+const patchSchema = z
+  .object({
+    name: z.string().trim().min(1).max(40).optional(),
+    skillLevel: z.enum(SKILL_LEVELS).optional(),
+    coach: z.enum(COACHES).optional(),
+    theme: z.enum(THEMES).optional(),
+    darkMode: z.enum(DARK_MODES).optional(),
+    aiProvider: z.enum(AI_PROVIDERS).optional(),
+    // URL shape + SSRF guard run below, once the provider is known.
+    aiBaseUrl: z.string().max(300).nullable().optional(),
+    aiModel: z.string().trim().max(120).nullable().optional(),
+    aiApiKey: z.string().max(300).nullable().optional(),
+    goalMinutes: z.number().int().min(5).max(120).optional(),
+    soundEnabled: z.boolean().optional(),
+    showCoords: z.boolean().optional(),
+    showLegal: z.boolean().optional(),
+    autoPromote: z.boolean().optional(),
+    onboarded: z.boolean().optional(),
+  })
+  .strict()
 
 export async function GET() {
   const user = await getSessionUser()
@@ -52,22 +87,46 @@ export async function PATCH(req: NextRequest) {
   const user = await getSessionUser()
   if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
 
-  const body = await req.json().catch(() => ({}))
-  const data: Record<string, unknown> = {}
-  const strFields = ['name', 'skillLevel', 'coach', 'theme', 'darkMode', 'aiProvider', 'aiBaseUrl', 'aiModel', 'aiApiKey']
-  const boolFields = ['soundEnabled', 'showCoords', 'showLegal', 'autoPromote', 'onboarded']
-  for (const f of strFields) {
-    if (f in body) {
-      if (f === 'aiApiKey' && (body[f] === null || body[f] === '')) data.aiApiKey = null
-      else if (f === 'aiBaseUrl' && body[f] === '') data.aiBaseUrl = null
-      else if (f === 'aiModel' && body[f] === '') data.aiModel = null
-      else data[f] = String(body[f]).slice(0, 300)
-    }
+  const parsed = patchSchema.safeParse(await req.json().catch(() => ({})))
+  if (!parsed.success) {
+    const msg = parsed.error.issues[0]?.message ?? 'Invalid settings'
+    return NextResponse.json({ error: msg }, { status: 400 })
   }
-  for (const f of boolFields) if (f in body) data[f] = Boolean(body[f])
-  if ('goalMinutes' in body) {
-    const g = Number(body.goalMinutes)
-    if (Number.isFinite(g)) data.goalMinutes = Math.max(5, Math.min(120, Math.round(g)))
+  const body = parsed.data
+  const data: Record<string, unknown> = {}
+
+  if (body.name !== undefined) data.name = body.name
+  if (body.skillLevel !== undefined) data.skillLevel = body.skillLevel
+  if (body.coach !== undefined) data.coach = body.coach
+  if (body.theme !== undefined) data.theme = body.theme
+  if (body.darkMode !== undefined) data.darkMode = body.darkMode
+  if (body.aiProvider !== undefined) data.aiProvider = body.aiProvider
+  if (body.goalMinutes !== undefined) data.goalMinutes = body.goalMinutes
+  for (const f of ['soundEnabled', 'showCoords', 'showLegal', 'autoPromote', 'onboarded'] as const) {
+    if (body[f] !== undefined) data[f] = body[f]
+  }
+
+  // AI key: encrypted at rest, never logged, never returned to clients.
+  if (body.aiApiKey !== undefined) {
+    data.aiApiKey = body.aiApiKey === null || body.aiApiKey === '' ? null : encryptSecret(body.aiApiKey)
+  }
+  if (body.aiModel !== undefined) {
+    data.aiModel = body.aiModel === null || body.aiModel === '' ? null : body.aiModel
+  }
+  if (body.aiBaseUrl !== undefined) {
+    if (body.aiBaseUrl === null || body.aiBaseUrl === '') {
+      data.aiBaseUrl = null
+    } else {
+      // SSRF guard runs at SAVE time so bad URLs are rejected with a clear
+      // message; runChat re-validates at call time as a second fence.
+      try {
+        assertSafeAiEndpoint(body.aiBaseUrl)
+        data.aiBaseUrl = body.aiBaseUrl
+      } catch (e) {
+        const msg = e instanceof EndpointError ? e.message : 'That base URL is not allowed.'
+        return NextResponse.json({ error: msg }, { status: 400 })
+      }
+    }
   }
 
   let profile = await db.profile.findUnique({ where: { userId: user.id } })
@@ -76,10 +135,21 @@ export async function PATCH(req: NextRequest) {
   } else {
     profile = await db.profile.update({ where: { id: profile.id }, data })
   }
-  // the level pick during onboarding seeds the account Elo (400 / 800 / 1200
-  // / 1600 / 2000, the chess.com ladder); only runs if no row exists yet
+
+  // The level pick during onboarding seeds the account Elo (400 / 800 / 1200
+  // / 1600 / 2000, the chess.com ladder). A row created at signup holds a
+  // provisional 1000; the chosen skill seed replaces it exactly once, while
+  // the account has not played any rated game yet (games === 0). After the
+  // first rated game the rating belongs to Glicko and is never reseeded.
   const skill = (data.skillLevel as string | undefined) ?? profile.skillLevel
-  await ensureRatingRow(user.id, skill)
+  const row = await ensureRatingRow(user.id, skill)
+  if ('skillLevel' in data && row.games === 0 && row.rd >= 350) {
+    const seed = seedForSkill(skill)
+    if (Math.round(row.rating) !== Math.round(seed)) {
+      await db.userRating.update({ where: { id: row.id }, data: { rating: seed, rd: 350 } })
+    }
+  }
+
   const ratings = await db.userRating.findMany({ where: { userId: user.id } })
   return NextResponse.json({
     profile: publicProfile(profile),

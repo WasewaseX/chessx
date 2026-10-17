@@ -3,7 +3,9 @@
 // the chat command palette (src/components/coach/command-palette.tsx) both
 // import this, so the UI and the runtime can never drift apart.
 
-export type CommandCategory = 'generate' | 'board' | 'progress' | 'app' | 'fun'
+import { SUPER_SKILLS, AGENT_CMD } from '@/lib/agent-types'
+
+export type CommandCategory = 'agent' | 'generate' | 'board' | 'progress' | 'app' | 'fun'
 
 export interface CommandDef {
   /** Executor id, same as the command word without the slash. */
@@ -19,8 +21,30 @@ export interface CommandDef {
 }
 
 export const COMMANDS: CommandDef[] = [
+  // agent missions: multi-step superskills the coach runs end to end
+  ...SUPER_SKILLS.map(
+    (s): CommandDef => ({
+      id: s.id,
+      cmd: s.cmd,
+      args: s.args,
+      category: 'agent',
+      title: `${s.name} (mission)`,
+      desc: s.desc,
+      example: s.example,
+    }),
+  ),
+  {
+    id: 'agent',
+    cmd: AGENT_CMD,
+    args: '[goal]',
+    category: 'agent',
+    title: 'Free-form mission',
+    desc: 'Give the agent any goal and it plans the steps, then runs them: scans, verified drills, board reads, a report',
+    example: '/agent get me ready for the weekend tournament',
+  },
+
   // generation skills: verified training material
-  { id: 'puzzle', cmd: '/puzzle', args: '[theme]', category: 'generate', title: 'Level puzzle', desc: 'Fresh engine-verified puzzle calibrated to your course level', example: '/puzzle fork' },
+  { id: 'puzzle', cmd: '/puzzle', args: '[theme]', category: 'generate', title: 'Level puzzle', desc: "A tactic from a real rated game, engine-verified, matched to your level", example: '/puzzle fork' },
   { id: 'mate', cmd: '/mate', category: 'generate', title: 'Mate hunt', desc: 'A forced-mate puzzle at your level, every mate checked by the engine', example: '/mate' },
   { id: 'drill', cmd: '/drill', category: 'generate', title: 'Position drill', desc: 'Turn whatever stands on the board into a training task', example: '/drill' },
   { id: 'endgame', cmd: '/endgame', category: 'generate', title: 'Endgame drill', desc: 'A verified endgame technique task from real course material', example: '/endgame' },
@@ -101,6 +125,9 @@ export function parseClientCommand(text: string): { def: CommandDef; arg: string
 export function commandIsGenerative(id: string): boolean {
   return ['puzzle', 'mate', 'drill', 'endgame', 'quiz', 'daily', 'trap', 'famous', 'pivot'].includes(id)
 }
+
+/** Agent mission command ids (the 10 superskills plus the free-form planner). */
+export const AGENT_COMMAND_IDS: string[] = [...SUPER_SKILLS.map((s) => s.id), 'agent']
 
 /** All command words that start with the given fragment (used by the palette). */
 export function matchingCommands(fragment: string): CommandDef[] {

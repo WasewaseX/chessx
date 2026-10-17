@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { createSession, isSupportedEmail, sessionCookieOptions, SESSION_COOKIE } from '@/lib/auth'
+import { seedForSkill } from '@/lib/rating'
 import {
   exchangeCodeForProfile,
   externalUrl,
@@ -75,7 +76,8 @@ export async function GET(req: NextRequest) {
         googleId: profile.sub,
         profile: { create: { name: username } },
         ratings: {
-          create: { pool: 'overall', rating: 1000, rd: 350 },
+          // Same skill-seeded start as the signup route: no hardcoded Elo.
+          create: { pool: 'overall', rating: seedForSkill('beginner'), rd: 350 },
         },
       },
     })
