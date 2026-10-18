@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  const user = await prisma.user.findUnique({ where: { usernameLower: 'plantester' } })
+  const user = await prisma.user.findUnique({ where: { usernameLower: 'narrtester' } })
   if (!user) {
     console.log('nothing to clean')
     return

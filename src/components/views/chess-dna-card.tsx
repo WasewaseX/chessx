@@ -2,8 +2,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { readJson } from '@/lib/api-client'
 import { useApp } from '@/lib/store'
+import { coachMaybe } from '@/lib/coaches'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
+import { CharacterFace } from '@/components/chess/characters'
+import { SpeakButton } from '@/components/chess/speak-button'
 import { cn } from '@/lib/utils'
 import {
   Activity,
@@ -12,6 +15,8 @@ import {
   Crosshair,
   Dna,
   Flame,
+  Loader2,
+  MessageSquareText,
   RotateCcw,
   Sparkles,
 } from 'lucide-react'
@@ -101,10 +106,14 @@ function DomainTrend({ points, label }: { points: number[]; label: string }) {
 }
 
 export function ChessDnaCard({ variant = 'home' }: { variant?: 'home' | 'profile' } = {}) {
-  const { navigate } = useApp()
+  const { navigate, profile } = useApp()
   const [report, setReport] = useState<DnaReportDTO | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  // Coach narration: the persona reads the measured report back, in voice.
+  const [narration, setNarration] = useState<string | null>(null)
+  const [narrating, setNarrating] = useState(false)
+  const [narrError, setNarrError] = useState<string | null>(null)
 
   const load = useCallback(() => {
     function run(attempt: number) {
@@ -131,6 +140,22 @@ export function ChessDnaCard({ variant = 'home' }: { variant?: 'home' | 'profile
   useEffect(() => {
     load()
   }, [load])
+
+  const narrate = useCallback(() => {
+    if (narrating) return
+    setNarrating(true)
+    setNarrError(null)
+    fetch('/api/dna/narrate', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+      .then((r) => readJson<{ text?: string; coach?: string; error?: string }>(r))
+      .then((d) => {
+        if (d.text) setNarration(d.text)
+        else setNarrError(d.error ?? 'Your coach could not read the report right now.')
+      })
+      .catch(() => setNarrError('Your coach could not read the report right now.'))
+      .finally(() => setNarrating(false))
+  }, [narrating])
+
+  const coach = coachMaybe(profile?.coach) ?? coachMaybe('nina')!
 
   const analyzed = report?.games ?? 0
   const ready = report?.ready === true
@@ -286,6 +311,45 @@ export function ChessDnaCard({ variant = 'home' }: { variant?: 'home' | 'profile
               {report.tip}
             </p>
           )}
+
+          {/* The coach reads the measured report, in persona and in voice. */}
+          <div className="mt-4">
+            {narration ? (
+              <div className="rounded-md border border-primary/25 bg-primary/5 px-3.5 py-3">
+                <div className="flex items-start gap-2.5">
+                  <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full ring-1 ring-border">
+                    <CharacterFace id={coach.id} label={coach.name} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-primary">{coach.name} reads your DNA</p>
+                    <p className="mt-1 text-xs leading-relaxed text-foreground/90">{narration}</p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <SpeakButton text={narration} voice={coach.voice} speed={coach.speed} />
+                      <button
+                        onClick={() => setNarration(null)}
+                        className="inline-flex min-h-6 items-center text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <button
+                  onClick={narrate}
+                  disabled={narrating}
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-secondary disabled:opacity-60"
+                  aria-label={`${coach.name} reads your DNA report aloud`}
+                >
+                  {narrating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageSquareText className="h-3.5 w-3.5" aria-hidden="true" />}
+                  {narrating ? `${coach.name} is reading…` : `Ask ${coach.name} to read it`}
+                </button>
+                {narrError && <span className="text-[11px] text-destructive">{narrError}</span>}
+              </div>
+            )}
+          </div>
           <p className="mt-3 text-[11px] text-muted-foreground">
             From {report?.games} analyzed {report?.games === 1 ? 'game' : 'games'}
             {report && report.population >= 3 ? ` · percentiles vs ${report.population} ChessX players` : ' · percentile pool still building'}
