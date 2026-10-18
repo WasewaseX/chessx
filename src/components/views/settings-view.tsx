@@ -15,6 +15,7 @@ import { toast } from '@/hooks/use-toast'
 import { CharacterFace } from '@/components/chess/characters'
 import { cn } from '@/lib/utils'
 import { Loader2, CheckCircle2, XCircle, Sun, Moon, Monitor } from 'lucide-react'
+import { SystemStatusCard } from '@/components/views/system-status-card'
 
 // Decorative pieces on the 4x4 theme preview boards (key = grid cell, row-major).
 // White pieces use the solid glyph filled white, black pieces filled black; the
@@ -324,6 +325,11 @@ export function SettingsView() {
           )}
         </div>
       </section>
+
+      {/* Self-diagnosis: real round-trips against every subsystem. */}
+      <div className="mt-6">
+        <SystemStatusCard />
+      </div>
     </div>
   )
 }
