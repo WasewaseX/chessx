@@ -10,6 +10,7 @@ import { useActivity, StreakCalendar } from '@/components/shell/streak'
 import { WrappedCard } from '@/components/views/wrapped-card'
 import { OpponentsCard } from '@/components/views/opponents-card'
 import { ChessDnaCard } from '@/components/views/chess-dna-card'
+import { EloJourneyCard } from '@/components/views/elo-journey-card'
 import { cn } from '@/lib/utils'
 import { Zap } from 'lucide-react'
 
@@ -121,6 +122,12 @@ export function ProfileView() {
         />
         <StatCard label="Puzzle streak" value={profile.puzzleStreak} sub={`Best: ${profile.bestPuzzleStreak}`} />
         <StatCard label="Games" value={total} sub={winRate != null ? `${winRate}% won` : 'No games yet'} />
+      </div>
+
+      {/* Elo journey: the account rating after every rated game — identity
+          first, then the skill report that explains it. */}
+      <div className="mt-6">
+        <EloJourneyCard />
       </div>
 
       {/* Skill report: the five-domain Chess DNA with per-domain drills and
