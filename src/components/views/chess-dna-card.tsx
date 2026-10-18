@@ -12,12 +12,14 @@ import {
   Activity,
   BookOpen,
   Castle,
+  Check,
   Crosshair,
   Dna,
   Flame,
   Loader2,
   MessageSquareText,
   RotateCcw,
+  Share2,
   Sparkles,
   Timer,
   TrendingUp,
@@ -118,6 +120,33 @@ export function ChessDnaCard({ variant = 'home' }: { variant?: 'home' | 'profile
   const [narration, setNarration] = useState<string | null>(null)
   const [narrating, setNarrating] = useState(false)
   const [narrError, setNarrError] = useState<string | null>(null)
+  // Shareable public link (chessigma "Shareable Chess DNA report" parity):
+  // POST mints-or-returns the profile token, the card copies ?dna=<token>.
+  const [shareState, setShareState] = useState<'idle' | 'busy' | 'copied' | 'failed'>('idle')
+
+  const share = useCallback(() => {
+    if (shareState === 'busy') return
+    setShareState('busy')
+    fetch('/api/dna/share', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+      .then((r) => readJson<{ token?: string; error?: string }>(r))
+      .then((d) => {
+        if (!d.token) throw new Error(d.error ?? 'share failed')
+        const url = `${window.location.origin}/?dna=${d.token}`
+        return navigator.clipboard
+          .writeText(url)
+          .then(() => setShareState('copied'))
+          .catch(() => {
+            // Clipboard can be denied (iframe permissions): show the URL so
+            // the player can still copy it manually.
+            window.prompt('Copy your share link:', url)
+            setShareState('copied')
+          })
+      })
+      .catch(() => setShareState('failed'))
+      .finally(() => {
+        setTimeout(() => setShareState('idle'), 4000)
+      })
+  }, [shareState])
 
   const load = useCallback(() => {
     function run(attempt: number) {
@@ -177,10 +206,33 @@ export function ChessDnaCard({ variant = 'home' }: { variant?: 'home' | 'profile
           </div>
         </div>
         {ready && (
-          <span className="rounded-md bg-secondary px-2.5 py-1 text-xs font-bold text-primary" title={`Strongest domain: ${report?.archetype?.name ?? ''}`}>
-            <Sparkles className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
-            {report?.archetype?.name ?? 'Measured'}
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={share}
+              disabled={shareState === 'busy'}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold transition-colors',
+                shareState === 'copied'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-primary hover:bg-secondary/70',
+              )}
+              title="Copy a public link to this report — no account data is shared"
+            >
+              {shareState === 'busy' ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+              ) : shareState === 'copied' ? (
+                <Check className="h-3.5 w-3.5" aria-hidden="true" />
+              ) : (
+                <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+              {shareState === 'copied' ? 'Link copied' : 'Share'}
+            </button>
+            <span className="rounded-md bg-secondary px-2.5 py-1 text-xs font-bold text-primary" title={`Strongest domain: ${report?.archetype?.name ?? ''}`}>
+              <Sparkles className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
+              {report?.archetype?.name ?? 'Measured'}
+            </span>
+          </div>
         )}
       </div>
 

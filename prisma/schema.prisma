@@ -152,6 +152,9 @@ model Profile {
   aiBaseUrl      String?
   aiApiKey       String?
   aiModel        String?
+  // Shareable Chess DNA report: rotating public token. Null until the player
+  // shares once; /api/dna/share GET answers with a privacy-safe snapshot.
+  dnaShareToken  String?  @unique
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

@@ -37,6 +37,7 @@ const ProfileView = dynamic(() => import('@/components/views/profile-view').then
 const SettingsView = dynamic(() => import('@/components/views/settings-view').then(m => ({ default: m.SettingsView })), { loading: viewLoader })
 const ToolsView = dynamic(() => import('@/components/views/tools-view').then(m => ({ default: m.ToolsView })), { loading: viewLoader })
 const WhatsNewView = dynamic(() => import('@/components/views/whatsnew-view').then(m => ({ default: m.WhatsNewView })), { loading: viewLoader })
+const SharedDnaOverlay = dynamic(() => import('@/components/views/shared-dna-overlay').then(m => ({ default: m.SharedDnaOverlay })), { loading: viewLoader })
 
 function ViewRouter() {
   const { view } = useApp()
@@ -75,6 +76,9 @@ export default function Page() {
   const { setTheme } = useTheme()
   const [loaded, setLoaded] = useState(false)
   const [signedIn, setSignedIn] = useState(false)
+  // Shared DNA links (?dna=<token>) work signed-out: the overlay renders
+  // above the auth gate and closes back to whatever the visitor would see.
+  const [shareToken, setShareToken] = useState<string | null>(null)
 
   useActivityHeartbeat(Boolean(profile?.onboarded))
 
@@ -123,6 +127,19 @@ export default function Page() {
     setTheme(profile.darkMode === 'dark' || profile.darkMode === 'light' ? profile.darkMode : 'system')
   }, [profile?.darkMode, setTheme])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const t = new URLSearchParams(window.location.search).get('dna')
+    if (t && /^[A-Za-z0-9_-]{16,64}$/.test(t)) setShareToken(t)
+  }, [])
+
+  const closeShare = useCallback(() => {
+    setShareToken(null)
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', window.location.pathname)
+    }
+  }, [])
+
   if (!loaded) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -145,7 +162,7 @@ export default function Page() {
     return <Onboarding />
   }
 
-  return (
+  const chrome = (
     <div className="flex min-h-screen">
       <Sidebar />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
@@ -155,4 +172,14 @@ export default function Page() {
       <MobileNav />
     </div>
   )
+
+  if (shareToken) {
+    return (
+      <>
+        <SharedDnaOverlay token={shareToken} onClose={closeShare} />
+      </>
+    )
+  }
+
+  return chrome
 }
