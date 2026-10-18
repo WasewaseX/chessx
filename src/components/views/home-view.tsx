@@ -10,6 +10,7 @@ import { isLevelUnlocked, nextUnlockedId } from '@/lib/unlock'
 import { potentialElo, titleForXp } from '@/lib/rating'
 import { BOTS } from '@/lib/chess/bots'
 import { GoalCard } from '@/components/shell/streak'
+import { ChessDnaCard } from '@/components/views/chess-dna-card'
 import { GlobeSection } from '@/components/chess/chess-globe'
 import { cn } from '@/lib/utils'
 import {
@@ -369,12 +370,15 @@ export function HomeView() {
       {/* Today's plan: the chessigma loop built from the player's own misses */}
       <TodaysPlanCard dayKey={dayKey} />
 
+      {/* Chess DNA: the five-domain report built from the player's analyzed games */}
+      <ChessDnaCard />
+
       {/* one grid for all five cards: equal gaps, equal row heights, no stray notches */}
       <div className="grid gap-4 md:grid-cols-3">
         {/* Continue learning */}
         <section className={`${CARD} flex flex-col md:col-span-2`}>
           <div>
-            {eyebrowEl('01 / Study')}
+            {eyebrowEl('02 / Study')}
             <div className="flex items-center gap-2">
               <GraduationCap className="h-5 w-5 text-primary" />
               <h2 className="font-display text-lg font-bold">Continue learning</h2>
@@ -431,7 +435,7 @@ export function HomeView() {
         {/* Daily puzzle */}
         <button className={`${CARD} pressable flex flex-col text-left hover:shadow-md`} onClick={() => navigate('puzzles')}>
           <div>
-            {eyebrowEl('02 / Puzzle')}
+            {eyebrowEl('03 / Puzzle')}
             <div className="flex items-center gap-2">
               <CalendarDays className="h-5 w-5 text-primary" />
               <h2 className="font-display text-lg font-bold">Daily puzzle</h2>
@@ -450,7 +454,7 @@ export function HomeView() {
         {/* Play */}
         <button className={`${CARD} pressable flex flex-col text-left hover:shadow-md`} onClick={() => navigate('play')}>
           <div>
-            {eyebrowEl('03 / Play')}
+            {eyebrowEl('04 / Play')}
             <div className="flex items-center gap-2">
               <Swords className="h-5 w-5 text-primary" />
               <h2 className="font-display text-lg font-bold">Play</h2>
@@ -470,7 +474,7 @@ export function HomeView() {
         {/* Coach */}
         <button className={`${CARD} pressable flex flex-col text-left hover:shadow-md`} onClick={() => navigate('coach')}>
           <div>
-            {eyebrowEl('04 / Coach')}
+            {eyebrowEl('05 / Coach')}
             <div className="flex items-center gap-2">
               <MessageSquareText className="h-5 w-5 text-primary" />
               <h2 className="font-display text-lg font-bold">Coach</h2>
