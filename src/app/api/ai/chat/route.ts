@@ -67,8 +67,13 @@ export async function POST(req: NextRequest) {
 
   // Resource guard: chat is the most model-hungry endpoint in the app, so it
   // carries its own per-account and per-IP budgets (separate from the
-  // generation limiter, which only covers material creation).
-  if (!rateLimit(`chat:${user.id}`, 20, 60_000) || !rateLimit(`chat-ip:${clientIp(req)}`, 40, 60_000)) {
+  // generation limiter, which only covers material creation). Admin accounts
+  // are unlocked: no chat budget applies to them.
+  const unlocked = user.role === 'admin'
+  if (
+    !unlocked &&
+    (!rateLimit(`chat:${user.id}`, 20, 60_000) || !rateLimit(`chat-ip:${clientIp(req)}`, 40, 60_000))
+  ) {
     return NextResponse.json({ error: 'Slow down a moment, the coach needs to breathe. Try again shortly.' }, { status: 429 })
   }
 
@@ -112,7 +117,7 @@ export async function POST(req: NextRequest) {
   // Generation runner shared by commands, direct requests and model blocks:
   // one place for rate limits and skill execution.
   const runGeneration = async (skillId: SkillId, theme?: unknown) => {
-    const limited = checkRateLimit(profile.id, dayKeyLocal())
+    const limited = checkRateLimit(profile.id, dayKeyLocal(), { admin: unlocked })
     if (limited) throw new SkillError(limited)
     return runSkill({
       skill: skillId,
@@ -149,6 +154,7 @@ export async function POST(req: NextRequest) {
       ctx: { fen: ctxIn.fen, tier: ctxIn.tier, level: ctxIn.level, theme: ctxIn.theme },
       coach,
       runGeneration,
+      unlocked,
     })
     if (routed) {
       const out = routed as CommandOutcome

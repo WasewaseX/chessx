@@ -12,6 +12,36 @@ import { Check, Loader2, Lock, Mail, UserRound } from 'lucide-react'
 
 type Mode = 'login' | 'signup'
 
+// Mirrors the server rule exactly (src/app/api/auth/signup/route.ts):
+// 3–20 chars, letters/numbers/hyphen/underscore. The input also strips
+// anything else as it is typed, so the old "letters, numbers and underscore
+// only" wall can no longer surprise anyone mid-signup.
+const USERNAME_RE = /^[a-zA-Z0-9_-]+$/
+
+function sanitizeUsername(raw: string): string {
+  return raw.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 20)
+}
+
+function usernameIssue(u: string): string | null {
+  if (!u) return null
+  if (u.length < 3) return `Needs ${3 - u.length} more character${3 - u.length === 1 ? '' : 's'} (3–20 total).`
+  if (!USERNAME_RE.test(u)) return 'Only letters, numbers, hyphens (-) and underscores (_).'
+  return null
+}
+
+function emailIssue(e: string): string | null {
+  if (!e) return null
+  if (!/^[^\s@]+@[^\s@]+$/.test(e)) return 'An email needs one @ in the middle.'
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return 'The domain needs a dot — like you@example.com.'
+  return null
+}
+
+function passwordIssue(p: string): string | null {
+  if (!p) return null
+  if (p.length < 8) return `Needs ${8 - p.length} more character${8 - p.length === 1 ? '' : 's'} (8 minimum).`
+  return null
+}
+
 /**
  * The desktop shell hands Google sign-in to the system browser by opening
  * this app with ?desktop_port=<port>&desktop_state=<state> (and optionally
@@ -154,6 +184,20 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
     e.preventDefault()
     if (busy) return
     setError(null)
+    if (mode === 'signup') {
+      // Same rules as the server, checked first with specific copy, so the
+      // submit round-trip never comes back as a generic rejection.
+      const u = sanitizeUsername(username)
+      if (u !== username) setUsername(u)
+      const uIssue = u.length < 3 ? 'Usernames need at least 3 characters' : usernameIssue(u)
+      const eIssue = emailIssue(email)
+      const pIssue = passwordIssue(password)
+      const first = uIssue ?? eIssue ?? pIssue
+      if (first) {
+        setError(first)
+        return
+      }
+    }
     setBusy(true)
     try {
       const url = mode === 'signup' ? '/api/auth/signup' : '/api/auth/login'
@@ -341,15 +385,34 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
                     <Input
                       id="su-username"
                       value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      onChange={(e) => {
+                        setUsername(sanitizeUsername(e.target.value))
+                      }}
                       placeholder="MagnusFan_99"
                       autoComplete="username"
                       maxLength={20}
                       className="pl-9"
                       required
                     />
+                    {username.length > 0 && !usernameIssue(username) && (
+                      <Check className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#81b64c]" strokeWidth={3} />
+                    )}
                   </div>
-                  <p className="text-xs text-muted-foreground">3 to 20 characters, letters, numbers, underscore.</p>
+                  <p
+                    aria-live="polite"
+                    className={cn(
+                      'text-xs',
+                      username.length === 0
+                        ? 'text-muted-foreground'
+                        : usernameIssue(username)
+                          ? 'font-medium text-destructive'
+                          : 'font-medium text-[#81b64c]',
+                    )}
+                  >
+                    {username.length === 0
+                      ? '3 to 20 characters — letters, numbers, hyphens and underscores. We block the rest as you type.'
+                      : usernameIssue(username) ?? 'Looks good.'}
+                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="su-email">Email</Label>
@@ -367,7 +430,21 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
                       required
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">Any email provider works. We send nothing without asking.</p>
+                  <p
+                    aria-live="polite"
+                    className={cn(
+                      'text-xs',
+                      email.length === 0
+                        ? 'text-muted-foreground'
+                        : emailIssue(email)
+                          ? 'font-medium text-destructive'
+                          : 'font-medium text-[#81b64c]',
+                    )}
+                  >
+                    {email.length === 0
+                      ? 'Any email provider works. We send nothing without asking.'
+                      : emailIssue(email) ?? 'Looks good.'}
+                  </p>
                 </div>
               </>
             ) : (
@@ -414,6 +491,23 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
                   {showPass ? 'Hide' : 'Show'}
                 </button>
               </div>
+              {mode === 'signup' && (
+                <p
+                  aria-live="polite"
+                  className={cn(
+                    'text-xs',
+                    password.length === 0
+                      ? 'text-muted-foreground'
+                      : passwordIssue(password)
+                        ? 'font-medium text-destructive'
+                        : 'font-medium text-[#81b64c]',
+                  )}
+                >
+                  {password.length === 0
+                    ? 'Eight characters minimum — any symbols are fine.'
+                    : passwordIssue(password) ?? 'Good length.'}
+                </p>
+              )}
             </div>
 
             <div aria-live="polite">

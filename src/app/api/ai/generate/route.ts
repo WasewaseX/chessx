@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unknown skill.' }, { status: 400 })
   }
 
-  const limited = checkRateLimit(profile.id, dayKeyLocal())
+  const limited = checkRateLimit(profile.id, dayKeyLocal(), { admin: user.role === 'admin' })
   if (limited) return NextResponse.json({ error: limited }, { status: 429 })
 
   const cfg = await getAiConfig(profile.id)

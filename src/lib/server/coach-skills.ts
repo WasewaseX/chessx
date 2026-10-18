@@ -1143,13 +1143,20 @@ export function skillProtocolLines(): string[] {
 }
 
 /** Simple honest rate limiting from local memory: one generation per profile
- * every few seconds, a daily cap, so nobody burns tokens in a loop. */
+ * every few seconds, a daily cap, so nobody burns tokens in a loop.
+ * Admin accounts (User.role === 'admin') are exempt from both guards —
+ * everything is unlocked for them by design. */
 const lastRun = new Map<string, number>()
 const dayCount = new Map<string, { key: string; n: number }>()
 const MIN_GAP_MS = 4_000
 const DAILY_CAP = 40
 
-export function checkRateLimit(profileId: string, dayKey: string): string | null {
+export function checkRateLimit(
+  profileId: string,
+  dayKey: string,
+  opts?: { admin?: boolean },
+): string | null {
+  if (opts?.admin) return null
   const prev = lastRun.get(profileId) ?? 0
   if (Date.now() - prev < MIN_GAP_MS) {
     return 'The coach is still catching up. Give it a few seconds between generations.'

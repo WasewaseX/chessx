@@ -1,0 +1,12 @@
+{
+  "name": "chessigma-desktop",
+  "version": "1.0.2",
+  "private": true,
+  "description": "Chessigma desktop shell (Electron). Content-free window over the live web app — same product, direct download.",
+  "homepage": "https://www.chessigma.com",
+  "author": {
+    "name": "Arche Labs Ltd",
+    "email": "mehdi@chessigma.com"
+  },
+  "main": "src/main.js"
+}

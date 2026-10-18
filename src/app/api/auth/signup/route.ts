@@ -15,15 +15,28 @@ import {
 } from '@/lib/auth'
 import { seedForSkill } from '@/lib/rating'
 
+const USERNAME_RE = /^[a-zA-Z0-9_-]+$/
+
 const bodySchema = z.object({
-  email: z.string().trim().toLowerCase().email().max(254),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .max(254, 'That email is too long to be real — check for typos.')
+    .refine((v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), 'That email address does not look right — check for typos.'),
   username: z
     .string()
     .trim()
-    .min(3)
-    .max(20)
-    .regex(/^[a-zA-Z0-9_]+$/, 'Letters, numbers and underscore only'),
-  password: z.string().min(8, 'Password must be at least 8 characters').max(128),
+    .min(3, 'Usernames need at least 3 characters')
+    .max(20, 'Usernames can be at most 20 characters')
+    .regex(
+      USERNAME_RE,
+      'Usernames can only use letters, numbers, hyphens (-) and underscores (_) — no spaces or other symbols',
+    ),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Passwords can be at most 128 characters'),
 })
 
 export async function POST(req: NextRequest) {

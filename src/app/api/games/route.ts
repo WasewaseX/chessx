@@ -87,7 +87,8 @@ export async function POST(req: NextRequest) {
   const pid = profile.id
 
   // Modest flood guard: 30 recorded bot games per profile per hour.
-  if (!rateLimit(`games:${pid}`, 30, 60 * 60 * 1000)) {
+  // Admin accounts are unlocked and skip the budget entirely.
+  if (user.role !== 'admin' && !rateLimit(`games:${pid}`, 30, 60 * 60 * 1000)) {
     return NextResponse.json({ error: 'Too many games recorded, try again soon' }, { status: 429 })
   }
 

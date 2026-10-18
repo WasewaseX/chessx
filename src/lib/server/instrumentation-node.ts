@@ -6,6 +6,7 @@
 // node:child_process into graphs compiled for other runtimes and every page
 // 500s with UnhandledSchemeError.
 import { kickBankBootstrap } from '@/lib/server/bank-bootstrap'
+import { kickBootMaintenance } from '@/lib/server/boot-maintenance'
 
 export function nodeBoot(): void {
   try {
@@ -13,5 +14,11 @@ export function nodeBoot(): void {
   } catch {
     // Best effort only. The puzzle API routes kick the same idempotent
     // installer as a backstop on first use.
+  }
+  try {
+    kickBootMaintenance()
+  } catch {
+    // Best effort only: admin bootstrap + daily DB snapshots must never
+    // take the server down.
   }
 }

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   if (!originOk(req)) return NextResponse.json({ error: 'Security check failed' }, { status: 403 })
   const user = await getSessionUser()
   if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
-  if (!rateLimit(`dna-narrate:${user.id}`, 6, 60_000)) {
+  if (user.role !== 'admin' && !rateLimit(`dna-narrate:${user.id}`, 6, 60_000)) {
     return NextResponse.json({ error: 'Too many requests, try again shortly' }, { status: 429 })
   }
 

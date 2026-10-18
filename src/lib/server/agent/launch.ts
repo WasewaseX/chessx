@@ -22,6 +22,8 @@ export interface LaunchInput {
   skill: string
   /** Free-form goal for the 'agent' skill. */
   goal?: string
+  /** True for admin accounts: skips the generation budget entirely. */
+  unlocked?: boolean
 }
 
 export type LaunchResult = { ok: true; task: AgentTaskView } | { ok: false; error: string }
@@ -32,7 +34,7 @@ function makeEnv(input: LaunchInput, baseLevel: { tierId: string; levelN: number
     profile: { id: input.profileId, name: input.name, skillLevel: input.skillLevel },
     ctx: input.ctx,
     gen: async (skill: SkillId, theme?: unknown, offset = 0) => {
-      const limited = checkRateLimit(input.profileId, dayKeyLocal())
+      const limited = checkRateLimit(input.profileId, dayKeyLocal(), { admin: input.unlocked === true })
       if (limited) throw new SkillError(limited)
       return runSkill({
         skill,

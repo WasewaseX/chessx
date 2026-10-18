@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  if (!rateLimit(`import-username:${user.id}`, LIMIT, WINDOW_MS)) {
+  if (user.role !== 'admin' && !rateLimit(`import-username:${user.id}`, LIMIT, WINDOW_MS)) {
     return NextResponse.json(
       { error: 'Too many imports — wait a minute and try again.' },
       { status: 429 },

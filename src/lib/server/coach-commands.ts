@@ -48,6 +48,8 @@ export interface CommandRequest {
   coach: Coach
   /** Route-injected generation: handles rate limits and SkillError → throws upward. */
   runGeneration: (skill: SkillId, theme?: unknown) => Promise<ArtifactView>
+  /** True for admin accounts: the generation budget is skipped for them. */
+  unlocked?: boolean
 }
 
 const VIEWS = ['home', 'play', 'lessons', 'lesson', 'puzzles', 'review', 'coach', 'analysis', 'profile', 'settings']
@@ -321,6 +323,7 @@ async function runAgentCommand(req: CommandRequest, def: CommandDef, arg: string
     },
     skill: def.id,
     goal: def.id === 'agent' ? arg : undefined,
+    unlocked: req.unlocked === true,
   })
   if (!result.ok) return { content: result.error }
   return { content: missionLeadIn(def), agentTaskId: result.task.id }
@@ -391,6 +394,7 @@ async function runComplaintReplacement(req: CommandRequest): Promise<CommandOutc
       ctx: { fen: req.ctx.fen, tier: req.ctx.tier, level: req.ctx.level, theme: req.ctx.theme },
       skill: 'fixit',
       goal: req.message.slice(0, 200),
+      unlocked: req.unlocked === true,
     })
     if (result.ok) {
       return {
@@ -1299,7 +1303,7 @@ async function runLineLibrary(req: CommandRequest, kind: 'trap' | 'game'): Promi
 const FINAL_WIN = 250
 
 async function runPivot(req: CommandRequest): Promise<CommandOutcome> {
-  const limited = checkRateLimit(req.profile.id, dayKeyLocal())
+  const limited = checkRateLimit(req.profile.id, dayKeyLocal(), { admin: req.unlocked === true })
   if (limited) throw new SkillError(limited)
   const game = await db.gameRecord.findFirst({
     where: { profileId: req.profile.id, analyzedAt: { not: null }, pivotFen: { not: null } },

@@ -66,3 +66,14 @@ db/.secret
 data/lichess/*.csv
 db/*.db
 dev.log*
+re/chessigma/artifact/
+re/chessigma/extracted/opt/
+re/chessigma/extracted/control.tar.xz
+re/chessigma/extracted/data.tar.xz
+re/chessigma/extracted/debian-binary
+re/chessigma/rea-web-report.md
+re/chessigma/rea-jsapp-err.log
+re/chessigma/rea-web-err.log
+re/chessigma/web/dl-failures.txt
+re/chessigma/web/real-failures.txt
+re/chesscom/

@@ -201,6 +201,17 @@ export function clientIp(req: Request): string {
   )
 }
 
+/**
+ * Admin accounts are internal/staff logins (seeded via scripts/seed-admin.ts).
+ * Unlike normal users they skip the value-feature budgets (AI chat rate,
+ * coach generation daily cap, import windows) — the whole product is unlocked
+ * for them. Auth guards (login/signup rate limits) still apply: an admin
+ * account is exactly as hard to brute-force as any other.
+ */
+export function isAdminUser(user: { role?: string | null } | null | undefined): boolean {
+  return user?.role === 'admin'
+}
+
 /** Every profile-backed route starts here. Returns user or null (401). */
 export async function requireUser(): Promise<AuthUser | null> {
   return getSessionUser()
