@@ -6,6 +6,7 @@ import { Chess, type Square } from 'chess.js'
 import { ChessBoard, type Arrow } from '@/components/chess/board'
 import { MoveList } from '@/components/chess/move-list'
 import { BOTS, botForLevel, type Bot } from '@/lib/chess/bots'
+import { SPARRING_ROSTER, personaForBot, progressFor, nextUpLevel, titleCardFor, type SparringGameRow } from '@/lib/chess/sparring-roster'
 import { CharacterFace } from '@/components/chess/characters'
 import { engine } from '@/lib/chess/engine-client'
 import { playSound } from '@/lib/chess/sounds'
@@ -776,6 +777,36 @@ function BotsLobby({
   botElo: number
   botEloGames: number
 }) {
+  // Real games from the existing endpoint: the persona cards show the actual
+  // W/L record against each bot. Recent window (last 50 recorded games), read
+  // once when the lobby opens; a failed load simply hides the badges.
+  const [botRows, setBotRows] = useState<BotGameRow[] | null>(null)
+  useEffect(() => {
+    let alive = true
+    fetch('/api/games?limit=50')
+      .then((r) => (r.ok ? readJson<{ games?: BotGameRow[] }>(r) : { games: [] }))
+      .then((d) => {
+        if (alive) setBotRows((d.games ?? []).filter((g) => g.kind === 'bot'))
+      })
+      .catch(() => {
+        if (alive) setBotRows([])
+      })
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  const rowsByBot = useMemo(() => {
+    const map = new Map<string, SparringGameRow[]>()
+    for (const g of botRows ?? []) {
+      const list = map.get(g.opponent) ?? []
+      list.push(g)
+      map.set(g.opponent, list)
+    }
+    return map
+  }, [botRows])
+  const nextUp = useMemo(() => nextUpLevel((botRows ?? []).map((g) => ({ result: g.result, botName: g.opponent }))), [botRows])
+  const personaOf = useMemo(() => new Map(SPARRING_ROSTER.map((p) => [p.level, p])), [])
   // chess.com-style ladder: the player's estimated Elo card sits in the list
   // exactly where their number falls between the bots
   const you: { key: string; rating: number; el: React.ReactNode; bot?: Bot } = {
@@ -844,17 +875,41 @@ function BotsLobby({
             <button
               key={row.key}
               onClick={() => onPlay(row.bot!)}
-              className="pressable group flex items-center gap-3 rounded-lg bg-card p-4 text-left shadow-sm transition-shadow hover:shadow-md"
+              className="pressable group flex items-start gap-3 rounded-lg bg-card p-4 text-left shadow-sm transition-shadow hover:shadow-md"
             >
               <BotFace bot={row.bot!} className="h-12 w-12 shrink-0 border border-border/60 bg-secondary" />
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="flex items-baseline gap-2">
                   <span className="truncate font-bold">{row.bot!.name}</span>
                   <span className="whitespace-nowrap text-sm text-muted-foreground">
                     est. {row.bot!.rating}
                   </span>
+                  {nextUp === row.bot!.level && (
+                    <span className="shrink-0 rounded-full bg-primary px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-primary-foreground">
+                      Next up
+                    </span>
+                  )}
                 </div>
-                <div className="truncate text-xs text-muted-foreground">{row.bot!.description}</div>
+                <div className="truncate text-xs font-medium text-foreground/80">{personaOf.get(row.bot!.level)?.flavor ?? row.bot!.description}</div>
+                <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                  <span
+                    className={cn(
+                      'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
+                      STYLE_CHIP[personaForBot(row.bot!).style] ?? 'bg-secondary text-secondary-foreground',
+                    )}
+                  >
+                    {personaForBot(row.bot!).style}
+                  </span>
+                  {personaForBot(row.bot!).blunderProne && (
+                    <span className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                      human-like
+                    </span>
+                  )}
+                  {(() => {
+                    const rec = progressFor(row.bot!.level, rowsByBot.get(row.bot!.name) ?? [])
+                    return <PersonaRecordBadge wins={rec.wins} losses={rec.losses} draws={rec.draws} played={rec.played} />
+                  })()}
+                </div>
               </div>
             </button>
           ),
@@ -866,6 +921,41 @@ function BotsLobby({
 
 function Label({ children, className }: { children: React.ReactNode; className?: string }) {
   return <span className={className}>{children}</span>
+}
+
+/* ---------------- sparring persona cards ----------------
+ * The ladder order and the "You" card are unchanged. Each bot card becomes a
+ * persona: characterful flavor line, play-style tag, a human-like tag for the
+ * blunder-prone bottom half of the ladder, and the real W/L record from the
+ * player's recorded games (existing /api/games endpoint, no new route). */
+
+interface BotGameRow extends SparringGameRow {
+  kind: string
+  opponent: string
+}
+
+const STYLE_CHIP: Record<string, string> = {
+  solid: 'bg-secondary text-secondary-foreground',
+  aggressive: 'bg-destructive/10 text-destructive',
+  tricky: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
+  positional: 'bg-teal-600/10 text-teal-700 dark:text-teal-400',
+  chaotic: 'bg-orange-500/10 text-orange-700 dark:text-orange-400',
+}
+
+function PersonaRecordBadge({ wins, losses, draws, played }: { wins: number; losses: number; draws: number; played: number }) {
+  if (played <= 0) return null
+  const label = `${wins}W · ${losses}L${draws > 0 ? ` · ${draws}D` : ''} in ${played}`
+  return (
+    <span
+      className={cn(
+        'shrink-0 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold',
+        wins > losses ? 'bg-primary/15 text-primary' : 'bg-secondary text-secondary-foreground',
+      )}
+      aria-label={`Your record: ${label}`}
+    >
+      {label}
+    </span>
+  )
 }
 
 function GameScreen({
@@ -1122,6 +1212,10 @@ function GameScreen({
     setEnd({ result: 'loss', reason: 'resignation' })
   }, [end])
 
+  // After-game flavor line for this exact ending, picked once per end state so
+  // re-renders of the dialog never swap the line mid-view.
+  const titleCard = useMemo(() => (end ? titleCardFor(end.result, end.reason) : null), [end])
+
   const playerOnMove = gameRef.current.turn() === setup.playerColor && !end
 
   return (
@@ -1268,6 +1362,11 @@ function GameScreen({
               {end?.result === 'win' ? 'Won' : end?.result === 'loss' ? 'Lost' : 'Drawn'} by {end?.reason} against {setup.bot.name}.
             </DialogDescription>
           </DialogHeader>
+          {titleCard && (
+            <p className="text-center font-display text-base font-bold italic text-foreground/80" aria-live="polite">
+              {titleCard}
+            </p>
+          )}
           <p className="text-sm text-muted-foreground">Casual game, online ratings are untouched.</p>
           {estAfter && (
             <div className="flex flex-col items-center gap-0.5 rounded-lg bg-secondary/60 px-4 py-3">

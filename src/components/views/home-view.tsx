@@ -11,6 +11,7 @@ import { potentialElo, titleForXp } from '@/lib/rating'
 import { BOTS } from '@/lib/chess/bots'
 import { GoalCard } from '@/components/shell/streak'
 import { GlobeSection } from '@/components/chess/chess-globe'
+import { cn } from '@/lib/utils'
 import {
   Swords,
   GraduationCap,
@@ -19,6 +20,10 @@ import {
   CalendarDays,
   ChevronRight,
   RotateCcw,
+  ListChecks,
+  Shield,
+  Repeat2,
+  Check,
 } from 'lucide-react'
 
 interface GameRow {
@@ -40,6 +45,200 @@ const CARD = 'rounded-lg bg-card p-6 shadow-sm'
 /** zeechess-style section eyebrow: a tiny mono index line above card titles. */
 function eyebrowEl(text: string) {
   return <span aria-hidden="true" className="block text-[10px] font-extrabold uppercase tracking-[0.18em] text-muted-foreground/60">{text}</span>
+}
+
+// ------------------------------ Today's Plan --------------------------------
+
+interface PlanSlot {
+  id: string
+  title: string
+  detail: string
+  view: 'review' | 'puzzles'
+  done: boolean
+}
+
+interface PlanSection {
+  key: 'blunderFix' | 'blunderShield' | 'woodpecker'
+  label: string
+  slots: PlanSlot[]
+}
+
+interface PlanData {
+  dayKey: string
+  target: number
+  doneCount: number
+  sections: PlanSection[]
+}
+
+const PLAN_SECTION_ICONS: Record<PlanSection['key'], typeof Target> = {
+  blunderFix: Target,
+  blunderShield: Shield,
+  woodpecker: Repeat2,
+}
+
+/**
+ * The chessigma loop at a glance: fix your own misses, shield against your
+ * recurring traps, sharpen the woodpecker sets, take the daily shot. Every
+ * slot is derived from the player's own data — sections shrink honestly when
+ * there is nothing to train. Pending chips jump to the view where that work
+ * lives; done slots strike through in green.
+ */
+function TodaysPlanCard({ dayKey }: { dayKey: string }) {
+  const { navigate } = useApp()
+  const [plan, setPlan] = useState<PlanData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [error, setError] = useState(false)
+
+  const load = useCallback(() => {
+    fetch(`/api/plan?day=${dayKey}`)
+      .then((r) => readJson<PlanData>(r))
+      .then((d) => {
+        setPlan(d)
+        setError(false)
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false))
+  }, [dayKey])
+
+  useEffect(() => {
+    load()
+  }, [load])
+
+  function refreshPlan() {
+    setRefreshing(true)
+    fetch('/api/plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'refresh', dayKey }),
+    })
+      .then((r) => readJson<PlanData>(r))
+      .then((d) => {
+        setPlan(d)
+        setError(false)
+      })
+      .catch(() => setError(true))
+      .finally(() => setRefreshing(false))
+  }
+
+  const totalSlots = plan?.sections.reduce((n, s) => n + s.slots.length, 0) ?? 0
+
+  return (
+    <section className={CARD} aria-label="Today's Plan">
+      <div>
+        {eyebrowEl("00 / Today's plan")}
+        <div className="mt-1 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <ListChecks className="h-5 w-5 text-primary" />
+            <h2 className="font-display text-lg font-bold">Today&apos;s Plan</h2>
+          </div>
+          <div className="flex items-center gap-2">
+            {plan && totalSlots > 0 && (
+              <span className="text-sm font-extrabold tabular-nums" aria-label={`${plan.doneCount} of ${plan.target} done`}>
+                {plan.doneCount} / {plan.target}
+              </span>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={refreshPlan}
+              disabled={refreshing}
+              aria-label="Rebuild today's plan from your latest data"
+              title="Rebuild from your latest data"
+            >
+              <RotateCcw className={cn('h-4 w-4', refreshing && 'animate-spin')} />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {plan && totalSlots > 0 && (
+        <Progress
+          value={Math.min(100, (plan.doneCount / Math.max(1, plan.target)) * 100)}
+          className="mt-3 h-1.5"
+          aria-label={`${plan.doneCount} of ${plan.target} plan slots done`}
+        />
+      )}
+
+      {loading ? (
+        <div className="mt-4 space-y-3" role="status" aria-label="Loading today's plan">
+          {Array.from({ length: 3 }, (_, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="h-4 w-24 animate-pulse rounded bg-secondary motion-reduce:animate-none" />
+              <div className="flex flex-1 flex-wrap gap-1.5">
+                <div className="h-9 w-32 animate-pulse rounded-md bg-secondary motion-reduce:animate-none" />
+                <div className="h-9 w-28 animate-pulse rounded-md bg-secondary motion-reduce:animate-none" />
+                <div className="h-9 w-36 animate-pulse rounded-md bg-secondary motion-reduce:animate-none" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : error ? (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm">
+          <span className="text-destructive">Could not load your plan.</span>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setError(false)
+              load()
+            }}
+          >
+            <RotateCcw className="h-4 w-4" /> Retry
+          </Button>
+        </div>
+      ) : !plan || totalSlots === 0 ? (
+        <p className="mt-3 text-sm text-muted-foreground">
+          Play or import a few games — your plan is built from your own misses.
+        </p>
+      ) : (
+        <div className="mt-4 grid gap-3">
+          {plan.sections.map((section) => {
+            const Icon = PLAN_SECTION_ICONS[section.key]
+            return (
+              <div key={section.key} className="grid gap-1.5 sm:grid-cols-[9.5rem_1fr] sm:items-start sm:gap-3">
+                <div className="flex items-center gap-1.5 pt-2 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                  <Icon className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
+                  {section.label}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {section.slots.length === 0 ? (
+                    <span className="inline-flex items-center rounded-md bg-muted/60 px-2.5 py-1.5 text-xs text-muted-foreground">
+                      Nothing queued — good.
+                    </span>
+                  ) : (
+                    section.slots.map((slot) =>
+                      slot.done ? (
+                        <span
+                          key={slot.id}
+                          title={slot.detail}
+                          className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1.5 text-xs font-semibold text-primary"
+                        >
+                          <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                          <span className="line-through opacity-80">{slot.title}</span>
+                        </span>
+                      ) : (
+                        <button
+                          key={slot.id}
+                          onClick={() => navigate(slot.view)}
+                          title={slot.detail}
+                          aria-label={`${slot.title} — open it`}
+                          className="inline-flex min-h-9 max-w-full items-center rounded-md bg-secondary px-2.5 py-1.5 text-xs font-semibold transition-colors hover:bg-accent"
+                        >
+                          <span className="truncate">{slot.title}</span>
+                        </button>
+                      ),
+                    )
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </section>
+  )
 }
 
 export function HomeView() {
@@ -166,6 +365,9 @@ export function HomeView() {
           </div>
         </div>
       </div>
+
+      {/* Today's plan: the chessigma loop built from the player's own misses */}
+      <TodaysPlanCard dayKey={dayKey} />
 
       {/* one grid for all five cards: equal gaps, equal row heights, no stray notches */}
       <div className="grid gap-4 md:grid-cols-3">

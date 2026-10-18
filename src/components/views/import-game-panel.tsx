@@ -23,10 +23,11 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { AlertTriangle, Crown, FileUp, Globe, Link2, Loader2, Search, Swords, Upload } from 'lucide-react'
+import { AlertTriangle, Crown, FileUp, Globe, Link2, Loader2, Search, Swords, Upload, Users } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
 // PGN helpers (text-level only — the real parse lives in GameReview)
@@ -715,6 +716,123 @@ function PgnTab({ commit }: { commit: (pgn: string, source?: string) => void }) 
 }
 
 // ---------------------------------------------------------------------------
+// Bulk import by username (server-side; saves to the history, no review)
+// ---------------------------------------------------------------------------
+
+type BulkPlatform = 'chesscom' | 'lichess'
+
+interface BulkResult {
+  ok?: unknown
+  fetched?: unknown
+  imported?: unknown
+  skipped?: unknown
+  error?: unknown
+}
+
+function BulkTab({ signedIn }: { signedIn: boolean }) {
+  const [platform, setPlatform] = useState<BulkPlatform>('chesscom')
+  const [username, setUsername] = useState('')
+  const [months, setMonths] = useState<'1' | '3' | '6'>('3')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [summary, setSummary] = useState<{ imported: number; fetched: number; skipped: number; user: string; empty: boolean } | null>(null)
+
+  const run = useCallback(async () => {
+    const name = username.trim()
+    if (!name) {
+      setError(`Enter a ${platform === 'chesscom' ? 'chess.com' : 'lichess'} username.`)
+      return
+    }
+    setLoading(true)
+    setError(null)
+    setSummary(null)
+    try {
+      const res = await fetchWithTimeout(
+        '/api/import/username',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ platform, username: name, months: Number(months) }),
+        },
+        35_000,
+      )
+      const data = (await res.json().catch(() => null)) as BulkResult | null
+      if (!res.ok) {
+        setError(data && typeof data.error === 'string' ? data.error : `Import failed (HTTP ${res.status}).`)
+        return
+      }
+      const imported = typeof data?.imported === 'number' ? data.imported : 0
+      const fetched = typeof data?.fetched === 'number' ? data.fetched : 0
+      const skipped = typeof data?.skipped === 'number' ? data.skipped : 0
+      setSummary({ imported, fetched, skipped, user: name, empty: fetched === 0 })
+    } catch {
+      setError('Could not reach the import service. Check your connection and try again.')
+    } finally {
+      setLoading(false)
+    }
+  }, [platform, username, months])
+
+  return (
+    <div>
+      <Micro>Platform</Micro>
+      <div className="mt-1.5 grid grid-cols-2 gap-2">
+        <Select value={platform} onValueChange={(v) => setPlatform(v as BulkPlatform)}>
+          <SelectTrigger className="min-h-11 w-full" aria-label="Platform">
+            <SelectValue placeholder="Platform" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="chesscom">Chess.com</SelectItem>
+            <SelectItem value="lichess">Lichess</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={months} onValueChange={(v) => setMonths(v as '1' | '3' | '6')}>
+          <SelectTrigger className="min-h-11 w-full" aria-label="How far back to import">
+            <SelectValue placeholder="Months" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">Last 1 month</SelectItem>
+            <SelectItem value="3">Last 3 months</SelectItem>
+            <SelectItem value="6">Last 6 months</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <Micro className="mt-3">Username</Micro>
+      <div className="mt-1.5 flex gap-2">
+        <Input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder={platform === 'chesscom' ? 'e.g. hikaru' : 'e.g. DrNykterstein'}
+          aria-label={`${platform === 'chesscom' ? 'Chess.com' : 'Lichess'} username for bulk import`}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !loading) void run()
+          }}
+        />
+      </div>
+      <Button className="btn-hero mt-3 min-h-11 w-full" onClick={() => void run()} disabled={loading}>
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Users className="h-4 w-4" aria-hidden />}
+        {loading ? 'Importing games…' : 'Import games'}
+      </Button>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Saves the most recent finished games to your history, insights and coach. Already-imported games are skipped automatically.
+        {!signedIn && ' Sign in first — the server needs an account to save into.'}
+      </p>
+      {loading && <p className="mt-3 text-xs font-semibold text-muted-foreground">Talking to {platform === 'chesscom' ? 'chess.com' : 'lichess'} from the server — this can take a few seconds…</p>}
+      {error && <ErrorNote>{error}</ErrorNote>}
+      {summary && !error && (
+        <p
+          role="status"
+          className="mt-3 rounded-lg bg-primary/10 px-3 py-2 text-xs font-semibold leading-relaxed text-primary"
+        >
+          {summary.empty
+            ? `No games found for ${summary.user} in the selected months.`
+            : `Imported ${summary.imported} of ${summary.fetched} games from ${summary.user} (${summary.skipped} duplicates skipped).`}
+        </p>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Panel: trigger button + dialog
 // ---------------------------------------------------------------------------
 
@@ -722,10 +840,13 @@ export function ImportGamePanel({
   onImport,
   disabled,
   className,
+  signedIn = true,
 }: {
   onImport: (pgn: string, source?: string) => void
   disabled?: boolean
   className?: string
+  /** When false, the bulk tab explains that sign-in is required (the server 401s anyway). */
+  signedIn?: boolean
 }) {
   const [open, setOpen] = useState(false)
 
@@ -748,11 +869,11 @@ export function ImportGamePanel({
         <DialogHeader>
           <DialogTitle>Import an online game</DialogTitle>
           <DialogDescription>
-            Pull a recent game from lichess or chess.com, paste a game link, or drop in a PGN. The review starts right after import.
+            Pull a recent game from lichess or chess.com, paste a game link, or drop in a PGN. The review starts right after import. “By username” bulk-imports recent games into your history instead.
           </DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="lichess">
-          <TabsList className="grid h-auto w-full grid-cols-4 gap-1">
+          <TabsList className="grid h-auto w-full grid-cols-5 gap-1">
             <TabsTrigger value="lichess" className="min-h-9 gap-1 px-1.5 text-[11px] sm:text-xs">
               <Globe className="hidden h-3.5 w-3.5 sm:block" aria-hidden /> Lichess
             </TabsTrigger>
@@ -764,6 +885,9 @@ export function ImportGamePanel({
             </TabsTrigger>
             <TabsTrigger value="pgn" className="min-h-9 gap-1 px-1.5 text-[11px] sm:text-xs">
               <FileUp className="hidden h-3.5 w-3.5 sm:block" aria-hidden /> PGN / file
+            </TabsTrigger>
+            <TabsTrigger value="bulk" className="min-h-9 gap-1 px-1.5 text-[11px] sm:text-xs">
+              <Users className="hidden h-3.5 w-3.5 sm:block" aria-hidden /> By username
             </TabsTrigger>
           </TabsList>
           <TabsContent value="lichess">
@@ -777,6 +901,9 @@ export function ImportGamePanel({
           </TabsContent>
           <TabsContent value="pgn">
             <PgnTab commit={commit} />
+          </TabsContent>
+          <TabsContent value="bulk">
+            <BulkTab signedIn={signedIn} />
           </TabsContent>
         </Tabs>
       </DialogContent>

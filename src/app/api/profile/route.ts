@@ -5,6 +5,7 @@ import { getSessionUser } from '@/lib/auth'
 import { seedForSkill } from '@/lib/rating'
 import { publicProfile } from '@/lib/api'
 import { assertSafeAiEndpoint, encryptSecret, EndpointError } from '@/lib/server/security'
+import { COACH_VOICE_IDS } from '@/lib/coach/voices'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,7 +29,9 @@ async function ensureRatingRow(userId: string, skillLevel: string) {
 // ---------------------------------------------------------------------------
 
 const SKILL_LEVELS = ['new', 'beginner', 'intermediate', 'advanced', 'expert'] as const
-const COACHES = ['', 'nina', 'victor', 'elena', 'sasha'] as const
+// The roster ids plus the coach voice packs (src/lib/coach/voices.ts), which
+// share the Profile.coach field. '' stays allowed: it means "never chose".
+const COACHES = ['', 'nina', 'victor', 'elena', 'sasha', ...COACH_VOICE_IDS] as const
 const THEMES = ['green', 'brown', 'slate', 'walnut'] as const
 const DARK_MODES = ['light', 'dark', 'system'] as const
 const AI_PROVIDERS = ['builtin', 'openai', 'anthropic', 'gemini', 'openrouter', 'groq', 'deepseek', 'custom'] as const

@@ -1,6 +1,8 @@
 // Coach roster: each coach has a face, a voice (spoken with the browser's
 // native voice engine, see src/lib/speech.ts), a personality line
 // used in AI prompts, and a range of tiers they specialize in.
+import { voiceById, coachFromVoice } from '@/lib/coach/voices'
+
 export interface Coach {
   id: string
   name: string
@@ -65,12 +67,18 @@ export const COACHES: Coach[] = [
 ]
 
 export function coachById(id: string): Coach {
+  // Coach voice packs (src/lib/coach/voices.ts) share the profile.coach field;
+  // a voice id maps onto the Coach shape, everything else falls back as before.
+  const voice = voiceById(id)
+  if (voice) return coachFromVoice(voice)
   return COACHES.find((c) => c.id === id) ?? COACHES[0]
 }
 
 /** The chosen coach, or undefined when the player has not picked one yet. Never falls back silently. */
 export function coachMaybe(id?: string | null): Coach | undefined {
   if (!id) return undefined
+  const voice = voiceById(id)
+  if (voice) return coachFromVoice(voice)
   return COACHES.find((c) => c.id === id)
 }
 

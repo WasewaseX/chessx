@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { clientIp, getSessionUser, rateLimit } from '@/lib/auth'
 import { runChat, getAiConfig, type ChatMessage } from '@/lib/ai'
 import { coachById } from '@/lib/coaches'
+import { COACH_VOICE_IDS, voiceById, coachFromVoice } from '@/lib/coach/voices'
 import {
   extractSkillBlock,
   resolveLevelContext,
@@ -24,7 +25,7 @@ import { dayKeyLocal } from '@/lib/day'
 export const maxDuration = 120
 
 const VALID_VIEWS = new Set(['home', 'play', 'lessons', 'puzzles', 'review', 'coach', 'analysis', 'profile', 'settings'])
-const VALID_COACHES = new Set(['nina', 'victor', 'elena', 'sasha'])
+const VALID_COACHES = new Set(['nina', 'victor', 'elena', 'sasha', ...COACH_VOICE_IDS])
 
 /** Model-emitted app actions, whitelisted and shape-checked. */
 function parseActionBlock(raw: string): CoachAction | null {
@@ -100,7 +101,12 @@ export async function POST(req: NextRequest) {
     gameId: str(ctx.gameId, 64),
   }
   const skill = String(ctx.skillLevel ?? 'beginner')
-  const coach = coachById(typeof ctx.coach === 'string' ? ctx.coach : 'nina')
+  // Coach persona: the profile's coach field is the server-side truth. Existing
+  // coach ids keep today's behavior; voice-pack ids (src/lib/coach/voices.ts)
+  // swap in their own persona fragment; empty or unknown ids behave exactly as
+  // before (the client's fallback choice, historically Nina).
+  const voice = voiceById(profile.coach)
+  const coach = voice ? coachFromVoice(voice) : coachById(typeof ctx.coach === 'string' ? ctx.coach : 'nina')
   const cfg = await getAiConfig(profile.id)
 
   // Generation runner shared by commands, direct requests and model blocks:
@@ -237,6 +243,10 @@ export async function POST(req: NextRequest) {
   const system = [
     `You are ${coach.name}, the coach inside ChessX, a chess training app, and you are talking with one student${profile.name ? ` called ${profile.name}` : ''}. You are a person at a chessboard, not a menu and not a script.`,
     coach.systemLine,
+    // Voice packs (profile.coach) inject their fragment before the strict
+    // rules; the guard line keeps those rules in charge. No voice chosen:
+    // nothing extra is added and the prompt is byte-for-byte as before.
+    ...(voice && voice.systemFragment ? ['Stay in character but NEVER let style override the rules below.'] : []),
     `The student self-identifies as: ${skill}. Calibrate depth to that level.`,
     'How you talk:',
     '- Short and alive. A few sentences at most. Sound like a coach sitting across the board, not like a manual.',
@@ -259,7 +269,7 @@ export async function POST(req: NextRequest) {
     '```chessx-action',
     '{"action":"flip_board"}',
     '```',
-    'Valid actions: flip_board, reset_board, toggle_dark, toggle_sound, goto (add "view": home|play|lessons|puzzles|review|coach|analysis|profile|settings), switch_coach (add "coachId": nina|victor|elena|sasha).',
+    'Valid actions: flip_board, reset_board, toggle_dark, toggle_sound, goto (add "view": home|play|lessons|puzzles|review|coach|analysis|profile|settings), switch_coach (add "coachId": nina|victor|elena|sasha or a voice id: coach|professor|blitz|monk|tactician|storyteller|sergeant|optimist|analyst).',
     'The app executes the action after your reply. Only include the block when the student clearly wants the app itself to change.',
     contextLines.length ? `\nContext:\n${contextLines.join('\n')}` : '',
   ].join('\n')

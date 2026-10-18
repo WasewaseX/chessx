@@ -5,12 +5,13 @@ import { readJson } from '@/lib/api-client'
 // needs a coach renders a chooser until the player has picked one.
 
 import { useState } from 'react'
-import { COACHES, type Coach } from '@/lib/coaches'
+import { COACHES, coachMaybe, type Coach } from '@/lib/coaches'
+import { ALL_VOICE_OPTIONS } from '@/lib/coach/voices'
 import { CharacterFace } from '@/components/chess/characters'
 import { useApp, type ProfileData } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Check, Loader2 } from 'lucide-react'
+import { Check, Loader2, Mic } from 'lucide-react'
 
 const TIER_NAMES: Record<number, string> = {
   1: 'Newbie',
@@ -40,7 +41,8 @@ export function usePickCoach() {
       })
       const data = await readJson<{ profile?: ProfileData }>(res)
       if (data.profile) setProfile(data.profile)
-      return COACHES.find((c) => c.id === id) ?? null
+      // Voice-pack ids resolve through the same lookup (coachMaybe covers them)
+      return coachMaybe(id) ?? null
     } finally {
       setBusyId(null)
     }
@@ -122,6 +124,74 @@ export function CoachCards({
           </button>
         )
       })}
+
+      {/* Coach voice packs: same selection mechanism, one shared profile.coach
+          field. The first option is the neutral default, so players who never
+          pick a voice keep the exact behavior they had. */}
+      <div role="presentation" className={cn('col-span-full mt-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground', columns === 2 && 'sm:col-span-full')}>
+        <Mic className="h-3.5 w-3.5" aria-hidden="true" /> Coach voices
+      </div>
+      {ALL_VOICE_OPTIONS.map((v) => {
+        const active = value === v.id
+        return (
+          <button
+            key={v.id}
+            role="radio"
+            aria-checked={active}
+            onClick={() => onChange(v.id)}
+            className={cn(
+              'pressable group flex items-start gap-3 rounded-xl border-2 p-3.5 text-left transition-colors',
+              active
+                ? 'border-primary bg-primary/10 shadow-sm'
+                : 'border-transparent bg-secondary/70 hover:border-primary/30 hover:bg-secondary',
+              compact && 'items-center p-2.5',
+            )}
+          >
+            <CharacterFace
+              id={v.id}
+              label={v.name}
+              className={cn(
+                'shrink-0 rounded-full border-2 shadow-sm transition-transform duration-200 group-hover:scale-105',
+                compact ? 'h-10 w-10' : 'h-14 w-14',
+                active ? 'border-primary' : 'border-transparent',
+              )}
+            />
+            {compact ? (
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-display text-sm font-extrabold">{v.name}</span>
+                  <span className="truncate text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{v.traits[0]}</span>
+                </div>
+                <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground">{v.tagline}</p>
+              </div>
+            ) : (
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-display text-base font-extrabold">{v.name}</span>
+                  {active && (
+                    <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <Check className="h-3.5 w-3.5" />
+                    </span>
+                  )}
+                </div>
+                <p className="mt-0.5 text-sm leading-snug text-muted-foreground">{v.tagline}</p>
+                <div className="mt-1.5 flex flex-wrap gap-1">
+                  {v.traits.map((t) => (
+                    <span key={t} className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {compact && active && (
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <Check className="h-3.5 w-3.5" />
+              </span>
+            )}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -157,7 +227,7 @@ export function CoachChoice({
       </div>
       <Button className="btn-hero mt-4 w-full py-2.5" onClick={confirm} disabled={!picked || busy}>
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-        {busy ? 'Setting up…' : picked ? `Train with ${COACHES.find((c) => c.id === picked)?.name}` : 'Pick a coach to continue'}
+        {busy ? 'Setting up…' : picked ? `Train with ${coachMaybe(picked)?.name ?? 'your coach'}` : 'Pick a coach to continue'}
       </Button>
     </>
   )
