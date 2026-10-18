@@ -12,6 +12,27 @@ import { Check, Loader2, Lock, Mail, UserRound } from 'lucide-react'
 
 type Mode = 'login' | 'signup'
 
+/**
+ * The desktop shell hands Google sign-in to the system browser by opening
+ * this app with ?desktop_port=<port>&desktop_state=<state> (and optionally
+ * next). Those two values must ride along to /api/auth/google/start so its
+ * callback can bounce the result to the shell's 127.0.0.1 listener; without
+ * them (a normal browser) this is an empty string and nothing changes.
+ */
+function desktopHandoffQuery(): string {
+  if (typeof window === 'undefined') return ''
+  const q = new URLSearchParams(window.location.search)
+  const port = q.get('desktop_port')
+  const state = q.get('desktop_state')
+  if (!port || !state) return ''
+  const out = new URLSearchParams({ desktop: '1', desktop_port: port, desktop_state: state })
+  const next = q.get('next')
+  if (next && next.startsWith('/') && !next.startsWith('//') && !next.startsWith('/\\')) {
+    out.set('next', next)
+  }
+  return out.toString()
+}
+
 // Italian Game, a position every club player recognizes: 1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5
 const HERO_FEN = 'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R'
 const COACH_IDS = ['nina', 'victor', 'elena', 'sasha'] as const
@@ -95,6 +116,8 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
   const [busy, setBusy] = useState(false)
   const [googleBusy, setGoogleBusy] = useState(false)
   const [googleNotice, setGoogleNotice] = useState<string | null>(null)
+  // Read once: the desktop params are part of the landing URL, never mutated.
+  const [handoffQuery] = useState(desktopHandoffQuery)
 
   // Google redirects back with ?authError=...; surface it as a normal inline error.
   useEffect(() => {
@@ -142,7 +165,7 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
     setError(null)
     setGoogleNotice(null)
     try {
-      const res = await fetch('/api/auth/google/start')
+      const res = await fetch(`/api/auth/google/start${handoffQuery ? `?${handoffQuery}` : ''}`)
       const data = (await res.json().catch(() => ({}))) as { url?: string }
       if (res.ok && data.url) {
         window.location.href = data.url

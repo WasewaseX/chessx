@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChessX — offline</title>
+<style>
+  body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+         background: #312e2b; color: #e8e6e3; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .card { text-align: center; padding: 48px 40px; border-radius: 16px; background: #262421;
+          box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .6); max-width: 360px; }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  p  { margin: 0 0 20px; color: #a9a49c; font-size: 14px; }
+  button { font: inherit; font-weight: 600; color: #fff; background: #81b64c; border: 0;
+           border-radius: 8px; padding: 10px 22px; cursor: pointer; }
+  button:hover { background: #a3d160; }
+  button:disabled { opacity: .45; cursor: default; }
+</style>
+</head>
+<body>
+<main class="card">
+  <h1>You&rsquo;re offline.</h1>
+  <p>ChessX needs a connection. Check yours, then try again.</p>
+  <button id="retry" type="button">Try again</button>
+</main>
+<script>
+  // The shell opens this page as file://…/offline.html?origin=<app origin>.
+  // The retry target ALWAYS comes from the query string — never hardcoded —
+  // and only an absolute http(s) URL without embedded credentials is used.
+  (function () {
+    var btn = document.getElementById('retry');
+    var target = null;
+    try {
+      var raw = new URLSearchParams(window.location.search).get('origin');
+      if (raw) {
+        var u = new URL(raw);
+        if ((u.protocol === 'https:' || u.protocol === 'http:') && !u.username && !u.password) {
+          target = u.toString();
+        }
+      }
+    } catch (e) {
+      target = null;
+    }
+    if (!target) btn.disabled = true;
+    btn.addEventListener('click', function () {
+      if (target) window.location.replace(target);
+    });
+  })();
+</script>
+</body>
+</html>

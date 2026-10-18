@@ -24,6 +24,7 @@ model User {
   gamesAsWhite  OnlineGame[]   @relation("gameWhite")
   gamesAsBlack  OnlineGame[]   @relation("gameBlack")
   profile       Profile?
+  desktopHandoffTokens DesktopHandoffToken[]
 }
 
 // Server-side session store. The cookie holds a random token; the DB holds
@@ -42,6 +43,21 @@ model Session {
 // who is connecting without ever exposing the session cookie to JS.
 model SocketTicket {
   id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// Single-use bridge credential for the desktop shell's Google sign-in
+// (RFC 8252 loopback handoff). The system browser finishes OAuth, mints one
+// of these and bounces to the shell's loopback listener; the shell redeems
+// it for a normal session. Only the SHA-256 of the token is stored, so the
+// token in a redirect URL is useless to anyone who cannot also read the DB.
+model DesktopHandoffToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime

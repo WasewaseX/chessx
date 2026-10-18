@@ -1,0 +1,15 @@
+{
+  "name": "chessx-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ChessX desktop shell: a hardened Chromium window around the ChessX web app.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "CHESSX_DESKTOP_URL=http://localhost:3000 electron .",
+    "dist": "echo 'Packaging (electron-builder/packager) is intentionally out of scope for this scaffold.' && exit 1"
+  },
+  "devDependencies": {
+    "electron": "^43.0.0"
+  }
+}

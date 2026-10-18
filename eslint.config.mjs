@@ -44,7 +44,10 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
     "no-useless-escape": "off",
   },
 }, {
-  ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "examples/**", "skills", "public/engine/**", "reference/**", "tests/**", "scripts/**", "mini-services/**"]
+  ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "examples/**", "skills", "public/engine/**", "reference/**", "tests/**", "scripts/**", "mini-services/**",
+    // desktop/ is its own Electron package (plain CommonJS main-process code,
+    // its own package.json) — not part of the Next.js bundle or its lint rules.
+    "desktop/**"]
 }];
 
 export default eslintConfig;

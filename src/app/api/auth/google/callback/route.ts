@@ -11,6 +11,11 @@ import {
   OAUTH_STATE_COOKIE,
   stateMatches,
 } from '@/lib/google-oauth'
+import {
+  DESKTOP_HANDOFF_COOKIE,
+  decodeDesktopHandoffCookie,
+  mintDesktopToken,
+} from '@/lib/server/desktop-handoff'
 
 export const dynamic = 'force-dynamic'
 
@@ -83,6 +88,28 @@ export async function GET(req: NextRequest) {
     })
   } else if (!user.googleId) {
     await db.user.update({ where: { id: user.id }, data: { googleId: profile.sub } })
+  }
+
+  // Desktop handoff: the round trip that just finished started from the
+  // desktop shell's system browser, so a session cookie set here would land
+  // in the WRONG browser. The handoff cookie (set by /api/auth/google/start
+  // and carried through Google) is the only source of the loopback port and
+  // state — query params on this request are ignored for that. Mint a
+  // single-use token, bounce the system browser to the shell's 127.0.0.1
+  // listener, and let the shell redeem it at /api/auth/desktop, which
+  // creates the real session inside the app window. Without the cookie this
+  // branch is dead code and the browser flow below runs untouched.
+  const desktop = decodeDesktopHandoffCookie(store.get(DESKTOP_HANDOFF_COOKIE)?.value)
+  if (desktop) {
+    const minted = await mintDesktopToken(user.id)
+    const loopback = new URL(`http://127.0.0.1:${desktop.port}/callback`)
+    loopback.searchParams.set('state', desktop.state)
+    loopback.searchParams.set('token_hash', minted.token)
+    if (desktop.next) loopback.searchParams.set('next', desktop.next)
+    const res = NextResponse.redirect(loopback.toString(), 302)
+    res.cookies.set(OAUTH_STATE_COOKIE, '', { httpOnly: true, path: '/', maxAge: 0 })
+    res.cookies.set(DESKTOP_HANDOFF_COOKIE, '', { httpOnly: true, path: '/', maxAge: 0 })
+    return res
   }
 
   const { token, expiresAt } = await createSession(user.id)
