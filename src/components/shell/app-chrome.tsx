@@ -17,6 +17,7 @@ import {
   History,
   LogOut,
   LayoutGrid,
+  Sparkles,
 } from 'lucide-react'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { ThemeToggle } from '@/components/shell/theme-toggle'
@@ -51,6 +52,7 @@ const NAV_SECTIONS: { label: string; items: { name: ViewName; label: string; ico
     items: [
       { name: 'profile', label: 'Profile', icon: UserRound },
       { name: 'tools', label: 'Tools', icon: Wrench },
+      { name: 'whatsnew', label: "What's new", icon: Sparkles },
       { name: 'settings', label: 'Settings', icon: Settings },
     ],
   },

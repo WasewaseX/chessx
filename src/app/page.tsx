@@ -36,6 +36,7 @@ const AnalysisView = dynamic(() => import('@/components/views/analysis-view').th
 const ProfileView = dynamic(() => import('@/components/views/profile-view').then(m => ({ default: m.ProfileView })), { loading: viewLoader })
 const SettingsView = dynamic(() => import('@/components/views/settings-view').then(m => ({ default: m.SettingsView })), { loading: viewLoader })
 const ToolsView = dynamic(() => import('@/components/views/tools-view').then(m => ({ default: m.ToolsView })), { loading: viewLoader })
+const WhatsNewView = dynamic(() => import('@/components/views/whatsnew-view').then(m => ({ default: m.WhatsNewView })), { loading: viewLoader })
 
 function ViewRouter() {
   const { view } = useApp()
@@ -61,6 +62,8 @@ function ViewRouter() {
       return <SettingsView />
     case 'tools':
       return <ToolsView />
+    case 'whatsnew':
+      return <WhatsNewView />
     default:
       return <HomeView />
   }

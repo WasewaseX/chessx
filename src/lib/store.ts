@@ -14,6 +14,7 @@ export type ViewName =
   | 'profile'
   | 'settings'
   | 'tools'
+  | 'whatsnew'
 
 export interface ViewState {
   name: ViewName
@@ -110,7 +111,7 @@ function viewFromHash(): ViewState {
   // view, never the router; strip it before name parsing
   const path = h.split('?')[0]
   const [name, lessonId] = path.split('/')
-  const valid: ViewName[] = ['home', 'play', 'lessons', 'lesson', 'puzzles', 'review', 'coach', 'analysis', 'profile', 'settings', 'tools']
+  const valid: ViewName[] = ['home', 'play', 'lessons', 'lesson', 'puzzles', 'review', 'coach', 'analysis', 'profile', 'settings', 'tools', 'whatsnew']
   if (valid.includes(name as ViewName)) {
     return { name: name as ViewName, lessonId: lessonId || undefined }
   }

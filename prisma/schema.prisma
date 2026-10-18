@@ -368,6 +368,64 @@ model SavedPosition {
   @@index([profileId, createdAt])
 }
 
+// What's new: published changelog entries. Admin-authored only; every player
+// (and anonymous visitors, via the ip-derived voter key) can react to them.
+model ChangelogEntry {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  tag       String   @default("update") // update | feature | fix | benchmark
+  version   String?
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  reactions ChangelogReaction[]
+
+  @@index([createdAt])
+}
+
+// One reaction per viewer per entry. voterKey is the userId when signed in,
+// else sha256(ip + server salt). A stored row with a different emoji is
+// switched in place; pressing the same emoji again removes it.
+model ChangelogReaction {
+  id        String         @id @default(cuid())
+  entryId   String
+  entry     ChangelogEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  voterKey  String
+  emoji     String         @default("🎉")
+  createdAt DateTime       @default(now())
+
+  @@unique([entryId, voterKey])
+}
+
+// Public feature-suggestion board. Status mirrors the roadmap ladder; votes
+// are denormalized for sorting and kept exact against SuggestionVote rows.
+model FeatureSuggestion {
+  id         String   @id @default(cuid())
+  profileId  String?
+  authorName String   @default("Player")
+  title      String
+  detail     String
+  status     String   @default("open") // open | planned | in_progress | shipped | declined
+  votes      Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  suggestionVotes SuggestionVote[]
+
+  @@index([status, votes])
+}
+
+// One vote per viewer per suggestion (voterKey = profile id when signed in).
+model SuggestionVote {
+  id           String            @id @default(cuid())
+  suggestionId String
+  suggestion   FeatureSuggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+  voterKey     String
+  createdAt    DateTime          @default(now())
+
+  @@unique([suggestionId, voterKey])
+}
+
 // Woodpecker method: one fixed puzzle set per theme. The player replays the
 // SAME set cycle after cycle, chasing a faster time; the next cycle unlocks
 // only on a run that is quicker than the best AND at least as accurate.
