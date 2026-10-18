@@ -130,7 +130,11 @@ export default function Page() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     const t = new URLSearchParams(window.location.search).get('dna')
-    if (t && /^[A-Za-z0-9_-]{16,64}$/.test(t)) setShareToken(t)
+    if (!t || !/^[A-Za-z0-9_-]{16,64}$/.test(t)) return
+    // Defer the state write out of the effect body so the first commit stays
+    // clean (react-hooks/set-state-in-effect).
+    const id = window.setTimeout(() => setShareToken(t), 0)
+    return () => window.clearTimeout(id)
   }, [])
 
   const closeShare = useCallback(() => {
