@@ -129,7 +129,7 @@ function labelsJson(g: GenGame) {
 }
 
 async function main() {
-  const user = await prisma.user.findUnique({ where: { usernameLower: 'dnatrendtester' } })
+  const user = await prisma.user.findUnique({ where: { usernameLower: 'plantester' } })
   if (!user) throw new Error('test user not found')
   const profile = await prisma.profile.findUnique({ where: { userId: user.id } })
   if (!profile) throw new Error('test profile not found')

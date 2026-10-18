@@ -117,9 +117,9 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
   const [googleBusy, setGoogleBusy] = useState(false)
   const [googleNotice, setGoogleNotice] = useState<string | null>(null)
   /**
-   * null = still probing. Hide the Google button until the deployment says
-   * it actually has OAuth credentials — a button that can only answer
-   * "not configured" is noise, so email is the primary path here. If the
+   * null = still probing. Default-hidden: the Google button renders only
+   * once the deployment confirms OAuth credentials — a button that can
+   * only answer "not configured" never shows, not even as a flash. If the
    * probe itself fails (offline / compile race) we show the button anyway:
    * the /api/auth/google/start 501 fallback below still tells the truth.
    */
@@ -303,7 +303,7 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
             ))}
           </div>
 
-          {googleReady !== false && (
+          {googleReady === true && (
             <>
               <div className="mt-5">
                 <Button

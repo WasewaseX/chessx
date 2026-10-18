@@ -17,6 +17,7 @@ import { dayKeyLocal } from '@/lib/day'
 import { PUZZLES } from '@/content/puzzles'
 import { humanizeTheme } from '@/content/schema'
 import { lichessById } from '@/lib/server/lichess-bank'
+import { buildDnaReport } from '@/lib/server/chess-dna'
 
 const DAY_MS = 86_400_000
 
@@ -56,6 +57,21 @@ export interface PlanSlot {
   done: boolean
 }
 
+/**
+ * The weakest Chess DNA domain, spotlighted on the plan so the morning
+ * loop visibly trains what the DNA measured. Carries the domain's own
+ * drill deep link (view + hash arg). Null when the DNA is not ready yet —
+ * the plan never pretends a focus it cannot measure.
+ */
+export interface PlanFocus {
+  domain: string
+  label: string
+  score: number | null
+  tip: string | null
+  view: PlanView | 'tools'
+  arg?: string
+}
+
 export interface PlanSection {
   key: PlanSectionKey
   label: string
@@ -67,6 +83,7 @@ export interface DailyPlan {
   target: number
   doneCount: number
   sections: PlanSection[]
+  focus: PlanFocus | null
 }
 
 export const PLAN_TARGET = FIX_SIZE + SHIELD_SIZE + WOODPECKER_SIZE + 1
@@ -245,6 +262,38 @@ async function composeWoodpeckerAndDaily(profileId: string, dayKey: string): Pro
 }
 
 // ---------------------------------------------------------------------------
+// DNA focus — weakest domain spotlight (own cache, DNA changes are slow)
+// ---------------------------------------------------------------------------
+
+const FOCUS_TTL_MS = 10 * 60_000
+const focusCache = new Map<string, { at: number; focus: PlanFocus | null }>()
+
+async function dnaFocus(profileId: string): Promise<PlanFocus | null> {
+  const hit = focusCache.get(profileId)
+  if (hit && Date.now() - hit.at < FOCUS_TTL_MS) return hit.focus
+  let focus: PlanFocus | null = null
+  try {
+    const report = await buildDnaReport(profileId)
+    const domain = report.weakest ? report.domains.find((d) => d.key === report.weakest) : null
+    if (report.ready && domain && domain.drill) {
+      focus = {
+        domain: domain.key,
+        label: domain.label,
+        score: domain.score,
+        tip: report.tip,
+        view: domain.drill.view,
+        arg: domain.drill.arg,
+      }
+    }
+  } catch (e) {
+    // A failed DNA read must never break the plan — the strip just hides.
+    console.error('[plan] dna focus failed', e)
+  }
+  focusCache.set(profileId, { at: Date.now(), focus })
+  return focus
+}
+
+// ---------------------------------------------------------------------------
 // Done flags — recomputed fresh on every call, never cached
 // ---------------------------------------------------------------------------
 
@@ -315,5 +364,6 @@ export async function buildPlan(
     target: PLAN_TARGET,
     doneCount: withDone.filter((s) => s.done).length,
     sections,
+    focus: await dnaFocus(profileId),
   }
 }

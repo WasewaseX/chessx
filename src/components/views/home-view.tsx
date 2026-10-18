@@ -64,11 +64,22 @@ interface PlanSection {
   slots: PlanSlot[]
 }
 
+/** Weakest Chess DNA domain, spotlighted by the plan when it is measurable. */
+interface PlanFocus {
+  domain: string
+  label: string
+  score: number | null
+  tip: string | null
+  view: 'review' | 'puzzles' | 'tools'
+  arg?: string
+}
+
 interface PlanData {
   dayKey: string
   target: number
   doneCount: number
   sections: PlanSection[]
+  focus: PlanFocus | null
 }
 
 const PLAN_SECTION_ICONS: Record<PlanSection['key'], typeof Target> = {
@@ -160,6 +171,25 @@ function TodaysPlanCard({ dayKey }: { dayKey: string }) {
           className="mt-3 h-1.5"
           aria-label={`${plan.doneCount} of ${plan.target} plan slots done`}
         />
+      )}
+
+      {plan?.focus && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-md border border-primary/25 bg-primary/10 px-3.5 py-3">
+          <div className="min-w-0 text-xs">
+            <p className="font-bold text-primary">
+              DNA focus · {plan.focus.label}
+              {plan.focus.score != null && <span className="tabular-nums"> · {plan.focus.score}/100</span>}
+            </p>
+            {plan.focus.tip && <p className="mt-0.5 leading-relaxed text-muted-foreground">{plan.focus.tip}</p>}
+          </div>
+          <button
+            onClick={() => navigate(plan.focus!.view, plan.focus!.arg)}
+            className="inline-flex min-h-9 shrink-0 items-center rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+            aria-label={`Go train ${plan.focus.label.toLowerCase()} — your weakest domain`}
+          >
+            Train it <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
+        </div>
       )}
 
       {loading ? (
