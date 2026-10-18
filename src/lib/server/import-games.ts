@@ -202,7 +202,7 @@ export async function fetchLichessGames(
   const since = Date.now() - Math.max(1, Math.min(MAX_MONTHS, months)) * 31 * 86400_000
   const url =
     `https://lichess.org/api/games/user/${encodeURIComponent(username)}` +
-    `?max=100&pgnInJson=false&opening=true&clocks=false&evals=false&since=${since}`
+    `?max=100&pgnInJson=false&opening=true&clocks=true&evals=false&since=${since}`
   // deadlineFetch classifies timeouts (504) and network failures (502) already.
   const res = await deadlineFetch(
     url,

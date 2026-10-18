@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Chessigma
+Exec=/opt/Chessigma/chessigma-desktop %U
+Terminal=false
+Type=Application
+Icon=chessigma-desktop
+StartupWMClass=Chessigma
+Comment=Chessigma desktop — unlimited game analysis, puzzles, opening training and AI coaching. The desktop app is the full Chessigma web experience in a window.
+Categories=Game;

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       .join('\n')
     const system = [
       coach.systemLine,
-      'You are reading the player their Chess DNA report — a five-domain skill profile computed from their own analyzed games.',
+      'You are reading the player their Chess DNA report — a seven-domain skill profile computed from their own analyzed games.',
       'Rules: use ONLY the numbers given; never invent stats. Under 130 words, spoken, no headers, no lists, no markdown.',
       'Structure: name their archetype, say one real thing about their strongest domain, name the weakest honestly without softening it into nothing, then give exactly ONE concrete thing to work on this week (it must match the weakest domain).',
       'End on one short sentence of belief in them — in your own voice.',

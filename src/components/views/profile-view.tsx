@@ -130,7 +130,7 @@ export function ProfileView() {
         <EloJourneyCard />
       </div>
 
-      {/* Skill report: the five-domain Chess DNA with per-domain drills and
+      {/* Skill report: the seven-domain Chess DNA with per-domain drills and
           the daily trend — the deep version of the home card. */}
       <div className="mt-6">
         <ChessDnaCard variant="profile" />

@@ -19,10 +19,12 @@ import {
   MessageSquareText,
   RotateCcw,
   Sparkles,
+  Timer,
+  TrendingUp,
 } from 'lucide-react'
 
 /**
- * Chess DNA — the five-domain skill report built from the player's own
+ * Chess DNA — the seven-domain skill report built from the player's own
  * analyzed games (server-computed in src/lib/server/chess-dna.ts). The card
  * is honest by construction: fewer than three analyzed games shows the
  * import/review loop instead of a fake report; a domain without data shows
@@ -30,7 +32,7 @@ import {
  */
 
 interface DnaDomainDTO {
-  key: 'tactics' | 'consistency' | 'opening' | 'aggression' | 'endgame'
+  key: 'tactics' | 'consistency' | 'opening' | 'aggression' | 'endgame' | 'clock' | 'conversion'
   label: string
   score: number | null
   percentile: number | null
@@ -59,6 +61,8 @@ const DOMAIN_ICONS: Record<DnaDomainDTO['key'], typeof Crosshair> = {
   opening: BookOpen,
   aggression: Flame,
   endgame: Castle,
+  clock: Timer,
+  conversion: TrendingUp,
 }
 
 const MIN_GAMES = 3

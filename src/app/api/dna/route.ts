@@ -4,7 +4,7 @@ import { getSessionUser } from '@/lib/auth'
 import { buildDnaReport } from '@/lib/server/chess-dna'
 
 /**
- * Chess DNA report: five domain scores computed from the profile's own
+ * Chess DNA report: seven domain scores computed from the profile's own
  * analyzed games (see src/lib/server/chess-dna.ts for the exact formulas and
  * honesty rules). GET only — the report is a projection, nothing is written.
  * The percentile pool is cached in module memory for 5 minutes and the

@@ -4,7 +4,7 @@ import { db } from '@/lib/db'
 
 /**
  * Chess DNA — the chessigma signature report, rebuilt on ChessX's own
- * honest-by-construction rules. Five domains (0-100), each computed ONLY
+ * honest-by-construction rules. Seven domains (0-100), each computed ONLY
  * from data that actually exists:
  *
  *   tactics     — the player's own average centipawn loss, error rate
@@ -19,6 +19,14 @@ import { db } from '@/lib/db'
  *   endgame     — points scored in games that actually reached an endgame
  *                 (detected from the PGN's capture count) + endgame accuracy
  *                 against the player's own baseline
+ *   clock       — time management from %clk PGN comments (imported games):
+ *                 share of own moves started under serious time trouble and
+ *                 flag-fall losses. Honest null when no clock data exists
+ *                 (bot games carry none).
+ *   conversion  — what happens once the player is UP material: points scored
+ *                 in games where the player held a +3 (or better) material
+ *                 advantage at any point after the opening. Detected by
+ *                 replaying the stored PGN.
  *
  * Every domain carries its own sample size and can be honestly null when the
  * player has not played that kind of chess yet (e.g. no endgames). No filler,
@@ -39,6 +47,10 @@ import { db } from '@/lib/db'
 export const MIN_GAMES = 3
 /** Endgames required before the endgame domain gets a score. */
 export const MIN_ENDGAMES = 2
+/** Clock-sampled games required before the clock domain gets a score. */
+export const MIN_CLOCK_GAMES = 3
+/** Games that reached a winning position required before conversion scores. */
+export const MIN_WINNING_GAMES = 2
 /** Profiles required in the percentile pool before percentiles are shown. */
 export const MIN_POP_PLAYERS = 3
 /** Analyzed games per profile that feed the computation (most recent N). */
@@ -51,8 +63,23 @@ const POP_TTL_MS = 5 * 60_000
 const CPL_CAP = 1000
 /** Captures (32 - captured) at which a position counts as an endgame. */
 const ENDGAME_PIECES = 11
+/** Remaining seconds at/below which a move counts as serious time trouble. */
+const TIME_TROUBLE_SECONDS = 30
+/** Material advantage (in pawn units) that counts as a winning position. */
+const WIN_ADVANTAGE = 3
+/** Earliest ply at which a material advantage counts (skip pure opening trades). */
+const WIN_ADV_MIN_PLY = 8
+/** PGN piece values for the material walk (pawn=1 .. queen=9). */
+const PIECE_VALUE: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 }
 
-export type DnaDomainKey = 'tactics' | 'consistency' | 'opening' | 'aggression' | 'endgame'
+export type DnaDomainKey =
+  | 'tactics'
+  | 'consistency'
+  | 'opening'
+  | 'aggression'
+  | 'endgame'
+  | 'clock'
+  | 'conversion'
 
 export interface DnaDomain {
   key: DnaDomainKey
@@ -145,7 +172,6 @@ interface GameRow {
   pgn: string
   labelsJson: string | null
 }
-
 /** One game's measured primitives, after defensive parsing. */
 interface GameFacts {
   ok: boolean // false = row skipped entirely (broken JSON / unparseable PGN)
@@ -166,6 +192,13 @@ interface GameFacts {
   endgameReached: boolean
   endgameFromPly: number | null
   points: number // 1 win, 0.5 draw, 0 loss
+  // clock domain (from %clk PGN comments; absent in bot games)
+  hasClk: boolean // both sides carry readable clock comments
+  clkMoves: number // the player's own moves with a known remaining time
+  troubleMoves: number // own moves STARTED with under TIME_TROUBLE_SECONDS
+  flaggedLoss: boolean // lost on time
+  // conversion domain
+  wasWinning: boolean // held >= +WIN_ADVANTAGE material after the opening
 }
 
 // ---------------------------------------------------------------------------
@@ -192,6 +225,11 @@ function factsOf(row: GameRow): GameFacts {
     endgameReached: false,
     endgameFromPly: null,
     points: row.result === 'win' ? 1 : row.result === 'draw' ? 0.5 : 0,
+    hasClk: false,
+    clkMoves: 0,
+    troubleMoves: 0,
+    flaggedLoss: row.result === 'loss' && row.reason === 'timeout',
+    wasWinning: false,
   }
 
   const color = row.color === 'b' ? 'b' : 'w'
@@ -247,6 +285,68 @@ function factsOf(row: GameRow): GameFacts {
   const mineSans: string[] = []
   for (let i = offset; i < sans.length; i += 2) mineSans.push(sans[i])
 
+  // --- clock facts: %clk comments (lichess + chess.com both emit them) -----
+  // One comment per ply in move order, white first. Both sides must be
+  // present for the alternation assumption to hold, so require an even
+  // sample; otherwise the game simply does not count for the clock domain.
+  const clkAll: number[] = []
+  const clkRe = /%clk\s*(\d{1,2}):(\d{1,2}):(\d{1,2}(?:\.\d+)?)/g
+  let cm: RegExpExecArray | null
+  while ((cm = clkRe.exec(row.pgn)) != null) {
+    const h = Number(cm[1])
+    const m = Number(cm[2])
+    const s = Number(cm[3])
+    if (Number.isFinite(h) && Number.isFinite(m) && Number.isFinite(s)) clkAll.push(h * 3600 + m * 60 + s)
+  }
+  let hasClk = false
+  let clkMoves = 0
+  let troubleMoves = 0
+  if (clkAll.length >= 8 && clkAll.length % 2 === 0) {
+    const offsetClk = color === 'w' ? 0 : 1
+    const mineClk: number[] = []
+    for (let i = offsetClk; i < clkAll.length; i += 2) mineClk.push(clkAll[i])
+    if (mineClk.length >= 4) {
+      hasClk = true
+      clkMoves = mineClk.length
+      // mineClk[i] is the time LEFT after the player's (i+1)-th move; the
+      // time available FOR that move was mineClk[i-1] (or the start, which
+      // we cannot know reliably, so the first move is never 'trouble').
+      for (let i = 1; i < mineClk.length; i++) {
+        if (mineClk[i - 1] <= TIME_TROUBLE_SECONDS) troubleMoves += 1
+      }
+    }
+  }
+
+  // --- conversion facts: material walk over a second replay ----------------
+  // chess.js move() reports captured piece types and promotions, so the
+  // material balance can be tracked incrementally in O(plies) with no
+  // board() scans. A game "was winning" when the player held >= +3 material
+  // at any point from WIN_ADV_MIN_PLY on.
+  let wasWinning = false
+  try {
+    const replay = new Chess()
+    let myMat = 0
+    let opMat = 0
+    for (let i = 0; i < sans.length; i++) {
+      const mv = replay.move(sans[i])
+      if (!mv) break
+      const mine = i % 2 === offset
+      if (mv.captured) {
+        const v = PIECE_VALUE[mv.captured] ?? 0
+        if (mine) myMat += v
+        else opMat += v
+      }
+      if (mv.promotion) {
+        const v = (PIECE_VALUE[mv.promotion] ?? 0) - 1 // pawn left the board
+        if (mine) myMat += v
+        else opMat += v
+      }
+      if (!wasWinning && i >= WIN_ADV_MIN_PLY && myMat - opMat >= WIN_ADVANTAGE) wasWinning = true
+    }
+  } catch {
+    /* conversion stays false for this row — conservative by construction */
+  }
+
   let captures = 0
   let checks = 0
   for (const san of mineSans) {
@@ -289,6 +389,11 @@ function factsOf(row: GameRow): GameFacts {
     endgameReached: endgameFromPly != null,
     endgameFromPly,
     points: row.result === 'win' ? 1 : row.result === 'draw' ? 0.5 : 0,
+    hasClk,
+    clkMoves,
+    troubleMoves,
+    flaggedLoss: row.result === 'loss' && row.reason === 'timeout',
+    wasWinning,
   }
 }
 
@@ -320,8 +425,12 @@ export interface ProfileDna {
   opening: number | null
   aggression: number | null
   endgame: number | null
+  clock: number | null
+  conversion: number | null
   games: number
   endgames: number
+  clockGames: number
+  winningGames: number
 }
 
 export function computeDnaFromRows(rows: GameRow[]): ProfileDna {
@@ -333,8 +442,12 @@ export function computeDnaFromRows(rows: GameRow[]): ProfileDna {
     opening: null,
     aggression: null,
     endgame: null,
+    clock: null,
+    conversion: null,
     games,
     endgames: facts.filter((f) => f.endgameReached).length,
+    clockGames: facts.filter((f) => f.hasClk).length,
+    winningGames: facts.filter((f) => f.wasWinning).length,
   }
   if (games < MIN_GAMES) return out
 
@@ -420,6 +533,30 @@ export function computeDnaFromRows(rows: GameRow[]): ProfileDna {
     out.endgame = Math.round(clamp(0.6 * convScore + 0.4 * accScore))
   }
 
+  // --- clock: no time trouble (65) + no flag falls (35) --------------------
+  const clockGames = facts.filter((f) => f.hasClk)
+  if (clockGames.length >= MIN_CLOCK_GAMES) {
+    const clkMoves = clockGames.reduce((n, f) => n + f.clkMoves, 0)
+    const trouble = clockGames.reduce((n, f) => n + f.troubleMoves, 0)
+    if (clkMoves > 0) {
+      const troubleShare = trouble / clkMoves
+      // 0% of moves started under 30s → 100; 10% → ~78; 30% → ~34
+      const troubleScore = clamp(100 - troubleShare * 220)
+      const flags = clockGames.filter((f) => f.flaggedLoss).length
+      // never flagging → 100; flagging 10% of clock games → ~75; 40% → 0
+      const flagScore = clamp(100 - (flags / clockGames.length) * 250)
+      out.clock = Math.round(clamp(0.65 * troubleScore + 0.35 * flagScore))
+    }
+  }
+
+  // --- conversion: points once actually up material ------------------------
+  const winning = facts.filter((f) => f.wasWinning)
+  if (winning.length >= MIN_WINNING_GAMES) {
+    const pts = winning.reduce((n, f) => n + f.points, 0) / winning.length
+    // 100% of +3-or-better games converted → 100; half → 50
+    out.conversion = Math.round(clamp(pts * 100))
+  }
+
   return out
 }
 
@@ -475,6 +612,8 @@ async function percentilePool(): Promise<PopEntry[]> {
         opening: dna.opening,
         aggression: dna.aggression,
         endgame: dna.endgame,
+        clock: dna.clock,
+        conversion: dna.conversion,
       },
     })
   }
@@ -524,6 +663,18 @@ const DOMAIN_META: { key: DnaDomainKey; label: string; note: string; sample: (p:
     note: 'Points converted in games that reached an endgame, and your accuracy there against your own baseline.',
     sample: (p) => `${p.endgames} endgame ${p.endgames === 1 ? 'game' : 'games'}`,
   },
+  {
+    key: 'clock',
+    label: 'Clock',
+    note: 'Time management in your clock-recorded games: moves started under serious time trouble and flag falls.',
+    sample: (p) => `${p.clockGames} clock-recorded ${p.clockGames === 1 ? 'game' : 'games'}`,
+  },
+  {
+    key: 'conversion',
+    label: 'Conversion',
+    note: 'Points you actually score once you are up material by a rook or more. The winning-position scoreboard.',
+    sample: (p) => `${p.winningGames} winning ${p.winningGames === 1 ? 'game' : 'games'}`,
+  },
 ]
 
 const ARCHETYPES: { key: DnaDomainKey; name: string; tagline: string }[] = [
@@ -532,6 +683,8 @@ const ARCHETYPES: { key: DnaDomainKey; name: string; tagline: string }[] = [
   { key: 'opening', name: 'The Scholar', tagline: 'You win it in the notes, before move ten.' },
   { key: 'aggression', name: 'The Attacker', tagline: 'Kings fall around you.' },
   { key: 'endgame', name: 'The Technician', tagline: 'You grind wins out of nothing.' },
+  { key: 'clock', name: 'The Clockkeeper', tagline: 'Your flag never falls.' },
+  { key: 'conversion', name: 'The Closer', tagline: 'When you are up, the point is yours.' },
 ]
 
 // Per-domain training destinations — every measured domain row links to the
@@ -543,6 +696,8 @@ const DOMAIN_DRILLS: Record<DnaDomainKey, { view: 'review' | 'puzzles' | 'tools'
   opening: { view: 'tools', label: 'Train your openings', arg: 'trainer' },
   aggression: { view: 'review', label: 'Study attacking play' },
   endgame: { view: 'review', label: 'Convert endgames' },
+  clock: { view: 'review', label: 'Replay your time trouble' },
+  conversion: { view: 'review', label: 'Study your blown wins' },
 }
 
 const WEAKNESS_FIX: { key: DnaDomainKey; view: 'review' | 'puzzles' | 'tools'; label: string; tip: string }[] = [
@@ -576,6 +731,18 @@ const WEAKNESS_FIX: { key: DnaDomainKey; view: 'review' | 'puzzles' | 'tools'; l
     label: 'Convert endgames',
     tip: 'When the board empties, points slip. Review the endgames you drew or lost and find where the conversion broke.',
   },
+  {
+    key: 'clock',
+    view: 'review',
+    label: 'Replay your time trouble',
+    tip: 'You keep reaching for moves with seconds left. Review the games where the clock squeezed you and spend opening moves on thought, not reflex.',
+  },
+  {
+    key: 'conversion',
+    view: 'review',
+    label: 'Study your blown wins',
+    tip: 'You reach winning positions and let them slip. Review the wins you drew or lost and find the first move where the advantage leaked.',
+  },
 ]
 
 const HISTORY_MAX = 60
@@ -597,6 +764,8 @@ export async function buildDnaReport(profileId: string): Promise<DnaReport> {
     opening: dna.opening,
     aggression: dna.aggression,
     endgame: dna.endgame,
+    clock: dna.clock,
+    conversion: dna.conversion,
   }
 
   const domains: DnaDomain[] = DOMAIN_META.map((meta) => {
@@ -659,6 +828,8 @@ export async function buildDnaReport(profileId: string): Promise<DnaReport> {
               opening: parsed.opening ?? null,
               aggression: parsed.aggression ?? null,
               endgame: parsed.endgame ?? null,
+              clock: parsed.clock ?? null,
+              conversion: parsed.conversion ?? null,
             },
           }
         } catch {

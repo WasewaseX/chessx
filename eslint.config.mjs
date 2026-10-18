@@ -47,7 +47,10 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
   ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "examples/**", "skills", "public/engine/**", "reference/**", "tests/**", "scripts/**", "mini-services/**",
     // desktop/ is its own Electron package (plain CommonJS main-process code,
     // its own package.json) — not part of the Next.js bundle or its lint rules.
-    "desktop/**"]
+    "desktop/**",
+    // re/ holds reverse-engineering evidence (minified third-party bundles,
+    // extracted Electron sources) — never part of this app's lint surface.
+    "re/**"]
 }];
 
 export default eslintConfig;

@@ -400,7 +400,7 @@ export function HomeView() {
       {/* Today's plan: the chessigma loop built from the player's own misses */}
       <TodaysPlanCard dayKey={dayKey} />
 
-      {/* Chess DNA: the five-domain report built from the player's analyzed games */}
+      {/* Chess DNA: the seven-domain report built from the player's analyzed games */}
       <ChessDnaCard />
 
       {/* one grid for all five cards: equal gaps, equal row heights, no stray notches */}
