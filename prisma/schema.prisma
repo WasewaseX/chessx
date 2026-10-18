@@ -156,6 +156,7 @@ model Profile {
   updatedAt      DateTime @updatedAt
 
   drills Drill[]
+  dnaSnapshots DnaSnapshot[]
 }
 
 model GameRecord {
@@ -462,4 +463,22 @@ model WoodpeckerSet {
   createdAt    DateTime  @default(now())
 
   @@unique([profileId, theme])
+}
+
+// Chess DNA history: one row per profile per day (UTC), written by
+// /api/dna when it computes a report. The UI replays these rows as trend
+// lines so the player sees each domain moving over weeks — a DNA report
+// frozen at one instant can't show whether the training is working.
+model DnaSnapshot {
+  id          String   @id @default(cuid())
+  profileId   String
+  dayKey      String // yyyy-mm-dd (UTC)
+  games       Int // analyzed games backing this snapshot
+  domainsJson String // {tactics:..,consistency:..,opening:..,aggression:..,endgame:..} — null = not measurable that day
+  createdAt   DateTime @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, dayKey])
+  @@index([profileId, createdAt])
 }

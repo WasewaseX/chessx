@@ -31,6 +31,7 @@ interface DnaDomainDTO {
   percentile: number | null
   sample: string
   note: string
+  drill: { view: 'review' | 'puzzles' | 'tools'; label: string; arg?: string } | null
 }
 
 interface DnaReportDTO {
@@ -44,6 +45,7 @@ interface DnaReportDTO {
   tip: string | null
   population: number
   computedAt: string
+  history: { day: string; games: number; scores: Record<DnaDomainDTO['key'], number | null> }[]
 }
 
 const DOMAIN_ICONS: Record<DnaDomainDTO['key'], typeof Crosshair> = {
@@ -65,7 +67,40 @@ function ordinal(n: number): string {
   return `${n}th`
 }
 
-export function ChessDnaCard() {
+/**
+ * One domain's history as a tiny inline SVG line. Honest by construction:
+ * fewer than two measured points draws nothing and says why.
+ */
+function DomainTrend({ points, label }: { points: number[]; label: string }) {
+  if (points.length < 2) {
+    return <span className="text-[11px] text-muted-foreground">trend from 2nd day</span>
+  }
+  const W = 100
+  const H = 26
+  const xs = (i: number) => (points.length === 1 ? W / 2 : (i / (points.length - 1)) * W)
+  const ys = (v: number) => H - 2 - (Math.max(0, Math.min(100, v)) / 100) * (H - 4)
+  const path = points.map((v, i) => `${i === 0 ? 'M' : 'L'}${xs(i).toFixed(1)},${ys(v).toFixed(1)}`).join(' ')
+  const delta = points[points.length - 1] - points[0]
+  return (
+    <span className="inline-flex items-center gap-2">
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-6 w-24" aria-hidden="true">
+        <path d={path} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="text-primary" />
+      </svg>
+      <span
+        className={cn(
+          'text-[11px] font-bold tabular-nums',
+          delta > 0 ? 'text-primary' : delta < 0 ? 'text-destructive' : 'text-muted-foreground',
+        )}
+        aria-label={`${label} changed ${delta >= 0 ? 'up' : 'down'} ${Math.abs(delta)} points since your first report`}
+      >
+        {delta > 0 ? '+' : ''}
+        {delta}
+      </span>
+    </span>
+  )
+}
+
+export function ChessDnaCard({ variant = 'home' }: { variant?: 'home' | 'profile' } = {}) {
   const { navigate } = useApp()
   const [report, setReport] = useState<DnaReportDTO | null>(null)
   const [loading, setLoading] = useState(true)
@@ -105,7 +140,7 @@ export function ChessDnaCard() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <span aria-hidden="true" className="block text-[10px] font-extrabold uppercase tracking-[0.18em] text-muted-foreground/60">
-            01 / Chess DNA
+            {variant === 'profile' ? 'Skill report' : '01 / Chess DNA'}
           </span>
           <div className="mt-1 flex items-center gap-2">
             <Dna className="h-5 w-5 text-primary" />
@@ -201,15 +236,18 @@ export function ChessDnaCard() {
                   ) : (
                     <div className="mt-1.5 h-1.5 rounded-full bg-secondary" aria-hidden="true" />
                   )}
-                  <div className="mt-1 flex flex-wrap items-center justify-between gap-x-3 text-[11px] text-muted-foreground">
+                  <div className="mt-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
                     <span>{d.sample}</span>
-                    {isWeak && report.trainView && (
+                    {d.drill && (
                       <button
-                        onClick={() => navigate(report.trainView!.view)}
-                        className="inline-flex min-h-6 items-center font-semibold text-primary hover:underline"
-                        aria-label={`${report.trainView.label} — improve your weakest domain`}
+                        onClick={() => navigate(d.drill!.view, d.drill!.arg)}
+                        className={cn(
+                          'inline-flex min-h-6 items-center font-semibold hover:underline',
+                          isWeak ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
+                        )}
+                        aria-label={`${d.drill.label} — train ${d.label.toLowerCase()}`}
                       >
-                        {report.trainView.label} →
+                        {d.drill.label} →
                       </button>
                     )}
                   </div>
@@ -217,6 +255,32 @@ export function ChessDnaCard() {
               )
             })}
           </div>
+          {variant === 'profile' && (report?.history?.length ?? 0) > 0 && (
+            <div className="mt-5 border-t border-border pt-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold">Your trend</h3>
+                <span className="text-[11px] text-muted-foreground">
+                  {report?.history?.length} {report?.history?.length === 1 ? 'day' : 'days'} measured
+                </span>
+              </div>
+              <div className="mt-2.5 grid gap-2">
+                {report?.domains.map((d) => {
+                  const pts = report.history
+                    .map((h) => h.scores[d.key])
+                    .filter((v): v is number => v != null)
+                  return (
+                    <div key={d.key} className="flex items-center justify-between gap-3">
+                      <span className="w-20 shrink-0 truncate text-[11px] font-semibold text-muted-foreground">{d.label}</span>
+                      <DomainTrend points={pts} label={d.label} />
+                    </div>
+                  )
+                })}
+              </div>
+              <p className="mt-2.5 text-[11px] text-muted-foreground">
+                One measurement per day, taken when this report opens. Come back tomorrow and the lines start to move.
+              </p>
+            </div>
+          )}
           {report?.tip && (
             <p className="mt-4 rounded-md bg-muted/60 px-3 py-2.5 text-xs leading-relaxed text-muted-foreground">
               {report.tip}

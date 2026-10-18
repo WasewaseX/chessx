@@ -65,6 +65,12 @@ export interface DnaDomain {
   sample: string
   /** One-line, non-spoiler description of what the number means. */
   note: string
+  /**
+   * Where this domain trains, even when it is not the weakest one. `arg`
+   * is the view argument the router carries in the hash (e.g.
+   * #/puzzles/woodpecker), so the target view opens on the right tab.
+   */
+  drill: { view: 'review' | 'puzzles' | 'tools'; label: string; arg?: string } | null
 }
 
 export interface DnaArchetype {
@@ -86,6 +92,12 @@ export interface DnaReport {
   tip: string | null
   population: number
   computedAt: string
+  /**
+   * Daily snapshots (oldest first, max 60): each domain's score on past
+   * days. Null scores mean the domain was not measurable that day. Written
+   * at most once per UTC day, so a heavy UI day does not spam history.
+   */
+  history: { day: string; games: number; scores: Record<DnaDomainKey, number | null> }[]
 }
 
 // ---------------------------------------------------------------------------
@@ -522,6 +534,17 @@ const ARCHETYPES: { key: DnaDomainKey; name: string; tagline: string }[] = [
   { key: 'endgame', name: 'The Technician', tagline: 'You grind wins out of nothing.' },
 ]
 
+// Per-domain training destinations — every measured domain row links to the
+// exact spot where that work lives (the weakest domain additionally gets the
+// hero CTA + coaching tip from WEAKNESS_FIX below).
+const DOMAIN_DRILLS: Record<DnaDomainKey, { view: 'review' | 'puzzles' | 'tools'; label: string; arg?: string }> = {
+  tactics: { view: 'review', label: 'Fix your misses' },
+  consistency: { view: 'puzzles', label: 'Drill Woodpecker', arg: 'woodpecker' },
+  opening: { view: 'tools', label: 'Train your openings', arg: 'trainer' },
+  aggression: { view: 'review', label: 'Study attacking play' },
+  endgame: { view: 'review', label: 'Convert endgames' },
+}
+
 const WEAKNESS_FIX: { key: DnaDomainKey; view: 'review' | 'puzzles' | 'tools'; label: string; tip: string }[] = [
   {
     key: 'tactics',
@@ -554,6 +577,8 @@ const WEAKNESS_FIX: { key: DnaDomainKey; view: 'review' | 'puzzles' | 'tools'; l
     tip: 'When the board empties, points slip. Review the endgames you drew or lost and find where the conversion broke.',
   },
 ]
+
+const HISTORY_MAX = 60
 
 export async function buildDnaReport(profileId: string): Promise<DnaReport> {
   const rows = (await db.gameRecord.findMany({
@@ -588,6 +613,7 @@ export async function buildDnaReport(profileId: string): Promise<DnaReport> {
       percentile,
       sample: meta.sample(dna),
       note: meta.note,
+      drill: DOMAIN_DRILLS[meta.key],
     }
   })
 
@@ -596,6 +622,54 @@ export async function buildDnaReport(profileId: string): Promise<DnaReport> {
   const weakest = measured.length ? measured.reduce((a, b) => (b.score < a.score ? b : a)).key : null
   const archetype = strongest ? (ARCHETYPES.find((a) => a.key === strongest) ?? null) : null
   const fix = weakest ? (WEAKNESS_FIX.find((f) => f.key === weakest) ?? null) : null
+
+  // --- daily snapshot + history -------------------------------------------
+  // At most one row per UTC day: today's row is written only when it does
+  // not exist yet (so repeated reads never rewrite history), then up to the
+  // last 60 days are read back as the trend the UI plots.
+  const dayKey = new Date().toISOString().slice(0, 10)
+  try {
+    await db.dnaSnapshot.upsert({
+      where: { profileId_dayKey: { profileId, dayKey } },
+      create: { profileId, dayKey, games: dna.games, domainsJson: JSON.stringify(scores) },
+      update: {},
+    })
+  } catch (e) {
+    // History must never take the report down with it.
+    console.error('[dna] snapshot write failed', e)
+  }
+  let history: DnaReport['history'] = []
+  try {
+    const snaps = await db.dnaSnapshot.findMany({
+      where: { profileId },
+      orderBy: { dayKey: 'desc' },
+      take: HISTORY_MAX,
+      select: { dayKey: true, games: true, domainsJson: true },
+    })
+    history = snaps
+      .map((s) => {
+        try {
+          const parsed = JSON.parse(s.domainsJson) as Partial<Record<DnaDomainKey, number | null>>
+          return {
+            day: s.dayKey,
+            games: s.games,
+            scores: {
+              tactics: parsed.tactics ?? null,
+              consistency: parsed.consistency ?? null,
+              opening: parsed.opening ?? null,
+              aggression: parsed.aggression ?? null,
+              endgame: parsed.endgame ?? null,
+            },
+          }
+        } catch {
+          return null
+        }
+      })
+      .filter((h): h is NonNullable<typeof h> => h != null)
+      .reverse() // oldest first, so the UI plots left → right
+  } catch (e) {
+    console.error('[dna] history read failed', e)
+  }
 
   return {
     ready: dna.games >= MIN_GAMES,
@@ -608,5 +682,6 @@ export async function buildDnaReport(profileId: string): Promise<DnaReport> {
     tip: fix ? fix.tip : null,
     population: pool.length,
     computedAt: new Date().toISOString(),
+    history,
   }
 }

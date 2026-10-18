@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress'
 import { useActivity, StreakCalendar } from '@/components/shell/streak'
 import { WrappedCard } from '@/components/views/wrapped-card'
 import { OpponentsCard } from '@/components/views/opponents-card'
+import { ChessDnaCard } from '@/components/views/chess-dna-card'
 import { cn } from '@/lib/utils'
 import { Zap } from 'lucide-react'
 
@@ -120,6 +121,12 @@ export function ProfileView() {
         />
         <StatCard label="Puzzle streak" value={profile.puzzleStreak} sub={`Best: ${profile.bestPuzzleStreak}`} />
         <StatCard label="Games" value={total} sub={winRate != null ? `${winRate}% won` : 'No games yet'} />
+      </div>
+
+      {/* Skill report: the five-domain Chess DNA with per-domain drills and
+          the daily trend — the deep version of the home card. */}
+      <div className="mt-6">
+        <ChessDnaCard variant="profile" />
       </div>
 
       {/* Chess Wrapped + opponent tracking (both fed by stored reports) */}

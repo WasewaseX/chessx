@@ -22,6 +22,8 @@ import { Flame, Lightbulb, RotateCcw, CalendarDays, Loader2, Trophy, Repeat2 } f
 type Phase = 'loading' | 'solving' | 'converting' | 'solved' | 'failed'
 type PuzzleTab = 'rated' | 'daily' | 'rush' | 'battle' | 'vision' | 'woodpecker'
 
+const PUZZLE_TABS: PuzzleTab[] = ['rated', 'daily', 'rush', 'battle', 'vision', 'woodpecker']
+
 interface PuzzleState {
   puzzle: PuzzleStub
   dayKey?: string
@@ -31,7 +33,16 @@ interface PuzzleState {
 
 export function PuzzlesView() {
   const { profile, setProfile, pendingReview, setPendingReview } = useApp()
-  const [tab, setTab] = useState<PuzzleTab>('rated')
+  // Deep links land here with a view arg in the hash (#/puzzles/woodpecker);
+  // unknown or missing args open the rated tab as always.
+  const viewArg = useApp((s) => s.view.lessonId)
+  const [tab, setTab] = useState<PuzzleTab>(
+    PUZZLE_TABS.includes(viewArg as PuzzleTab) ? (viewArg as PuzzleTab) : 'rated',
+  )
+  // Also honor a hash change that arrives while this view is already mounted.
+  useEffect(() => {
+    if (viewArg && PUZZLE_TABS.includes(viewArg as PuzzleTab)) setTab(viewArg as PuzzleTab)
+  }, [viewArg])
   const [state, setState] = useState<PuzzleState | null>(null)
   const [reviewItemId, setReviewItemId] = useState<string | null>(null)
   const [graded, setGraded] = useState<{ intervalDays: number } | null>(null)

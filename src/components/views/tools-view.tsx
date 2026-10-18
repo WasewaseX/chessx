@@ -289,9 +289,12 @@ function OpeningGuideTool() {
 
 // Tabbed shell around the opening tools: keeps the existing guide reader
 // and identifier untouched, and slots the Opening trainer and the community
-// Opening explorer in beside them.
-function OpeningToolsSection() {
-  const [tab, setTab] = useState<'guide' | 'trainer' | 'explorer'>('guide')
+// Opening explorer in beside them. `initialTab` lets deep links open the
+// right one directly (the router carries the arg in the hash: #/tools/trainer).
+function OpeningToolsSection({ initialTab }: { initialTab?: 'guide' | 'trainer' | 'explorer' }) {
+  const [tab, setTab] = useState<'guide' | 'trainer' | 'explorer'>(
+    initialTab === 'trainer' || initialTab === 'explorer' ? initialTab : 'guide',
+  )
   const tabs = [
     { id: 'guide' as const, label: 'Opening guide', icon: BookOpen },
     { id: 'trainer' as const, label: 'Opening trainer', icon: GraduationCap },
@@ -415,6 +418,10 @@ function PublicApiCard() {
 }
 
 export function ToolsView() {
+  // Deep-link arg from the hash (#/tools/trainer): open the requested tool
+  // tab directly. Anything unrecognized falls back to the guide.
+  const arg = useApp((s) => s.view.lessonId)
+  const initialTab = arg === 'trainer' || arg === 'explorer' ? arg : undefined
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6">
       <h1 className="font-display text-2xl font-extrabold">Tools</h1>
@@ -423,7 +430,7 @@ export function ToolsView() {
         <EloCalculator />
         <NextMoveFinder />
         <div className="lg:col-span-2">
-          <OpeningToolsSection />
+          <OpeningToolsSection key={initialTab ?? 'guide'} initialTab={initialTab} />
         </div>
         <PublicApiCard />
       </div>

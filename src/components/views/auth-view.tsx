@@ -116,6 +116,14 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
   const [busy, setBusy] = useState(false)
   const [googleBusy, setGoogleBusy] = useState(false)
   const [googleNotice, setGoogleNotice] = useState<string | null>(null)
+  /**
+   * null = still probing. Hide the Google button until the deployment says
+   * it actually has OAuth credentials — a button that can only answer
+   * "not configured" is noise, so email is the primary path here. If the
+   * probe itself fails (offline / compile race) we show the button anyway:
+   * the /api/auth/google/start 501 fallback below still tells the truth.
+   */
+  const [googleReady, setGoogleReady] = useState<boolean | null>(null)
   // Read once: the desktop params are part of the landing URL, never mutated.
   const [handoffQuery] = useState(desktopHandoffQuery)
 
@@ -125,6 +133,21 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
     if (!kind) return
     setError(kind === 'unsupported' ? 'This account is not supported' : 'Google sign-in failed. Try again.')
     window.history.replaceState(null, '', window.location.pathname)
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/auth/google/status')
+      .then((r) => readJson<{ configured?: boolean }>(r))
+      .then((d) => {
+        if (!cancelled) setGoogleReady(d.configured === true)
+      })
+      .catch(() => {
+        if (!cancelled) setGoogleReady(true) // optimistic: let /start decide
+      })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   async function submit(e: React.FormEvent) {
@@ -280,29 +303,33 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
             ))}
           </div>
 
-          <div className="mt-5">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={googleFlow}
-              disabled={googleBusy}
-              className="h-11 w-full bg-white text-[#1f1f1f] hover:bg-white/90"
-            >
-              {googleBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
-              Continue with Google
-            </Button>
-            {googleNotice && (
-              <p role="status" className="mt-2 text-center text-xs font-medium text-muted-foreground">
-                {googleNotice}
-              </p>
-            )}
-          </div>
+          {googleReady !== false && (
+            <>
+              <div className="mt-5">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={googleFlow}
+                  disabled={googleBusy}
+                  className="h-11 w-full bg-white text-[#1f1f1f] hover:bg-white/90"
+                >
+                  {googleBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
+                  Continue with Google
+                </Button>
+                {googleNotice && (
+                  <p role="status" className="mt-2 text-center text-xs font-medium text-muted-foreground">
+                    {googleNotice}
+                  </p>
+                )}
+              </div>
 
-          <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">
-            <span className="h-px flex-1 bg-border" />
-            or with email
-            <span className="h-px flex-1 bg-border" />
-          </div>
+              <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">
+                <span className="h-px flex-1 bg-border" />
+                or with email
+                <span className="h-px flex-1 bg-border" />
+              </div>
+            </>
+          )}
 
           <form onSubmit={submit} className="space-y-4">
             {mode === 'signup' ? (
