@@ -190,8 +190,20 @@ function legalChecks(g: Chess): string[] {
 /**
  * Verify every chess claim in a reply against the position. `fen` is the
  * position the conversation was in when the reply was written.
+ *
+ * `historyFens` (optional) lists positions that occurred earlier in the same
+ * game. A move token that is illegal from the current position but legal in
+ * one of those is a HISTORICAL move being discussed out of order - not a
+ * hallucination - so it passes.
+ *
+ * `phraseFens` (optional) lists additional positions the PHRASE-level claims
+ * (piece on a square, side to move, mate) may be validated against. In a
+ * finished game the reply narrates the capture that produced the final
+ * position ("the queen took the pawn on f7") - true in the pre-move position
+ * and no longer true on the final board. Each phrase check passes when it is
+ * clean against the current board OR any phrase window position.
  */
-export function verifyClaims(text: string, fen: string): ClaimVerdict {
+export function verifyClaims(text: string, fen: string, historyFens?: string[], phraseFens?: string[]): ClaimVerdict {
   if (!fen) return { ok: true, violations: [] }
   let base: Chess
   try {
@@ -199,12 +211,40 @@ export function verifyClaims(text: string, fen: string): ClaimVerdict {
   } catch {
     return { ok: true, violations: [] }
   }
+  const history: Chess[] = []
+  for (const hf of historyFens ?? []) {
+    try {
+      history.push(new Chess(hf))
+    } catch {
+      /* a malformed history entry is simply skipped */
+    }
+  }
+  const phraseBases: Chess[] = [base]
+  for (const pf of phraseFens ?? []) {
+    if (pf === fen) continue
+    try {
+      phraseBases.push(new Chess(pf))
+    } catch {
+      /* skip */
+    }
+  }
   const violations: string[] = []
 
-  violations.push(...checkPieceClaims(text, base))
-  violations.push(...checkSideClaims(text, base))
-  violations.push(...checkMateClaims(text, base))
-  violations.push(...checkPositionClaims(text, base))
+  // Phrase checks pass when they are clean against the current board or any
+  // phrase-window position (a finished game's narration talks about both).
+  const phraseCheck = (check: (text: string, g: Chess) => string[]): string[] => {
+    const merged: string[] = []
+    for (const g of phraseBases) {
+      const found = check(text, g)
+      if (found.length === 0) return []
+      if (merged.length === 0) merged.push(...found)
+    }
+    return merged
+  }
+  violations.push(...phraseCheck(checkPieceClaims))
+  violations.push(...phraseCheck(checkSideClaims))
+  violations.push(...phraseCheck(checkMateClaims))
+  violations.push(...phraseCheck(checkPositionClaims))
 
   // Move replay: walk tokens in order; on failure retry from the base
   // position (the model often restarts lines: "after e5, what if Nxe5?").
@@ -213,6 +253,7 @@ export function verifyClaims(text: string, fen: string): ClaimVerdict {
   const replayText = stripPiecePhrases(stripNoise(text))
   const cursor = new Chess(fen)
   const fresh = new Chess(fen)
+  const historyFresh = history.map((g) => new Chess(g.fen()))
   let lastIdx = 0
   for (const m of replayText.matchAll(MOVE_RE)) {
     const san = m[1].replace(/[!?]+$/, '')
@@ -232,11 +273,22 @@ export function verifyClaims(text: string, fen: string): ClaimVerdict {
       })
       .find(Boolean)
     if (!playedSomewhere) {
-      // Bare squares ("the e5 square is weak") are only violations when the
-      // reply clearly meant a move ("White plays e5"). Named moves (Nxe5,
-      // O-O, exd5) are always strict.
-      if (!bare || hasMoveIntent(replayText.slice(lastIdx, m.index))) {
-        violations.push(`the move "${san}" is not legal in the current position or in any line named before it`)
+      // Historical moves: legal in any earlier position of this game counts
+      // as real (the reply is discussing the past, not inventing the future).
+      const historical = historyFresh.some((g) => {
+        try {
+          return Boolean(g.move(san, { strict: false }))
+        } catch {
+          return false
+        }
+      })
+      if (!historical) {
+        // Bare squares ("the e5 square is weak") are only violations when the
+        // reply clearly meant a move ("White plays e5"). Named moves (Nxe5,
+        // O-O, exd5) are always strict.
+        if (!bare || hasMoveIntent(replayText.slice(lastIdx, m.index))) {
+          violations.push(`the move "${san}" is not legal in the current position or in any line named before it`)
+        }
       }
     }
     lastIdx = m.index ?? lastIdx

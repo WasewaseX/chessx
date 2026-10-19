@@ -160,6 +160,7 @@ model Profile {
 
   drills Drill[]
   dnaSnapshots DnaSnapshot[]
+  coachGames CoachGame[]
 }
 
 model GameRecord {
@@ -483,5 +484,28 @@ model DnaSnapshot {
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, dayKey])
+  @@index([profileId, createdAt])
+}
+
+// Play-with-Coach games: every training game against the coach bot at a
+// chosen Elo, stored with the per-move classification trail (chess.com-style
+// labels + eval swings + the engine's better move) so the chat coach can
+// answer "why was that bad?" from the record and the profile can track
+// progress across sessions.
+model CoachGame {
+  id        String   @id @default(cuid())
+  profileId String
+  coachId   String // persona id (nina/victor/elena/sasha)
+  coachElo  Int // Elo strength the coach played at
+  color     String // 'w' | 'b' — the student's color
+  result    String // 'win' | 'loss' | 'draw'
+  reason    String? // e.g. 'checkmate', 'resignation', 'stalemate'
+  pgn       String // full game in PGN
+  movesJson String // [{san,label,before,after,bestSan,reason,cpl}] per ply (student + coach)
+  accuracy  Float? // student accuracy from the server pipeline (0-100)
+  createdAt DateTime @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
   @@index([profileId, createdAt])
 }

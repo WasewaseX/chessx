@@ -172,7 +172,9 @@ export function PlayView() {
   // A "replay from the turning move" request (set by the Analysis view) is
   // consumed at first render: the lobby never flashes, the game just starts.
   const incomingRequest = useApp.getState().playRequest
-  const [tab, setTab] = useState<'online' | 'bots'>('online')
+  // Sidebar sub-tabs deep-link the lobby section (#/play/online, #/play/bots).
+  const deepLink = useApp((s) => s.view.lessonId)
+  const [tab, setTab] = useState<'online' | 'bots'>(deepLink === 'bots' ? 'bots' : 'online')
   const [phase, setPhase] = useState<Phase>(incomingRequest ? 'playing' : 'lobby')
   const [setup, setSetup] = useState<Setup | null>(() => {
     if (!incomingRequest) return null
