@@ -13,6 +13,21 @@
 // webpack graph).
 import { kickBankBootstrap } from '@/lib/server/bank-bootstrap'
 
+const BACKUP_INTERVAL_MS = 2 * 60 * 60 * 1000 // every 2 hours
+const BACKUP_MIN_GAP_MS = 60 * 60 * 1000 // never more often than hourly
+
+let backupTimer: ReturnType<typeof setInterval> | null = null
+
+async function scheduledGithubBackup(): Promise<void> {
+  try {
+    const mod = await import('./gh-snapshot')
+    if (mod.lastBackupAgeMs() < BACKUP_MIN_GAP_MS) return
+    await mod.runBackup('scheduled')
+  } catch (err) {
+    console.error('[boot-backup] failed:', err instanceof Error ? err.message : err)
+  }
+}
+
 export function nodeBoot(): void {
   try {
     kickBankBootstrap()
@@ -34,4 +49,16 @@ export function nodeBoot(): void {
     .catch(() => {
       // Best effort only: failed maintenance must never block boot.
     })
+  // OFF-BOX GitHub snapshots (the lesson of the lost database: local backups
+  // die together with the volume). Every 2h, token-gated, rolling windows.
+  // Its module tree also lazily requires node builtins — same guarded shape.
+  if (!backupTimer && process.env.GH_BACKUP_TOKEN) {
+    void import('./gh-snapshot')
+      .then((m) => {
+        setTimeout(() => m.runBackup('boot').catch(() => {}), 5 * 60 * 1000)
+      })
+      .catch(() => {})
+    backupTimer = setInterval(scheduledGithubBackup, BACKUP_INTERVAL_MS)
+    if (typeof backupTimer.unref === 'function') backupTimer.unref()
+  }
 }
