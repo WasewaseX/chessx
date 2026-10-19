@@ -413,6 +413,9 @@ export function CoachGameView() {
       if (phase !== 'playing' || thinking) return
       const g = gameRef.current
       if (g.turn() !== playerColor) return
+      // Capture BEFORE the move: a fresh Chess built after the fact has no
+      // history, so undo() there is a no-op and would mislabel the position.
+      const fenBefore = g.fen()
       let mv
       try {
         mv = g.move({ from, to, promotion: promotion || 'q' })
@@ -420,11 +423,6 @@ export function CoachGameView() {
         return
       }
       if (!mv) return
-      const fenBefore = (() => {
-        const probe = new Chess(g.fen())
-        probe.undo()
-        return probe.fen()
-      })()
       setSelectedPly(null)
       setArrows([])
       setFen(g.fen())
