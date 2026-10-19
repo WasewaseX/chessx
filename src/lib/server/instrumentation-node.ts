@@ -26,4 +26,12 @@ export function nodeBoot(): void {
     .catch(() => {
       // Best effort only: a missing admin account must never block boot.
     })
+  // Daily snapshot + empty-database admin guard (boot-maintenance.ts). Same
+  // guarded dynamic-import shape: its module tree lazily requires node
+  // builtins, which must never enter another runtime's webpack graph.
+  void import('./boot-maintenance')
+    .then((m) => m.kickBootMaintenance())
+    .catch(() => {
+      // Best effort only: failed maintenance must never block boot.
+    })
 }
