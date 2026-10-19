@@ -12,36 +12,6 @@ import { Check, Loader2, Lock, Mail, UserRound } from 'lucide-react'
 
 type Mode = 'login' | 'signup'
 
-// Mirrors the server rule exactly (src/app/api/auth/signup/route.ts):
-// 3–20 chars, letters/numbers/hyphen/underscore. The input also strips
-// anything else as it is typed, so the old "letters, numbers and underscore
-// only" wall can no longer surprise anyone mid-signup.
-const USERNAME_RE = /^[a-zA-Z0-9_-]+$/
-
-function sanitizeUsername(raw: string): string {
-  return raw.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 20)
-}
-
-function usernameIssue(u: string): string | null {
-  if (!u) return null
-  if (u.length < 3) return `Needs ${3 - u.length} more character${3 - u.length === 1 ? '' : 's'} (3–20 total).`
-  if (!USERNAME_RE.test(u)) return 'Only letters, numbers, hyphens (-) and underscores (_).'
-  return null
-}
-
-function emailIssue(e: string): string | null {
-  if (!e) return null
-  if (!/^[^\s@]+@[^\s@]+$/.test(e)) return 'An email needs one @ in the middle.'
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return 'The domain needs a dot — like you@example.com.'
-  return null
-}
-
-function passwordIssue(p: string): string | null {
-  if (!p) return null
-  if (p.length < 8) return `Needs ${8 - p.length} more character${8 - p.length === 1 ? '' : 's'} (8 minimum).`
-  return null
-}
-
 /**
  * The desktop shell hands Google sign-in to the system browser by opening
  * this app with ?desktop_port=<port>&desktop_state=<state> (and optionally
@@ -135,6 +105,23 @@ function Feature({ children }: { children: React.ReactNode }) {
   )
 }
 
+// Username rules, mirrored 1:1 from the signup API (zod schema in
+// /api/auth/signup). Every failure names the exact fix instead of a vague
+// "invalid" — the player should never have to guess what a rule means.
+function usernameIssue(value: string): string | null {
+  const v = value.trim()
+  if (!v) return null // nothing typed yet: show the neutral hint
+  if (v.length < 3) return `At least 3 characters — ${v.length} so far.`
+  if (v.length > 20) return `Too long by ${v.length - 20} character${v.length - 20 === 1 ? '' : 's'} (max 20).`
+  const bad = [...v].find((ch) => !/[a-zA-Z0-9._-]/.test(ch))
+  if (bad === ' ') return 'Remove the spaces — use an underscore or a dot instead.'
+  if (bad !== undefined)
+    return `“${bad}” isn’t allowed. Stick to letters, numbers, dots, hyphens and underscores.`
+  if (!/^[a-zA-Z0-9]/.test(v)) return 'Start with a letter or a number.'
+  if (!/[a-zA-Z0-9]$/.test(v)) return 'End with a letter or a number.'
+  return null
+}
+
 export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
   const [mode, setMode] = useState<Mode>('login')
   const [identity, setIdentity] = useState('')
@@ -146,16 +133,27 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
   const [busy, setBusy] = useState(false)
   const [googleBusy, setGoogleBusy] = useState(false)
   const [googleNotice, setGoogleNotice] = useState<string | null>(null)
-  /**
-   * null = still probing. Default-hidden: the Google button renders only
-   * once the deployment confirms OAuth credentials — a button that can
-   * only answer "not configured" never shows, not even as a flash. If the
-   * probe itself fails (offline / compile race) we show the button anyway:
-   * the /api/auth/google/start 501 fallback below still tells the truth.
-   */
+  // null = still probing /api/auth/google/status. 'no' hides the Google
+  // button entirely so nobody clicks into a dead end on this deployment.
   const [googleReady, setGoogleReady] = useState<boolean | null>(null)
   // Read once: the desktop params are part of the landing URL, never mutated.
   const [handoffQuery] = useState(desktopHandoffQuery)
+
+  // Probe Google OAuth support once. Cheap GET, no side effects.
+  useEffect(() => {
+    let alive = true
+    fetch('/api/auth/google/status', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d: { configured?: boolean }) => {
+        if (alive) setGoogleReady(Boolean(d.configured))
+      })
+      .catch(() => {
+        if (alive) setGoogleReady(false) // unreachable API: email path always works
+      })
+    return () => {
+      alive = false
+    }
+  }, [])
 
   // Google redirects back with ?authError=...; surface it as a normal inline error.
   useEffect(() => {
@@ -165,36 +163,14 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
     window.history.replaceState(null, '', window.location.pathname)
   }, [])
 
-  useEffect(() => {
-    let cancelled = false
-    fetch('/api/auth/google/status')
-      .then((r) => readJson<{ configured?: boolean }>(r))
-      .then((d) => {
-        if (!cancelled) setGoogleReady(d.configured === true)
-      })
-      .catch(() => {
-        if (!cancelled) setGoogleReady(true) // optimistic: let /start decide
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     if (busy) return
     setError(null)
     if (mode === 'signup') {
-      // Same rules as the server, checked first with specific copy, so the
-      // submit round-trip never comes back as a generic rejection.
-      const u = sanitizeUsername(username)
-      if (u !== username) setUsername(u)
-      const uIssue = u.length < 3 ? 'Usernames need at least 3 characters' : usernameIssue(u)
-      const eIssue = emailIssue(email)
-      const pIssue = passwordIssue(password)
-      const first = uIssue ?? eIssue ?? pIssue
-      if (first) {
-        setError(first)
+      const issue = usernameIssue(username)
+      if (issue) {
+        setError(issue)
         return
       }
     }
@@ -347,32 +323,32 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
             ))}
           </div>
 
-          {googleReady === true && (
-            <>
-              <div className="mt-5">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={googleFlow}
-                  disabled={googleBusy}
-                  className="h-11 w-full bg-white text-[#1f1f1f] hover:bg-white/90"
-                >
-                  {googleBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
-                  Continue with Google
-                </Button>
-                {googleNotice && (
-                  <p role="status" className="mt-2 text-center text-xs font-medium text-muted-foreground">
-                    {googleNotice}
-                  </p>
-                )}
-              </div>
+          {googleReady !== false && (
+            <div className="mt-5">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={googleFlow}
+                disabled={googleBusy}
+                className="h-11 w-full bg-white text-[#1f1f1f] hover:bg-white/90"
+              >
+                {googleBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
+                Continue with Google
+              </Button>
+              {googleNotice && (
+                <p role="status" className="mt-2 text-center text-xs font-medium text-muted-foreground">
+                  {googleNotice}
+                </p>
+              )}
+            </div>
+          )}
 
-              <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">
-                <span className="h-px flex-1 bg-border" />
-                or with email
-                <span className="h-px flex-1 bg-border" />
-              </div>
-            </>
+          {googleReady !== false && (
+            <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">
+              <span className="h-px flex-1 bg-border" />
+              or with email
+              <span className="h-px flex-1 bg-border" />
+            </div>
           )}
 
           <form onSubmit={submit} className="space-y-4">
@@ -385,34 +361,38 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
                     <Input
                       id="su-username"
                       value={username}
-                      onChange={(e) => {
-                        setUsername(sanitizeUsername(e.target.value))
-                      }}
+                      onChange={(e) => setUsername(e.target.value)}
                       placeholder="MagnusFan_99"
                       autoComplete="username"
                       maxLength={20}
-                      className="pl-9"
+                      aria-invalid={Boolean(usernameIssue(username))}
+                      aria-describedby="su-username-hint"
+                      className={cn('pl-9', usernameIssue(username) && 'border-amber-500/60 focus-visible:ring-amber-500/40')}
                       required
                     />
-                    {username.length > 0 && !usernameIssue(username) && (
-                      <Check className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#81b64c]" strokeWidth={3} />
-                    )}
                   </div>
-                  <p
-                    aria-live="polite"
-                    className={cn(
-                      'text-xs',
-                      username.length === 0
-                        ? 'text-muted-foreground'
-                        : usernameIssue(username)
-                          ? 'font-medium text-destructive'
-                          : 'font-medium text-[#81b64c]',
-                    )}
-                  >
-                    {username.length === 0
-                      ? '3 to 20 characters — letters, numbers, hyphens and underscores. We block the rest as you type.'
-                      : usernameIssue(username) ?? 'Looks good.'}
-                  </p>
+                  {(() => {
+                    const issue = usernameIssue(username)
+                    if (issue) {
+                      return (
+                        <p id="su-username-hint" className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                          {issue}
+                        </p>
+                      )
+                    }
+                    if (username.trim().length >= 3) {
+                      return (
+                        <p id="su-username-hint" className="flex items-center gap-1 text-xs font-medium text-[#81b64c]">
+                          <Check className="h-3 w-3" strokeWidth={3} /> Looks good
+                        </p>
+                      )
+                    }
+                    return (
+                      <p id="su-username-hint" className="text-xs text-muted-foreground">
+                        3–20 characters. Letters, numbers, dots, hyphens and underscores — no spaces.
+                      </p>
+                    )
+                  })()}
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="su-email">Email</Label>
@@ -430,21 +410,7 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
                       required
                     />
                   </div>
-                  <p
-                    aria-live="polite"
-                    className={cn(
-                      'text-xs',
-                      email.length === 0
-                        ? 'text-muted-foreground'
-                        : emailIssue(email)
-                          ? 'font-medium text-destructive'
-                          : 'font-medium text-[#81b64c]',
-                    )}
-                  >
-                    {email.length === 0
-                      ? 'Any email provider works. We send nothing without asking.'
-                      : emailIssue(email) ?? 'Looks good.'}
-                  </p>
+                  <p className="text-xs text-muted-foreground">Any email provider works. We send nothing without asking.</p>
                 </div>
               </>
             ) : (
@@ -491,23 +457,6 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
                   {showPass ? 'Hide' : 'Show'}
                 </button>
               </div>
-              {mode === 'signup' && (
-                <p
-                  aria-live="polite"
-                  className={cn(
-                    'text-xs',
-                    password.length === 0
-                      ? 'text-muted-foreground'
-                      : passwordIssue(password)
-                        ? 'font-medium text-destructive'
-                        : 'font-medium text-[#81b64c]',
-                  )}
-                >
-                  {password.length === 0
-                    ? 'Eight characters minimum — any symbols are fine.'
-                    : passwordIssue(password) ?? 'Good length.'}
-                </p>
-              )}
             </div>
 
             <div aria-live="polite">

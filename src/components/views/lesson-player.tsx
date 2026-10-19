@@ -284,7 +284,7 @@ function sideToPlayLabel(fen: string): string {
 /* ---------------- main player ---------------- */
 
 export function LessonPlayer({ lessonId }: { lessonId: string }) {
-  const { navigate, profile, setPendingReview } = useApp()
+  const { navigate, profile, setPendingReview, user } = useApp()
   const coach = coachMaybe(profile?.coach)
   const found = findLevel(lessonId)
   // unlock guard: the Study only opens unlocked rows, but stale links, review
@@ -305,7 +305,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
       alive = false
     }
   }, [])
-  const gateOpen = doneIds !== null && (found ? isLevelUnlocked(lessonId, doneIds) : false)
+  const gateOpen = doneIds !== null && (found ? isLevelUnlocked(lessonId, doneIds, user?.role) : false)
   const [stepIdx, setStepIdx] = useState(0)
   const [canAdvance, setCanAdvance] = useState(false)
   const [done, setDone] = useState(false)

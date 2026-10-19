@@ -28,7 +28,8 @@ interface ProgressRow {
 }
 
 export function LessonsView() {
-  const { navigate, profile } = useApp()
+  const { navigate, profile, user } = useApp()
+  const role = user?.role ?? null
   const [progress, setProgress] = useState<ProgressRow[]>([])
   const [loading, setLoading] = useState(true)
   const [progressError, setProgressError] = useState(false)
@@ -64,10 +65,10 @@ export function LessonsView() {
     const mostRecent = started.length
       ? started.reduce((a, b) => ((a.updatedAt ?? '') > (b.updatedAt ?? '') ? a : b))
       : null
-    return mostRecent && isLevelUnlocked(mostRecent.lessonId, doneSet)
+    return mostRecent && isLevelUnlocked(mostRecent.lessonId, doneSet, role)
       ? mostRecent.lessonId
-      : nextUnlockedId(doneSet, profile?.skillLevel)
-  }, [progress, doneSet, profile?.skillLevel])
+      : nextUnlockedId(doneSet, profile?.skillLevel, role)
+  }, [progress, doneSet, profile?.skillLevel, role])
 
   // plain value: the React Compiler memoizes it, manual useMemo upset the lint rule
   const nextRef = nextId ? (findLevel(nextId) ?? null) : null
@@ -212,7 +213,7 @@ export function LessonsView() {
               </Button>
             </div>
           ) : (
-            <LessonContents tiers={TIERS} done={doneSet} nextId={nextId} onSelect={(id) => navigate('lesson', id)} />
+            <LessonContents tiers={TIERS} done={doneSet} nextId={nextId} onSelect={(id) => navigate('lesson', id)} role={role} />
           )}
         </main>
       </div>

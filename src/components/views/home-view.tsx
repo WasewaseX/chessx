@@ -273,7 +273,7 @@ function TodaysPlanCard({ dayKey }: { dayKey: string }) {
 }
 
 export function HomeView() {
-  const { navigate, profile, ratings } = useApp()
+  const { navigate, profile, ratings, user } = useApp()
   const elo = overallRating(ratings)
   const potential = profile
     ? potentialElo({
@@ -350,9 +350,9 @@ export function HomeView() {
   // (the self-assessment steers a fresh student's anchor the same way the
   // coach and the Study do: Intermediate onboarding means Intermediate start)
   const nextId =
-    mostRecent && isLevelUnlocked(mostRecent.lessonId, completed)
+    mostRecent && isLevelUnlocked(mostRecent.lessonId, completed, user?.role)
       ? mostRecent.lessonId
-      : nextUnlockedId(completed, profile.skillLevel)
+      : nextUnlockedId(completed, profile.skillLevel, user?.role)
   const nextLesson = ALL_LEVELS.find((l) => l.level.id === nextId)
   const doneCount = completed.size
   const totalLessons = ALL_LEVELS.length

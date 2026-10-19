@@ -17,7 +17,7 @@ type RowState = 'done' | 'current' | 'open' | 'locked'
 
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
 
-function rowState(level: Level, done: Set<string>, nextId: string | null): RowState {
+function rowState(level: Level, done: Set<string>, nextId: string | null, role?: string | null): RowState {
   if (done.has(level.id)) return 'done'
   // The recommended level gets the amber marker even when it is a chapter
   // opener, so the eye always lands on one row first.
@@ -25,7 +25,7 @@ function rowState(level: Level, done: Set<string>, nextId: string | null): RowSt
   // Unlock chains inside a chapter (previous level done opens the next), and
   // the opening level of every chapter stays unlocked: someone who already
   // plays chess can start at Beginner without replaying Newbie.
-  if (isLevelUnlocked(level.id, done)) return 'open'
+  if (isLevelUnlocked(level.id, done, role)) return 'open'
   return 'locked'
 }
 
@@ -170,12 +170,14 @@ function Chapter({
   nextId,
   onSelect,
   first,
+  role,
 }: {
   tier: Tier
   done: Set<string>
   nextId: string | null
   onSelect: (levelId: string) => void
   first: boolean
+  role?: string | null
 }) {
   const d = tier.levels.filter((l) => done.has(l.id)).length
 
@@ -214,7 +216,7 @@ function Chapter({
             key={level.id}
             level={level}
             tierTitle={tier.title}
-            state={rowState(level, done, nextId)}
+            state={rowState(level, done, nextId, role)}
             oneWinAway={level.n > 1 && nextId === tier.levels[level.n - 2].id}
             onSelect={onSelect}
           />
@@ -231,16 +233,27 @@ export function LessonContents({
   done,
   nextId,
   onSelect,
+  role,
 }: {
   tiers: Tier[]
   done: Set<string>
   nextId: string | null
   onSelect: (levelId: string) => void
+  /** Signed-in role: 'admin' opens every row. */
+  role?: string | null
 }) {
   return (
     <nav aria-label="Course contents" className="space-y-8">
       {tiers.map((tier, ti) => (
-        <Chapter key={tier.id} tier={tier} done={done} nextId={nextId} onSelect={onSelect} first={ti === 0} />
+        <Chapter
+          key={tier.id}
+          tier={tier}
+          done={done}
+          nextId={nextId}
+          onSelect={onSelect}
+          first={ti === 0}
+          role={role}
+        />
       ))}
     </nav>
   )

@@ -15,28 +15,24 @@ import {
 } from '@/lib/auth'
 import { seedForSkill } from '@/lib/rating'
 
-const USERNAME_RE = /^[a-zA-Z0-9_-]+$/
+// Username rules, stated once and mirrored by the live hint in auth-view.tsx:
+// 3-20 chars, starts/ends with a letter or number, and inside may use dots,
+// hyphens and underscores. The message names what IS allowed (players do not
+// parse regexes) and each failure gets its own line so the fix is obvious.
+export const USERNAME_MSG =
+  'Usernames can use letters, numbers, dots, hyphens and underscores — no spaces or other symbols'
 
 const bodySchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .max(254, 'That email is too long to be real — check for typos.')
-    .refine((v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), 'That email address does not look right — check for typos.'),
+  email: z.string().trim().toLowerCase().email().max(254),
   username: z
     .string()
     .trim()
-    .min(3, 'Usernames need at least 3 characters')
-    .max(20, 'Usernames can be at most 20 characters')
-    .regex(
-      USERNAME_RE,
-      'Usernames can only use letters, numbers, hyphens (-) and underscores (_) — no spaces or other symbols',
-    ),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .max(128, 'Passwords can be at most 128 characters'),
+    .min(3, 'Username needs at least 3 characters')
+    .max(20, 'Keep the username to 20 characters or fewer')
+    .regex(/^[a-zA-Z0-9._-]+$/, USERNAME_MSG)
+    .regex(/^[a-zA-Z0-9]/, 'Start the username with a letter or a number')
+    .regex(/[a-zA-Z0-9]$/, 'End the username with a letter or a number'),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(128),
 })
 
 export async function POST(req: NextRequest) {

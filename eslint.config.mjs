@@ -48,8 +48,9 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
     // desktop/ is its own Electron package (plain CommonJS main-process code,
     // its own package.json) — not part of the Next.js bundle or its lint rules.
     "desktop/**",
-    // re/ holds reverse-engineering evidence (minified third-party bundles,
-    // extracted Electron sources) — never part of this app's lint surface.
+    // re/ holds reverse-engineering evidence extracted from third-party
+    // artifacts (Chessigma asar sources, REA tool outputs). It is analysis
+    // material, not project code, and predates/defies the app's lint rules.
     "re/**"]
 }];
 

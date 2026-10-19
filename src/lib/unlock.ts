@@ -24,7 +24,10 @@ export const SKILL_TIER_N: Record<string, number> = {
   expert: 5,
 }
 
-export function isLevelUnlocked(levelId: string, done: Set<string>): boolean {
+/** Admin accounts see the whole course open: every gate steps aside for
+ * them, without faking completion (done counts stay honest). */
+export function isLevelUnlocked(levelId: string, done: Set<string>, role?: string | null): boolean {
+  if (role === 'admin') return true
   if (done.has(levelId)) return true
   const ref = findLevel(levelId)
   if (!ref) return false
@@ -52,18 +55,22 @@ export function unlockRequirement(levelId: string): string | null {
  * one honest start honors the self-assessment everywhere at once. Real
  * progress overtakes immediately: the moment anything is completed, the rule
  * steps aside and normal course order resumes. */
-export function nextUnlockedId(done: Set<string>, skillLevel?: string | null): string | null {
+export function nextUnlockedId(
+  done: Set<string>,
+  skillLevel?: string | null,
+  role?: string | null,
+): string | null {
   if (done.size === 0 && skillLevel) {
     const n = SKILL_TIER_N[skillLevel] ?? 1
     if (n > 1) {
       const tier = TIERS.find((t) => t.n === n)
       const entry = tier?.levels[0]
-      if (entry && !done.has(entry.id) && isLevelUnlocked(entry.id, done)) return entry.id
+      if (entry && !done.has(entry.id) && isLevelUnlocked(entry.id, done, role)) return entry.id
     }
   }
   for (const tier of TIERS) {
     for (const level of tier.levels) {
-      if (!done.has(level.id) && isLevelUnlocked(level.id, done)) return level.id
+      if (!done.has(level.id) && isLevelUnlocked(level.id, done, role)) return level.id
     }
   }
   return null

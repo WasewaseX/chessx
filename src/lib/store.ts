@@ -40,6 +40,9 @@ export interface AuthUser {
   id: string
   email: string
   username: string
+  /** 'user' | 'admin'. Admin accounts bypass every course unlock and can
+   * author changelog entries; the server is always the source of truth. */
+  role?: string
 }
 
 export interface ProfileData {

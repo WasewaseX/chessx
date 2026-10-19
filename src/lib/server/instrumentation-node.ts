@@ -5,8 +5,13 @@
 // into the root instrumentation graph (or the root layout) drags
 // node:child_process into graphs compiled for other runtimes and every page
 // 500s with UnhandledSchemeError.
+//
+// The admin bootstrap is loaded through the same guard shape the root
+// instrumentation uses: the import() must sit AFTER the NEXT_RUNTIME early
+// return so the edge compilation dead-eliminates the whole branch (its
+// module tree needs node-only 'crypto' and cannot enter another runtime's
+// webpack graph).
 import { kickBankBootstrap } from '@/lib/server/bank-bootstrap'
-import { kickBootMaintenance } from '@/lib/server/boot-maintenance'
 
 export function nodeBoot(): void {
   try {
@@ -15,10 +20,10 @@ export function nodeBoot(): void {
     // Best effort only. The puzzle API routes kick the same idempotent
     // installer as a backstop on first use.
   }
-  try {
-    kickBootMaintenance()
-  } catch {
-    // Best effort only: admin bootstrap + daily DB snapshots must never
-    // take the server down.
-  }
+  if (process.env.NEXT_RUNTIME !== 'nodejs') return
+  void import('./admin-bootstrap')
+    .then((m) => m.ensureAdminAccount())
+    .catch(() => {
+      // Best effort only: a missing admin account must never block boot.
+    })
 }
