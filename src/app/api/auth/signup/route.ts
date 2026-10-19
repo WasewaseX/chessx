@@ -19,7 +19,7 @@ import { seedForSkill } from '@/lib/rating'
 // 3-20 chars, starts/ends with a letter or number, and inside may use dots,
 // hyphens and underscores. The message names what IS allowed (players do not
 // parse regexes) and each failure gets its own line so the fix is obvious.
-export const USERNAME_MSG =
+const USERNAME_MSG =
   'Usernames can use letters, numbers, dots, hyphens and underscores — no spaces or other symbols'
 
 const bodySchema = z.object({
