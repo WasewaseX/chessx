@@ -168,9 +168,35 @@ export async function fetchChessComGames(
   if (monthly.length === 0) return []
 
   const settled = await Promise.allSettled(
-    monthly.map(async ({ u }) => {
-      const res = await deadlineFetch(u, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } }, deadline, 'chess.com')
+    monthly.map(async ({ u, m }) => {
+      // ETag-cached backfill (chess.com RE report §4): re-send If-None-Match
+      // from the last fetch of this (user, month); a 304 answer means the
+      // month is unchanged — zero bytes to parse, dedupe stays trivial and
+      // the rate-limit budget goes to months that actually have new games.
+      const month = `${m[1]}-${m[2]}`
+      const cached = await db.importCache
+        .findUnique({
+          where: { platform_usernameLower_month: { platform: 'chesscom', usernameLower: name, month } },
+        })
+        .catch(() => null)
+      const reqHeaders: Record<string, string> = { 'User-Agent': USER_AGENT, Accept: 'application/json' }
+      if (cached?.etag) reqHeaders['If-None-Match'] = cached.etag
+
+      const res = await deadlineFetch(u, { headers: reqHeaders }, deadline, 'chess.com')
+      if (res.status === 304) return [] // unchanged since the last import
       if (!res.ok) return [] // an empty/blocked month must not sink the import
+
+      const etag = res.headers.get('etag')
+      if (etag) {
+        await db.importCache
+          .upsert({
+            where: { platform_usernameLower_month: { platform: 'chesscom', usernameLower: name, month } },
+            update: { etag, fetchedAt: new Date() },
+            create: { platform: 'chesscom', usernameLower: name, month, etag },
+          })
+          .catch(() => {}) // cache write failure must never fail an import
+      }
+
       const data = (await res.json().catch(() => null)) as { games?: unknown } | null
       const games = data && Array.isArray(data.games) ? (data.games as ChessComGame[]) : []
       return games.filter((g) => g && typeof g.pgn === 'string' && (g.pgn as string).trim().length > 0 && playedBy(g, name))

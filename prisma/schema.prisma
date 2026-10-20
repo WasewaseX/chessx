@@ -509,3 +509,17 @@ model CoachGame {
 
   @@index([profileId, createdAt])
 }
+
+// chess.com archive ETag cache (chess.com RE report §4): each monthly archive
+// is re-fetched with If-None-Match; a 304 answer costs zero parsing and keeps
+// re-imports inside the rate-limit budget for large accounts.
+model ImportCache {
+  id            String   @id @default(cuid())
+  platform      String // 'chesscom' (lichess export has no conditional GET)
+  usernameLower String
+  month         String // 'YYYY-MM' as it appears in the archive URL
+  etag          String
+  fetchedAt     DateTime @default(now())
+
+  @@unique([platform, usernameLower, month])
+}

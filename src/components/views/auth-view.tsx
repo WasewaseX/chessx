@@ -299,6 +299,14 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === 'login' ? 'Your lessons and ratings are waiting.' : 'Free to join. It takes ten seconds.'}
           </p>
+          {mode === 'signup' && (
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+              <span className="rounded bg-secondary px-1.5 py-0.5">Works with Chess.com</span>
+              <span aria-hidden="true">·</span>
+              <span className="rounded bg-secondary px-1.5 py-0.5">Lichess</span>
+              <span className="font-normal">— import your games right after you join.</span>
+            </p>
+          )}
 
           <div className="mt-5 grid grid-cols-2 gap-1 rounded-lg bg-secondary p-1" role="tablist">
             {(['login', 'signup'] as const).map((m) => (
