@@ -89,3 +89,20 @@ Stage Summary:
 - All core UI verified live with the user's authentic data (original password hash intact).
 - Deployment freshness: owner can now read the served build straight from the footer.
 - GitHub current through 53b7120.
+
+---
+Task ID: 6
+Agent: Z.ai Code (main)
+Task: Coach post-game recap feature + LLM fetch-retry bug fix + error sweep
+
+Work Log:
+- Error sweep found recurring `[dna] snapshot write failed ... reading 'upsert'`: the sandbox rollback had reverted node_modules to a STALE generated Prisma client (no DnaSnapshot/CoachGame delegates). Regenerated (prisma generate) + db push (schema already in sync) -> /api/dna 200, errors gone. Production builds always regenerate via `bun run build` (prisma generate && next build), so this was sandbox-local.
+- Verified CI valid: .github/workflows/ci.yml parses clean (push+PR on main); GitHub API shows runs on every push (305038d success, later ones cancelled-by-concurrency/superseded). Earlier "ain]" corruption was a display artifact, file is correct.
+- Shipped Play-with-Coach POST-GAME RECAP: worst-3 engine-verified student mistakes (cpl>=50), honest headline from label distribution, each row = move no + label + played->best + pawn cost + SHOW (board jumps, best move arrowed) + ASK WHY (chat teaching with focusSan). Browser-verified end to end (e4 c5 Qh5?! Nf6 resign -> recap lists Qh5->Nf3 0.7 pawns; SHOW arrows Nf3; ASK WHY returns real teaching).
+- FIXED chat-wedging bug found during recap E2E: /api/coach-game/chat took ~11s; fetch-hardening ladder aborted at 3.5s and retried, piling duplicate server generations; UI stayed chatBusy forever. fetch-retry.ts now gives /api/coach* one 90s attempt, no retry. Re-verified: recap Ask-why answers arrive.
+- Pushed 5f6ce12 with full-page screenshot.
+
+Stage Summary:
+- Play with Coach now: setup (personas/ELO/color) -> graded play with reasons -> explain-more -> honest chat -> post-game recap with replayable worst moments. UI E2E green incl. mobile pending check.
+- Deployment chain: pushes land on GitHub, CI builds each push, footer build stamp proves served version.
+- Next: mobile check for recap, DNA v2 (clock/conversion), shareable DNA report.
