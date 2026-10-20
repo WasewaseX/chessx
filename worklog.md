@@ -178,3 +178,17 @@ Work Log:
 Stage Summary:
 - Every user-facing surface in the app has now been exercised live this session: auth, sidebar (6 groups), coach game, game review, free analysis, daily puzzle (solved), rated puzzles, rush, battle, vision, woodpecker, lessons (quiz+solve), coach chat, tools, what's new, profile, settings (password + fairness), system status (all green), sparring bots (with persona reactions).
 - Zero code defects found in the sweep — the prior sessions' work held up under full-surface adversarial testing.
+
+---
+Task ID: 10
+Agent: main (session continuation, Oct 20)
+Task: Ship notes — the What's-new feed now tells the truth
+
+Work Log:
+- The What's-new page was an honest-but-empty state. Seeded it with 8 real ship notes (Play with Coach, sidebar, durable data, Opera Game benchmark, ETag imports, Security & fairness, CI build gate, DNA focus strip) — everything describes actually-shipped, browser-verified work.
+- Idempotent by title (scripts/seed-whatsnew.ts + the same seed inlined in boot-maintenance.ts), so every boot re-inserts missing entries after a DB restore and never duplicates.
+- Verified render: pinned Fix "Your data survives rebuilds" + Feature "Play with Coach" with reaction buttons. Evidence: download/verify-whatsnew-seeded-1020.png.
+- Dev server restarted cleanly after the instrumentation edit; lint+tsc clean.
+
+Stage Summary:
+- The feed is now part of boot self-healing like the admin bootstrap: user-visible, honest, restore-proof.
