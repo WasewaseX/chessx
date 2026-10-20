@@ -83,3 +83,19 @@ Stage Summary:
 - Backup pipeline fully operational again after env restore + runtime fix; accounts guaranteed at boot.
 - All user-facing features from Tasks 1-2 verified working in this sandbox, evidence screenshots saved.
 - tiktokaltrachel sign-in works with chessx1234 (user's own re-registered password was lost with the rebuilt volume; honest note for the user).
+
+---
+Task ID: 4
+Agent: main (session continuation, Oct 20)
+Task: Diagnose and fix the stuck deployment (user: "latest deployment is oct 18")
+
+Work Log:
+- Added .github/workflows/ci.yml (install -> prisma generate/db push on scratch db -> lint -> next build) so every push is build-gated and any GitHub-connected deploy gets a real check.
+- Run 1 failed: next build defaults to Turbopack in Next 16; the project's custom webpack config (memory guard + eval-require node builtins) is incompatible -> "Call retries were exceeded". Fix: build with --webpack (same flag dev uses).
+- Run 2 failed: fresh installs never generate the Prisma client (no postinstall), so typecheck died on `Prisma` / `coachGame` / `dnaShareToken` / `dnaSnapshot` missing — reproduced locally (stale client in this sandbox, tsc errors identical). Fix: `prisma generate` is now the first step of the `build` script, so ANY deploy target generates before typechecking.
+- Run 3 (284086e): GREEN. Repo is provably buildable from a clean checkout.
+
+Stage Summary:
+- Root cause of the stuck deployment: two build breakers introduced after Oct 18 (Turbopack default + stale-client type errors). Both fixed in-repo; CI green proves clean-checkout builds.
+- Local sandbox also recovered: prisma client regenerated, `bun run typecheck` exit 0.
+- The 1.57GB puzzle bank is NOT the deployment problem: it is not in git, lives on the persistent volume, and is load-bearing (rush 250-batches, woodpecker rating windows, deterministic daily history — none offered by the Lichess API).
