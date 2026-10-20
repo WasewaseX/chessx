@@ -17,3 +17,24 @@ Stage Summary:
 - Account tiktokaltrachel@atomicmail.io RECOVERED (password unchanged — hash restored from snapshot).
 - Root cause of both losses: unwired restore + missing token env. Fixed in commit 008b0d1; .env.local carries GH_BACKUP_TOKEN/GH_BACKUP_REPO.
 - GitHub current as of Oct 20 18:22 UTC (008b0d1). Data now survives: 2h off-box snapshots + daily local snapshots + restore-on-boot with strict ordering.
+
+---
+Task ID: 2
+Agent: Z.ai Code (main)
+Task: Continue never-stop queue — verify UI E2E with screenshots, then build REA port item 3 (Opening Review Queue)
+
+Work Log:
+- Browser E2E verified (agent-browser, admin session): landing renders clean, admin/admin1234 login works post-restore, chess.com-style sidebar expands (Home/Play›/Learn›/Puzzles›/Tools›/More›), Learn sub-tabs = All tabs/Lessons/Play with Coach (New)/Game Review/Analysis.
+- Play with Coach verified live: 4 coach personas, ELO slider 400–2400 with presets, color choice; played 1.e4 e5 — graded "e4 is book +0.3→+0.3" with Show line + Explain more; coach replied c5; ASK NINA chat answered "Why exactly is e4 book here?" with real teaching. Mobile 390px: bottom bar mirrors sidebar groups; grade cards stack.
+- Screenshots saved to download/ and pushed (commit ac4d26d).
+- Google sign-in env gating verified already implemented; session_failed string no longer exists (obsolete).
+- REA port list re-check: items 2/4/5 already shipped; item 3 (opening_review_queue) missing → built it:
+  - harvestDrills(profileId, {opening}) filter; /api/drills?opening= scoped queue
+  - new /api/openings/queue: GET aggregates reviewed games per opening (games, avg playerAcc, own errors from labelsJson, W-L-D) + live drill state (due/mastered/avgLoss), ranked worst-first, MIN_GAMES=2 honesty bar; POST harvests that opening's errors into drills (ownership-checked)
+  - store.openingDrillFocus + Mistake Corrector opening chip ("Show all openings" clears); new home card "Openings to fix" with Practice deep-link
+  - scripts/seed-opening-reviews.ts: runs REAL Stockfish 19 WASM depth-12 + classifyMove thresholds over stored imports, POSTs to /api/games/report (no fabricated evals); fixed pliesFromPgn fenBefore capture bug
+- E2E seeded: 105 lichess games imported (DrNykterstein + zhigalko_sergei), 2 Alapin games engine-reviewed, queue surfaced "Sicilian Defence 2 games 0-2-0 91.4% acc 3 own errors 2 due", Practice harvested 2 drills (191cp/180cp) and deep-linked #/review with opening chip. Screenshots pushed.
+
+Stage Summary:
+- All previously inherited blockers now resolved/verified; GitHub current through b75a3a4 (Oct 20 18:36 UTC).
+- New feature shipped + browser-verified with screenshots; account loss permanently fixed (restore-on-boot wired, token fallback).
