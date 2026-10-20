@@ -1,0 +1,54 @@
+# ChessX CI — every push to main is type-checked, linted and built.
+#
+# Why this exists: the user's hosted deployment had silently stopped at an old
+# version. A green/red build check on every commit makes a broken build
+# impossible to miss, and gates any GitHub-connected deploy target.
+#
+# The build runs against a throwaway SQLite database — no real data in CI.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: file:./ci.db
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Prisma generate + scratch database
+        run: bunx prisma db push --skip-generate --accept-data-loss
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Build
+        run: bunx next build
+
+      - name: Upload build trace on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-failure-logs
+          path: .next/trace
+          if-no-files-found: ignore
+          retention-days: 5
