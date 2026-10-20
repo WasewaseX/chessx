@@ -99,3 +99,19 @@ Stage Summary:
 - Root cause of the stuck deployment: two build breakers introduced after Oct 18 (Turbopack default + stale-client type errors). Both fixed in-repo; CI green proves clean-checkout builds.
 - Local sandbox also recovered: prisma client regenerated, `bun run typecheck` exit 0.
 - The 1.57GB puzzle bank is NOT the deployment problem: it is not in git, lives on the persistent volume, and is load-bearing (rush 250-batches, woodpecker rating windows, deterministic daily history — none offered by the Lichess API).
+
+---
+Task ID: 5
+Agent: main (session continuation, Oct 20)
+Task: Never-stop quality loop — password change feature, move-specific coach reasons, full sidebar sweep
+
+Work Log:
+- Shipped Settings > Password: POST /api/auth/password (re-verifies current password via bcrypt, 5/10min rate limit, honest 409 for Google-only accounts, rejects no-op same-password) + Security card in settings-view.tsx. Verified end-to-end in browser: wrong-current rejected inline ("Current password is incorrect"), change works, login with new password works, reverted via API. Evidence: download/verify-password-settings-1020.png.
+- Coach reasons upgraded: buildReason (game-report.ts) now composes move-specific "why" for best/excellent/good tiers — captures name the piece+square, best names development/center/castle/check, good/excellent name the engine's better move ("Playable, but Nf3 kept more of the advantage"). Verified live: exd5 shows "Takes the pawn on d5 — the engine's top choice." No more one generic sentence for every move.
+- Full two-level sidebar sweep (desktop + mobile 390px): Home; Play (Online with time controls / Sparring Bots); Learn (Lessons / Play with Coach / Game Review / Analysis); Puzzles (Rated w/ live theme counts / Daily / Rush / Battle / Vision / Woodpecker); Tools (Coach Chat / Import & Records / What's New); More (Profile / Settings). Mobile bottom bar renders chess.com-style. Zero console/page errors.
+- Trusted-input note: the coach board needs real (trusted) pointer events for drag-to-move; synthetic dispatchEvent storms bypass pointer-capture semantics and can leave phantom selection state. Real mice/touch are unaffected (verified via CDP trusted input).
+
+Stage Summary:
+- Commits 7d11e12 (password), 13cbb2c (coach reasons) pushed; CI green pipeline intact.
+- The user can now replace the restored emergency password (chessx1234) themselves — closes the account-recovery loop.
+- Coach "why" now meets the chess.com-beating bar the user asked for: honest, move-specific, names the better move.
