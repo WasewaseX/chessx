@@ -300,10 +300,10 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
             {mode === 'login' ? 'Your lessons and ratings are waiting.' : 'Free to join. It takes ten seconds.'}
           </p>
           {mode === 'signup' && (
-            <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-              <span className="rounded bg-secondary px-1.5 py-0.5">Works with Chess.com</span>
+            <p className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs font-semibold text-muted-foreground">
+              <span className="whitespace-nowrap rounded bg-secondary px-1.5 py-0.5">Works with Chess.com</span>
               <span aria-hidden="true">·</span>
-              <span className="rounded bg-secondary px-1.5 py-0.5">Lichess</span>
+              <span className="whitespace-nowrap rounded bg-secondary px-1.5 py-0.5">Lichess</span>
               <span className="font-normal">— import your games right after you join.</span>
             </p>
           )}
