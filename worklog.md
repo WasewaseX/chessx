@@ -53,3 +53,21 @@ Work Log:
 Stage Summary:
 - REA port priorities 1 (import-first), 3 (opening queue) now shipped and browser-verified; 2/4/5 were already live.
 - GitHub current through 1b992fc (Oct 20 18:41 UTC). Every step committed+pushed.
+
+---
+Task ID: 4
+Agent: Z.ai Code (main)
+Task: Re-restore authentic user data after sandbox rollback wiped the DB again
+
+Work Log:
+- Sandbox had rolled back to ca11759 (pre-recovery code); db/custom.db had ZERO users at session start.
+- Rebased local work onto origin/main (7e0e9e7) — inherited restore-on-boot, db-backup-scheduler, sidebar sub-tabs, Play-with-Coach, import-first onboarding.
+- Wrote interim boot-backup module (db-backup.ts) during the rollback window; superseded by boot-maintenance.ts after rebase (kept out of the tree).
+- Restored placeholder accounts, then wiped them and ran scripts/gh-restore.ts with GH_BACKUP_TOKEN (set in .env.local, gitignored) -> latest.db.gz (13 KB gz) pulled from WasewaseX/chessx-backups.
+- Verified: 2 users (admin@chessx.local admin role; tiktokaltrachel@atomicmail.io with ORIGINAL password hash — temp-password login correctly rejected), profile onboarded, 1 GameRecord, 1 PuzzleAttempt.
+- Confirmed origin remote carries the PAT so restore works even without .env.local.
+
+Stage Summary:
+- User's authentic account data is live again (original credentials work; nothing about the account is fabricated).
+- Data-loss safety net now triple: restore-on-boot (first in boot order), daily VACUUM backups (keep 7), ~2h off-box GitHub snapshots.
+- GitHub current through this commit; PAT stored only in gitignored .env.local + origin remote URL.
