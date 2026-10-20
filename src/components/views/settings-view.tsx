@@ -14,7 +14,7 @@ import { readJson } from '@/lib/api-client'
 import { toast } from '@/hooks/use-toast'
 import { CharacterFace } from '@/components/chess/characters'
 import { cn } from '@/lib/utils'
-import { Loader2, CheckCircle2, XCircle, Sun, Moon, Monitor } from 'lucide-react'
+import { Loader2, CheckCircle2, XCircle, Sun, Moon, Monitor, ShieldCheck } from 'lucide-react'
 import { SystemStatusCard } from '@/components/views/system-status-card'
 
 // Decorative pieces on the 4x4 theme preview boards (key = grid cell, row-major).
@@ -427,6 +427,55 @@ export function SettingsView() {
             <p className="text-sm text-muted-foreground">Using the built-in ChessX AI. No key needed.</p>
           )}
         </div>
+      </section>
+
+      {/* Fair play & security: chess.com publishes enforcement stats; the
+          honest equivalent is publishing exactly how this platform behaves.
+          Every line below describes real, verifiable behavior. */}
+      <section className="mt-6 rounded-lg bg-card p-6 shadow-sm">
+        <h2 className="font-display text-lg font-bold">Security &amp; fairness</h2>
+        <p className="mt-1 text-sm text-muted-foreground">How this platform actually behaves — no fine print.</p>
+        <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
+          <li className="flex gap-2">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+            <span>
+              <strong className="text-foreground">Rated games are human-only.</strong> The matchmaking
+              queue never inserts bots or engine players — you only get paired with another signed-in
+              account. Bot and coach games never touch the rating pool.
+            </span>
+          </li>
+          <li className="flex gap-2">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+            <span>
+              <strong className="text-foreground">The engine is always labeled.</strong> Stockfish plays
+              only where you asked for it (coach games, sparring bots, analysis) at the strength you chose,
+              and every coach game is stored as training, never rated.
+            </span>
+          </li>
+          <li className="flex gap-2">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+            <span>
+              <strong className="text-foreground">The coach cannot invent facts.</strong> Statements about
+              your games are verified against the real moves and engine evals before they are shown; when
+              something cannot be confirmed, the coach says so.
+            </span>
+          </li>
+          <li className="flex gap-2">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+            <span>
+              <strong className="text-foreground">Your credentials stay hashed.</strong> Passwords are
+              bcrypt-hashed, session tokens are stored hashed, and nothing is shared with third-party
+              analytics or ad networks.
+            </span>
+          </li>
+          <li className="flex gap-2">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+            <span>
+              <strong className="text-foreground">Rate limits protect everyone.</strong> Sign-in, analysis,
+              coach chat and imports are rate-limited so no single account can starve the service.
+            </span>
+          </li>
+        </ul>
       </section>
 
       {/* Self-diagnosis: real round-trips against every subsystem. */}
