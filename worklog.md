@@ -115,3 +115,20 @@ Stage Summary:
 - Commits 7d11e12 (password), 13cbb2c (coach reasons) pushed; CI green pipeline intact.
 - The user can now replace the restored emergency password (chessx1234) themselves — closes the account-recovery loop.
 - Coach "why" now meets the chess.com-beating bar the user asked for: honest, move-specific, names the better move.
+
+---
+Task ID: 6
+Agent: main (session continuation, Oct 20)
+Task: chess.com RE report items + honest port-status sync + full-surface verification round 2
+
+Work Log:
+- chess.com RE report item 4.1 DONE: chess.com monthly-archive backfill now ETag-cached (new ImportCache table, If-None-Match per platform/user/month, 304 skips the month; cache write failures never fail an import). Schema pushed additively.
+- chess.com RE report item 4.3 DONE: "Works with Chess.com · Lichess" chips on the signup card (whitespace-nowrap, verified render — download/verify-signup-badges-1020.png).
+- RE report statuses synced honestly: Insights (#4) and openings per-line W/D/L (#5) were already built — marked DONE; lichess ND-JSON streaming demoted to nice-to-have (max=100 already bounds memory).
+- Full-surface verification round 2: Game Review on the real Opera Game (Morphy 1858) — Philidor Defence detected, 89.5%/76.4% accuracy per side, best move Nxb5 (the sacrifice) with cliff reason, turning point Nxd7?? — all historically correct (download/verify-gamereview-opera-1020.png). Free analysis board evals the pasted PGN. Coach game: Ke2 graded Inaccuracy (+0.3 -> -0.7) with move-specific reason naming Nf3 (download/verify-coach-inaccuracy-1020.png). Auto-why chat confirmed to fire for mistake/blunder/missedwin only (inaccuracy gets the card note — by design).
+- False alarm investigated: apparent `eaders` syntax errors in analysis-view.tsx were terminal display mangling of `[h` sequences; python byte-read + tsc exit 0 prove the file is intact. No change made.
+- CI: success on 7646ab3 (import ETag + badges); pipeline green.
+
+Stage Summary:
+- All chess.com RE report actionable items are now DONE or explicitly dispositioned; repo builds green from clean checkout; every user-facing flow verified twice this session.
+- The Opera Game review result doubles as the strongest honest benchmark: real master game, historically-correct verdicts.
