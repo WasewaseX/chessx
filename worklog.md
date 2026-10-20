@@ -123,3 +123,17 @@ Work Log:
 Stage Summary:
 - Full system healthy end to end; all user-visible flows verified with the authentic restored account.
 - GitHub current through bd75332.
+
+---
+Task ID: 8
+Agent: Z.ai Code (main)
+Task: Coach opening repertoire
+
+Work Log:
+- Coach now opens from ELO-banded book lines (beginner: natural development; club 1000+: Italian/Scotch/Sicilian/QGD/French; advanced 1700+: Ruy mainline/Najdorf/KID/QGD/Petrov). Prefix-match on SAN history, random pick among candidates, engine takes over after book or on deviation. Book moves still pass the normal label pipeline.
+- Browser-verified: e4 -> e6 (Book) -> d4 (Best) -> d5 (Best) — the coach opens like a club player, labels stay honest.
+- typecheck + lint clean; pushed with screenshots.
+
+Stage Summary:
+- Play with Coach now: real openings per level + engine character after book + per-move grading + explain + honest chat + post-game recap.
+- GitHub current through this commit.
