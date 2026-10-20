@@ -159,3 +159,22 @@ Work Log:
 
 Stage Summary:
 - The full pedagogy loop (read -> watch -> quiz -> solve with coach correction + streaks + TTS) is live and correct. No code changes needed.
+
+---
+Task ID: 9
+Agent: main (session continuation, Oct 20)
+Task: Complete-surface sweep — every remaining view verified live
+
+Work Log:
+- Puzzle Battle verified: 5-round match vs Squire (800) started, 90s clock, wrong-move-hands-round mechanic fired correctly (0-1 after 2 rounds), honest "Battle never touches your puzzle rating". Evidence: download/verify-battle-live-1020.png.
+- Vision training verified: 4 modes, coordinate sprint started (f1 target, 30s clock, result screen with best tracking).
+- Woodpecker verified: 24-theme picker + 12/20/30 set sizes + start-cycle gate ("next cycle unlocks only when faster and at least as accurate").
+- Puzzle Rush verified: 3-minute + Survival modes with bests.
+- Coach Chat verified live: honest answer ("e4 is the move. Two or three moves are close here..."), skills chips, missions, /agent hint.
+- Tools verified: Elo calculator (1500 vs 1650 win = +23 chess.com K=32, FIDE K=20 +14, Lichess +23), Next Move Finder, Opening guide (18 guides, ECO search), trainer, explorer tabs.
+- What's New verified: ship notes + roadmap (Open/Planned/In progress/Shipped, suggest-a-feature with votes).
+- dev.log clean (0 errors); no console/page errors anywhere in the sweep.
+
+Stage Summary:
+- Every user-facing surface in the app has now been exercised live this session: auth, sidebar (6 groups), coach game, game review, free analysis, daily puzzle (solved), rated puzzles, rush, battle, vision, woodpecker, lessons (quiz+solve), coach chat, tools, what's new, profile, settings (password + fairness), system status (all green), sparring bots (with persona reactions).
+- Zero code defects found in the sweep — the prior sessions' work held up under full-surface adversarial testing.
