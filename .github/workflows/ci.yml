@@ -42,7 +42,9 @@ jobs:
         run: bun run lint
 
       - name: Build
-        run: bunx next build
+        # The project ships a custom webpack config (memory guard + node
+        # builtins handling), so the build must use webpack — same as dev.
+        run: bunx next build --webpack
 
       - name: Upload build trace on failure
         if: failure()
