@@ -17,7 +17,23 @@
 // Static node builtin imports here break the edge/client graphs. All node
 // builtins are required LAZILY through eval('require') below.
 function nodeRequire(mod: string): any {
-  return (eval('require'))(mod)
+  try {
+    return (eval('require'))(mod) // works under webpack + node CJS
+  } catch {
+    // Plain-bun ESM (e.g. `bun run backup`): eval('require') throws.
+    // Build a real require() from the 'module' builtin via getBuiltinModule
+    // (node >=22.3 and bun) — no static import, so webpack stays happy.
+    const proc = globalThis.process as unknown as {
+      cwd?: () => string
+      getBuiltinModule?: (m: string) => unknown
+    }
+    const moduleBuiltin = proc?.getBuiltinModule?.('module') as
+      | { createRequire?: (f: string) => NodeRequire }
+      | undefined
+    const createRequire = moduleBuiltin?.createRequire
+    if (createRequire && proc?.cwd) return createRequire(`${proc.cwd()}/package.json`)(mod)
+    throw new Error(`nodeRequire: cannot load ${mod} in this runtime`)
+  }
 }
 
 const REPO = process.env.GH_BACKUP_REPO || 'WasewaseX/chessx-backups'
