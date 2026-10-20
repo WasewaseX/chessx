@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   description:
     "Interactive lessons from first move to grandmaster, rated puzzles, engine play and AI coaches that talk. Bring your own API key if you want.",
   icons: { icon: "/brand.svg" },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "ChessX", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {

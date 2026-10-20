@@ -1,0 +1,23 @@
+{
+  "name": "ChessX — The study. Not the arcade.",
+  "short_name": "ChessX",
+  "description": "Interactive lessons, rated puzzles, engine-graded coach games and AI coaches that talk.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#312e2b",
+  "theme_color": "#312e2b",
+  "icons": [
+    {
+      "src": "/brand.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
