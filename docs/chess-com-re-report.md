@@ -35,8 +35,8 @@ chessx's own committed import path (wave 1) already consumes exactly these two e
 | 1 | Import-first onboarding: connect chess.com/lichess before anything else | chessigma's first-run loop (username_logs + games) | Engine committed (wave 1); needs home-page promotion |
 | 2 | Game Review with accuracy per side | chessx parity already: game-report with whiteAcc/blackAcc/playerAcc | DONE — exceeds (pivotal-moment drill hand-off) |
 | 3 | Puzzle Rush / Battle | chessx has Rush (3m + survival) AND head-to-head Battle | DONE |
-| 4 | Insights: time-of-day, openings, phase accuracy | chessx GameRecord stores localHour + labelsJson | Partial: surface aggregate Insights view |
-| 5 | Openings tab with per-line win rates | chessigma's opening_course_progress/queue tables | Add aggregate openings view + review queue |
+| 4 | Insights: time-of-day, openings, phase accuracy | chessx GameRecord stores localHour + labelsJson | DONE — Insights v1 (avg accuracy, label mix, openings W/D/L table, time-of-day buckets) renders from real reports |
+| 5 | Openings tab with per-line win rates | chessigma's opening_course_progress/queue tables | DONE — Insights openings table carries per-line W/D/L + avg accuracy from real game reports |
 | 6 | Streaks with freezes | chess.com daily streak; chessigma user_streaks | DONE (ActivityDay + freeze tokens) |
 | 7 | Rated pool with Glicko + provisional RD | chessx already uses Glicko with RD 350 seeds | DONE |
 | 8 | Coach/lessons gated library | chessx gives all 120 lessons free — deliberate contrast | DONE (differentiator) |
@@ -45,9 +45,16 @@ chessx's own committed import path (wave 1) already consumes exactly these two e
 
 ## 4. Remaining chess.com-specific opportunities (no live access needed to build)
 
-- **Archive backfill with rate-limit respect**: monthly-archive walk with `If-None-Match`/ETag reuse — chessigma's monthly call pattern shows the practical shape; chessx should cache ETags per (user, month).
-- **ND-JSON import for lichess** (streaming, `max=1000`) — mirror chessigma's parameter set; keeps memory flat for large accounts.
-- **Import UX copy**: show "Works with Chess.com · Lichess" badges at signup — chessigma leads with it.
+- ~~Archive backfill with rate-limit respect~~ — **DONE (Oct 20)**: monthly-archive walk
+  now sends `If-None-Match` from the persisted `ImportCache` table (one row per
+  platform/user/month); a 304 answer skips the month entirely, so re-imports spend the
+  rate-limit budget only on months with new games. lichess keeps `since` filtering (its
+  export endpoint has no conditional GET).
+- ~~Import UX copy~~ — **DONE (Oct 20)**: "Works with Chess.com · Lichess" chips on the
+  signup card, mirroring chessigma's first-run loop.
+- ND-JSON streaming import for lichess (streaming, `max=1000`) — keeps memory flat for
+  very large accounts; current import already caps `max=100` per call which bounds memory
+  by construction, so this is a nice-to-have, not a correctness gap.
 
 ## 5. Honest limitations
 
