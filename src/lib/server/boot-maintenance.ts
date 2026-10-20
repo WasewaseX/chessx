@@ -149,6 +149,20 @@ async function readUserCountRaw(): Promise<number | null> {
 async function seedWhatsNew(): Promise<void> {
   const SEEDS: { title: string; body: string; tag: string; version?: string; pinned?: boolean }[] = [
     {
+      title: 'Coach’s post-game recap',
+      tag: 'feature',
+      version: '0.4.1',
+      body:
+        'When a training game ends, the coach hands you the three costliest moments — engine-verified centipawn loss, the better move named — and each one replays on the board with the improvement drawn in. One click asks the coach to teach the idea behind the better move. Nothing invented: only measured swings make the list.',
+    },
+    {
+      title: 'You can always see which build you are on',
+      tag: 'update',
+      version: '0.4.1',
+      body:
+        'The footer now prints the exact build a deployment serves (or the dev boot time). A stale deployment is visible at a glance instead of a guess — the missing signal behind the “still Oct 18” confusion.',
+    },
+    {
       title: 'Openings to fix, queued from your own games',
       tag: 'feature',
       version: '0.4.0',
