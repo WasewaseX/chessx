@@ -132,3 +132,17 @@ Work Log:
 Stage Summary:
 - All chess.com RE report actionable items are now DONE or explicitly dispositioned; repo builds green from clean checkout; every user-facing flow verified twice this session.
 - The Opera Game review result doubles as the strongest honest benchmark: real master game, historically-correct verdicts.
+
+---
+Task ID: 7
+Agent: main (session continuation, Oct 20)
+Task: Security & fairness card + puzzle-loop verification + mini-services recovery
+
+Work Log:
+- chess.com RE report #9 DONE: Settings > Security & fairness card publishing real behavior (rated pool is bot-free per game-service source; engine always labeled; claim-guarded coach; bcrypt/hashed sessions; rate limits). Verified render + evidence screenshot. All five claims read from source before publishing.
+- System status card exposed two dead mini-services (Live games service, MCP server) — both restarted (game-service :3030, mcp-server :3031); re-run shows "responding" for every subsystem.
+- Daily puzzle verified end-to-end with the real bank row (Yc77Z, 1409): hint reveals the moving piece, Bxg5 accepted, auto-reply Rhh5, Be3 completes the line -> "Solved. Rating +49", streak 1, Glicko rating seeded 849, themes + lichess source attribution shown honestly. Evidence screenshots saved.
+
+Stage Summary:
+- Every headline flow has now been verified live this session: auth (login/signup/password), two-level sidebar (6 groups, mobile+desktop), coach game (grading + move-specific reasons + chat), game review (Opera Game benchmark), free analysis, daily puzzle (real solve + rating), system status (all green).
+- Commits: 6133f5c (fairness card), b1a78fa (round-2 evidence), ae0c6cc (report sync), 7646ab3 (badges nowrap), 427b10b (ETag+badges) — all pushed; CI green.
