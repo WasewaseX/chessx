@@ -20,18 +20,51 @@ const LEVELS = [
 
 export function Onboarding() {
   const { setProfile } = useApp()
-  const [step, setStep] = useState<1 | 2>(1)
+  const [step, setStep] = useState<1 | 2 | 3>(1)
   const [coachId, setCoachId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [skill, setSkill] = useState('beginner')
   const [busy, setBusy] = useState(false)
   const [startError, setStartError] = useState(false)
+  // Import-first step (chessigma's loop starts at "connect chess.com/lichess"):
+  // optional, honest, never a trap — skipping just means the coach starts empty.
+  const [platform, setPlatform] = useState<'chesscom' | 'lichess'>('chesscom')
+  const [importUser, setImportUser] = useState('')
+  const [importState, setImportState] = useState<'idle' | 'running' | 'done' | 'error'>('idle')
+  const [importMsg, setImportMsg] = useState('')
+  const [importPromise, setImportPromise] = useState<Promise<unknown> | null>(null)
+
+  function beginImport() {
+    const username = importUser.trim()
+    if (!username || importState === 'running') return
+    setImportState('running')
+    setImportMsg('Contacting ' + (platform === 'chesscom' ? 'chess.com' : 'Lichess') + '…')
+    const p = fetch('/api/import/username', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platform, username, months: 3 }),
+    })
+      .then(async (res) => {
+        const d = (await res.json().catch(() => ({}))) as { ok?: boolean; imported?: number; fetched?: number; error?: string }
+        if (!res.ok || !d.ok) throw new Error(d.error ?? 'Import failed')
+        setImportState('done')
+        setImportMsg(`Imported ${d.imported ?? 0} of ${d.fetched ?? 0} games. Your coach will study them — Chess DNA, Today's Plan and Openings to fix all come from real games.`)
+      })
+      .catch((err: unknown) => {
+        setImportState('error')
+        setImportMsg(err instanceof Error && err.message ? err.message : 'Import failed. You can retry or skip — email games can be added later.')
+      })
+    setImportPromise(p)
+  }
 
   async function start() {
     if (!coachId) return
     setBusy(true)
     setStartError(false)
     try {
+      // wait for an in-flight import (bounded by the server's own budget) but
+      // never let an import failure block account setup
+      if (importPromise) await importPromise.catch(() => {})
       const res = await fetch('/api/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -80,7 +113,7 @@ export function Onboarding() {
                 {coachId ? 'Next' : 'Pick a coach to continue'}
               </Button>
             </>
-          ) : (
+          ) : step === 2 ? (
             <>
               <h1 className="font-display text-2xl font-bold text-white">Two quick questions.</h1>
 
@@ -133,6 +166,80 @@ export function Onboarding() {
 
               <div className="mt-8 flex gap-2">
                 <Button variant="outline" className="px-4" onClick={() => setStep(1)}>
+                  <ChevronLeft className="h-4 w-4" /> Back
+                </Button>
+                <Button className="btn-hero flex-1 py-3 text-base" onClick={() => setStep(3)}>
+                  Continue
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <h1 className="font-display text-2xl font-bold text-white">Bring your games.</h1>
+              <p className="mt-1 text-sm text-sidebar-foreground/70">
+                Works with Chess.com · Lichess. Your coach studies real games — Chess DNA, Today’s Plan and
+                Openings to fix are all derived from them. You can also do this later from Home.
+              </p>
+
+              <div className="mt-6 rounded-2xl border border-white/10 bg-background/95 p-4 text-foreground shadow-xl">
+                <div className="grid grid-cols-2 gap-2" role="group" aria-label="Game source">
+                  {([
+                    { id: 'chesscom', label: 'Chess.com' },
+                    { id: 'lichess', label: 'Lichess' },
+                  ] as const).map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setPlatform(p.id)}
+                      aria-pressed={platform === p.id}
+                      className={cn(
+                        'rounded-md border px-4 py-2.5 text-sm font-bold transition',
+                        platform === p.id
+                          ? 'border-[#81b64c] bg-[#81b64c]/15 text-foreground'
+                          : 'border-black/10 bg-black/5 text-muted-foreground hover:bg-black/10',
+                      )}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <Input
+                    aria-label={`${platform === 'chesscom' ? 'Chess.com' : 'Lichess'} username`}
+                    value={importUser}
+                    onChange={(e) => setImportUser(e.target.value)}
+                    placeholder={platform === 'chesscom' ? 'e.g. hikaru' : 'e.g. DrNykterstein'}
+                    maxLength={30}
+                    disabled={importState === 'running'}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') beginImport()
+                    }}
+                  />
+                  <Button
+                    variant="secondary"
+                    className="shrink-0 px-4"
+                    onClick={beginImport}
+                    disabled={importState === 'running' || importUser.trim().length < 2}
+                  >
+                    {importState === 'running' ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                    Import
+                  </Button>
+                </div>
+                {importState !== 'idle' && importMsg && (
+                  <p
+                    className={cn(
+                      'mt-2 text-xs font-semibold',
+                      importState === 'done' ? 'text-[#5d8c3a]' : importState === 'error' ? 'text-red-600' : 'text-muted-foreground',
+                    )}
+                    role={importState === 'error' ? 'alert' : 'status'}
+                  >
+                    {importMsg}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-8 flex gap-2">
+                <Button variant="outline" className="px-4" onClick={() => setStep(2)}>
                   <ChevronLeft className="h-4 w-4" /> Back
                 </Button>
                 <Button className="btn-hero flex-1 py-3 text-base" onClick={start} disabled={busy}>

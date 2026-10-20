@@ -149,6 +149,13 @@ async function readUserCountRaw(): Promise<number | null> {
 async function seedWhatsNew(): Promise<void> {
   const SEEDS: { title: string; body: string; tag: string; version?: string; pinned?: boolean }[] = [
     {
+      title: 'Openings to fix, queued from your own games',
+      tag: 'feature',
+      version: '0.4.0',
+      body:
+        'The home page now ranks the openings that actually cost you points — games, accuracy, own errors and due practice per opening, worst first — and one click drills exactly those positions in the Mistake Corrector. Like chessigma’s review queue, but built on your locally reviewed games and honest math: nothing appears until at least two games of an opening were reviewed.',
+    },
+    {
       title: 'Play with Coach',
       tag: 'feature',
       version: '0.3.0',
