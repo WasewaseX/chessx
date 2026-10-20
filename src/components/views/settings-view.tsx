@@ -37,6 +37,14 @@ export function SettingsView() {
   const [testMsg, setTestMsg] = useState('')
   const [saved, setSaved] = useState(false)
 
+  // Change-password state. Errors from the server are shown verbatim: the
+  // honest message is the whole point (wrong current password, too short, ...).
+  const [currentPw, setCurrentPw] = useState('')
+  const [newPw, setNewPw] = useState('')
+  const [confirmPw, setConfirmPw] = useState('')
+  const [pwBusy, setPwBusy] = useState(false)
+  const [pwError, setPwError] = useState('')
+
   if (!profile) return null
 
   async function save(patch: Record<string, unknown>) {
@@ -78,6 +86,39 @@ export function SettingsView() {
     }
   }
 
+  async function changePassword() {
+    setPwError('')
+    if (newPw.length < 8) {
+      setPwError('New password must be at least 8 characters.')
+      return
+    }
+    if (newPw !== confirmPw) {
+      setPwError('New password and confirmation do not match.')
+      return
+    }
+    setPwBusy(true)
+    try {
+      const res = await fetch('/api/auth/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),
+      })
+      const d = await readJson<{ ok?: boolean; error?: string }>(res)
+      if (res.ok && d.ok) {
+        setCurrentPw('')
+        setNewPw('')
+        setConfirmPw('')
+        toast({ title: 'Password changed', description: 'Use the new password next time you sign in.' })
+      } else {
+        setPwError(d.error ?? 'Could not change the password. Try again.')
+      }
+    } catch {
+      setPwError('Network error — the password was not changed.')
+    } finally {
+      setPwBusy(false)
+    }
+  }
+
   const selectedProvider = PROVIDERS[provider]
 
   return (
@@ -96,6 +137,68 @@ export function SettingsView() {
             Save name
           </Button>
           {saved && <span className="text-sm font-semibold text-primary">Saved</span>}
+        </div>
+      </section>
+
+      {/* security: change password */}
+      <section className="mt-6 rounded-lg bg-card p-6 shadow-sm">
+        <h2 className="font-display text-lg font-bold">Password</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Change the password for this account. You stay signed in here; the new password applies to the next sign-in.
+        </p>
+        <div className="mt-4 grid gap-3 sm:max-w-sm">
+          <div>
+            <Label htmlFor="current-pw">Current password</Label>
+            <Input
+              id="current-pw"
+              type="password"
+              value={currentPw}
+              onChange={(e) => setCurrentPw(e.target.value)}
+              className="mt-1"
+              autoComplete="current-password"
+              maxLength={128}
+            />
+          </div>
+          <div>
+            <Label htmlFor="new-pw">New password (at least 8 characters)</Label>
+            <Input
+              id="new-pw"
+              type="password"
+              value={newPw}
+              onChange={(e) => setNewPw(e.target.value)}
+              className="mt-1"
+              autoComplete="new-password"
+              maxLength={128}
+            />
+          </div>
+          <div>
+            <Label htmlFor="confirm-pw">Repeat new password</Label>
+            <Input
+              id="confirm-pw"
+              type="password"
+              value={confirmPw}
+              onChange={(e) => setConfirmPw(e.target.value)}
+              className="mt-1"
+              autoComplete="new-password"
+              maxLength={128}
+            />
+          </div>
+          {pwError && (
+            <p role="alert" className="text-sm font-semibold text-destructive">
+              {pwError}
+            </p>
+          )}
+          <div>
+            <Button className="btn-hero" onClick={changePassword} disabled={pwBusy || !currentPw || !newPw || !confirmPw}>
+              {pwBusy ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> Changing…
+                </>
+              ) : (
+                'Change password'
+              )}
+            </Button>
+          </div>
         </div>
       </section>
 
