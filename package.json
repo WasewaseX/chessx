@@ -6,7 +6,7 @@
     "dev": "bun scripts/gh-restore.ts && next dev --webpack -p 3000 2>&1 | tee dev.log",
     "backup": "bun scripts/gh-backup.ts manual",
     "backup:restore": "bun scripts/gh-restore.ts",
-    "build": "next build && bun scripts/collect-standalone.ts",
+    "build": "prisma generate && next build --webpack && bun scripts/collect-standalone.ts",
     "start": "bun scripts/start-prod.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

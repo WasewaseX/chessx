@@ -36,7 +36,9 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Prisma generate + scratch database
-        run: bunx prisma db push --skip-generate --accept-data-loss
+        run: |
+          bunx prisma generate
+          bunx prisma db push --skip-generate --accept-data-loss
 
       - name: Lint
         run: bun run lint
@@ -44,6 +46,7 @@ jobs:
       - name: Build
         # The project ships a custom webpack config (memory guard + node
         # builtins handling), so the build must use webpack — same as dev.
+        # The build script itself also runs prisma generate for deploy targets.
         run: bunx next build --webpack
 
       - name: Upload build trace on failure
