@@ -208,3 +208,16 @@ Work Log:
 Stage Summary:
 - A abandoned training game is no longer lost: the exact trail (position, labels, evals) survives reloads and navigation.
 - Two real bugs caught by testing before they reached the user: the cancelled debounce, and the 'unknown' label crash.
+
+---
+Task ID: 12
+Agent: main (session continuation, Oct 20)
+Task: Roadmap triage — admins can move cards; the first suggestion marked Shipped
+
+Work Log:
+- PATCH /api/changelog/suggestions (admin-only, rate-limited, validated status) — until now nothing could ever move a card across Open/Planned/In progress/Shipped.
+- Moved the "Coach game resume" suggestion to shipped via the new endpoint; the Shipped column shows 1, Open is empty. Evidence: download/verify-shipped-card-1020.png.
+- CI green on the resume feature (6f75fb3); backups current (12 KB snapshot after the feature).
+
+Stage Summary:
+- The community loop is closed end-to-end: suggest → vote → build → mark shipped, all verified live.

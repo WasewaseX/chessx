@@ -124,3 +124,31 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ suggestion: publicSuggestion(created, true) }, { status: 201 })
 }
+
+// PATCH — admin-only roadmap triage: move a suggestion between columns
+// (open → planned → in_progress → shipped, plus 'declined' to hide it).
+// The board is public; this is the only hand that moves the cards.
+export async function PATCH(req: NextRequest) {
+  if (!originOk(req)) return NextResponse.json({ error: 'Security check failed' }, { status: 403 })
+  const user = await getSessionUser()
+  if (!user || user.role !== 'admin') {
+    return NextResponse.json({ error: 'Admins only' }, { status: 403 })
+  }
+  if (!rateLimit(`changelog-sugg-patch:${user.id}`, 30, 60_000)) {
+    return NextResponse.json({ error: 'Too many requests, try again shortly' }, { status: 429 })
+  }
+
+  const body = (await req.json().catch(() => null)) as Record<string, unknown> | null
+  const id = typeof body?.id === 'string' ? body.id.slice(0, 64) : ''
+  const status = typeof body?.status === 'string' ? body.status : ''
+  if (!id || !isSuggestionStatus(status)) {
+    return NextResponse.json({ error: 'id and a valid status required' }, { status: 400 })
+  }
+
+  const updated = await db.featureSuggestion.update({
+    where: { id },
+    data: { status: status as SuggestionStatus },
+  }).catch(() => null)
+  if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  return NextResponse.json({ suggestion: publicSuggestion(updated, false) })
+}
