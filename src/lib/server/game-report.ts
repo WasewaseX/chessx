@@ -326,6 +326,10 @@ export async function evalPlies(plies: PlyIn[], depth: number, opts: EvalPliesOp
       afterPv,
       moveWasCapture: Boolean(lastMove.captured),
       cliffWp,
+      san: lastMove.san,
+      movedPiece: lastMove.piece,
+      capturedPiece: lastMove.captured ?? null,
+      toSquare: lastMove.to,
     })
 
     out.push({
@@ -366,7 +370,17 @@ function buildReason(ctx: {
   afterPv: string[]
   moveWasCapture: boolean
   cliffWp: number | null
+  /** the played move, full SAN (with +/# suffixes) */
+  san?: string
+  /** piece that moved + destination square, from the replayed move object */
+  movedPiece?: string | null
+  capturedPiece?: string | null
+  toSquare?: string | null
 }): string | undefined {
+  const PIECE_NAMES_LC: Record<string, string> = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' }
+  const isCheckMove = ctx.san?.endsWith('+') === true
+  const isCastle = ctx.san?.startsWith('O-O') === true
+
   if (ctx.label === 'brilliant') {
     return 'A real sacrifice: the piece can be taken, but the engine confirms the position stays yours.'
   }
@@ -375,6 +389,41 @@ function buildReason(ctx: {
     return cliff != null && cliff >= 10
       ? `The only move that holds the position — the runner-up loses about ${cliff}% of the winning chances.`
       : 'The only move that holds the position.'
+  }
+  // Positive tiers get move-specific "why" text so the coach never repeats one
+  // generic sentence for two different moves. Everything stated is verified:
+  // capture/check/castle/development/center come from the replayed move, and
+  // "the engine's top choice" only appears because the label guarantees it.
+  if (ctx.label === 'best') {
+    if (ctx.capturedPiece) {
+      const name = PIECE_NAMES_LC[ctx.capturedPiece] ?? 'piece'
+      return `Takes the ${name} on ${ctx.toSquare} — the engine's top choice.`
+    }
+    if (isCastle) return 'Castles — the king tucks away and the rook joins the game. The engine’s top choice.'
+    if (isCheckMove) return 'Checks the king and keeps the initiative — the engine’s top choice.'
+    if (ctx.movedPiece === 'n' || ctx.movedPiece === 'b') {
+      return `Develops the ${PIECE_NAMES_LC[ctx.movedPiece]} — the engine's top choice.`
+    }
+    if (ctx.movedPiece === 'p' && ['d4', 'e4', 'd5', 'e5', 'c4', 'c5'].includes(ctx.toSquare ?? '')) {
+      return 'Claims space in the center — the engine’s top choice.'
+    }
+    return 'The engine’s top choice here.'
+  }
+  if (ctx.label === 'excellent') {
+    if (ctx.bestSan) {
+      return `Nearly the engine's best — ${ctx.bestSan} was a hair sharper, but the difference is invisible over the board.`
+    }
+    return undefined
+  }
+  if (ctx.label === 'good') {
+    if (ctx.bestSan) {
+      return `Playable, but ${ctx.bestSan} kept more of the advantage — the move the coach would play.`
+    }
+    if (ctx.capturedPiece) {
+      const name = PIECE_NAMES_LC[ctx.capturedPiece] ?? 'piece'
+      return `Collects the ${name} on ${ctx.toSquare}. A fine move.`
+    }
+    return undefined
   }
   if (ctx.label !== 'blunder' && ctx.label !== 'mistake' && ctx.label !== 'inaccuracy' && ctx.label !== 'missedwin') {
     return undefined
