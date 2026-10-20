@@ -148,6 +148,9 @@ export function CoachGameView() {
   const gameRef = useRef<Chess>(new Chess())
   /** Mirror of the plies state for callbacks that must see the freshest list. */
   const pliesRef = useRef<PlyRecord[]>([])
+  /** Server row id of this game's unfinished autosave; null until the first
+   *  autosave lands. finishGame reuses it so one game stays one row. */
+  const gameRowIdRef = useRef<string | null>(null)
   const [fen, setFen] = useState(gameRef.current.fen())
   const [playerColor, setPlayerColor] = useState<'w' | 'b'>('w')
   const [plies, setPlies] = useState<PlyRecord[]>([])
@@ -167,7 +170,20 @@ export function CoachGameView() {
 
   const coach: Coach = useMemo(() => coachById(coachId), [coachId])
 
-  const [history, setHistory] = useState<Array<{ id: string; coachId: string; coachElo: number; result: string; accuracy: number | null; labelCounts: Record<string, number>; createdAt: string }>>([])
+  const [history, setHistory] = useState<
+    Array<{
+      id: string
+      coachId: string
+      coachElo: number
+      color: string
+      result: string
+      accuracy: number | null
+      labelCounts: Record<string, number>
+      createdAt: string
+      pgn?: string
+      trail?: Array<{ san: string; color: string; label: string; before: number | null; after: number | null; bestSan: string | null; reason?: string; cpl: number | null }>
+    }>
+  >([])
 
   useEffect(() => {
     // Recent coaching games for the setup screen.
@@ -339,6 +355,7 @@ export function CoachGameView() {
 
   const finishGame = useCallback(
     (r: { result: 'win' | 'loss' | 'draw'; reason: string }, finalPlies: PlyRecord[]) => {
+      finishedRef.current = true
       setResult(r)
       setPhase('over')
       playSound(r.result === 'win' ? 'win' : r.result === 'loss' ? 'lose' : 'gameEnd', soundOn)
@@ -356,9 +373,17 @@ export function CoachGameView() {
       fetch('/api/coach-game/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ coachId, elo, color: playerColor, result: r.result, reason: r.reason, pgn, trail, accuracy }),
+        body: JSON.stringify({ coachId, elo, color: playerColor, result: r.result, reason: r.reason, pgn, trail, accuracy, id: gameRowIdRef.current ?? undefined }),
       })
-        .then(() => setSaved(true))
+        .then(() => {
+          gameRowIdRef.current = null
+          setSaved(true)
+          return fetch('/api/coach-game/save', { cache: 'no-store' })
+        })
+        .then((r2) => (r2 && r2.ok ? r2.json() : null))
+        .then((d: { games?: typeof history } | null) => {
+          if (d?.games) setHistory(d.games)
+        })
         .catch(() => {})
     },
     [playerColor, coachId, elo, soundOn],
@@ -452,6 +477,8 @@ export function CoachGameView() {
     const g = new Chess()
     gameRef.current = g
     pliesRef.current = []
+    gameRowIdRef.current = null
+    finishedRef.current = false
     setPlayerColor(color)
     setFen(g.fen())
     setPlies([])
@@ -471,6 +498,124 @@ export function CoachGameView() {
     // If the student picked black, the coach opens.
     if (color === 'b') void coachMove(g)
   }, [colorChoice, elo, coach, coachMove])
+
+  // Autosave (resumable): while playing, every trail change rewrites the same
+  // unfinished row ~1.2s after the last change, and leaving the board for the
+  // setup screen flushes immediately — a pending debounce must never be the
+  // reason a trail is lost.
+  const finishedRef = useRef(false)
+
+  const saveUnfinished = useCallback(() => {
+    if (pliesRef.current.length === 0) return
+    const trail = pliesRef.current.map((p) => ({
+      san: p.san, color: p.color, label: p.label ?? 'unknown', before: p.before, after: p.after,
+      bestSan: p.bestSan, reason: p.reason ?? undefined, cpl: p.cpl ?? undefined,
+    }))
+    fetch('/api/coach-game/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        coachId, elo, color: playerColor, result: 'unfinished',
+        pgn: gameRef.current.pgn(), trail, id: gameRowIdRef.current ?? undefined,
+      }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { id?: string } | null) => {
+        if (d?.id) gameRowIdRef.current = d.id
+      })
+      .catch(() => {})
+  }, [coachId, elo, playerColor])
+
+  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    if (phase !== 'playing' || plies.length === 0) return
+    if (autosaveTimer.current) clearTimeout(autosaveTimer.current)
+    const t = setTimeout(saveUnfinished, 1200)
+    autosaveTimer.current = t
+    return () => clearTimeout(t)
+  }, [plies.length, phase, saveUnfinished])
+
+  // Flush on leaving the board (setup) unless the game just finished — the
+  // final save already wrote the complete row in that case.
+  useEffect(() => {
+    if (phase !== 'setup') return
+    if (finishedRef.current) return
+    if (pliesRef.current.length === 0) return
+    saveUnfinished()
+  }, [phase, saveUnfinished])
+
+  /** Continue an unfinished game: replay position, labels and evals. */
+  const resumeGame = useCallback(
+    (row: (typeof history)[number]) => {
+      if (!row.pgn || phase !== 'setup') return
+      const g = new Chess()
+      try {
+        g.loadPgn(row.pgn, { strict: false })
+      } catch {
+        return
+      }
+      const restored: PlyRecord[] = (row.trail ?? []).map((t) => ({
+        san: t.san,
+        color: t.color === 'b' ? 'b' : 'w',
+        fenBefore: '',
+        // 'unknown' (autosaved before the engine verdict landed) must restore
+        // as null: LABEL_META has no 'unknown' entry and the coach card would
+        // crash reading it. Null renders as "pending" and gets re-graded.
+        label: t.label && t.label in LABEL_META ? (t.label as MoveLabel) : null,
+        before: t.before,
+        after: t.after,
+        bestSan: t.bestSan,
+        bestFrom: null,
+        bestTo: null,
+        reason: t.reason ?? null,
+        cpl: t.cpl,
+      }))
+      // Rebuild each fenBefore by replaying from the start (the trail arrives
+      // without fens; a fresh Chess replays them cheaply and verifiably).
+      const replay = new Chess()
+      for (const p of restored) {
+        p.fenBefore = replay.fen()
+        try {
+          replay.move(p.san)
+        } catch {
+          break
+        }
+      }
+      gameRef.current = g
+      gameRowIdRef.current = row.id
+      finishedRef.current = false
+      setCoachId(row.coachId)
+      setElo(row.coachElo)
+      const me: 'w' | 'b' = row.color === 'b' ? 'b' : 'w'
+      setPlayerColor(me)
+      pliesRef.current = restored
+      setPlies(restored)
+      setFen(g.fen())
+      setResult(null)
+      setSaved(false)
+      setSelectedPly(null)
+      setArrows([])
+      setTakebacks(2)
+      setHints(3)
+      setPhase('playing')
+      setChat([
+        {
+          role: 'assistant',
+          content: `Welcome back — ${coachById(row.coachId).name} here. We pick up where we left off${restored.length ? ` (after ${restored.length} half-moves)` : ''}. Ask me anything, any time.`,
+        },
+      ])
+      // If the student already moved last, the coach owes a reply.
+      if (g.turn() !== me) void coachMove(g)
+    },
+    [phase, coachMove],
+  )
+
+  /** Discard an unfinished game from the setup screen. */
+  const deleteUnfinished = useCallback((id: string) => {
+    fetch(`/api/coach-game/save?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+      .then(() => setHistory((h) => h.filter((x) => x.id !== id)))
+      .catch(() => {})
+  }, [])
 
   const takeBack = useCallback(() => {
     if (phase !== 'playing' || takebacks <= 0 || thinking) return
@@ -673,23 +818,56 @@ export function CoachGameView() {
           <div className="mt-4 rounded-xl border bg-card p-4">
             <div className="mb-2 text-sm font-bold">Recent coaching games</div>
             <ul className="space-y-1.5">
-              {history.slice(0, 5).map((g) => (
-                <li key={g.id} className="flex items-center gap-2 rounded-md border border-border/60 px-2.5 py-1.5 text-xs">
-                  <span
-                    className={cn(
-                      'grid h-5 w-5 shrink-0 place-items-center rounded font-extrabold uppercase text-white',
-                      g.result === 'win' ? 'bg-primary' : g.result === 'loss' ? 'bg-destructive' : 'bg-muted-foreground',
+              {(() => {
+                // Unfinished games jump the queue: they are the resumable ones.
+                const ordered = [...history].sort(
+                  (a, b) => (a.result === 'unfinished' ? 0 : 1) - (b.result === 'unfinished' ? 0 : 1),
+                )
+                return ordered.slice(0, 5).map((g) => (
+                  <li key={g.id} className="flex items-center gap-2 rounded-md border border-border/60 px-2.5 py-1.5 text-xs">
+                    <span
+                      className={cn(
+                        'grid h-5 w-5 shrink-0 place-items-center rounded font-extrabold uppercase text-white',
+                        g.result === 'unfinished'
+                          ? 'bg-amber-500'
+                          : g.result === 'win'
+                            ? 'bg-primary'
+                            : g.result === 'loss'
+                              ? 'bg-destructive'
+                              : 'bg-muted-foreground',
+                      )}
+                    >
+                      {g.result === 'unfinished' ? '…' : g.result[0]}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">
+                      {g.result === 'unfinished' ? (
+                        <span className="font-bold text-amber-600 dark:text-amber-400">In progress — </span>
+                      ) : null}
+                      vs {coachById(g.coachId).name} · {g.coachElo} Elo
+                      {g.accuracy != null ? ` · ${g.accuracy}% accuracy` : ''}
+                    </span>
+                    {g.result === 'unfinished' ? (
+                      <>
+                        <button
+                          onClick={() => resumeGame(g)}
+                          className="shrink-0 rounded bg-primary px-2 py-1 text-[11px] font-bold text-primary-foreground transition hover:opacity-90"
+                        >
+                          Resume
+                        </button>
+                        <button
+                          onClick={() => deleteUnfinished(g.id)}
+                          aria-label="Delete unfinished game"
+                          className="shrink-0 rounded border border-border px-2 py-1 text-[11px] font-bold text-muted-foreground transition hover:bg-accent"
+                        >
+                          Delete
+                        </button>
+                      </>
+                    ) : (
+                      <span className="hidden shrink-0 text-muted-foreground sm:block">{historyCountsLabel(g.labelCounts)}</span>
                     )}
-                  >
-                    {g.result[0]}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate">
-                    vs {coachById(g.coachId).name} · {g.coachElo} Elo
-                    {g.accuracy != null ? ` · ${g.accuracy}% accuracy` : ''}
-                  </span>
-                  <span className="hidden shrink-0 text-muted-foreground sm:block">{historyCountsLabel(g.labelCounts)}</span>
-                </li>
-              ))}
+                  </li>
+                ))
+              })()}
             </ul>
           </div>
         )}

@@ -192,3 +192,19 @@ Work Log:
 
 Stage Summary:
 - The feed is now part of boot self-healing like the admin bootstrap: user-visible, honest, restore-proof.
+
+---
+Task ID: 11
+Agent: main (session continuation, Oct 20)
+Task: Coach game resume — the top community suggestion, shipped and verified
+
+Work Log:
+- Built the feature suggested through the new roadmap form: unfinished coach games survive.
+- API: POST /api/coach-game/save accepts result 'unfinished' + optional id (ownership-guarded in-place update; stale/foreign ids fall through to a fresh row, never an error). GET returns pgn + full trail for unfinished rows. DELETE discards an unfinished row (profile-guarded deleteMany).
+- Client: autosave (debounced 1.2s during play + immediate flush when leaving the board for setup — the debounce cleanup alone cancelled the save, caught in browser testing), finishedRef prevents the flush from overwriting a just-finalized row, Resume replays PGN + labels + evals (fenBefore rebuilt by replay), 'unknown' labels restore as null (LABEL_META has no 'unknown' — the coach card crashed reading it), coach replies if the student moved last.
+- Setup screen: unfinished rows jump the queue with an amber "In progress" badge + Resume/Delete buttons.
+- Verified end-to-end: e4/c5 → leave → "In progress — vs Nina · 1200 Elo [Resume][Delete]" → Resume restores board/chat/labels ("Checking e4 with the engine…") → Nf3 graded book, coach replied e6, "2 moves played". Delete removes a row. Evidence: verify-coach-resume-*.png (3 shots).
+
+Stage Summary:
+- A abandoned training game is no longer lost: the exact trail (position, labels, evals) survives reloads and navigation.
+- Two real bugs caught by testing before they reached the user: the cancelled debounce, and the 'unknown' label crash.
