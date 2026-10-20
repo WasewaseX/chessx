@@ -77,6 +77,71 @@ function blunderFor(elo: number): number {
   return Math.max(0, 0.3 - (elo - ELO_MIN) / 4000)
 }
 
+/**
+ * Opening repertoires: the coach opens like a real player of its level
+ * instead of an engine's sharp line from move one. Each line is a full SAN
+ * sequence from the start position (both sides). On the coach's turn, every
+ * line whose played prefix matches the game's SAN history donates its next
+ * move; one is picked at random. A student deviation simply drops the line
+ * and the engine takes over. Lines are kept short — after the book the
+ * engine's skill/depth/blunder knobs own the character again.
+ */
+const COACH_REPERTOIRES: { minElo: number; lines: string[][] }[] = [
+  {
+    // Beginner: natural development, no theory traps.
+    minElo: 0,
+    lines: [
+      ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Bc5'],
+      ['e4', 'e5', 'Nf3', 'Nc6', 'Nc3', 'Nf6'],
+      ['d4', 'd5', 'Nf3', 'Nf6', 'e3', 'e6'],
+      ['e4', 'e5', 'Bc4', 'Nf6', 'd3', 'c6'],
+    ],
+  },
+  {
+    // Club: honest classical openings.
+    minElo: 1000,
+    lines: [
+      ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Bc5', 'c3', 'Nf6', 'd3', 'd6'],
+      ['e4', 'e5', 'Nf3', 'Nc6', 'd4', 'exd4', 'Nxd4', 'Nf6', 'Nxc6', 'bxc6'],
+      ['e4', 'c5', 'Nf3', 'd6', 'd4', 'cxd4', 'Nxd4', 'Nf6', 'Nc3', 'a6'],
+      ['d4', 'd5', 'c4', 'e6', 'Nc3', 'Nf6', 'Nf3', 'Be7'],
+      ['e4', 'e6', 'd4', 'd5', 'Nc3', 'Nf6', 'e5', 'Nfd7'],
+    ],
+  },
+  {
+    // Advanced: mainline Ruy/Najdorf/QGD ideas.
+    minElo: 1700,
+    lines: [
+      ['e4', 'e5', 'Nf3', 'Nc6', 'Bb5', 'a6', 'Ba4', 'Nf6', 'O-O', 'Be7'],
+      ['e4', 'c5', 'Nf3', 'd6', 'd4', 'cxd4', 'Nxd4', 'Nf6', 'Nc3', 'a6', 'Be3', 'e5'],
+      ['d4', 'Nf6', 'c4', 'g6', 'Nc3', 'Bg7', 'e4', 'd6', 'Nf3', 'O-O'],
+      ['d4', 'd5', 'c4', 'e6', 'Nc3', 'Nf6', 'Bg5', 'Be7', 'e3', 'O-O'],
+      ['e4', 'e5', 'Nf3', 'Nf6', 'Nxe5', 'd6', 'Nf3', 'Nxe4', 'd4', 'd5'],
+    ],
+  },
+]
+
+/** Next book SAN for the coach, or null when out of book. */
+function pickBookMove(sans: string[], elo: number): string | null {
+  const bands = COACH_REPERTOIRES.filter((b) => elo >= b.minElo)
+  const band = bands[bands.length - 1] // strongest band the Elo unlocks
+  if (!band) return null
+  const candidates: string[] = []
+  for (const line of band.lines) {
+    if (line.length <= sans.length) continue
+    let matches = true
+    for (let i = 0; i < sans.length; i++) {
+      if (line[i] !== sans[i]) {
+        matches = false
+        break
+      }
+    }
+    if (matches) candidates.push(line[sans.length])
+  }
+  if (!candidates.length) return null
+  return candidates[Math.floor(Math.random() * candidates.length)]
+}
+
 /** Elo -> how long the coach "thinks" on the clock (UI pacing). */
 function minTimeFor(elo: number): number {
   return Math.max(250, Math.min(1300, 200 + Math.round(elo / 2.5)))
@@ -394,37 +459,50 @@ export function CoachGameView() {
     async (g: Chess) => {
       setThinking(true)
       try {
-        await engine.init()
-        const { uci } = await engine.bestMove({
-          fen: g.fen(),
-          skill: skillFor(elo),
-          depth: depthFor(elo),
-          minTime: minTimeFor(elo),
-          blunder: blunderFor(elo),
-        })
-        if (uci && uci.length >= 4) {
+        // Opening book first: the coach opens like a real player of its
+        // level; the engine owns the position once the book runs out.
+        const bookSan = pickBookMove(pliesRef.current.map((p) => p.san), elo)
+        let played: { mv: ReturnType<Chess['move']>; fenBefore: string } | null = null
+        if (bookSan) {
           const fenBefore = g.fen()
-          const mv = g.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || undefined })
-          if (mv) {
-            setFen(g.fen())
-            playSound(mv.captured ? 'capture' : mv.san.includes('+') ? 'check' : mv.flags.includes('k') || mv.flags.includes('q') ? 'castle' : 'move', soundOn)
-            const newPlies: PlyRecord[] = [
-              ...pliesRef.current,
-              {
-                san: mv.san, color: mv.color, fenBefore,
-                label: null, before: null, after: null, bestSan: null, bestFrom: null, bestTo: null, reason: null, cpl: null,
-              },
-            ]
-            pliesRef.current = newPlies
-            setPlies(newPlies)
-            const end = detectEnd(g)
-            if (end) {
-              finishGame(end, newPlies)
-              return
-            }
-            // Verify the coach's move too (it gets a label like the student's).
-            setTimeout(() => void analyzeNewest(1), 250)
+          const mv = g.move(bookSan)
+          if (mv) played = { mv, fenBefore }
+        }
+        if (!played) {
+          await engine.init()
+          const { uci } = await engine.bestMove({
+            fen: g.fen(),
+            skill: skillFor(elo),
+            depth: depthFor(elo),
+            minTime: minTimeFor(elo),
+            blunder: blunderFor(elo),
+          })
+          if (uci && uci.length >= 4) {
+            const fenBefore = g.fen()
+            const mv = g.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || undefined })
+            if (mv) played = { mv, fenBefore }
           }
+        }
+        if (played) {
+          const { mv, fenBefore } = played
+          setFen(g.fen())
+          playSound(mv.captured ? 'capture' : mv.san.includes('+') ? 'check' : mv.flags.includes('k') || mv.flags.includes('q') ? 'castle' : 'move', soundOn)
+          const newPlies: PlyRecord[] = [
+            ...pliesRef.current,
+            {
+              san: mv.san, color: mv.color, fenBefore,
+              label: null, before: null, after: null, bestSan: null, bestFrom: null, bestTo: null, reason: null, cpl: null,
+            },
+          ]
+          pliesRef.current = newPlies
+          setPlies(newPlies)
+          const end = detectEnd(g)
+          if (end) {
+            finishGame(end, newPlies)
+            return
+          }
+          // Verify the coach's move too (it gets a label like the student's).
+          setTimeout(() => void analyzeNewest(1), 250)
         }
       } finally {
         setThinking(false)
