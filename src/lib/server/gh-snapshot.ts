@@ -37,7 +37,27 @@ function nodeRequire(mod: string): any {
 }
 
 const REPO = process.env.GH_BACKUP_REPO || 'WasewaseX/chessx-backups'
-const TOKEN = process.env.GH_BACKUP_TOKEN || ''
+
+// Token resolution order:
+//   1. GH_BACKUP_TOKEN env (preferred — set in .env.local)
+//   2. The PAT embedded in the origin git remote URL (survives .env.local
+//      loss; the lesson of Oct 20: a missing token silently disabled BOTH
+//      scheduled snapshots AND boot restore, which is how the account was
+//      lost a second time even though the backup repo had fresh snapshots).
+function resolveToken(): string {
+  const fromEnv = process.env.GH_BACKUP_TOKEN || ''
+  if (fromEnv) return fromEnv
+  try {
+    const { execSync } = nodeRequire('child_process')
+    const url = execSync('git remote get-url origin', { encoding: 'utf8', timeout: 5000 }).trim()
+    const m = url.match(/^https?:\/\/[^:/]+:([^@]+)@/)
+    return m ? m[1] : ''
+  } catch {
+    return ''
+  }
+}
+
+const TOKEN = resolveToken()
 const DB_PATH = process.env.DATABASE_URL?.replace(/^file:/, '') || 'db/custom.db'
 const LOCAL_DIR = 'db/backups'
 const KEEP_LOCAL = 7
@@ -164,6 +184,11 @@ export function lastBackupAgeMs(): number {
   }
 }
 
+/** True when a backup token could be resolved (env or git remote PAT). */
+export function hasBackupToken(): boolean {
+  return TOKEN !== ''
+}
+
 /** Pull latest.db.gz from GitHub into the local DB. Only call when empty. */
 export async function restoreFromGithub(): Promise<boolean> {
   if (!TOKEN) {
@@ -171,7 +196,7 @@ export async function restoreFromGithub(): Promise<boolean> {
     return false
   }
   const { execSync } = nodeRequire('child_process')
-  const { existsSync, writeFileSync } = nodeRequire('fs')
+  const { writeFileSync } = nodeRequire('fs')
   try {
     const res = await fetch(`https://api.github.com/repos/${REPO}/contents/latest.db.gz`, {
       headers: {
@@ -186,8 +211,13 @@ export async function restoreFromGithub(): Promise<boolean> {
     }
     const gz = Buffer.from(await res.arrayBuffer())
     writeFileSync('/tmp/chessx-restore.db.gz', gz)
-    if (existsSync(DB_PATH)) execSync(`cp '${DB_PATH}' '/tmp/chessx-pre-restore.db'`)
-    execSync(`gunzip -f /tmp/chessx-restore.db.gz && cp /tmp/chessx-restore.db '${DB_PATH}'`)
+    execSync(
+      `gunzip -f /tmp/chessx-restore.db.gz && mv /tmp/chessx-restore.db '${DB_PATH}'`,
+    )
+    // mv (rename) not cp: an atomic inode swap. `cp` would truncate+rewrite
+    // the SAME inode a live SQLite connection may hold — a corruption risk;
+    // `mv` leaves any old file descriptor untouched on its own (now-orphaned)
+    // inode and swaps the path in one syscall.
     console.log(`[gh-snapshot] restored database from GitHub (${Math.round(gz.length / 1024)} KB gz)`)
     return true
   } catch (err) {

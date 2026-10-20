@@ -115,6 +115,34 @@ async function backupLoop(): Promise<void> {
   }
 }
 
+/** Read the User count straight from the SQLite file with node:sqlite —
+ *  deliberately NOT through Prisma: opening a Prisma connection caches a
+ *  file handle that would keep pointing at the pre-restore (empty) inode
+ *  after the snapshot swap. Read-only, closed immediately. */
+async function readUserCountRaw(): Promise<number | null> {
+  try {
+    const dbPath = dbFilePath()
+    if (!dbPath) return null
+    const { existsSync } = nodeRequire('fs') as typeof import('fs')
+    if (!existsSync(dbPath)) return 0
+    const { DatabaseSync } = nodeRequire('node:sqlite') as {
+      DatabaseSync: new (p: string, opts?: { readOnly?: boolean }) => {
+        prepare: (s: string) => { get: () => Record<string, unknown> | undefined }
+        close: () => void
+      }
+    }
+    const raw = new DatabaseSync(dbPath, { readOnly: true })
+    try {
+      const row = raw.prepare('SELECT COUNT(*) AS n FROM "User"').get()
+      return Number(row?.n ?? 0)
+    } finally {
+      raw.close()
+    }
+  } catch {
+    return null // table missing / unreadable — treat as unknown
+  }
+}
+
 /** Idempotent ship-notes seed: the What's-new feed survives a database
  *  restore from an older snapshot, because every boot re-inserts any
  *  missing entry (matched by title, never updated, never duplicated). */
@@ -190,19 +218,58 @@ async function seedWhatsNew(): Promise<void> {
   }
 }
 
-export function kickBootMaintenance(): void {
-  if (started) return
+/**
+ * Full boot sequence, in strict order (the Oct 20 lesson: order is data):
+ *   1. RESTORE — if the local database has zero users and the private
+ *      GitHub snapshot repo has data, pull it BEFORE any account bootstrap
+ *      can race in and make the database look populated.
+ *   2. Admin bootstrap (local safety net for a genuinely fresh deployment).
+ *   3. What's-new seed + daily snapshot loop.
+ * Resolves once restore + admin bootstrap are done, so instrumentation can
+ * chain dependent bootstraps (admin-bootstrap.ts) behind it.
+ */
+export function runBootMaintenance(): Promise<void> {
+  if (started) return Promise.resolve()
   started = true
-  // Give Prisma a beat to warm up, then run. Never block or crash the boot.
-  const t = setTimeout(() => {
-    ensureBootstrapAdmin().catch((e) => {
+  return (async () => {
+    // 1. Restore user data from GitHub when the local db is empty.
+    try {
+      const count = await readUserCountRaw()
+      if (count === 0) {
+        const { restoreFromGithub } = await import('./gh-snapshot')
+        const ok = await restoreFromGithub()
+        if (ok) {
+          // Drop any connection Prisma may have opened against the old
+          // (empty) file; the next query reopens the restored inode.
+          await db.$disconnect().catch(() => {})
+          console.log('[boot] user data restored from GitHub snapshot')
+        }
+      }
+    } catch (e) {
+      console.warn('[boot] restore check failed:', e instanceof Error ? e.message : e)
+    }
+    // 2. Admin bootstrap — no-op on a populated database.
+    await ensureBootstrapAdmin().catch((e) => {
       console.warn('[boot] admin bootstrap check failed:', e instanceof Error ? e.message : e)
     })
+    // 3. Fire-and-forget seeds and the daily local snapshot loop.
     seedWhatsNew().catch((e) => {
       console.warn('[boot] whats-new seed failed:', e instanceof Error ? e.message : e)
     })
     backupLoop().catch(() => {})
-  }, 5_000)
-  // Node-only API; optional chaining keeps the multi-target compile honest.
-  ;(t as unknown as { unref?: () => void }).unref?.()
+  })()
+}
+
+/** Back-compat wrapper: fire-and-forget entry used by instrumentation. */
+export function kickBootMaintenance(): Promise<void> {
+  // Give Prisma a beat to warm up, then run. Never block or crash the boot.
+  return new Promise<void>((resolve) => {
+    const t = setTimeout(() => {
+      runBootMaintenance()
+        .catch(() => {})
+        .finally(() => resolve())
+    }, 1_500)
+    // Node-only API; optional chaining keeps the multi-target compile honest.
+    ;(t as unknown as { unref?: () => void }).unref?.()
+  })
 }

@@ -36,29 +36,33 @@ export function nodeBoot(): void {
     // installer as a backstop on first use.
   }
   if (process.env.NEXT_RUNTIME !== 'nodejs') return
-  void import('./admin-bootstrap')
+  // STRICT ORDER (the Oct 20 account-loss lesson): boot-maintenance must
+  // restore user data from the GitHub snapshot BEFORE any account bootstrap
+  // runs — otherwise the fresh admin row makes an empty database look
+  // populated and the restore skips. admin-bootstrap is therefore chained
+  // behind the maintenance sequence, never fired in parallel.
+  void import('./boot-maintenance')
+    .then((m) => m.kickBootMaintenance())
+    .then(() => import('./admin-bootstrap'))
     .then((m) => m.ensureAdminAccount())
     .catch(() => {
       // Best effort only: a missing admin account must never block boot.
     })
-  // Daily snapshot + empty-database admin guard (boot-maintenance.ts). Same
-  // guarded dynamic-import shape: its module tree lazily requires node
-  // builtins, which must never enter another runtime's webpack graph.
-  void import('./boot-maintenance')
-    .then((m) => m.kickBootMaintenance())
-    .catch(() => {
-      // Best effort only: failed maintenance must never block boot.
-    })
   // OFF-BOX GitHub snapshots (the lesson of the lost database: local backups
   // die together with the volume). Every 2h, token-gated, rolling windows.
   // Its module tree also lazily requires node builtins — same guarded shape.
-  if (!backupTimer && process.env.GH_BACKUP_TOKEN) {
+  // Token resolution now falls back to the origin remote's embedded PAT
+  // inside gh-snapshot.ts, so a lost .env.local can no longer silently
+  // disable backups the way it did on Oct 20.
+  if (!backupTimer) {
     void import('./gh-snapshot')
       .then((m) => {
-        setTimeout(() => m.runBackup('boot').catch(() => {}), 5 * 60 * 1000)
+        if (m.hasBackupToken()) {
+          setTimeout(() => m.runBackup('boot').catch(() => {}), 5 * 60 * 1000)
+          backupTimer = setInterval(scheduledGithubBackup, BACKUP_INTERVAL_MS)
+          if (typeof backupTimer.unref === 'function') backupTimer.unref()
+        }
       })
       .catch(() => {})
-    backupTimer = setInterval(scheduledGithubBackup, BACKUP_INTERVAL_MS)
-    if (typeof backupTimer.unref === 'function') backupTimer.unref()
   }
 }
