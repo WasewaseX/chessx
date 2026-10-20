@@ -38,3 +38,18 @@ Work Log:
 Stage Summary:
 - All previously inherited blockers now resolved/verified; GitHub current through b75a3a4 (Oct 20 18:36 UTC).
 - New feature shipped + browser-verified with screenshots; account loss permanently fixed (restore-on-boot wired, token fallback).
+
+---
+Task ID: 3
+Agent: Z.ai Code (main)
+Task: REA port item 1 — import-first onboarding; What's New entry; final health pass
+
+Work Log:
+- Onboarding gained step 3 "Bring your games.": Chess.com/Lichess toggle, username import with honest live status (error path shows provider's own message), Start learning awaits in-flight import but never fails because of it.
+- Fresh-account E2E in browser: signup (queuecheck) -> coach pick -> profile -> Lichess import DrNykterstein "Imported 5 of 5 games" -> app shell loads. Wrong-username path shows honest provider error.
+- boot-maintenance: What's New seed for "Openings to fix, queued from your own games" (v0.4.0).
+- Lint clean; dev.log clean (200s only); server healthy.
+
+Stage Summary:
+- REA port priorities 1 (import-first), 3 (opening queue) now shipped and browser-verified; 2/4/5 were already live.
+- GitHub current through 1b992fc (Oct 20 18:41 UTC). Every step committed+pushed.
