@@ -29,6 +29,8 @@ async function scheduledGithubBackup(): Promise<void> {
 }
 
 export function nodeBoot(): void {
+  // Record the boot time for /api/build-info (deployment freshness probe).
+  ;(globalThis as { __chessxBootIso?: string }).__chessxBootIso = new Date().toISOString()
   try {
     kickBankBootstrap()
   } catch {

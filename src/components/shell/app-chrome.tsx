@@ -8,7 +8,7 @@
  * The mobile bottom bar mirrors the same groups.
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useApp, overallRating, type ViewName } from '@/lib/store'
 import { clearSessionToken } from '@/lib/session'
 import { cn } from '@/lib/utils'
@@ -413,9 +413,31 @@ export function MobileNav() {
 }
 
 export function AppFooter() {
+  // Deployment freshness stamp: shows exactly which build (or, in dev, which
+  // server boot) the instance is serving. The owner's deployment was stuck on
+  // Oct 18 with no way to see that — this makes staleness visible at a glance.
+  const [stamp, setStamp] = useState<string | null>(null)
+  useEffect(() => {
+    let alive = true
+    fetch('/api/build-info', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { buildId?: string | null; dev?: boolean; bootIso?: string | null } | null) => {
+        if (!alive || !d) return
+        if (d.buildId) {
+          setStamp(`build ${d.buildId}`)
+        } else if (d.bootIso) {
+          setStamp(`dev boot ${d.bootIso.slice(0, 16).replace('T', ' ')} UTC`)
+        }
+      })
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [])
   return (
     <footer className="mt-auto border-t border-border px-4 py-3 text-center text-[11px] text-muted-foreground">
-      ChessX v0.3.0 · Not affiliated with chess.com or Lichess. Piece set: cburnett (CC BY-SA 3.0). Engine: Stockfish.
+      ChessX v0.3.0{stamp ? <> · {stamp}</> : null} · Not affiliated with chess.com or Lichess. Piece set: cburnett
+      (CC BY-SA 3.0). Engine: Stockfish.
     </footer>
   )
 }
