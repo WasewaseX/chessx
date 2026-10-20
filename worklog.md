@@ -106,3 +106,20 @@ Stage Summary:
 - Play with Coach now: setup (personas/ELO/color) -> graded play with reasons -> explain-more -> honest chat -> post-game recap with replayable worst moments. UI E2E green incl. mobile pending check.
 - Deployment chain: pushes land on GitHub, CI builds each push, footer build stamp proves served version.
 - Next: mobile check for recap, DNA v2 (clock/conversion), shareable DNA report.
+
+---
+Task ID: 7
+Agent: Z.ai Code (main)
+Task: Health pass, What's New entries, deep verification
+
+Work Log:
+- /api/health/deep ALL GREEN: database round-trip, Stockfish 19, puzzle bank 5,768,701 on disk, plan builder, DNA builder, game service, mcp server, theme index.
+- Verified DNA v2 already implemented (7 domains incl. clock from %clk + conversion with honest minimums) and shareable DNA report endpoint exists — REA port list items 1-5 complete, no vaporware.
+- Puzzle serving verified live: /api/puzzles/index returns rated puzzles instantly from the local bank.
+- What's New seeded v0.4.1: "Coach's post-game recap" + "You can always see which build you are on"; both render in the feed.
+- Mobile (390px) re-verified: coach setup stacks, in-game board usable, game-over + recap card render, bottom nav intact.
+- Dev server died silently once (no error in log; likely sandbox OOM); restarted clean.
+
+Stage Summary:
+- Full system healthy end to end; all user-visible flows verified with the authentic restored account.
+- GitHub current through bd75332.
