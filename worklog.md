@@ -71,3 +71,21 @@ Stage Summary:
 - User's authentic account data is live again (original credentials work; nothing about the account is fabricated).
 - Data-loss safety net now triple: restore-on-boot (first in boot order), daily VACUUM backups (keep 7), ~2h off-box GitHub snapshots.
 - GitHub current through this commit; PAT stored only in gitignored .env.local + origin remote URL.
+
+---
+Task ID: 5
+Agent: Z.ai Code (main)
+Task: Deployment freshness probe + full UI re-verification on authentic data
+
+Work Log:
+- Sandbox had rolled back; rebased to origin/main (7e0e9e7) inheriting restore-on-boot, sidebar sub-tabs, Play-with-Coach.
+- Hacked interim db-backup module during the rollback window; boot-maintenance.ts (remote) supersedes it — no duplicate shipped.
+- Hit the stale-Prisma-inode trap: manual gh-restore while server ran -> API 401 despite correct hash; restart fixed. Boot flow already handles this via $disconnect after restore.
+- Browser E2E on the authentic snapshot: login admin/admin1234 OK; sidebar Learn expands (All tabs/Lessons/Play with Coach New/Game Review/Analysis); coach session: 4 personas, ELO slider+presets, e4 graded "Book +0.3 -> +0.3" with reason, Show line, Explain more -> chat teaching; Ask-chat answers honestly (fresh-board c5 question answered factually); Enter-to-send verified working (earlier home-navigation was a stale-ref test artifact, not a product bug).
+- Shipped deployment freshness probe: next.config generateBuildId -> UTC build stamp; /api/build-info returns buildId + bootIso; footer renders "build <stamp>" (prod) or "dev boot <time> UTC" (dev). Stale deployments are now visible at a glance.
+- Pushed 53b7120 with screenshots (verify-sidebar-learn-open, verify-coach-open, verify-coach-e4-graded, verify-coach-chat-answer, verify-footer-stamp).
+
+Stage Summary:
+- All core UI verified live with the user's authentic data (original password hash intact).
+- Deployment freshness: owner can now read the served build straight from the footer.
+- GitHub current through 53b7120.
