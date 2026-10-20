@@ -146,3 +146,16 @@ Work Log:
 Stage Summary:
 - Every headline flow has now been verified live this session: auth (login/signup/password), two-level sidebar (6 groups, mobile+desktop), coach game (grading + move-specific reasons + chat), game review (Opera Game benchmark), free analysis, daily puzzle (real solve + rating), system status (all green).
 - Commits: 6133f5c (fairness card), b1a78fa (round-2 evidence), ae0c6cc (report sync), 7646ab3 (badges nowrap), 427b10b (ETag+badges) — all pushed; CI green.
+
+---
+Task ID: 8
+Agent: main (session continuation, Oct 20)
+Task: Lessons flow verified end-to-end (the headline differentiator)
+
+Work Log:
+- Lessons library renders (The Study, 0/120, level tracks Newbie->Grandmaster, continue bar).
+- Opened "Develop your pieces": 9-step path (Read/Watch/Quiz/Solve), coach picker (Nina), TTS speaker buttons on every narration.
+- Quiz answered (knights-before-bishops), Solve step "Develop with tempo": played Nf3 via board drag -> "Line complete." + Nina's persona-voiced verdict "Nf3. Development with tempo: it attacks e5 while coming out." tagged LOVELY, streak badge "2 in a row". Evidence: download/verify-lesson-solve-1020.png.
+
+Stage Summary:
+- The full pedagogy loop (read -> watch -> quiz -> solve with coach correction + streaks + TTS) is live and correct. No code changes needed.
