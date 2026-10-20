@@ -687,6 +687,36 @@ export function CoachGameView() {
     [plies, playerColor],
   )
 
+  /** Post-game recap: the student's three costliest moves (engine-verified cpl).
+   *  Only real mistakes count — a "good" move with a small swing is noise. The
+   *  chess.com review shows the same three; ours also carries the best move and
+   *  one click each to replay the position with the better move drawn in. */
+  const worstPlies = useMemo(() => {
+    return plies
+      .map((p, idx) => ({ p, idx }))
+      .filter(({ p }) => p.color === playerColor && p.cpl != null && (p.cpl as number) >= 50)
+      .sort((a, b) => (b.p.cpl as number) - (a.p.cpl as number))
+      .slice(0, 3)
+      .sort((a, b) => a.idx - b.idx) // chronological order for the lesson feel
+  }, [plies, playerColor])
+
+  /** One honest sentence for the recap header, from the label distribution only. */
+  const recapHeadline = useMemo(() => {
+    const blunders = (studentCounts['blunder'] ?? 0) + (studentCounts['mistake'] ?? 0)
+    const solid = (studentCounts['best'] ?? 0) + (studentCounts['brilliant'] ?? 0) + (studentCounts['excellent'] ?? 0)
+    if (!worstPlies.length) return 'No costly mistakes found — solid game.'
+    if (blunders >= 3) return 'Three or more big swings decided the game. Work the list below.'
+    if (blunders > 0) return `One or two moments turned the game. ${solid ? 'Your other moves held up.' : ''}`
+    return 'No blunders — the small inaccuracies below are where the edge leaked.'
+  }, [studentCounts, worstPlies.length])
+
+  /** Jump the board to a past position with the engine's better move drawn. */
+  const reviewPly = useCallback((idx: number) => {
+    const rec = plies[idx]
+    setSelectedPly(idx)
+    setArrows(rec?.bestFrom && rec?.bestTo ? [{ from: rec.bestFrom, to: rec.bestTo, color: 'green' }] : [])
+  }, [plies])
+
   const latestStudentPlyIdx = useMemo(() => {
     for (let i = plies.length - 1; i >= 0; i--) {
       if (plies[i].color === playerColor) return i
@@ -986,6 +1016,51 @@ export function CoachGameView() {
               <Button onClick={startGame}>Rematch</Button>
               <Button variant="secondary" onClick={() => setPhase('setup')}>Change coach</Button>
               <Button variant="secondary" onClick={() => navigate('review')}>Game review</Button>
+            </div>
+
+            {/* coach's recap: the costliest moments, each replayable with the
+                better move drawn on the board, and one click to ask why. */}
+            <div className="mt-3 rounded-lg border bg-card p-3 text-left">
+              <div className="flex items-center gap-2">
+                <CharacterFace id={coach.id} label={coach.name} className="h-7 w-7 rounded-full ring-1 ring-primary/50" />
+                <div className="text-sm font-extrabold">{coach.name}'s recap</div>
+              </div>
+              <p className="mt-1.5 text-[13px] leading-snug text-muted-foreground">{recapHeadline}</p>
+              {worstPlies.length > 0 && (
+                <ul className="mt-2 space-y-1.5">
+                  {worstPlies.map(({ p, idx }) => (
+                    <li key={idx} className="flex items-center gap-2 rounded-md bg-secondary/50 px-2 py-1.5">
+                      <span className="w-8 shrink-0 text-center font-mono text-[11px] font-bold text-muted-foreground">
+                        {Math.floor(idx / 2) + 1}
+                      </span>
+                      <LabelBadge label={p.label} size={16} />
+                      <span className="shrink-0 font-mono text-[13px] font-bold">
+                        {p.san}
+                        {p.bestSan ? <span className="font-medium text-muted-foreground"> → {p.bestSan}</span> : null}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground">
+                        {p.cpl != null ? `costs about ${(p.cpl / 100).toFixed(1)} pawns` : ''}
+                      </span>
+                      <button
+                        onClick={() => reviewPly(idx)}
+                        className="shrink-0 rounded-md bg-primary px-2 py-1 text-[11px] font-extrabold uppercase tracking-wide text-primary-foreground transition-transform active:scale-95"
+                      >
+                        Show
+                      </button>
+                      <button
+                        onClick={() => void askCoach(
+                          `Move ${Math.floor(idx / 2) + 1}: I played ${p.san} but ${p.bestSan ?? 'another move'} was better. Teach me the idea behind the better move.`,
+                          p.san,
+                        )}
+                        disabled={chatBusy}
+                        className="shrink-0 rounded-md border px-2 py-1 text-[11px] font-extrabold uppercase tracking-wide text-muted-foreground transition-transform hover:bg-secondary active:scale-95 disabled:opacity-50"
+                      >
+                        Ask why
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         )}

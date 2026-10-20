@@ -15,6 +15,19 @@
 // widens instead of giving up.
 const TIMEOUT_MS_LADDER = [3_500, 8_000, 20_000]
 
+// LLM endpoints answer in 5-30s by design (the model itself is the work).
+// Running them through the retry ladder was actively harmful: every 3.5s
+// timeout ABORTED the client request but the server kept generating, so a
+// 10s answer spawned three server generations, the ladder exhausted, and
+// the chat stayed "busy" forever (observed live on the coach recap's
+// "Ask why", 2025-10-20). One long attempt, no retry, is correct here.
+const LONG_TIMEOUT_PATHS = ['/api/coach'] // covers /api/coach/* and /api/coach-game/*
+const LONG_TIMEOUT_MS = 90_000
+
+function isLongTimeoutUrl(url: string): boolean {
+  return LONG_TIMEOUT_PATHS.some((p) => url.includes(p))
+}
+
 function withTimeout(signal: AbortSignal | null | undefined, ms: number): { signal: AbortSignal; cancel: () => void } {
   const ctl = new AbortController()
   const timer = setTimeout(() => ctl.abort(new DOMException('Timeout', 'TimeoutError')), ms)
@@ -38,6 +51,19 @@ export function installFetchHardening(): void {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url
     if (url.includes('/_next/webpack-hmr') || url.includes('/socket.io/')) {
       return original(input as RequestInfo, init)
+    }
+    // LLM chat endpoints: a single long attempt. The model is the latency;
+    // retrying mid-generation only piles up server work.
+    if (isLongTimeoutUrl(url)) {
+      const { signal, cancel } = withTimeout(init?.signal, LONG_TIMEOUT_MS)
+      try {
+        const res = await original(input as RequestInfo, { ...init, signal })
+        cancel()
+        return res
+      } catch (err) {
+        cancel()
+        throw err
+      }
     }
     let lastError: unknown = null
     for (let attempt = 0; attempt <= TIMEOUT_MS_LADDER.length; attempt++) {
