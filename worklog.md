@@ -221,3 +221,18 @@ Work Log:
 
 Stage Summary:
 - The community loop is closed end-to-end: suggest → vote → build → mark shipped, all verified live.
+
+---
+Task ID: 13
+Agent: main (session continuation, Oct 20)
+Task: Dark mode + Woodpecker cycle verification, deep health, DEPLOY guide
+
+Work Log:
+- Dark mode spot-checked across the new surfaces (What's New, roadmap): clean rendering, no contrast breaks.
+- Woodpecker cycle played: FORK · CYCLE 1, 1/12 with running timer and "one miss costs accuracy, not the cycle" honesty. Stopped cleanly.
+- Deep health via API: ALL 8 subsystems ok (database 55ms, Stockfish 19, 5.77M puzzle bank, plan builder, DNA builder, game service, MCP server, theme index).
+- DEPLOY.md written: Vercel path, volume-host path, the built-in durable-data system, mini services, and the update path — so "keep the deployment up to date" is actionable.
+- dev.log clean; CI green through 26630fa.
+
+Stage Summary:
+- Full app verified again after the resume feature; no regressions. Deployment instructions now live in the repo.
