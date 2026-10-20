@@ -86,7 +86,7 @@ interface BoardState {
 const BOARD_VISIBLE = 12 // queue rows shown before "load more"
 
 function MistakeCorrector() {
-  const { navigate, profile } = useApp()
+  const { navigate, profile, openingDrillFocus, setOpeningDrillFocus } = useApp()
   const [drills, setDrills] = useState<DrillDTO[]>([])
   const [masteredCount, setMasteredCount] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -99,25 +99,31 @@ function MistakeCorrector() {
   const [board, setBoard] = useState<BoardState>(() => ({ drillId: null, fen: '', game: new Chess() }))
   const busyRef = useRef(false)
 
-  const loadDrills = useCallback(() => {
-    setLoading(true)
-    setLoadError(false)
-    fetch('/api/drills')
-      .then((r) => readJson<{ drills?: DrillDTO[]; mastered?: number }>(r))
-      .then((d) => {
-        const list = d.drills ?? []
-        setDrills(list)
-        setMasteredCount(d.mastered ?? 0)
-        setCurrent((prev) => (prev && list.some((x) => x.id === prev.id) ? prev : (list[0] ?? null)))
-        setVisibleCount(BOARD_VISIBLE)
-      })
-      .catch(() => setLoadError(true))
-      .finally(() => setLoading(false))
-  }, [])
+  const loadDrills = useCallback(
+    (opening?: string | null) => {
+      setLoading(true)
+      setLoadError(false)
+      const q = opening ? `?opening=${encodeURIComponent(opening)}` : ''
+      fetch(`/api/drills${q}`)
+        .then((r) => readJson<{ drills?: DrillDTO[]; mastered?: number }>(r))
+        .then((d) => {
+          const list = d.drills ?? []
+          setDrills(list)
+          setMasteredCount(d.mastered ?? 0)
+          setCurrent((prev) => (prev && list.some((x) => x.id === prev.id) ? prev : (list[0] ?? null)))
+          setVisibleCount(BOARD_VISIBLE)
+        })
+        .catch(() => setLoadError(true))
+        .finally(() => setLoading(false))
+    },
+    [],
+  )
 
+  // Opening Review Queue deep link: when the home card focuses an opening,
+  // (re)load the queue scoped to it. Clearing the chip reloads the full set.
   useEffect(() => {
-    loadDrills()
-  }, [loadDrills])
+    loadDrills(openingDrillFocus)
+  }, [loadDrills, openingDrillFocus])
 
   // a new active drill rebuilds the board from its stored position
   if (current && board.drillId !== current.id) {
@@ -262,12 +268,32 @@ function MistakeCorrector() {
         <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
           <Target className="h-4 w-4 text-primary" /> Fix your mistakes
         </div>
-        <Button variant="ghost" size="icon" className="h-9 w-9" onClick={loadDrills} aria-label="Refresh the mistake queue" title="Refresh">
+        <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => loadDrills(openingDrillFocus)} aria-label="Refresh the mistake queue" title="Refresh">
           <RotateCcw className="h-4 w-4" />
         </Button>
       </div>
       <div className="mt-0.5 text-sm text-muted-foreground">
-        {loading ? 'Checking your errors…' : `${waiting} error${waiting === 1 ? '' : 's'} waiting · ${masteredCount} mastered`}
+        {loading ? (
+          'Checking your errors…'
+        ) : openingDrillFocus ? (
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+              {openingDrillFocus}
+            </span>
+            <span>
+              {`${waiting} error${waiting === 1 ? '' : 's'} from this opening · ${masteredCount} mastered overall`}
+            </span>
+            <button
+              type="button"
+              className="text-xs font-semibold text-primary underline underline-offset-2"
+              onClick={() => setOpeningDrillFocus(null)}
+            >
+              Show all openings
+            </button>
+          </span>
+        ) : (
+          `${waiting} error${waiting === 1 ? '' : 's'} waiting · ${masteredCount} mastered`
+        )}
       </div>
       <Progress value={masteredPct} className="mt-2 h-2" aria-label={`${masteredCount} of ${totalSeen} errors mastered`} />
 
@@ -278,7 +304,7 @@ function MistakeCorrector() {
       ) : loadError ? (
         <div className="py-8 text-center" role="alert">
           <div className="font-display text-base font-bold">Could not load your mistakes.</div>
-          <Button variant="secondary" size="sm" className="mt-3" onClick={loadDrills}>
+          <Button variant="secondary" size="sm" className="mt-3" onClick={() => loadDrills(openingDrillFocus)}>
             <RotateCcw className="h-4 w-4" /> Retry
           </Button>
         </div>

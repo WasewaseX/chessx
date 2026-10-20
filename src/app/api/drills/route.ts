@@ -106,8 +106,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Too many requests, try again shortly' }, { status: 429 })
   }
 
+  // ?opening=<name> — Opening Review Queue deep link: harvest + queue only
+  // that opening's errors so practice stays on-topic.
+  const openingFilter = req.nextUrl.searchParams.get('opening')?.slice(0, 120) || undefined
   try {
-    await harvestDrills(pid)
+    await harvestDrills(pid, openingFilter ? { opening: openingFilter } : undefined)
     await resolvePendingDrills(pid)
   } catch (err) {
     console.error('[drills] harvest failed', err) // queue still serves what exists
@@ -115,7 +118,12 @@ export async function GET(req: NextRequest) {
 
   const [rows, mastered] = await Promise.all([
     db.drill.findMany({
-      where: { profileId: pid, mastered: false, bestSan: { not: '' } },
+      where: {
+        profileId: pid,
+        mastered: false,
+        bestSan: { not: '' },
+        ...(openingFilter ? { opening: openingFilter } : {}),
+      },
       orderBy: { nextDueAt: 'asc' },
       take: 40,
     }),

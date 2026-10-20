@@ -101,6 +101,13 @@ interface AppState {
   pendingCoachGame: string | null
   setPendingCoachGame: (id: string | null) => void
   /**
+   * Opening Review Queue focus: when set, the Mistake Corrector scopes its
+   * queue to this opening (set by the home "Openings to fix" card, cleared by
+   * the banner chip in the Review view).
+   */
+  openingDrillFocus: string | null
+  setOpeningDrillFocus: (opening: string | null) => void
+  /**
    * A "replay from this position" request, set by the Analysis view when the
    * student wants to refight a game from its turning move. PlayView consumes
    * it on arrival: it starts a bot game from `fen` with the mover's color.
@@ -144,6 +151,8 @@ export const useApp = create<AppState>((set) => ({
   setPendingReview: (item) => set({ pendingReview: item }),
   pendingCoachGame: null,
   setPendingCoachGame: (id) => set({ pendingCoachGame: id }),
+  openingDrillFocus: null,
+  setOpeningDrillFocus: (opening) => set({ openingDrillFocus: opening }),
   playRequest: null,
   setPlayRequest: (req) => set({ playRequest: req }),
 }))

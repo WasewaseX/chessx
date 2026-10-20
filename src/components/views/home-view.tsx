@@ -11,6 +11,7 @@ import { potentialElo, titleForXp } from '@/lib/rating'
 import { BOTS } from '@/lib/chess/bots'
 import { GoalCard } from '@/components/shell/streak'
 import { ChessDnaCard } from '@/components/views/chess-dna-card'
+import { OpeningsQueueCard } from '@/components/views/openings-queue-card'
 import { GlobeSection } from '@/components/chess/chess-globe'
 import { cn } from '@/lib/utils'
 import {
@@ -402,6 +403,10 @@ export function HomeView() {
 
       {/* Chess DNA: the seven-domain report built from the player's analyzed games */}
       <ChessDnaCard />
+
+      {/* Openings to fix: worst openings from reviewed games, practice deep-links
+          into the Mistake Corrector scoped to the opening */}
+      <OpeningsQueueCard />
 
       {/* one grid for all five cards: equal gaps, equal row heights, no stray notches */}
       <div className="grid gap-4 md:grid-cols-3">

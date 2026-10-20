@@ -197,9 +197,18 @@ function replayPgn(pgn: string): PlyInfo[] | null {
  * Existing rows are only refreshed with metadata — scheduling, mastery and
  * attempt counters are never touched by a re-harvest.
  */
-export async function harvestDrills(profileId: string): Promise<number> {
+export async function harvestDrills(
+  profileId: string,
+  opts?: { opening?: string },
+): Promise<number> {
   const games = await db.gameRecord.findMany({
-    where: { profileId, labelsJson: { not: null } },
+    where: {
+      profileId,
+      labelsJson: { not: null },
+      // Opening Review Queue: restrict the harvest to one opening's games so
+      // "practice this opening" produces drills that actually belong to it.
+      ...(opts?.opening ? { opening: opts.opening } : {}),
+    },
     orderBy: [{ analyzedAt: 'desc' }, { createdAt: 'desc' }],
     take: MAX_GAMES,
   })
