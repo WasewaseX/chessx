@@ -178,3 +178,21 @@ Stage Summary:
 - REA chessigma port list COMPLETE 1-7 with receipts: library (1), DNA v2 (2), free-tier honesty (3), share links (4), Elo calc + next-move (5), aliases (6), coach quota (7).
 - chess.com static RE re-confirmed out of reach from this sandbox; nothing further to mine honestly.
 - GitHub current through 2433bc0 (Oct 21 23:35 UTC). Remaining standing work: keep pushing; candidate next features are chessx-original (e.g. coach opening-repertoire expansion, puzzle-theme trainer) rather than RE ports.
+
+---
+Task ID: 11
+Agent: Z.ai Code (main)
+Task: Roadmap continuation — weak-themes training strip + real bug found in theme-stats
+
+Work Log:
+- Deep health pass ALL GREEN post-library-shipping (database, Stockfish 19, 5,768,701-puzzle bank, plan/DNA builders, game-service, mcp-server, theme index).
+- Pushed a manual off-box snapshot (23 KB) protecting the freshly imported library games + v0.4.2 seeds.
+- Found a REAL bug while designing the next feature: /api/puzzles/theme-stats resolved themes from the OLD static content pool (@/content/puzzles) while all serving surfaces now use the 5.77M lichess bank — every bank-puzzle attempt was silently uncredited (returned {} despite attempts existing). Fixed: resolve themes via lichessById with static-pool fallback for legacy attempts.
+- Shipped the "Your weakest themes" strip in the Rated tab: themes ranked from the player's REAL solve record only (>=3 attempts, solved<attempts, lowest accuracy first, top 4), rendered as destructive-red one-click chips that load exactly that theme's next puzzle. Hidden entirely when there is not enough data — honest-by-construction.
+- scripts/seed-theme-attempts.ts: creates REAL attempts through the genuine pipeline (legal move -> /api/puzzles/move server grading -> /api/puzzles/attempt) — used to verify the strip end to end (4 graded pin misses -> strip shows "Pin 0%").
+- Browser-verified: strip renders idle ("Pin 0% · Short 20% · Advantage 33%"), clicking Pin starts "Pin practice · solved 0 of 4 attempts on this theme", strip hides while a theme filter is active by design, mobile 390px visible. Headless drag-and-drop on the board was unreliable (coordinates + drag semantics), so attempts were seeded through the same server API the browser uses — grading stayed server-side and honest.
+- Typecheck + lint clean; pushed cf25957.
+
+Stage Summary:
+- theme-stats blind spot fixed for the bank era; weakness-driven training loop closed: solve -> stats -> weakest-themes -> targeted practice.
+- GitHub current through cf25957 (Oct 22 00:05 UTC).
