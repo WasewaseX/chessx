@@ -161,3 +161,20 @@ Work Log:
 Stage Summary:
 - REA chessigma port list (all 7 items) now fully shipped; the Tools page finally matches its "Import & Records" sidebar label.
 - GitHub current through 2ad04cd (Oct 21 23:10 UTC). Next candidates: chess.com RE once Cloudflare permits, "Open with 6" deeplink growth hack, DNA share-link surfacing in UI.
+
+---
+Task ID: 10
+Agent: Z.ai Code (main)
+Task: REA port list closure — chess.com capture attempt + item 6 (growth-hack aliases)
+
+Work Log:
+- Verified DNA share-link UI is fully surfaced (chess-dna-card share button -> /api/dna/share -> shared-dna-overlay) — REA item 4 confirmed complete, no work needed.
+- chess.com deep-RE re-attempt with a REAL headless Chromium: www.chess.com serves the Cloudflare "Just a moment" interstitial and it never resolves for this datacenter IP; api.chess.com 403 on curl AND on in-browser fetch. The documented boundary (report v2 §3) stands: review math is server-side, client chunks unreachable without a residential IP/user session. Honest mitigation in the import UI remains the right answer.
+- Shipped REA item 6, adapted for the web: single-letter hash aliases (#/a analysis, #/p online, #/z puzzles, #/c coach game, #/l games library, #/n what's new) — chessigma's "Open with 6" rebuilt as hash deep links. Bare one-letter segments only; all full-name routes unchanged. What's New seed ("Type one letter, land anywhere", v0.4.2).
+- Browser-verified: fresh full loads (#/a -> Analysis, ?probe=1#/l -> Tools + library present), same-document transitions (#/n -> #/l), plus the alias loop #/l #/c #/n #/p. One transient stale-view observation on a rapid same-doc hop did not reproduce under systematic retry (fresh load + same-doc both green) — treated as a dev-mode race, not shipped.
+- CI green on 7bac6cb (2ad04cd cancelled-by-concurrency as expected). Typecheck + lint clean. Pushed 2433bc0.
+
+Stage Summary:
+- REA chessigma port list COMPLETE 1-7 with receipts: library (1), DNA v2 (2), free-tier honesty (3), share links (4), Elo calc + next-move (5), aliases (6), coach quota (7).
+- chess.com static RE re-confirmed out of reach from this sandbox; nothing further to mine honestly.
+- GitHub current through 2433bc0 (Oct 21 23:35 UTC). Remaining standing work: keep pushing; candidate next features are chessx-original (e.g. coach opening-repertoire expansion, puzzle-theme trainer) rather than RE ports.
