@@ -196,3 +196,19 @@ Work Log:
 Stage Summary:
 - theme-stats blind spot fixed for the bank era; weakness-driven training loop closed: solve -> stats -> weakest-themes -> targeted practice.
 - GitHub current through cf25957 (Oct 22 00:05 UTC).
+
+---
+Task ID: 12
+Agent: Z.ai Code (main)
+Task: Regression sweep + coach repertoire expansion + system verification
+
+Work Log:
+- Full-view regression sweep in the browser after the router/store/view changes: home, Play, Puzzles (rated+weak-themes strip), Play with Coach (game starts, board + chat live), Analysis, Tools/Game library, What's New (both v0.4.2 entries render) — zero render errors, zero application errors.
+- CI: 4d6f522 success; later runs build each push (concurrency-superseded cancellations are expected).
+- Backup safety net verified live: boot backup wired (5-min post-boot), interval timer active, local snapshots current (23:13 UTC), manual off-box push succeeded earlier this session.
+- Coach repertoire expanded with real mainlines: beginner 4->7 (Caro-Kann classical, London, Vienna), club 5->9 (Ruy exchange, Advance Caro-Kann, Scandinavian, QID/QID-Indian setups), advanced 5->10 (Taimanov, Berlin endgame with the full queen-trade wall, KID classical with g3/Bg2, Semi-Slav, French Steinitz). All 26 lines replayed through chess.js — every move legal, no fabricated theory.
+- Typecheck + lint clean; pushed dfc896d with the regression screenshot.
+
+Stage Summary:
+- Session shipped: Games Library (last REA port), hash aliases, weak-themes training strip, theme-stats bank fix, repertoire expansion — every step committed and pushed (fdee9bd -> dfc896d), each browser-verified with screenshots.
+- All subsystems green; data safety net (restore-on-boot + daily + off-box) confirmed operational after another sandbox rollback.
