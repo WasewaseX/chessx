@@ -95,6 +95,9 @@ const COACH_REPERTOIRES: { minElo: number; lines: string[][] }[] = [
       ['e4', 'e5', 'Nf3', 'Nc6', 'Nc3', 'Nf6'],
       ['d4', 'd5', 'Nf3', 'Nf6', 'e3', 'e6'],
       ['e4', 'e5', 'Bc4', 'Nf6', 'd3', 'c6'],
+      ['e4', 'c6', 'd4', 'd5', 'Nc3', 'dxe4', 'Nxe4', 'Nf6'],
+      ['d4', 'd5', 'Bf4', 'Nf6', 'e3', 'e6', 'Nf3', 'c5'],
+      ['e4', 'e5', 'Nc3', 'Nf6', 'f4', 'd5'],
     ],
   },
   {
@@ -106,6 +109,10 @@ const COACH_REPERTOIRES: { minElo: number; lines: string[][] }[] = [
       ['e4', 'c5', 'Nf3', 'd6', 'd4', 'cxd4', 'Nxd4', 'Nf6', 'Nc3', 'a6'],
       ['d4', 'd5', 'c4', 'e6', 'Nc3', 'Nf6', 'Nf3', 'Be7'],
       ['e4', 'e6', 'd4', 'd5', 'Nc3', 'Nf6', 'e5', 'Nfd7'],
+      ['e4', 'e5', 'Nf3', 'Nc6', 'Bb5', 'a6', 'Bxc6', 'dxc6', 'O-O', 'f6'],
+      ['e4', 'c6', 'd4', 'd5', 'e5', 'Bf5'],
+      ['e4', 'd5', 'exd5', 'Qxd5', 'Nc3', 'Qa5'],
+      ['d4', 'Nf6', 'c4', 'e6', 'Nf3', 'b6'],
     ],
   },
   {
@@ -117,6 +124,11 @@ const COACH_REPERTOIRES: { minElo: number; lines: string[][] }[] = [
       ['d4', 'Nf6', 'c4', 'g6', 'Nc3', 'Bg7', 'e4', 'd6', 'Nf3', 'O-O'],
       ['d4', 'd5', 'c4', 'e6', 'Nc3', 'Nf6', 'Bg5', 'Be7', 'e3', 'O-O'],
       ['e4', 'e5', 'Nf3', 'Nf6', 'Nxe5', 'd6', 'Nf3', 'Nxe4', 'd4', 'd5'],
+      ['e4', 'c5', 'Nf3', 'e6', 'd4', 'cxd4', 'Nxd4', 'Nc6', 'Nc3', 'Qc7'],
+      ['e4', 'e5', 'Nf3', 'Nc6', 'Bb5', 'Nf6', 'O-O', 'Nxe4', 'd4', 'Nd6', 'Bxc6', 'dxc6', 'dxe5', 'Nf5', 'Qxd8+', 'Kxd8'],
+      ['d4', 'Nf6', 'c4', 'g6', 'Nc3', 'Bg7', 'Nf3', 'd6', 'g3', 'O-O', 'Bg2', 'Nbd7'],
+      ['d4', 'd5', 'c4', 'c6', 'Nf3', 'Nf6', 'Nc3', 'e6', 'Bg5', 'h6'],
+      ['e4', 'e6', 'd4', 'd5', 'Nd2', 'Nf6', 'e5', 'Nfd7', 'Bd3', 'c5'],
     ],
   },
 ]
