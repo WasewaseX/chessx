@@ -80,3 +80,7 @@ re/chesscom/
 
 # database backups (go to the private GitHub backup repo instead)
 db/backups/
+
+# runtime artifacts (never commit)
+db/.bank-bootstrap.lock
+db/puzzles.db.part.gz
