@@ -137,3 +137,27 @@ Work Log:
 Stage Summary:
 - Play with Coach now: real openings per level + engine character after book + per-move grading + explain + honest chat + post-game recap.
 - GitHub current through this commit.
+
+---
+Task ID: 9
+Agent: Z.ai Code (main)
+Task: Continue roadmap + REA — port item 1 (Imported Games Library), post-rollback recovery check
+
+Work Log:
+- Sandbox had rolled back again: puzzle bank was re-downloaded by bootstrap (649MB -> 1.57GB present), dev server died once mid-session (restarted, 200).
+- Restore-on-boot had preserved the authentic accounts (admin + tiktokaltrachel, original hash) — verified via read-only sqlite before any work.
+- Normalized 297 sandbox mode-change artifacts (644->755) instead of committing noise; gitignored db/.bank-bootstrap.lock and db/puzzles.db.part.gz (fdee9bd).
+- REA port list re-check: items 2-5,7 already shipped (DNA v2, shareable DNA, tools, quotas); item 1 (imported-games library) was the last missing piece — built it:
+  - GameRecord.source column (chesscom|lichess), written by storeImportedGames; scripts/backfill-game-source.ts parses Site tags for legacy rows (0 in current restored DB)
+  - GET /api/library: filters (result/source/opening-substr/opponent-substr), pagination 5-50, rows ship WITHOUT PGN; ?game=<id> returns the owned single game with PGN for the analyze handoff; aggregates (total, W-L-D, per-source counts, top-6 openings via groupBy)
+  - GamesLibrary component at the top of Tools: summary strip (total + W/L/D bar + source chips + clickable opening chips), result/source selects, two debounced text filters, honest empty states (nothing imported vs no matches), pagination, per-row Copy PGN + Analyze
+  - Analyze = setReviewPgn + setReviewGameId + navigate('analysis') — the report lands in Insights against that exact game (same handoff the coach recap uses)
+  - Sidebar Tools group gains "Games Library" sub-tab (#/tools/library, New dot); fixed the bare-vs-segmented active-state rule so Import & Records and Games Library never highlight together (lesson deep links unaffected)
+  - What's New seed v0.4.2; footer version 0.3.0 -> 0.4.2
+- E2E in browser (admin): bulk-imported 5 real DrNykterstein lichess games through Import -> By username; library populated with source chips "Lichess · 5"; re-import -> "Imported 0 of 5 (5 duplicates skipped)" dedupe honesty; opening-chip filter narrowed to 1 row; losses filter -> honest "No games match these filters"; Analyze landed on #/analysis Game review with the Modern Defence game fully loaded; Copy PGN rendered the success check (headless clipboard read-back is permission-denied — browser limitation, not a product failure); mobile 390px renders all rows.
+- Screenshots: verify-library-{empty,populated,filter-empty,analyze-handoff,mobile-390}.png
+- Typecheck + lint clean; committed 2ad04cd and pushed.
+
+Stage Summary:
+- REA chessigma port list (all 7 items) now fully shipped; the Tools page finally matches its "Import & Records" sidebar label.
+- GitHub current through 2ad04cd (Oct 21 23:10 UTC). Next candidates: chess.com RE once Cloudflare permits, "Open with 6" deeplink growth hack, DNA share-link surfacing in UI.
