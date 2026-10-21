@@ -232,6 +232,23 @@ export function PuzzlesView() {
     loadRated()
   }, [themeFilter, tab, profile, loadRated])
 
+  // Weakest themes, ranked from the player's REAL solve record only. A theme
+  // qualifies after at least 3 attempts (one fluke can't crown a weakness) and
+  // shows as a one-click training chip. No attempts -> no strip, no guesses.
+  const weakThemes = useMemo(() => {
+    if (!themeStats) return []
+    return Object.entries(themeStats)
+      .filter(([, s]) => s.attempts >= 3 && s.solved < s.attempts)
+      .map(([key, s]) => ({
+        key,
+        attempts: s.attempts,
+        solved: s.solved,
+        acc: Math.round((s.solved / s.attempts) * 100),
+      }))
+      .sort((a, b) => a.acc - b.acc)
+      .slice(0, 4)
+  }, [themeStats])
+
   const game = useMemo(() => {
     try {
       return new Chess(fen)
@@ -691,6 +708,25 @@ export function PuzzlesView() {
               )
             })}
           </div>
+          {!themeFilter && weakThemes.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
+                Your weakest themes
+              </span>
+              {weakThemes.map((w) => (
+                <button
+                  key={w.key}
+                  type="button"
+                  onClick={() => setThemeFilter(w.key)}
+                  title={`Solved ${w.solved} of ${w.attempts} on ${humanizeTheme(w.key)} — click to train exactly this`}
+                  className="inline-flex min-h-9 items-center gap-1 rounded-full border border-destructive/30 bg-destructive/10 px-3 py-1.5 text-xs font-bold text-destructive transition hover:bg-destructive/20 active:scale-95"
+                >
+                  {humanizeTheme(w.key)}
+                  <span className="font-semibold opacity-80">{w.acc}%</span>
+                </button>
+              ))}
+            </div>
+          )}
           {themeFilter && (
             <div className="mt-1.5 text-xs text-muted-foreground" aria-live="polite">
               {humanizeTheme(themeFilter)} practice ·{' '}
