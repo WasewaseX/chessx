@@ -149,6 +149,13 @@ async function readUserCountRaw(): Promise<number | null> {
 async function seedWhatsNew(): Promise<void> {
   const SEEDS: { title: string; body: string; tag: string; version?: string; pinned?: boolean }[] = [
     {
+      title: 'Type one letter, land anywhere',
+      tag: 'update',
+      version: '0.4.2',
+      body:
+        'Chessigma’s “Open with 6” trick, rebuilt for the web: #/a opens analysis, #/p online play, #/z puzzles, #/c a coach game, #/l the games library, #/n What’s New. Full names still work everywhere — the short ones are just faster to share.',
+    },
+    {
       title: 'Game library: every imported game, browsable',
       tag: 'feature',
       version: '0.4.2',

@@ -116,6 +116,19 @@ interface AppState {
   setPlayRequest: (req: AppState['playRequest']) => void
 }
 
+// Single-letter hash aliases — chessx's take on chessigma's "Open with 6"
+// growth hack (REA report v2, §2.5): type chessx.app/#/a to land straight in
+// analysis, #/p in online play, #/z in puzzles, #/c in a coach game and #/l
+// in the games library. Full names keep working unchanged.
+const HASH_ALIASES: Record<string, { name: ViewName; lessonId?: string }> = {
+  a: { name: 'analysis' },
+  p: { name: 'play', lessonId: 'online' },
+  z: { name: 'puzzles' },
+  c: { name: 'coachgame' },
+  l: { name: 'tools', lessonId: 'library' },
+  n: { name: 'whatsnew' },
+}
+
 function viewFromHash(): ViewState {
   const h = window.location.hash.replace(/^#\/?/, '')
   // views may carry a query (#/analysis?fen=...) — the query belongs to the
@@ -125,6 +138,11 @@ function viewFromHash(): ViewState {
   const valid: ViewName[] = ['home', 'play', 'lessons', 'lesson', 'puzzles', 'review', 'coach', 'coachgame', 'analysis', 'profile', 'settings', 'tools', 'whatsnew']
   if (valid.includes(name as ViewName)) {
     return { name: name as ViewName, lessonId: lessonId || undefined }
+  }
+  // single-letter aliases only match a bare segment (never #/a/something)
+  if (name?.length === 1 && !lessonId && HASH_ALIASES[name]) {
+    const hit = HASH_ALIASES[name]
+    return { name: hit.name, lessonId: hit.lessonId }
   }
   return { name: 'home' }
 }
