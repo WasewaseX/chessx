@@ -1,5 +1,6 @@
 'use client'
 // The Tools view: chessigma-class side tools, chess.com grade.
+//  - Game library: every imported game, browsable + filterable (REA port item 1).
 //  - Elo calculator: standard Elo with the FIDE / chess.com / Lichess K rules.
 //  - Opening guide: 18 curated openings, main line + variations + plans.
 //  - Opening trainer: drill those main lines from memory (device-local progress).
@@ -14,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Loader2, ArrowRight, Search, Wand2, Calculator, BookOpen, GraduationCap, Code2, Copy, Check, Compass } from 'lucide-react'
 import { OpeningTrainer } from '@/components/views/opening-trainer'
 import { OpeningExplorer } from '@/components/views/opening-explorer'
+import { GamesLibrary } from '@/components/views/games-library'
 import { cn } from '@/lib/utils'
 import { readJson } from '@/lib/api-client'
 import { useApp } from '@/lib/store'
@@ -419,13 +421,18 @@ function PublicApiCard() {
 
 export function ToolsView() {
   // Deep-link arg from the hash (#/tools/trainer): open the requested tool
-  // tab directly. Anything unrecognized falls back to the guide.
+  // tab directly. Anything unrecognized falls back to the guide. The library
+  // lives at the top of this page regardless of the arg (#/tools/library
+  // lands here with the library first thing on screen).
   const arg = useApp((s) => s.view.lessonId)
   const initialTab = arg === 'trainer' || arg === 'explorer' ? arg : undefined
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6">
       <h1 className="font-display text-2xl font-extrabold">Tools</h1>
       <p className="mt-1 text-sm text-muted-foreground">Free, unlimited, no account needed. The same engine the rest of the app runs on.</p>
+      <div className="mt-4">
+        <GamesLibrary />
+      </div>
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <EloCalculator />
         <NextMoveFinder />

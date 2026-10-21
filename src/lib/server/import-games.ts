@@ -387,7 +387,7 @@ export async function storeImportedGames(
   platform: 'chesscom' | 'lichess',
   pgns: string[],
 ): Promise<ImportStats> {
-  void platform // kept in the signature for logging symmetry; the PGN self-identifies
+  // The platform feeds the games-library source chip/filter directly.
   const parsed: ParsedImportGame[] = []
   const batchSigs = new Set<string>()
   for (const chunk of pgns) {
@@ -434,6 +434,7 @@ export async function storeImportedGames(
       localHour: g.localHour,
       ratingDelta: null,
       accuracy: null,
+      source: platform,
     })),
   })
   return { fetched, imported: toInsert.length, skipped: fetched - toInsert.length }

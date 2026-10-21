@@ -149,6 +149,13 @@ async function readUserCountRaw(): Promise<number | null> {
 async function seedWhatsNew(): Promise<void> {
   const SEEDS: { title: string; body: string; tag: string; version?: string; pinned?: boolean }[] = [
     {
+      title: 'Game library: every imported game, browsable',
+      tag: 'feature',
+      version: '0.4.2',
+      body:
+        'Tools → Games Library lists every game you ever imported from chess.com or lichess — totals, W-L-D, sources and your most-played openings up top, filters for result/source/opening/opponent below. One click sends any game to the Analysis review pipeline; the report lands in Insights against that exact game. PGN copy included.',
+    },
+    {
       title: 'Coach’s post-game recap',
       tag: 'feature',
       version: '0.4.1',

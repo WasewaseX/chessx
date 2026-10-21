@@ -37,6 +37,7 @@ import {
   ArrowLeft,
   LogOut,
   LayoutGrid,
+  LibraryBig,
 } from 'lucide-react'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { ThemeToggle } from '@/components/shell/theme-toggle'
@@ -105,6 +106,7 @@ export const NAV_GROUPS: NavGroup[] = [
     icon: Wrench,
     children: [
       { name: 'coach', label: 'Coach Chat', icon: MessageSquareText },
+      { name: 'tools', segment: 'library', label: 'Games Library', icon: LibraryBig, highlight: true },
       { name: 'tools', label: 'Import & Records', icon: Upload },
       { name: 'whatsnew', label: "What's New", icon: Sparkles },
     ],
@@ -136,6 +138,18 @@ function childActive(child: NavChild, viewName: ViewName, segment: string | unde
   if (child.segment) return segment === child.segment
   // A bare child is active when no sibling segment is targeted.
   return true
+}
+
+/**
+ * Active-state resolution for a group's children: when the current segment
+ * matches one of the segmented children (e.g. #/tools/library), ONLY that
+ * child is active — the bare children (same view, no segment) yield so two
+ * rows never highlight at once. Otherwise the bare-child rule above applies
+ * (lesson deep links like #/lessons/12 still keep Lessons highlighted).
+ */
+function resolveActive(children: NavChild[], child: NavChild, viewName: ViewName, segment: string | undefined): boolean {
+  if (children.some((c) => c.segment && c.segment === segment)) return Boolean(child.segment) && child.segment === segment
+  return childActive(child, viewName, segment)
 }
 
 function groupActive(group: NavGroup, viewName: ViewName, segment: string | undefined): boolean {
@@ -235,7 +249,7 @@ export function Sidebar() {
             </button>
             {openGroup.children!.map((child) => {
               const Icon = child.icon
-              const active = childActive(child, view.name, segment)
+              const active = resolveActive(openGroup.children!, child, view.name, segment)
               return (
                 <button
                   key={`${child.name}:${child.segment ?? ''}`}
@@ -376,7 +390,7 @@ export function MobileNav() {
                 <div className="grid gap-0.5">
                   {group.children!.map((child) => {
                     const Icon = child.icon
-                    const active = childActive(child, view.name, segment)
+                    const active = resolveActive(group.children!, child, view.name, segment)
                     return (
                       <button
                         key={`${child.name}:${child.segment ?? ''}`}
@@ -436,7 +450,7 @@ export function AppFooter() {
   }, [])
   return (
     <footer className="mt-auto border-t border-border px-4 py-3 text-center text-[11px] text-muted-foreground">
-      ChessX v0.3.0{stamp ? <> · {stamp}</> : null} · Not affiliated with chess.com or Lichess. Piece set: cburnett
+      ChessX v0.4.2{stamp ? <> · {stamp}</> : null} · Not affiliated with chess.com or Lichess. Piece set: cburnett
       (CC BY-SA 3.0). Engine: Stockfish.
     </footer>
   )

@@ -192,8 +192,13 @@ model GameRecord {
   pivotLoss   Float? // centipawns thrown away
   analyzedAt  DateTime?
   createdAt   DateTime @default(now())
+  // Imported-games library: where the game came from ("chesscom" | "lichess"),
+  // set by the username importer; null for bot/online/local games and for
+  // imports that predate the column (Site tag backfill fills those in).
+  source      String?
 
   @@index([profileId])
+  @@index([profileId, botLevel, createdAt])
 }
 
 // Mistake Corrector: one stored error (Mistake / Blunder / Missed Win) from
