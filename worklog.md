@@ -328,3 +328,26 @@ Stage Summary:
 - Data model is flat: course = lines[] + FEN-keyed descriptions/annotations/evals + shared trunk + depth tiers (essentials/advanced/mastery) — no chapters/branch tables.
 - Report: /home/z/my-project/docs/chessreps-re-report.md (12-item port list ranked, evidence appendix with verbatim strings).
 - Top ports for ChessX: confidence+FSRS-lite line scheduler, mode quartet (Learn/Practice/Drill/Time), trial gate (1 line → deferred modal), Dojo whole-repertoire sessions, arena-style reply variety from lichess explorer, depth tiers, high-score economy, forget-line.
+
+---
+Task ID: 13
+Agent: Z.ai Code (main)
+Task: Fix takeback freeze + unlimited takebacks/hints, coach verdict-consistency, chessreps.com RE, Opening Training tab, lesson sub-step pacing
+
+Work Log:
+- Coach game takeback: root cause found - the undo loop inverted the invariant and stranded the game on the coach's turn (student frozen). Rewrote takeBack() to always end on the student's turn (undo coach reply + student move), with a zero-student-moves guard. Verified in browser: takeback -> student moves again -> coach replies -> engine grades (e4 book +0.3).
+- Takebacks + hints made UNLIMITED (counters show usage only): "this is for learning not ripping off people".
+- Coach chat flip-flop fixed: added VERDICT CONSISTENCY contract to /api/coach-game/chat (engine classification is FINAL; only bestSan may be called best; no upgrading/downgrading under student pushback; false-premise correction first; deterministic ENGINE FACT injection for the last grounded ply; coach cannot touch the board).
+- chessreps.com reverse-engineered end-to-end by subagent (Task 12-a): SvelteKit+Supabase, flat lines[] model, ts-fsrs v6 mastery, mistakes+hints grading (0/0 Good, 1 Hard, >=2 Again), confidence 0..10, random-among-top-3-overdue picker, mode quartet timings (150/500ms), local-first progress. Report: docs/chessreps-re-report.md.
+- Opening Training tab shipped under Learn (route #/openings, alias #/o): 7 built-in repertoire courses (London, Italian, Open Sicilian, Caro-Kann, QGD, QGA, KID), 22 SAN lines ALL replay-verified legal via scripts/verify-reps.ts (caught 5 authoring bugs incl. an Evans gambit pin and a blocked-f1-bishop order), FSRS-lite mastery engine (applyResult/gradeFor/pickNextLine/confidenceDot), Learn/Practice/Drill/Time modes, snap-back wrong moves (validate-before-commit), gold square flash after slip, coach rescue at 3rd mistake, Drill streak rewind, Time 60s clock + bonus, session summary, localStorage persistence.
+- Lessons sub-step pacing: TextStepView/DemoTextCard now reveal ONE paragraph at a time ("Next point (n/N)"), key idea lands last, Continue stays disabled until read; coach bubble mirrors the current paragraph; components keyed per step (linter-clean, no setState-in-effect).
+- Browser crash found & fixed: startGame still called removed setTakebacks/setHints -> TypeError on click ("Start training" did nothing; likely the recurring "render failed"). Fixed + bunx tsc --noEmit now clean (new type-check step adopted; ESLint does not catch these).
+- Screenshots: download/verify-openings-3-courses.png (course picker), 4-drill (trunk autopilot), 6-wrong (snap-back + hint), 7-complete (idea card + red mastery dot), coach-6-takeback (start position restored), coach-7 (game continues), lesson-1/2 (sub-step pacing + enabled Continue).
+
+Stage Summary:
+- Takeback can no longer freeze the game; takebacks/hints unlimited.
+- Coach chat is grounded and cannot contradict the engine verdict anymore.
+- Opening Training is a full chessreps-style trainer: 7 courses, 22 legal lines, mastery scheduling, 4 modes, local persistence.
+- Lessons now pace one small sub-step at a time at the right moment.
+- New regression bar: bunx tsc --noEmit must pass alongside eslint (caught the start-game crash ESLint missed).
+- Commits: 830a913/b27d8e8 (coach fixes), 2a3e56e (opening trainer + RE report + lessons pacing), 357e613 (start-game crash fix). All pushed to origin/main.
