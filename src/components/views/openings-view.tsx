@@ -27,15 +27,17 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
   ArrowRight, BookMarked, Brain, Check, ChevronLeft, GraduationCap, Hourglass,
-  Lightbulb, Loader2, Play, SkipForward, Target, Timer, Trophy, Zap,
+  Lightbulb, Loader2, Play, SkipForward, Swords, Target, Timer, Trophy, Zap,
 } from 'lucide-react'
 import {
   REPERTOIRE_COURSES, applyResult, confidenceDot, gradeFor, masteryLabel,
   masteryPercent, newMastery, pickNextLine,
   type LineMastery, type MasteryMap, type RepertoireCourse, type RepertoireLine,
 } from '@/lib/chess/opening-reps'
+import { OpeningArena } from '@/components/views/opening-arena'
+import { OpeningPuzzles } from '@/components/views/opening-puzzles'
 
-type Mode = 'learn' | 'practice' | 'drill' | 'time'
+type Mode = 'learn' | 'practice' | 'drill' | 'time' | 'arena' | 'puzzles'
 type Phase = 'idle' | 'autopilot' | 'awaiting' | 'complete' | 'sessionOver'
 
 interface SessionStats {
@@ -63,6 +65,8 @@ const MODES: { id: Mode; label: string; icon: typeof BookMarked; blurb: string }
   { id: 'practice', label: 'Practice', icon: Brain, blurb: 'Your shakiest, most overdue lines come back first. No hints.' },
   { id: 'drill', label: 'Drill', icon: Zap, blurb: 'Streak mode: one mistake resets the streak and rewinds the line.' },
   { id: 'time', label: 'Time', icon: Timer, blurb: '60 seconds on the clock. Every finished line buys you bonus time.' },
+  { id: 'arena', label: 'Arena', icon: Swords, blurb: 'Ranked games vs a rated opponent playing real club replies. Elo moves on wins and losses.' },
+  { id: 'puzzles', label: 'Puzzles', icon: Target, blurb: 'Real-game tactics from this exact opening, pulled at your puzzle rating.' },
 ]
 
 const MASTERY_KEY = 'chessx.openings.mastery.v1'
@@ -289,6 +293,13 @@ export function OpeningsView() {
     setStats(EMPTY_STATS)
     setTimeScore(0)
     startRef.current = Date.now()
+    // Arena and Puzzles run their own engines; the shell only selects the course.
+    if (mode === 'arena' || mode === 'puzzles') {
+      clearTimers()
+      stopClock()
+      setPhase('idle')
+      return
+    }
     if (mode === 'time') {
       clockRef.current = 60
       setClock(60)
@@ -310,7 +321,7 @@ export function OpeningsView() {
       const untrained = c.lines.find((l) => (mastery[c.id]?.[l.id]?.reps ?? 0) === 0)
       drillLine(c, untrained ?? pickNextLine(c, mastery[c.id]))
     }
-  }, [drillLine, endSession, mastery, mode, stopClock])
+  }, [clearTimers, drillLine, endSession, mastery, mode, stopClock])
 
   // Pause the clock while the completion card shows; resume for the next line.
   useEffect(() => {
@@ -464,6 +475,14 @@ export function OpeningsView() {
     return { trained, total }
   }, [mastery])
 
+  /* ------------------------------ arena / puzzles delegation ------------------------------ */
+  if (course && mode === 'arena') {
+    return <OpeningArena course={course} onExit={backToCourses} />
+  }
+  if (course && mode === 'puzzles') {
+    return <OpeningPuzzles course={course} onExit={backToCourses} />
+  }
+
   /* ------------------------------ course picker ------------------------------ */
   if (phase === 'idle' || !course) {
     return (
@@ -480,7 +499,7 @@ export function OpeningsView() {
           </p>
         </header>
 
-        <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-4" role="tablist" aria-label="Training mode">
+        <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6" role="tablist" aria-label="Training mode">
           {MODES.map((m) => {
             const Icon = m.icon
             const active = mode === m.id

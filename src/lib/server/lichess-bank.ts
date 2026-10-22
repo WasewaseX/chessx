@@ -321,6 +321,80 @@ function hashSeed(s: string): number {
 }
 
 /**
+ * Rating window filtered by lichess *opening* tags (the `openingtags`
+ * column, e.g. `Sicilian_Defense Najdorf_Variation`), honoring an exclusion
+ * list so a trainer session never repeats a puzzle its player has seen.
+ * Same dual-cursor band walk as lichessWindow: index-ordered, stops at
+ * LIMIT, no temp B-tree over millions of rows.
+ */
+export function lichessOpeningWindow(
+  rating: number,
+  openings: string[],
+  exclude: string[],
+  size = 200,
+): LichessPuzzle[] {
+  const d = getDb()
+  if (!d) return []
+  const tags = openings.map((t) => String(t).replace(/[^A-Za-z0-9_-]/g, '')).filter(Boolean).slice(0, 4)
+  if (!tags.length) return []
+  const target = Math.min(2800, Math.max(600, Math.round(rating) || 1200))
+  const key = `o|${target}|${size}|${tags.join(',')}|${exclude.length}`
+  const hit = windowCache.get(key)
+  if (hit && Date.now() - hit.at < WINDOW_CACHE_MS) return hit.rows
+  try {
+    const patterns = tags.map((t) => `% ${t} %`)
+    const openingClause = ` AND (${patterns.map(() => `(' ' || openingtags || ' ') LIKE ?`).join(' OR ')})`
+    // SQLite's default variable cap is 999: the 300-id exclusion ring plus
+    // the rest of the query stays comfortably inside it.
+    const excl = [...new Set(exclude.map((e) => String(e).slice(0, 30)))].slice(0, 300)
+    const exclClause = excl.length ? ` AND id NOT IN (${excl.map(() => '?').join(',')})` : ''
+    const seen = new Set<string>()
+    const out: LichessPuzzle[] = []
+    const slices: [number, number][] = [
+      [150, 150],
+      [300, 130],
+      [600, 80],
+      [1200, 60],
+    ]
+    for (const [width, take] of slices) {
+      if (out.length >= size) break
+      const half = Math.max(1, Math.ceil(take / 2))
+      const legs: Array<{ order: string; limit: number }> = [
+        { order: 'rating ASC, nbplays DESC', limit: half },
+        { order: 'rating DESC, nbplays DESC', limit: take - half },
+      ]
+      for (const leg of legs) {
+        if (out.length >= size) break
+        const rows = d
+          .prepare(
+            `SELECT ${COLS} FROM puzzles WHERE rating BETWEEN ? AND ?${openingClause}${exclClause} ORDER BY ${leg.order} LIMIT ?`,
+          )
+          .all(target - width, target + width, ...patterns, ...excl, leg.limit) as unknown as Row[]
+        for (const r of rows) {
+          if (seen.has(r.id)) continue
+          seen.add(r.id)
+          const p = rowToPuzzle(r)
+          if (p) out.push(p)
+          if (out.length >= size) break
+        }
+      }
+    }
+    for (let k = out.length - 1; k > 0; k--) {
+      const r = Math.floor(Math.random() * (k + 1))
+      ;[out[k], out[r]] = [out[r], out[k]]
+    }
+    if (windowCache.size >= WINDOW_CACHE_MAX) {
+      const oldest = windowCache.keys().next().value
+      if (oldest !== undefined) windowCache.delete(oldest)
+    }
+    windowCache.set(key, { at: Date.now(), rows: out })
+    return out
+  } catch {
+    return []
+  }
+}
+
+/**
  * The deterministic daily puzzle: the same position for everyone on the same
  * day. The day string seeds the pick; the rowid scan keeps it stable for the
  * lifetime of the database file. Moderate band (1000-2000) so the daily is

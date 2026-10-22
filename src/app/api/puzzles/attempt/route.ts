@@ -5,6 +5,7 @@ import { getSessionUser } from '@/lib/auth'
 import { newRating, seedForSkill, clampRating } from '@/lib/rating'
 import { bumpActivity, gradeReview, missReview, sanitizeConcepts, updateMastery } from '@/lib/server/skill'
 import { PUZZLES } from '@/content/puzzles'
+import { lichessById, lichessToAppPuzzle } from '@/lib/server/lichess-bank'
 import { dayKeyLocal } from '@/lib/day'
 import { dailyPuzzleIdFor, publicProfile } from '@/lib/api'
 
@@ -26,10 +27,14 @@ export async function POST(req: NextRequest) {
   if (!puzzleId) return NextResponse.json({ error: 'puzzleId required' }, { status: 400 })
 
   const puzzle = PUZZLES.find((p) => p.id === puzzleId)
+  // Bank puzzles are NOT in the static pool: resolve them too, or every
+  // 5.77M-bank attempt would be rated as if the puzzle were 1000 (latent bug
+  // found while porting the opening-puzzles mode).
+  const bankApp = puzzle ? null : lichessToAppPuzzleOrNull(puzzleId)
   // the Elo opponent is the puzzle's own rating from content; the request
   // body never gets a say in it
-  const puzzleRating = puzzle?.rating ?? 1000
-  const themes = sanitizeConcepts(puzzle?.themes)
+  const puzzleRating = puzzle?.rating ?? bankApp?.rating ?? 1000
+  const themes = sanitizeConcepts(puzzle?.themes ?? bankApp?.themes)
 
   // Review attempts never move the puzzle rating, the streak or XP.
   if (kind === 'review') {
@@ -89,4 +94,12 @@ export async function POST(req: NextRequest) {
 
   const updated = await db.profile.findUnique({ where: { id: pid } })
   return NextResponse.json({ attempt, profile: updated ? publicProfile(updated) : null, ratingDelta: delta, xpGain })
+}
+
+/** Bank-only rating/theme resolution for ids missing from the static pool. */
+function lichessToAppPuzzleOrNull(puzzleId: string): { rating: number; themes: string[] } | null {
+  const lp = lichessById(puzzleId)
+  if (!lp) return null
+  const app = lichessToAppPuzzle(lp)
+  return { rating: app.rating, themes: app.themes }
 }

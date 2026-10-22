@@ -32,6 +32,8 @@ export interface RepertoireCourse {
   /** Moves auto-played (both sides) before the student's first decision. */
   trunk: string[]
   lines: RepertoireLine[]
+  /** Lichess opening tags used to pull this course's puzzle pool (Puzzles mode). */
+  openings: string[]
 }
 
 /** Per-line mastery state persisted locally (chessreps is local-first too). */
@@ -146,6 +148,7 @@ export const REPERTOIRE_COURSES: RepertoireCourse[] = [
     side: 'w',
     blurb: 'Solid d4+d5+Bf4 setup. One system, lifelong friend: almost no theory, clear plans every game.',
     trunk: ['d4', 'd5', 'Bf4'],
+    openings: ['London_System', 'Queens_Pawn_Game_Accelerated_London_System'],
     lines: [
       { id: 'london-nf6-e6', moves: ['Nf6', 'Nf3', 'e6', 'e3', 'Bd6', 'Bg3', 'O-O', 'Bd3', 'b6', 'Nbd2', 'Bb7', 'Ne5'], idea: 'Classical London: trade the dark bishops with Bg3, build with e3+Bd3, and the f3-knight hops to e5, the dream square.' },
       { id: 'london-kid', moves: ['Nf6', 'e3', 'g6', 'Nf3', 'Bg7', 'Nbd2', 'O-O', 'Be2', 'c5', 'c3'], idea: 'Against King\u2019s Indian setups: hold the center with e3+c3, keep Bf4 eyeing g7, and play for e4 at the right moment.' },
@@ -160,6 +163,7 @@ export const REPERTOIRE_COURSES: RepertoireCourse[] = [
     side: 'w',
     blurb: '1.e4 e5 with the Italian bishop. The classical way to fight for the center since the 1500s.',
     trunk: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4'],
+    openings: ['Italian_Game'],
     lines: [
       { id: 'italian-pianissimo', moves: ['Bc5', 'c3', 'Nf6', 'd3', 'd6', 'O-O', 'O-O', 'Re1', 'a6', 'Nbd2', 'Ba7'], idea: 'Giuoco Pianissimo: slow build, c3+d3 wedge, Re1 then d4 later. Patience first, storms later.' },
       { id: 'italian-two-knights', moves: ['Nf6', 'd3', 'Bc5', 'c3', 'd6', 'O-O', 'O-O', 'Re1'], idea: 'Two Knights with d3: refuse the Ng5 gamble, outdevelop, and meet ...Ng4 with d4 when ready.' },
@@ -173,6 +177,7 @@ export const REPERTOIRE_COURSES: RepertoireCourse[] = [
     side: 'w',
     blurb: 'The main battlefield of 1.e4: c5 met head-on with Nf3, d4 and big theory. Choose your weapon.',
     trunk: ['e4', 'c5', 'Nf3', 'd6', 'd4', 'cxd4', 'Nxd4', 'Nf6', 'Nc3'],
+    openings: ['Sicilian_Defense', 'Sicilian_Defense_Najdorf_Variation'],
     lines: [
       { id: 'najdorf-be2', moves: ['a6', 'Be2', 'e5', 'Nb3', 'Be7', 'O-O', 'O-O', 'Be3', 'Be6'], idea: 'Classical Najdorf: quiet Be2, meet ...e5 with Nb3 and re-route via c2-e3. Long-term kingside space.' },
       { id: 'najdorf-english', moves: ['a6', 'Be3', 'e5', 'Nb3', 'Be6', 'f3', 'Be7', 'Qd2', 'O-O', 'O-O-O', 'Nbd7'], idea: 'English Attack: f3+Qd2+O-O-O. The pawn race is on: who mates first, wins.' },
@@ -186,6 +191,7 @@ export const REPERTOIRE_COURSES: RepertoireCourse[] = [
     side: 'b',
     blurb: 'Black\u2019s rock: challenge e4 with ...c6 and keep a healthy structure no matter what White tries.',
     trunk: ['e4', 'c6', 'd4', 'd5'],
+    openings: ['Caro-Kann_Defense'],
     lines: [
       { id: 'caro-advance-bf5', moves: ['e5', 'Bf5', 'Nf3', 'e6', 'Be2', 'c5', 'Be3', 'Qb6', 'Nc3'], idea: 'Vs the Advance: Bf5 BEFORE ...e6 (the whole point of ...c6), then hit d4 with ...c5 and ...Qb6.' },
       { id: 'caro-classical', moves: ['Nc3', 'dxe4', 'Nxe4', 'Bf5', 'Ng3', 'Bg6', 'h4', 'h6', 'Nf3', 'Nd7', 'h5', 'Bh7', 'Bd3', 'Bxd3', 'Qxd3'], idea: 'Classical: ...Bf5 challenges the knight, ...Bg6+h6 dodges h4-h5 tricks, trade on d3, free easy game.' },
@@ -199,6 +205,7 @@ export const REPERTOIRE_COURSES: RepertoireCourse[] = [
     side: 'b',
     blurb: 'The classical answer to 1.d4: rock-solid ...e6, free development, and a structure that endgames love.',
     trunk: ['d4', 'd5', 'c4'],
+    openings: ['Queens_Gambit_Declined', 'Semi-Slav_Defense'],
     lines: [
       { id: 'qgd-orthodox', moves: ['e6', 'Nc3', 'Nf6', 'Bg5', 'Be7', 'e3', 'O-O', 'Nf3', 'h6', 'Bh4', 'b6'], idea: 'Orthodox: h6 kicks the g5 bishop before ...b6 unpins. Slow, solid, unbreakable.' },
       { id: 'qgd-tarrasch', moves: ['e6', 'Nc3', 'c5', 'cxd5', 'exd5', 'Nf3', 'Nc6', 'g3', 'Nf6', 'Bg2', 'Be7', 'O-O', 'O-O'], idea: 'Tarrasch: grab the center with ...c5, accept the isolated pawn, and outplay them with piece activity.' },
@@ -211,6 +218,7 @@ export const REPERTOIRE_COURSES: RepertoireCourse[] = [
     side: 'b',
     blurb: 'Take the pawn, hit back with ...c5 and ...e6: the most direct route to free queenside play.',
     trunk: ['d4', 'd5', 'c4'],
+    openings: ['Queens_Gambit_Accepted'],
     lines: [
       { id: 'qga-main', moves: ['dxc4', 'Nf3', 'Nf6', 'e3', 'e6', 'Bxc4', 'c5', 'O-O', 'a6', 'Qe2', 'b5', 'Bb3', 'Bb7'], idea: 'Main line: ...c5 hits d4 at once, ...b5+...Bb7 finishes development, and the c-file belongs to Black.' },
     ],
@@ -221,6 +229,7 @@ export const REPERTOIRE_COURSES: RepertoireCourse[] = [
     side: 'b',
     blurb: 'Let White take the center, then blow it up. ...g6, ...Bg7 and the e5/f5 storms.',
     trunk: ['d4', 'Nf6', 'c4'],
+    openings: ['Kings_Indian_Defense'],
     lines: [
       { id: 'kid-classical', moves: ['g6', 'Nc3', 'Bg7', 'e4', 'd6', 'Nf3', 'O-O', 'Be2', 'e5', 'O-O', 'Nc6', 'd5', 'Ne7'], idea: 'Classical main line: ...e5 then ...Ne7 reroutes the knight to the kingside. The g7 bishop is the soul: storm with ...f5 later.' },
     ],
