@@ -133,22 +133,32 @@ const COACH_REPERTOIRES: { minElo: number; lines: string[][] }[] = [
   },
 ]
 
-/** Next book SAN for the coach, or null when out of book. */
-function pickBookMove(sans: string[], elo: number): string | null {
+/** Next book SAN for the coach, or null when out of book.
+ *  The chosen coach's SIGNATURE repertoire leads the candidate pool (each
+ *  coach is known for specific openings — the picker card says which), the
+ *  Elo band's general lines fill in behind. */
+function pickBookMove(sans: string[], elo: number, coach?: Coach): string | null {
   const bands = COACH_REPERTOIRES.filter((b) => elo >= b.minElo)
   const band = bands[bands.length - 1] // strongest band the Elo unlocks
-  if (!band) return null
+  const pools: string[][][] = []
+  if (coach?.repertoireLines?.length) pools.push(coach.repertoireLines)
+  if (band) pools.push(band.lines)
   const candidates: string[] = []
-  for (const line of band.lines) {
-    if (line.length <= sans.length) continue
-    let matches = true
-    for (let i = 0; i < sans.length; i++) {
-      if (line[i] !== sans[i]) {
-        matches = false
-        break
+  for (const lines of pools) {
+    for (const line of lines) {
+      if (line.length <= sans.length) continue
+      let matches = true
+      for (let i = 0; i < sans.length; i++) {
+        if (line[i] !== sans[i]) {
+          matches = false
+          break
+        }
       }
+      if (matches) candidates.push(line[sans.length])
     }
-    if (matches) candidates.push(line[sans.length])
+    // Signature lines win when they match at all: a persona-known opening
+    // should actually appear, not drown in the generic band's 9 lines.
+    if (candidates.length) break
   }
   if (!candidates.length) return null
   return candidates[Math.floor(Math.random() * candidates.length)]
@@ -472,8 +482,9 @@ export function CoachGameView() {
       setThinking(true)
       try {
         // Opening book first: the coach opens like a real player of its
-        // level; the engine owns the position once the book runs out.
-        const bookSan = pickBookMove(pliesRef.current.map((p) => p.san), elo)
+        // level, leading with the persona's signature repertoire; the engine
+        // owns the position once the book runs out.
+        const bookSan = pickBookMove(pliesRef.current.map((p) => p.san), elo, coach)
         let played: { mv: ReturnType<Chess['move']>; fenBefore: string } | null = null
         if (bookSan) {
           const fenBefore = g.fen()
@@ -520,7 +531,7 @@ export function CoachGameView() {
         setThinking(false)
       }
     },
-    [elo, detectEnd, finishGame, analyzeNewest, soundOn],
+    [elo, coach, detectEnd, finishGame, analyzeNewest, soundOn],
   )
 
   const onPlayerMove = useCallback(
@@ -862,6 +873,11 @@ export function CoachGameView() {
                       {c.name} <span className="font-medium text-muted-foreground">· {c.title}</span>
                     </span>
                     <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">{c.blurb}</span>
+                    {c.repertoireLabel && (
+                      <span className="mt-1 inline-flex items-center gap-1 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">
+                        Opens with: {c.repertoireLabel}
+                      </span>
+                    )}
                   </span>
                 </button>
               ))}

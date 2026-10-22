@@ -181,3 +181,79 @@ Stripe hosted checkout.
 - Authed chessigma app and chess.com challenge pages are out of static reach without an
   account/browser session; no claims are made about them beyond what public artifacts
   show.
+
+---
+
+## Addendum (Oct 22, REA pass 3): sparring-roster mechanics + daily-plan taxonomy
+
+Mined from the committed production chunks (`re/chessigma/web/js/`), string-literal
+extraction with chess.js validation of everything we ported.
+
+### A. The sparring coach is a FAMILY LADDER (chunk 5528)
+
+Every persona is a structured object, extracted verbatim:
+
+```
+{id:"londoner", familyId:"froggy", role:"rival", name:"The Londoner",
+ flavor:"you already know my first move.", preset:"human", elo:650,
+ timeControl:..., repertoire:{white:[], black:["london"]}}
+```
+
+Full roster (2 families × 7 rivals + 1 boss each):
+
+| Froggy family | Elo | Black repertoire | Pirate family | Elo | Black repertoire |
+| --- | --- | --- | --- | --- | --- |
+| The Kid | 400 | italian | The Cabin Boy | 400 | italian |
+| The Londoner | 650 | london | The Gunner | 700 | kings-gambit |
+| The Viking | 850 | kings-gambit | The Looter | 1050 | london |
+| The Streamer | 1050 | english | The Cook | 1300 | italian |
+| The Grandpa | 1250 | ruy-lopez | The Lookout | 1550 | english |
+| The Fan | 1450 | vienna-game | The Captain | 1900 | ruy-lopez |
+| The Genius Kid | 1700 | vienna-game | The Ghost Captain (boss) | 2200 | — |
+| The Coach (boss) | 2200 | everything | | | |
+
+Design: rivals unlock in Elo order (`next()` = roster[i+1]), each rival owns a
+SIGNATURE OPENING and a flavor line; the family ends in a 2200 "boss" that
+"plays everything, tells nothing."
+
+**Ported to chessx (this pass)**: per-coach signature repertoires in
+`src/lib/coaches.ts` (`repertoireLabel` + `repertoireLines`, 17 SAN lines all
+validated legal with chess.js at build time) — Nina opens Italian/classical,
+Victor King's Gambit/Scotch/Sicilian, Elena QGD/English/KID, Sasha
+Ruy mainline/Najdorf/classical KID. `pickBookMove` in coach-game-view prefers
+the coach's signature pool before the Elo band's generic lines. Browser-verified:
+Sasha played 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 **4.Ba4** (closed Ruy mainline, exclusive
+to his repertoire — the generic band's Berlin line would take with Bxc6);
+evidence `re/shots/11-sasha-ruy-mainline.png`, picker cards
+`re/shots/12-coach-signature-cards.png`.
+
+### B. Daily-plan task taxonomy (chunk 5528)
+
+Their plan tasks all carry the same spec shape:
+`{id, title, subtitle, estimatedMinutes, target, family, trainsCategories:[{category,weight}],
+sessionsRequired, repBand:{min,max}, minutesPerRep, flags:{manualTogglable, selfCompleting}, lockedReason}`.
+
+Free + paid task set (16 extracted): Blunder Shield "Spot the safe move" (8min,
+blunders .6/tactics .4, 2 sessions), Blunder Fix "Find the move you missed",
+Convert the Win (conversion .8), Save the Game (conversion .5/discipline .3),
+Sparring (15min, five categories weighted), Review the game / the report,
+Patch your prep (preparation .9), Woodpecker, rated puzzle set, daily puzzle.
+Their five training CATEGORIES: **blunders, tactics, discipline, conversion, preparation**.
+
+Read-across: chessx's plan builder already has per-task minute budgets, family
+sections and honest shrink-when-empty; the category-weight schema is a possible
+future refinement for plan ordering (weights × DNA domain weakness).
+
+### C. Access gates seen in the client (chunk 34596, for contrast)
+
+`blunder-shield`, `blunder-training`, `mistakes`, `challenge` are all
+`free:{access:"paid"}` on chessigma (enforcedAt lists name their server routes).
+chessx ships all of these free; no action needed — recorded as the honest
+competitive contrast.
+
+### D. chess.com re-attempt (Oct 22)
+
+Real headless Chromium via agent-browser, 40+s on the interstitial plus one
+explicit turnstile checkbox click → still "Just a moment…" (screenshot
+`re/shots/chesscom-challenge-1022.png`). Boundary stands: no chess.com
+first-party surface is reachable from this sandbox.
