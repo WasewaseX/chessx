@@ -30,6 +30,8 @@ import {
   ChevronLeft, Flame, Loader2, ShieldQuestion, Swords, Trophy,
 } from 'lucide-react'
 import type { RepertoireCourse } from '@/lib/chess/opening-reps'
+import { LABEL_META, type MoveLabel } from '@/lib/chess/move-classification'
+import { classifyStudentMove, type BadgeResult } from '@/lib/chess/arena-badges'
 import {
   applyElo, arenaResultFromDelta, clearExplorerCache, explorerReply, loadRatings,
   pickOpponent, saveRatings, whitePovCp, type ArenaResult, type Persona,
@@ -106,6 +108,7 @@ export function OpeningArena({ course, onExit }: { course: RepertoireCourse; onE
   const [status, setStatus] = useState('')
   const [inBook, setInBook] = useState(true)
   const [busy, setBusy] = useState(false) // bot is thinking / eval running
+  const [badge, setBadge] = useState<{ label: MoveLabel; san: string; key: number } | null>(null)
 
   const gameRef = useRef(new Chess())
   const bookedRef = useRef<string[]>([])
@@ -268,6 +271,7 @@ export function OpeningArena({ course, onExit }: { course: RepertoireCourse; onE
     evalBusyRef.current = false
     setInBook(true)
     setBusy(false)
+    setBadge(null)
     const line = randomLine(course)
     const booked = [...course.trunk, ...line.moves]
     bookedRef.current = booked
@@ -297,23 +301,30 @@ export function OpeningArena({ course, onExit }: { course: RepertoireCourse; onE
   const onPlayerMove = useCallback((from: Square, to: Square, promotion?: string) => {
     const g = gameRef.current
     if (phase !== 'playing' || busy) return
-    let played: { san: string; from: string; to: string } | null = null
+    const fenBefore = g.fen()
+    let playedSan: string | null = null
+    let playedFrom = from as string
+    let playedTo = to as string
     try {
       const mv = g.move({ from, to, promotion: promotion || 'q' })
-      if (mv) played = { san: mv.san, from: mv.from, to: mv.to }
+      if (mv) {
+        playedSan = mv.san
+        playedFrom = mv.from
+        playedTo = mv.to
+      }
     } catch {
-      played = null
+      playedSan = null
     }
-    if (!played) return
+    if (!playedSan) return
     setFen(g.fen())
-    setLastMove({ from: played.from, to: played.to })
+    setLastMove({ from: playedFrom, to: playedTo })
     playSound('move', soundOn)
 
     // Track the booked line: the student may follow it, deviate from it, or
     // finish it — all three leave book at a defined position.
     if (!outOfBookRef.current) {
       const expected = bookedRef.current[bookedIdxRef.current]
-      if (expected && played.san.replace(/[+#]/g, '') === expected.replace(/[+#]/g, '')) {
+      if (expected && playedSan.replace(/[+#]/g, '') === expected.replace(/[+#]/g, '')) {
         bookedIdxRef.current++
         if (bookedIdxRef.current >= bookedRef.current.length) {
           outOfBookRef.current = true
@@ -338,6 +349,11 @@ export function OpeningArena({ course, onExit }: { course: RepertoireCourse; onE
     } else {
       setStatus('Your move.')
     }
+    if (outOfBookRef.current) {
+      // P2 prefetch: warm the explorer for the reply position now, while the
+      // badge hold runs — the bot's later request rides the same cache entry.
+      void explorerReply(g.fen(), personaRef.current?.elo ?? studentElo)
+    }
 
     const term = terminalReason(g)
     if (term) {
@@ -348,8 +364,34 @@ export function OpeningArena({ course, onExit }: { course: RepertoireCourse; onE
       void endGame('Game called: move limit reached.')
       return
     }
-    botMove()
-  }, [botMove, busy, endGame, evalFen, phase, soundOn])
+    // Badge pipeline (deep-dive P5): inside the booked line every student
+    // move is simply "book"; after the line, the engine classifies the move
+    // and the opponent WAITS for the badge (their annotation hold), on top
+    // of the same 500 ms reply floor.
+    const gen = genRef.current
+    const plyNo = g.history().length
+    const badgeKey = gen * 10_000 + plyNo
+    if (!outOfBookRef.current) {
+      setBadge({ label: 'book', san: playedSan, key: badgeKey })
+      botMove()
+      return
+    }
+    setBadge(null)
+    void (async () => {
+      const classify: Promise<BadgeResult | null> = classifyStudentMove({
+        fenBefore,
+        san: playedSan,
+        color: course.side,
+        ply: plyNo,
+      })
+      const floor = new Promise<void>((r) => setTimeout(r, BOT_DELAY_MS))
+      const cap = new Promise<BadgeResult | null>((r) => setTimeout(() => r(null), 1500))
+      const [result] = await Promise.all([Promise.race([classify, cap]), floor])
+      if (gen !== genRef.current) return
+      if (result) setBadge({ label: result.label, san: playedSan, key: badgeKey })
+      botMove()
+    })()
+  }, [botMove, busy, endGame, evalFen, phase, soundOn, course.side, studentElo])
 
   const resign = useCallback(() => {
     if (phase !== 'playing') return
@@ -492,6 +534,19 @@ export function OpeningArena({ course, onExit }: { course: RepertoireCourse; onE
           <Flame className="h-4 w-4 shrink-0 text-primary" aria-hidden />
         )}
         <span className="min-w-0 flex-1 truncate" aria-live="polite">{status || '…'}</span>
+        {badge && (
+          <span key={badge.key} className="flex shrink-0 items-center gap-1.5" aria-label={`Your move ${badge.san}: ${LABEL_META[badge.label].text}`}>
+            <span className="hidden text-xs text-muted-foreground sm:inline">{badge.san}</span>
+            <span
+              className="grid h-5 w-5 place-items-center rounded-full text-[10px] font-extrabold leading-none text-white"
+              style={{ backgroundColor: LABEL_META[badge.label].color }}
+              title={LABEL_META[badge.label].meaning}
+            >
+              {LABEL_META[badge.label].glyph}
+            </span>
+          </span>
+        )}
+        {!badge && busy && !inBook && <span className="h-5 w-5 shrink-0 animate-pulse rounded-full bg-muted-foreground/30" aria-hidden />}
         <Button variant="secondary" size="sm" onClick={resign} disabled={busy} title="Resign the game">
           <ShieldQuestion className="h-3.5 w-3.5" aria-label="Resign" />
         </Button>

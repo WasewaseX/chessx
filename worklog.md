@@ -396,3 +396,21 @@ Stage Summary:
 - chessreps Arena + Puzzles modes are live in Opening Training, ported from fresh primary evidence with the exact rating math, persona sampling, eval-delta scoring and reply-variety fallback chain.
 - Opening-puzzles Elo bug (bank puzzles rated vs 1000) fixed at the attempt route.
 - Evidence: docs/chessreps-arena-deep-dive.md, 13 new screenshots in download/, watchdog log in logs/.
+
+---
+Task ID: 15
+Agent: Z.ai Code (main)
+Task: Complete the chessreps arena port spec — P5 move badges + P2 prefetch
+
+Work Log:
+- Verified chess.com 403 item already resolved: import-game-panel.tsx fetches api.chess.com directly from the user's browser (single-game export + monthly archives), honest 403 message routes to the PGN paste path. No server-side chess.com dependency left in user flows.
+- Verified chessigma port items #3/#4/#5 already live (openings-queue-card.tsx = opening_review_queue port; blunder-shield in daily-plan + home; streak read-model on home).
+- Ported deep-dive P5 (move badges): src/lib/chess/arena-badges.ts — client-side classifyStudentMove: two Stockfish evals (before/after, depth 14) + chess.js probes -> the app's single source of truth classifyMove() (win%-drop ladder for blunder/mistake/inaccuracy, best via PV match, checkmate/terminal conventions; second-best probes skipped honestly so great/brilliant degrade instead of guessing).
+- Arena wiring: in-book student moves force the "book" badge instantly; post-book moves classify asynchronously and the bot reply WAITS (min 500ms floor, 1500ms annotation-hold cap — their annotation_hold_ms). Status strip shows SAN + chess.com-style colored glyph chip (LABEL_META colors) with the plain-words meaning on hover, plus a pending pulse while classifying.
+- Ported deep-dive P2 (prefetch): after each student move the reply position's explorer request is warmed immediately so the bot's later fetch rides the single-flight cache.
+- Browser-verified end to end: book badge ("Your move Nf3: Book"), off-book h3 -> "Your move h3: Excellent" + Out-of-book flip + real-player Bd6 reply from Boris (861); rating persisted across games (950 -> 924 from the earlier loss); zero page errors; tsc + eslint clean.
+
+Stage Summary:
+- The chessreps deep-dive P0-P5 port spec is now fully implemented: rating math, personas, explorer replies with fallback chain, eval-delta scoring, opening puzzles, move badges with annotation hold, prefetch.
+- New artifacts: src/lib/chess/arena-badges.ts; badges + hold in opening-arena.tsx.
+- Evidence: download/arena-7..9-*.png (book badge, engine badge, out-of-book reply).
