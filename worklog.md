@@ -232,3 +232,20 @@ Stage Summary:
 - "User data is gone" resolved at the root: data survives locally, in the backup repo, and now ANY redeploy of a pristine/stale deployment automatically restores it before admin bootstrap.
 - Deployment runtime fixed to node so the restore + puzzle bank actually work in production.
 - Next: REA deep reverse engineering per user direction, then remaining roadmap items.
+
+---
+Task ID: 10
+Agent: Z.ai Code (main)
+Task: REA pass 3 (sparring ladder + plan taxonomy) + coach signature repertoires
+
+Work Log:
+- chess.com re-attempt: real headless Chromium (agent-browser), 40+s interstitial wait + one turnstile checkbox click -> still "Just a moment...". Screenshot evidence re/shots/chesscom-challenge-1022.png. Boundary documented.
+- Deep-mined committed chessigma chunks (string-literal extraction): full Froggy/Pirate family rosters (id/familyId/role/name/flavor/elo/repertoire), 16 daily-plan task specs with trainsCategories weights, repBand, sessionsRequired, minutesPerRep; their paywall gates (blunder-shield/blunder-training/mistakes = paid).
+- Ported the per-persona signature-opening pattern: coaches.ts gains repertoireLabel + repertoireLines (17 SAN lines, ALL validated legal via chess.js before shipping); coach-game-view pickBookMove now prefers the coach's signature pool, Elo band lines as fallback; setup card shows "Opens with: ...".
+- Browser E2E: signed in as admin, Play with Coach -> Sasha (1200, as Black): 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 -> coach played Ba4 (Best +0.4) = closed Ruy mainline, exclusive to Sasha's repertoire (generic band plays Bxc6). Screenshots 11-12.
+- tsc + lint clean. Pushed 9ea9114 with REA addendum in docs/chessigma-re-report-v2.md.
+
+Stage Summary:
+- REA port list now includes the sparring-ladder signature-opening pattern (previous list items 1-7 were already shipped).
+- Play with Coach: each coach now actually opens like their persona says they do.
+- Next candidates: category-weighted plan ordering, second themed sparring family, Woodpecker spacing-break copy honesty ("waits, does not expire").
