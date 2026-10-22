@@ -249,3 +249,22 @@ Stage Summary:
 - REA port list now includes the sparring-ladder signature-opening pattern (previous list items 1-7 were already shipped).
 - Play with Coach: each coach now actually opens like their persona says they do.
 - Next candidates: category-weighted plan ordering, second themed sparring family, Woodpecker spacing-break copy honesty ("waits, does not expire").
+
+---
+Task ID: 11
+Agent: Z.ai Code (main)
+Task: Daily-plan cost chips + What's New v0.4.3 + mobile verification
+
+Work Log:
+- daily-plan.ts: PlanSlot/ComposedSlot gain minutes + trains; all four composers set honest per-item numbers (drill ~4m/Blunders, shield repeat ~3m/Blunders·Tactics, woodpecker set ~10m/Tactics, daily ~3m/Tactics). chessigma's estimatedMinutes+trainsCategories pattern, adapted to per-item slots.
+- home-view.tsx: pending slots show a ~Nm chip; tooltip adds "trains: <domain>"; aria-label speaks the estimate. Done slots unchanged.
+- boot-maintenance.ts: 3 new v0.4.3 ship notes (signature repertoires, plan cost chips, stale-deploy restore fix — pinned).
+- Dev server restarted so seeds applied; /api/changelog serves the new pinned fix note.
+- Mobile 390px verified: coach picker cards (OPENS WITH badges) stack cleanly; plan chips render; bottom nav intact. Screenshots 14-15.
+- Woodpecker spacing-break copy from chessigma evaluated and consciously NOT ported: chessx gates cycles by performance (faster AND as accurate), not day-spacing — already honest.
+- session_failed grep: not present anywhere in src/ or mini-services (stale artifact of a previous session's gateway, resolved by absence).
+- Pushed bb1b3f8; CI success on latest runs.
+
+Stage Summary:
+- Plan now shows real cost per item; changelog documents the recovery fix; mobile green.
+- Next: full-view render sweep (hunt the "render errors" class), then Conversion trainer as the next feature.
