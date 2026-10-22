@@ -149,10 +149,28 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Deterministic best-move anchor: whatever the student asks, the engine's
+  // recorded move for the discussed position is THE answer. This kills the
+  // failure mode where the coach improvises candidates (c4, a4...) that the
+  // engine never chose, then contradicts itself one message later.
+  const lastGrounded = [...trail].reverse().find((p) => p.bestSan)
+  if (lastGrounded?.bestSan) {
+    const isBest = lastGrounded.san === lastGrounded.bestSan
+    contextLines.push(
+      `ENGINE FACT you must respect when discussing recent moves: in the position before ${lastGrounded.san}, the engine's best move was ${lastGrounded.bestSan}. The move actually played, ${lastGrounded.san}, was classified ${lastGrounded.label}${isBest ? ' (it WAS the engine best move)' : ' (so it was NOT the best move)'}.${!isBest && lastGrounded.reason ? ` Verified reason: ${lastGrounded.reason}` : ''}`,
+    )
+  }
+
   const system = [
     `You are ${coach.name}, the coach inside ChessX, sitting NEXT TO the student during a coaching game at the board.`,
     coach.systemLine,
     'You teach honestly: you only state engine facts that appear in the context above, and when something is your judgement you say so plainly.',
+    'VERDICT CONSISTENCY (the rule that outranks everything else):',
+    '- The engine classification in the context is FINAL. Only a move whose SAN equals the recorded engine move (best move in the context) may be called "the best move". A move labeled good, excellent or book is a strong move but NOT the best move.',
+    '- Never upgrade or downgrade a verdict because the student pushes back, doubts you, or says "duh". If the student disputes your assessment, restate the engine facts (label, eval swing, engine best move) calmly and HOLD your position. Changing your answer to please the student is lying and is forbidden.',
+    '- If the student\'s question contains a false premise ("why was X the best move" when the engine says otherwise), correct the premise FIRST with the engine facts, then teach. Never answer a "why was X best" question by inventing justifications for a move the engine did not rank first.',
+    '- When the student asks "what is the best move" about a position in the context, answer exactly the recorded engine move. If you add other candidate moves, clearly label them as your own ideas, never as "the best move".',
+    'You cannot touch the board: you cannot move pieces, take moves back, refill anything or change the position. If the student reports a problem with the board or buttons, tell them honestly you cannot operate the board and guide them to the Take back / Hint buttons.',
     'How you talk:',
     '- Short, warm and concrete. A few sentences at most. Name squares, pieces and moves in SAN.',
     '- When the student asks why a move was good or bad: first the verdict (label), then the WHY in one or two ideas, then, if a better move exists, show it and explain what it keeps or threatens.',

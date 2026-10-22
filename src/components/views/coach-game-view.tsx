@@ -244,8 +244,10 @@ export function CoachGameView() {
   const [thinking, setThinking] = useState(false)
   const [selectedPly, setSelectedPly] = useState<number | null>(null) // view-only index into plies
   const [arrows, setArrows] = useState<Arrow[]>([])
-  const [takebacks, setTakebacks] = useState(2)
-  const [hints, setHints] = useState(3)
+  // Takebacks and hints are UNLIMITED: this is a learning tool, not a paywall.
+  // The counters exist only to show usage stats, never to block the student.
+  const [takebacksUsed, setTakebacksUsed] = useState(0)
+  const [hintsUsed, setHintsUsed] = useState(0)
   const [result, setResult] = useState<{ result: 'win' | 'loss' | 'draw'; reason: string } | null>(null)
   const [saved, setSaved] = useState(false)
 
@@ -696,8 +698,8 @@ export function CoachGameView() {
       setSaved(false)
       setSelectedPly(null)
       setArrows([])
-      setTakebacks(2)
-      setHints(3)
+      setTakebacksUsed(0)
+      setHintsUsed(0)
       setPhase('playing')
       setChat([
         {
@@ -718,21 +720,34 @@ export function CoachGameView() {
       .catch(() => {})
   }, [])
 
+  /**
+   * Take back the student's last move (and the coach's reply to it), ending
+   * with the STUDENT to move. The old implementation inverted this: when it
+   * was already the student's turn it undid the coach's move instead, which
+   * stranded the game on the coach's turn with nobody to move — the student
+   * was frozen. The invariant here is strict: after a takeback it is ALWAYS
+   * the student's turn, so play can never deadlock.
+   */
   const takeBack = useCallback(() => {
-    if (phase !== 'playing' || takebacks <= 0 || thinking) return
+    if (phase !== 'playing' || thinking) return
     const g = gameRef.current
-    // Undo until it is the student's turn again (usually two plies).
+    // The student must have made at least one move to take back.
+    const studentPlies = pliesRef.current.filter((p) => p.color === playerColor).length
+    if (studentPlies === 0) return
     let undone = 0
-    while (g.history().length > 0 && g.turn() !== playerColor) {
-      g.undo()
-      undone++
-    }
+    // Case A: coach already replied (it is the student's turn). Remove the
+    // coach's reply first, then the student's move underneath it.
     if (g.turn() === playerColor && g.history().length > 0) {
       g.undo()
       undone++
     }
+    // Case B (and the second half of case A): remove the student's own move.
+    if (g.turn() !== playerColor && g.history().length > 0) {
+      g.undo()
+      undone++
+    }
     if (undone > 0) {
-      setTakebacks((t) => t - 1)
+      setTakebacksUsed((t) => t + 1)
       const kept = pliesRef.current.slice(0, Math.max(0, pliesRef.current.length - undone))
       pliesRef.current = kept
       setPlies(kept)
@@ -741,11 +756,11 @@ export function CoachGameView() {
       setArrows([])
       playSound('click', soundOn)
     }
-  }, [phase, takebacks, thinking, playerColor, soundOn])
+  }, [phase, thinking, playerColor, soundOn])
 
   const showHint = useCallback(async () => {
-    if (phase !== 'playing' || hints <= 0 || gameRef.current.turn() !== playerColor) return
-    setHints((h) => h - 1)
+    if (phase !== 'playing' || gameRef.current.turn() !== playerColor) return
+    setHintsUsed((h) => h + 1)
     await engine.init()
     const info = await engine.eval({ fen: gameRef.current.fen(), depth: 14 })
     if (info.pv.length >= 4) {
@@ -757,7 +772,7 @@ export function CoachGameView() {
         /* hint display only */
       }
     }
-  }, [phase, hints, playerColor])
+  }, [phase, playerColor])
 
   const resign = useCallback(() => {
     if (phase !== 'playing') return
@@ -1028,11 +1043,23 @@ export function CoachGameView() {
             <RotateCcw className="mr-1 h-3.5 w-3.5" /> New game
           </Button>
           <div className="ml-auto flex items-center gap-1.5">
-            <Button variant="secondary" size="sm" onClick={takeBack} disabled={takebacks <= 0 || phase !== 'playing' || thinking} title={`${takebacks} takebacks left`}>
-              <Undo2 className="mr-1 h-3.5 w-3.5" /> Take back ({takebacks})
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={takeBack}
+              disabled={phase !== 'playing' || thinking || plies.filter((p) => p.color === playerColor).length === 0}
+              title="Unlimited takebacks - this is for learning"
+            >
+              <Undo2 className="mr-1 h-3.5 w-3.5" /> Take back{takebacksUsed > 0 ? ` (${takebacksUsed})` : ''}
             </Button>
-            <Button variant="secondary" size="sm" onClick={() => void showHint()} disabled={hints <= 0 || !myTurn} title={`${hints} hints left`}>
-              <Lightbulb className="mr-1 h-3.5 w-3.5" /> Hint ({hints})
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => void showHint()}
+              disabled={!myTurn}
+              title="Unlimited hints - this is for learning"
+            >
+              <Lightbulb className="mr-1 h-3.5 w-3.5" /> Hint{hintsUsed > 0 ? ` (${hintsUsed})` : ''}
             </Button>
             {phase === 'playing' && (
               <Button variant="secondary" size="sm" onClick={resign}>
