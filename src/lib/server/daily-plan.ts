@@ -47,6 +47,12 @@ interface ComposedSlot {
   detail: string
   view: PlanView
   ref: SlotRef | null // null for the daily puzzle slot
+  /** Honest per-item time estimate (minutes) and the DNA-domain label this
+   *  slot trains — chessigma's plan tasks carry the same two numbers
+   *  (estimatedMinutes + weighted trainsCategories); ours come from the slot
+   *  kind's real cost, not from a per-task session estimate. */
+  minutes: number
+  trains: string
 }
 
 export interface PlanSlot {
@@ -55,6 +61,9 @@ export interface PlanSlot {
   detail: string
   view: PlanView
   done: boolean
+  /** Honest per-item minutes estimate + what it trains (DNA domain label). */
+  minutes: number
+  trains: string
 }
 
 /**
@@ -148,6 +157,8 @@ async function composeBlunderFix(profileId: string, now: Date): Promise<Composed
     detail: `${d.opening ?? 'Your game'} · cost about ${d.evalLossCp}cp`,
     view: 'review' as const,
     ref: { kind: 'drill' as const, id: d.id },
+    minutes: 4,
+    trains: 'Blunders',
   }))
 }
 
@@ -192,6 +203,8 @@ async function composeBlunderShield(profileId: string, now: Date): Promise<Compo
       detail: info.rating != null ? `rating ${info.rating} · lapsed ${r.lapses}×` : `lapsed ${r.lapses}×`,
       view: 'review' as const,
       ref: { kind: 'puzzle' as const, id: r.refId },
+      minutes: 3,
+      trains: 'Blunders · Tactics',
     }
   })
 
@@ -220,6 +233,8 @@ async function composeBlunderShield(profileId: string, now: Date): Promise<Compo
         detail: info.rating != null ? `missed in rated · rating ${info.rating}` : 'missed in rated',
         view: 'puzzles',
         ref: { kind: 'puzzle', id: f.puzzleId },
+        minutes: 3,
+        trains: 'Blunders · Tactics',
       })
     }
   }
@@ -247,6 +262,8 @@ async function composeWoodpeckerAndDaily(profileId: string, dayKey: string): Pro
     detail: s.bestMs != null ? `cycle ${s.cycle} · best ${(s.bestMs / 1000).toFixed(1)}s` : `cycle ${s.cycle} · first run`,
     view: 'puzzles' as const,
     ref: { kind: 'set' as const, id: s.id },
+    minutes: 10,
+    trains: 'Tactics',
   }))
 
   // The daily puzzle is the one slot every player always has.
@@ -257,6 +274,8 @@ async function composeWoodpeckerAndDaily(profileId: string, dayKey: string): Pro
     detail: 'One rated puzzle, picked for today',
     view: 'puzzles',
     ref: null,
+    minutes: 3,
+    trains: 'Tactics',
   })
   return slots
 }
@@ -346,7 +365,7 @@ export async function buildPlan(
     else if (s.ref?.kind === 'puzzle') done = solvedToday.has(s.ref.id)
     else if (s.ref?.kind === 'set') done = runToday.has(s.ref.id)
     else done = dailyDone // the daily puzzle slot (ref: null)
-    return { id: s.id, title: s.title, detail: s.detail, view: s.view, done, section: s.section }
+    return { id: s.id, title: s.title, detail: s.detail, view: s.view, done, section: s.section, minutes: s.minutes, trains: s.trains }
   })
 
   const sections: PlanSection[] = (['blunderFix', 'blunderShield', 'woodpecker'] as PlanSectionKey[]).map(
@@ -355,7 +374,7 @@ export async function buildPlan(
       label: SECTION_LABELS[key],
       slots: withDone
         .filter((s) => s.section === key)
-        .map((s) => ({ id: s.id, title: s.title, detail: s.detail, view: s.view, done: s.done })),
+        .map((s) => ({ id: s.id, title: s.title, detail: s.detail, view: s.view, done: s.done, minutes: s.minutes, trains: s.trains })),
     }),
   )
 

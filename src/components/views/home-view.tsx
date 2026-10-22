@@ -57,6 +57,9 @@ interface PlanSlot {
   detail: string
   view: 'review' | 'puzzles'
   done: boolean
+  /** Honest per-item minutes estimate + what it trains (DNA domain label). */
+  minutes?: number
+  trains?: string
 }
 
 interface PlanSection {
@@ -254,11 +257,16 @@ function TodaysPlanCard({ dayKey }: { dayKey: string }) {
                         <button
                           key={slot.id}
                           onClick={() => navigate(slot.view)}
-                          title={slot.detail}
-                          aria-label={`${slot.title} — open it`}
-                          className="inline-flex min-h-9 max-w-full items-center rounded-md bg-secondary px-2.5 py-1.5 text-xs font-semibold transition-colors hover:bg-accent"
+                          title={`${slot.detail}${slot.trains ? ` · trains: ${slot.trains}` : ''}`}
+                          aria-label={`${slot.title}${slot.minutes ? `, about ${slot.minutes} minutes` : ''} — open it`}
+                          className="inline-flex min-h-9 max-w-full items-center gap-1.5 rounded-md bg-secondary px-2.5 py-1.5 text-xs font-semibold transition-colors hover:bg-accent"
                         >
                           <span className="truncate">{slot.title}</span>
+                          {typeof slot.minutes === 'number' && (
+                            <span className="shrink-0 rounded bg-background/70 px-1 py-0.5 text-[10px] font-bold text-muted-foreground" aria-hidden="true">
+                              ~{slot.minutes}m
+                            </span>
+                          )}
                         </button>
                       ),
                     )
