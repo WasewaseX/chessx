@@ -212,3 +212,23 @@ Work Log:
 Stage Summary:
 - Session shipped: Games Library (last REA port), hash aliases, weak-themes training strip, theme-stats bank fix, repertoire expansion — every step committed and pushed (fdee9bd -> dfc896d), each browser-verified with screenshots.
 - All subsystems green; data safety net (restore-on-boot + daily + off-box) confirmed operational after another sandbox rollback.
+
+---
+Task ID: 9
+Agent: Z.ai Code (main)
+Task: Account-loss ("account not found") root cause + data-recovery fix
+
+Work Log:
+- Queried db/custom.db via Prisma: BOTH accounts exist (admin@chessx.local admin, tiktokaltrachel@atomicmail.io user, created Oct 20 12:35). Login endpoint verified working locally (admin/admin1234 -> 200).
+- Downloaded WasewaseX/chessx-backups latest.db.gz and queried it: both accounts present there too. User data was never gone.
+- Root cause chain identified: (a) deployment stuck at Oct 18 predates the account; (b) boot-restore only ran when User count == 0, so a stale deployment db holding just the boot admin blocked the restore forever; (c) start-prod.ts spawned the standalone server under BUN, which has no node:sqlite -> boot classifier returned 'unknown' and restore was silently disabled in that runtime; lichess-bank.ts (static node:sqlite import) would also crash routes under bun.
+- Fixed boot-maintenance.ts: readLocalDataStateRaw() classifies empty/pristine/populated; restore fires on empty OR pristine (only boot admin + zero activity across GameRecord/PuzzleAttempt/CoachGame/RushRun/DnaSnapshot/OnlineGame/BattleRecord/ReviewItem/ImportCache); populated dbs are never overwritten.
+- Adaptive read-only sqlite: node:sqlite first, bun:sqlite fallback. Hardened nodeRequire with getBuiltinModule fallback.
+- Fixed start-prod.ts: spawns NODE (bun fallback); node:sqlite is a hard dep of lichess-bank + boot policy.
+- E2E verified (scripts/verify-restore-policy.ts): simulated stale deployment db (only boot admin) -> boot -> snapshot pulled, user account + 6 games + attempts restored. PASS under bun runtime.
+- prisma generate (sandbox client was stale again), tsc + lint clean. Pushed b9e6b48.
+
+Stage Summary:
+- "User data is gone" resolved at the root: data survives locally, in the backup repo, and now ANY redeploy of a pristine/stale deployment automatically restores it before admin bootstrap.
+- Deployment runtime fixed to node so the restore + puzzle bank actually work in production.
+- Next: REA deep reverse engineering per user direction, then remaining roadmap items.
