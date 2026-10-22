@@ -3,7 +3,8 @@
   "version": "0.3.0",
   "private": true,
   "scripts": {
-    "dev": "bun scripts/gh-restore.ts && next dev --webpack -p 3000 2>&1 | tee dev.log",
+    "dev": "bun scripts/gh-restore.ts && NODE_OPTIONS=--max-old-space-size=2560 next dev --webpack -p 3000 2>&1 | tee dev.log",
+    "watchdog": "bash scripts/dev-watchdog.sh",
     "backup": "bun scripts/gh-backup.ts manual",
     "backup:restore": "bun scripts/gh-restore.ts",
     "build": "prisma generate && next build --webpack && bun scripts/collect-standalone.ts",
