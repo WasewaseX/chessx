@@ -13,6 +13,7 @@ export type ViewName =
   | 'coachgame'
   | 'analysis'
   | 'eyetraining'
+  | 'openings'
   | 'profile'
   | 'settings'
   | 'tools'
@@ -124,6 +125,7 @@ interface AppState {
 const HASH_ALIASES: Record<string, { name: ViewName; lessonId?: string }> = {
   a: { name: 'analysis' },
   e: { name: 'eyetraining' },
+  o: { name: 'openings' },
   p: { name: 'play', lessonId: 'online' },
   z: { name: 'puzzles' },
   c: { name: 'coachgame' },
@@ -137,7 +139,7 @@ function viewFromHash(): ViewState {
   // view, never the router; strip it before name parsing
   const path = h.split('?')[0]
   const [name, lessonId] = path.split('/')
-  const valid: ViewName[] = ['home', 'play', 'lessons', 'lesson', 'puzzles', 'review', 'coach', 'coachgame', 'analysis', 'eyetraining', 'profile', 'settings', 'tools', 'whatsnew']
+  const valid: ViewName[] = ['home', 'play', 'lessons', 'lesson', 'puzzles', 'review', 'coach', 'coachgame', 'analysis', 'eyetraining', 'openings', 'profile', 'settings', 'tools', 'whatsnew']
   if (valid.includes(name as ViewName)) {
     return { name: name as ViewName, lessonId: lessonId || undefined }
   }

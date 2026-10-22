@@ -47,6 +47,7 @@ import {
   Undo2,
   Sparkles,
   CircleAlert,
+  ChevronDown,
 } from 'lucide-react'
 
 /* ---------------- shared bits ---------------- */
@@ -1126,6 +1127,12 @@ function CompletionScreen({
 
 /* ---------------- step views ---------------- */
 
+/**
+ * TextStepView paces the lesson one sub-step at a time: each paragraph is a
+ * small reveal, the key idea lands last, and the lesson's Continue only
+ * unlocks when everything has been read. The coach bubble always mirrors the
+ * paragraph currently on screen, so narration follows the learner's place.
+ */
 function TextStepView({
   step,
   coach,
@@ -1137,38 +1144,68 @@ function TextStepView({
   onReady: () => void
   onBubble: (m: BubbleMsg | null) => void
 }) {
-  useEffect(() => {
-    onReady()
-  }, [onReady, step])
+  const [revealed, setRevealed] = useState(1)
+  // The parent keys this component per step, so `revealed` resets by remount.
+  const allRead = revealed >= step.body.length && (!step.keyIdea || revealed > step.body.length)
   const spoken = [...step.body, step.keyIdea].filter(Boolean).join(' ')
-  const bubbleText = step.keyIdea ?? step.body[0] ?? step.title
+  const currentText = revealed <= step.body.length ? step.body[revealed - 1] : (step.keyIdea ?? step.title)
   useLayoutEffect(() => {
-    onBubble({ tone: 'neutral', text: bubbleText, speak: spoken })
-  }, [onBubble, bubbleText, spoken])
+    onBubble({ tone: revealed <= step.body.length ? 'neutral' : 'guide', text: currentText, speak: currentText })
+  }, [onBubble, currentText, revealed, step.body.length])
+  // Ready (and only then the lesson Continue) when the last block is shown.
+  useEffect(() => {
+    if (allRead) onReady()
+  }, [allRead, onReady])
+  const advance = () => {
+    if (allRead) return
+    setRevealed((r) => r + 1)
+    playSound('click', true)
+  }
+  const showKeyIdea = Boolean(step.keyIdea) && revealed > step.body.length
   return (
     <div className="mx-auto w-full max-w-2xl rounded-2xl border border-paper-line bg-paper-card p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)] sm:p-6">
       {/* float the speaker so the first lines wrap around it instead of hiding under it */}
       <div className="space-y-3">
         {coach && (
           <span className="float-right ml-3 mb-1 leading-none">
-            <SpeakButton text={spoken} voice={coach.voice} speed={coach.speed} />
+            <SpeakButton text={currentText ?? spoken} voice={coach.voice} speed={coach.speed} />
           </span>
         )}
-        {step.body.map((p, i) => (
-          <p key={i} className="leading-relaxed text-paper-ink/85">
+        {step.body.slice(0, revealed).map((p, i) => (
+          <p
+            key={i}
+            className={cn(
+              'leading-relaxed text-paper-ink/85',
+              i === revealed - 1 && !showKeyIdea && 'animate-in fade-in slide-in-from-bottom-1 duration-300',
+            )}
+          >
             {p}
           </p>
         ))}
       </div>
-      {step.keyIdea && (
-        <div className="mt-4 rounded-xl border border-[#81b64c]/30 bg-[#81b64c]/10 px-4 py-3 text-sm font-semibold text-paper-ink">
+      {showKeyIdea && (
+        <div className="mt-4 animate-in fade-in slide-in-from-bottom-1 rounded-xl border border-[#81b64c]/30 bg-[#81b64c]/10 px-4 py-3 text-sm font-semibold text-paper-ink duration-300">
           {step.keyIdea}
         </div>
+      )}
+      {!allRead && (
+        <button
+          onClick={advance}
+          className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl border border-paper-line bg-accent/40 px-4 py-2.5 text-sm font-bold text-paper-ink/80 transition-colors hover:bg-accent/70"
+        >
+          {revealed <= step.body.length ? `Next point (${revealed}/${step.body.length})` : 'Show the key idea'}
+          <ChevronDown className="h-4 w-4" aria-hidden />
+        </button>
       )}
     </div>
   )
 }
 
+/**
+ * DemoTextCard mirrors the text step's pacing: demo commentary arrives one
+ * sub-step at a time next to the board, so the learner reads a beat, watches
+ * the board beat, and only then moves on.
+ */
 function DemoTextCard({
   step,
   coach,
@@ -1180,26 +1217,47 @@ function DemoTextCard({
   onReady: () => void
   onBubble: (m: BubbleMsg | null) => void
 }) {
+  const [revealed, setRevealed] = useState(1)
+  // Keyed per step by the parent: remount resets the cadence.
+  const allRead = revealed >= step.body.length
   useEffect(() => {
-    onReady()
-  }, [onReady, step])
-  const spoken = step.body.join(' ')
-  const bubbleText = step.body[0] ?? step.title
+    if (allRead) onReady()
+  }, [allRead, onReady])
+  const currentText = step.body[Math.min(revealed, step.body.length) - 1] ?? step.title
   useLayoutEffect(() => {
-    onBubble({ tone: 'neutral', text: bubbleText, speak: spoken })
-  }, [onBubble, bubbleText, spoken])
+    onBubble({ tone: 'neutral', text: currentText, speak: currentText })
+  }, [onBubble, currentText])
+  const advance = () => {
+    if (allRead) return
+    setRevealed((r) => r + 1)
+    playSound('click', true)
+  }
   return (
     <div className="mt-4 w-full max-w-2xl rounded-2xl border border-paper-line bg-paper-card p-6 shadow-[0_2px_12px_rgba(38,36,33,0.06)]">
       <div className="flex items-start justify-between gap-2">
         <div className="space-y-2.5">
-          {step.body.map((p, i) => (
-            <p key={i} className="leading-relaxed text-paper-ink/85">
+          {step.body.slice(0, revealed).map((p, i) => (
+            <p
+              key={i}
+              className={cn(
+                'leading-relaxed text-paper-ink/85',
+                i === revealed - 1 && 'animate-in fade-in slide-in-from-bottom-1 duration-300',
+              )}
+            >
               {p}
             </p>
           ))}
         </div>
-        {coach && <SpeakButton text={spoken} voice={coach.voice} speed={coach.speed} />}
+        {coach && <SpeakButton text={currentText} voice={coach.voice} speed={coach.speed} />}
       </div>
+      {!allRead && (
+        <button
+          onClick={advance}
+          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl border border-paper-line bg-accent/40 px-4 py-2 text-sm font-bold text-paper-ink/80 transition-colors hover:bg-accent/70"
+        >
+          Next point ({revealed}/{step.body.length}) <ChevronDown className="h-4 w-4" aria-hidden />
+        </button>
+      )}
     </div>
   )
 }

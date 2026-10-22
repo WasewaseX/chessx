@@ -306,3 +306,25 @@ Stage Summary:
 - Eye Training shipped: Learn tab now has Lessons / Play with Coach / Eye Training / Game Review / Analysis; every drill honest-by-construction, positions from the real bank, bests server-side.
 - REA report v2 appendix E records the perception gap: nothing to port, chessx-original category; plan category-weights remain the open chessigma candidate.
 - GitHub push follows this entry; CI gates it.
+
+---
+Task ID: 12-a
+Agent: general-purpose (chessreps RE)
+Task: Reverse engineer chessreps.com opening trainer
+
+Work Log:
+- Read worklog (tasks 1-13 + 9-13 RE/feature history) for context before starting; no source code modified.
+- Direct curl with Chrome UA succeeded on first try (HTTP 200, 449 KB) — no 403, no need for jina/wayback fallbacks. Site is SvelteKit (Vite) + Supabase; grabbed robots.txt, sitemap.xml (7.7 MB, 393 opening courses + ~30 app routes), /api/openapi.json (Agent Discovery API), /api/health (returns commit hash), /api/agent/openings, /api/agent/community-courses.
+- Extracted the full SSR payload of /opening/london (node 141): complete course data model — lines[] as space-separated SAN, descriptions{FEN→GM prose}, positionEvals{depth 65}, boardAnnotations, sharedOpeningPgn trunk, depthTiers{order, tiers essentials/mastery}, stats{entryProb,t1MassRel,residualRisk,pluggedCount}, coverageScore, starterLine, seoContent, lineSetHash.
+- Bulk-downloaded 135 chunks (5.6 MB) + node141 (234 KB trainer) + node133 (Dojo) + node61 (Community) and grep-mined them.
+- Key mines: ts-fsrs v6 scheduler inlined (request_retention .9, max_ivl 36500, Again/Hard/Good ratings from mistakes/hints; debug panel strings); per-line progress zod schema {confidence 0-10 default 5, completions, perfectAttempts, fsrsCard{due,stability,difficulty,state,reps,lapses}}; local-first sync envelope {base, baseRevision, patch, clocks} with per-field merge rules (max/best-score-per-period/last-writer/practice) and forget-line op; line picker = random among top-3 most overdue (untrained=∞ first), prefer started-not-perfected; mode delays 150/500 ms; Time trial 60 s +5%/line acceleration +floor(len/2) bonus; Drill streak resets on mistake/hint; trial = 1 line + deferred paywall modal; unlocks at 3/5 completed lines; Arena personas ~900 names mapped 100-2400 Elo + Gaussian σ=60, replies from /api/arena/explorer-reply (popularity-weighted at Elo, prefetch batch) with /api/arena/eval-reply fallback via /api/eval-jobs long-poll; puzzle Elo 950 start, K=20+100·0.95^attempts, 30% loss-recovery; /api/puzzles/batch?course&elo&exclude; sounds SAN-mapped WebAudio; keyboard arrows for navigation; prefs list (fastDrillMode, showLearnArrowsV2, learnDialogBehavior...).
+- Cross-checked /about (mode color copy, philosophy), /plans ($34.99/yr after 7-day trial, 900+ courses, 57 titled, 13 GMs), /leaderboards (Drill+Time weekly/monthly/all-time), /community (Hot/New/Top, upvotes, /course-creator/new).
+- Wrote the full report with the 8 required sections incl. 12-item Port list for ChessX and an evidence appendix with verbatim grep hits; UNVERIFIED items marked (explorer weighting internals, wrong-move review endpoint, FSRS default weights array, cross-course review queue, native app parity, encryption key consumption site).
+
+Stage Summary:
+- chessreps.com fully reachable from sandbox — got primary evidence end to end (no proxy needed).
+- Core finding: their "mastery" = per-line FSRS (ts-fsrs v6) + a UX-facing confidence number; ratings derived from mistakes+hints (0/0→Good, 1→Hard, ≥2→Again); line selection = random-among-top-3-overdue; progress is local-first CRDT-ish sync with merge rules per field.
+- Opponent variety is dual: booked line replay in course modes (150/500 ms delays) vs Arena personas (named bots near your Elo picking popularity-weighted real replies, eval fallback).
+- Data model is flat: course = lines[] + FEN-keyed descriptions/annotations/evals + shared trunk + depth tiers (essentials/advanced/mastery) — no chapters/branch tables.
+- Report: /home/z/my-project/docs/chessreps-re-report.md (12-item port list ranked, evidence appendix with verbatim strings).
+- Top ports for ChessX: confidence+FSRS-lite line scheduler, mode quartet (Learn/Practice/Drill/Time), trial gate (1 line → deferred modal), Dojo whole-repertoire sessions, arena-style reply variety from lichess explorer, depth tiers, high-score economy, forget-line.
