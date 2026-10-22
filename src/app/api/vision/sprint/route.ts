@@ -10,12 +10,15 @@ import { numOr, publicProfile } from '@/lib/api'
  * and small capped XP are the only residue.
  */
 
-const MODES = ['white', 'black', 'both', 'hunt'] as const
+const MODES = ['white', 'black', 'both', 'hunt', 'colors', 'loose', 'rays', 'flash'] as const
 type Mode = (typeof MODES)[number]
 
 function isMode(v: unknown): v is Mode {
   return MODES.includes(v as Mode)
 }
+
+/** Which drills are round-based knowledge checks (a round is worth more than a square tap). */
+const ROUND_MODES: Mode[] = ['hunt', 'flash', 'loose', 'rays']
 
 async function bests(profileId: string) {
   const rows = await db.visionRun.findMany({
@@ -23,7 +26,7 @@ async function bests(profileId: string) {
     orderBy: { score: 'desc' },
     take: 200,
   })
-  const best: Record<Mode, number> = { white: 0, black: 0, both: 0, hunt: 0 }
+  const best: Record<Mode, number> = { white: 0, black: 0, both: 0, hunt: 0, colors: 0, loose: 0, rays: 0, flash: 0 }
   for (const r of rows) {
     if (isMode(r.mode) && r.score > best[r.mode]) best[r.mode] = r.score
   }
@@ -34,7 +37,8 @@ export async function GET() {
   const user = await getSessionUser()
   if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
   const profile = await db.profile.findUnique({ where: { userId: user.id } })
-  if (!profile) return NextResponse.json({ best: { white: 0, black: 0, both: 0, hunt: 0 } })
+  if (!profile)
+    return NextResponse.json({ best: { white: 0, black: 0, both: 0, hunt: 0, colors: 0, loose: 0, rays: 0, flash: 0 } })
   return NextResponse.json({ best: await bests(profile.id) })
 }
 
@@ -51,8 +55,8 @@ export async function POST(req: NextRequest) {
   const score = numOr(body.score, 0, 0, 200)
   const mistakes = numOr(body.mistakes, 0, 0, 500)
   const seconds = numOr(body.seconds, 0, 0, 600)
-  // piece hunt rounds are worth more than one square tap, cap stays token
-  const xpGain = body.mode === 'hunt' ? Math.min(score * 8, 80) : Math.min(score * 2, 60)
+  // round-based knowledge checks beat one square tap; caps stay token
+  const xpGain = ROUND_MODES.includes(body.mode) ? Math.min(score * 8, 80) : Math.min(score * 2, 60)
   const dayKey = /^\d{4}-\d{2}-\d{2}$/.test(String(body.dayKey ?? '')) ? String(body.dayKey) : dayKeyLocal()
 
   const previousBest = (await bests(pid))[body.mode]

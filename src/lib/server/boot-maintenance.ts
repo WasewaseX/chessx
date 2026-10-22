@@ -225,6 +225,13 @@ async function readLocalDataStateRaw(): Promise<'empty' | 'pristine' | 'populate
 async function seedWhatsNew(): Promise<void> {
   const SEEDS: { title: string; body: string; tag: string; version?: string; pinned?: boolean }[] = [
     {
+      title: 'Eye training: see the board like a master',
+      tag: 'feature',
+      version: '0.4.4',
+      body:
+        'Learn gains Eye Training — four drills for the perception layer that separates masters from beginners. Square colors (name any square’s color on sight), Loose pieces (the LPDO scan: count what is attacked and undefended, then watch the hunters light up), Rays & defenders (count attackers through the lines, name the quiet defender), and Flash chunks (a position flashes, then goes dark — real master games against the same pieces scrambled, so you can measure your own chunking, de Groot style). Every position is a real master-game position from the bank; every best is a real best.',
+    },
+    {
       title: 'Coaches with signature openings',
       tag: 'feature',
       version: '0.4.3',

@@ -283,3 +283,26 @@ Work Log:
 Stage Summary:
 - The historical "it has render errors" complaint: no reproducible error anywhere in 19 views today. Accumulated fixes (prisma client regen, webpack mode, runtime guards) hold. Evidence committed.
 - Next: Convert-the-Win trainer (chessigma conversion-bot pattern) as the next feature build.
+
+---
+Task ID: 13
+Agent: Z.ai Code (main)
+Task: Eye Training under Learn (user request) + REA taxonomy addendum + render/deploy status
+
+Work Log:
+- Mined all chessigma bundles for vision/blindfold/chunk literals: ZERO hits — chessigma has no perception category (their plan taxonomy is exactly blunders/tactics/discipline/conversion/preparation). chessx gains a category neither competitor has; documented as REA report v2 appendix E.
+- Built Eye Training (new sub-tab under Learn, #/eyetraining, single-letter alias #/e, ScanEye icon, highlighted like Coach): four de Groot-grounded drills in src/components/views/eye-training-view.tsx:
+  1. Square colors — 30s sprint, light/dark buttons, gold/red reveal flash on a bare board, no coords during question.
+  2. Loose pieces (LPDO) — 8 real bank positions (12-30 pieces, 900-2400), count attacked-and-undefended per side via chess.js attackers(); reveal paints loose gold + hunters red with per-piece explanation lines.
+  3. Rays & defenders — mixed count-attackers (0-4+ options) and name-the-defender (piece chips) rounds; exact attackers() computation; ray reveal.
+  4. Flash chunks — 6 rounds, 3 real master-game FENs vs 3 scrambled (same pieces; pawns kept off ranks 1/8 or chess.js rejects the FEN — found by browser test, fixed, 900/900 stress-tested); 5s memorize -> dark board -> "where did the X stand?"; result screen reports the player's own real-vs-scrambled recall gap.
+- /api/vision/sprint: modes extended (colors/loose/rays/flash), bests map + xp ladder (round modes 8x cap 80, sprints 2x cap 60), zero Elo coupling as before.
+- Bugs found by browser E2E and fixed: (a) loose-round rewind — empty truth[] was overloaded as "not primed", a zero-loose round sent the drill back to round 0; now null=sentinel, []=clean position; (b) scrambleFen pawn edge rows crash that wedged flash at countdown 0 — pawns now constrained to ranks 2-7, degenerate rounds skip forward via ref-based recursion instead of hanging; (c) react-hooks/refs lint: pool readiness and flash breakdown moved from refs to state.
+- Footer stamp bumped v0.4.2 -> v0.4.4 (was lagging the changelog); What's New seed gains the v0.4.4 Eye Training entry.
+- Verified: tsc + lint clean; zero console errors on fresh load; all four drills played end-to-end in agent-browser (score, mistakes, bests, XP, round advance, reveals); mobile 390px renders; screenshots download/verify-eye-*.png; POST /api/vision/sprint 200s in dev.log.
+- Dev server stability note: two zombie dev instances had port-3000 collisions early in the session; a single fresh instance (next dev --webpack) is stable since 10:50 UTC.
+
+Stage Summary:
+- Eye Training shipped: Learn tab now has Lessons / Play with Coach / Eye Training / Game Review / Analysis; every drill honest-by-construction, positions from the real bank, bests server-side.
+- REA report v2 appendix E records the perception gap: nothing to port, chessx-original category; plan category-weights remain the open chessigma candidate.
+- GitHub push follows this entry; CI gates it.

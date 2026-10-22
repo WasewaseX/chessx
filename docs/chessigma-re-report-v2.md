@@ -257,3 +257,37 @@ Real headless Chromium via agent-browser, 40+s on the interstitial plus one
 explicit turnstile checkbox click → still "Just a moment…" (screenshot
 `re/shots/chesscom-challenge-1022.png`). Boundary stands: no chess.com
 first-party surface is reachable from this sandbox.
+
+### E. Perception training gap — chessx gains a category chessigma lacks (Oct 22)
+
+Chunk-string mining across all extracted bundles (`trainsCategories` literals)
+confirms chessigma's plan taxonomy is exactly five categories: **blunders,
+tactics, discipline, conversion, preparation**. There is no perception/vision
+category anywhere in their client: no blindfold drill, no square-color trainer,
+no loose-piece scan, no chunk-recall test (string search for `blindfold`,
+`vision`, `eye train`, `chunk` across asar + web bundles: zero hits).
+
+chessx now ships one — Eye Training (Learn tab, v0.4.4), four drills grounded
+in the de Groot/Chase perception literature rather than in either competitor:
+
+1. **Square colors** — 30s sprint, instant light/dark naming (the live color
+   map every master holds; diagonals are single-colored, knight hops flip).
+2. **Loose pieces (LPDO)** — real bank positions, count attacked-and-undefended
+   pieces per side; reveal highlights loose pieces gold and their hunters red
+   with a plain-language explanation line each.
+3. **Rays & defenders** — count attackers reaching a square / name the quiet
+   defender, computed exactly via chess.js `attackers()`; reveal draws the ray.
+4. **Flash chunks** — de Groot's experiment made playable: 5s flash then dark
+   board, real master-game positions vs the same pieces scrambled (pawns kept
+   off edge rows so chess.js accepts the FEN). The result screen reports the
+   player's own real-vs-scrambled recall gap — the chunking effect, measured
+   on yourself.
+
+Honesty rails carried over from vision training: no puzzle-Elo coupling, small
+capped XP, server-side bests per drill (`/api/vision/sprint` modes `colors`,
+`loose`, `rays`, `flash`), disabled-until-loaded position pool, and the pool is
+the real 5.7M-puzzle bank filtered to 12–30 piece / 900–2400 positions.
+
+Verdict for the port list: nothing to port here — this is a chessx-original
+category. chessigma's plan taxonomy (appendix B) remains the only borrowed
+schema, and category-weight plan ordering is still the open candidate.

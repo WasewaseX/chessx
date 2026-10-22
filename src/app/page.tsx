@@ -38,6 +38,7 @@ const SettingsView = dynamic(() => import('@/components/views/settings-view').th
 const ToolsView = dynamic(() => import('@/components/views/tools-view').then(m => ({ default: m.ToolsView })), { loading: viewLoader })
 const WhatsNewView = dynamic(() => import('@/components/views/whatsnew-view').then(m => ({ default: m.WhatsNewView })), { loading: viewLoader })
 const CoachGameView = dynamic(() => import('@/components/views/coach-game-view').then(m => ({ default: m.CoachGameView })), { loading: viewLoader })
+const EyeTrainingPanel = dynamic(() => import('@/components/views/eye-training-view').then(m => ({ default: m.EyeTrainingPanel })), { loading: viewLoader })
 const SharedDnaOverlay = dynamic(() => import('@/components/views/shared-dna-overlay').then(m => ({ default: m.SharedDnaOverlay })), { loading: viewLoader })
 
 function ViewRouter() {
@@ -60,6 +61,8 @@ function ViewRouter() {
       return <CoachGameView />
     case 'analysis':
       return <AnalysisView />
+    case 'eyetraining':
+      return <EyeTrainingPanel />
     case 'profile':
       return <ProfileView />
     case 'settings':

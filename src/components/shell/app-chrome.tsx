@@ -38,6 +38,7 @@ import {
   LogOut,
   LayoutGrid,
   LibraryBig,
+  ScanEye,
 } from 'lucide-react'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { ThemeToggle } from '@/components/shell/theme-toggle'
@@ -83,6 +84,7 @@ export const NAV_GROUPS: NavGroup[] = [
     children: [
       { name: 'lessons', label: 'Lessons', icon: GraduationCapIcon },
       { name: 'coachgame', label: 'Play with Coach', icon: MessagesSquare, highlight: true },
+      { name: 'eyetraining', label: 'Eye Training', icon: ScanEye, highlight: true },
       { name: 'review', label: 'Game Review', icon: History },
       { name: 'analysis', label: 'Analysis', icon: LineChart },
     ],
@@ -450,7 +452,7 @@ export function AppFooter() {
   }, [])
   return (
     <footer className="mt-auto border-t border-border px-4 py-3 text-center text-[11px] text-muted-foreground">
-      ChessX v0.4.2{stamp ? <> · {stamp}</> : null} · Not affiliated with chess.com or Lichess. Piece set: cburnett
+      ChessX v0.4.4{stamp ? <> · {stamp}</> : null} · Not affiliated with chess.com or Lichess. Piece set: cburnett
       (CC BY-SA 3.0). Engine: Stockfish.
     </footer>
   )
