@@ -225,6 +225,28 @@ async function readLocalDataStateRaw(): Promise<'empty' | 'pristine' | 'populate
 async function seedWhatsNew(): Promise<void> {
   const SEEDS: { title: string; body: string; tag: string; version?: string; pinned?: boolean }[] = [
     {
+      title: 'Coaches with signature openings',
+      tag: 'feature',
+      version: '0.4.3',
+      body:
+        'Every coach now plays the openings they are known for. Nina opens Italian and classical lines, Victor brings the King’s Gambit, Scotch and open Sicilians, Elena the Queen’s Gambit, English and King’s Indian, Sasha the closed Ruy López mainline, the Najdorf and the classical KID. The picker card says what each coach opens with, and the board proves it: signature repertoires lead the coach’s opening book before the level’s general lines.',
+    },
+    {
+      title: 'The plan tells you what it costs',
+      tag: 'update',
+      version: '0.4.3',
+      body:
+        'Every training slot on Today’s Plan now carries an honest minutes estimate (a drill ~4, a repeat ~3, a Woodpecker set ~10, the daily puzzle ~3) and, in the tooltip, which Chess DNA domain it trains. No session math — per-item cost, measured by the slot kind.',
+    },
+    {
+      title: 'Your data survives redeploys of a stale deployment',
+      tag: 'fix',
+      version: '0.4.3',
+      pinned: true,
+      body:
+        'The last account-loss corner case is closed: a deployment database that only ever held the bootstrapped admin (nobody really used it) no longer blocks the boot restore. On boot, an empty OR pristine database pulls the newest GitHub snapshot; a database with ANY real game, puzzle or account is never overwritten. The production launcher also runs the server on Node now, so the restore and the 5.7M-puzzle bank work in every hosting path.',
+    },
+    {
       title: 'Type one letter, land anywhere',
       tag: 'update',
       version: '0.4.2',
