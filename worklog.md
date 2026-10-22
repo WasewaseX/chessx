@@ -464,3 +464,22 @@ Work Log:
 Stage Summary:
 - The exact flip-flop failure the user reported is now impossible in both API and live-browser flows: first answer is engine-grounded, pushback cannot flip the verdict, "what's the best move" returns the recorded engine move verbatim.
 - Coach grading pipeline also verified live: 1.e4 c5 graded book +0.3/+0.3; 2.a3 graded good with eval swing visible in the move list.
+
+---
+Task ID: 15
+Agent: Z.ai Code (main)
+Task: chessreps port completion - Dojo (whole-repertoire mixed sessions, port item #10, "killer retention feature")
+
+Work Log:
+- Audited both RE reports against the codebase: port items 1-9 + P5 badges already shipped; item 10 (Dojo) was the remaining headline feature.
+- Built Dojo mode in openings-view.tsx: 7th mode alongside Learn/Practice/Drill/Time/Arena/Puzzles. pickDojoRep() merges ALL courses' lines and weights shaky+overdue lines first (chessreps rule), then picks a RANDOM student decision point (even index) as the take-over entry - you are dropped mid-line, not always at move one.
+- drillLine(course, line, entryIdx): fast-forwards trunk + first entryIdx moves, then awaits with "Your move, from a random X position."
+- Dojo rhythm: 150ms autopilot (fast like Drill/Time), streak economy (mistake kills the streak, snap-back is the teacher, rescue text at 3rd slip), auto-advance to the next random rep 1.8s after completion (chessreps 750-1000ms cadence), Skip + Finish controls, Dojo best streak persisted in localStorage (chessreps high-score economy), live "DOJO REP FROM <course>" badge.
+- Verified in browser end-to-end: hero card -> Enter -> random Caro-Kann mid-line rep -> Skip switched to Open Sicilian ("Your move, from a random Open Sicilian position.") -> full London bf5-trade line played move-by-move via dispatched PointerEvents (Nf3 e3 Bd3 cxd3 Nc3, progress 1/5..5/5) -> auto-advance fired to a Queen's Gambit Accepted rep from a different course. Finish -> "Session complete | Dojo - whole repertoire" summary + Train again re-enters Dojo.
+- Automation note: synthetic pointer events dispatched in the SAME JS task see stale React state (batching) - each tap must be its own event-loop task. Documented here; agent-browser board automation pattern: click_sq() one square per eval call.
+- tsc --noEmit clean, eslint clean.
+
+Stage Summary:
+- chessreps 12-item port list: 10 of 12 shipped (1-10); item 11 (cross-device sync envelope) and 12 (trial gate) intentionally out of scope for a free, single-device learning app.
+- Dojo completes the trainer's mode suite and is fully wired into mastery grading (reps grade their own course/line regardless of entry point).
+- Screenshots: download/verify-dojo-1-hero.png, -2-session.png, -3-nextrep.png.

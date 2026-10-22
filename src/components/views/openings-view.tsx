@@ -26,7 +26,7 @@ import { useApp } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
-  ArrowRight, BookMarked, Brain, Check, ChevronLeft, GraduationCap, Hourglass,
+  ArrowRight, BookMarked, Brain, Check, ChevronLeft, Dumbbell, GraduationCap, Hourglass,
   Lightbulb, Loader2, Play, SkipForward, Swords, Target, Timer, Trophy, Zap,
 } from 'lucide-react'
 import {
@@ -37,7 +37,7 @@ import {
 import { OpeningArena } from '@/components/views/opening-arena'
 import { OpeningPuzzles } from '@/components/views/opening-puzzles'
 
-type Mode = 'learn' | 'practice' | 'drill' | 'time' | 'arena' | 'puzzles'
+type Mode = 'learn' | 'practice' | 'drill' | 'time' | 'arena' | 'puzzles' | 'dojo'
 type Phase = 'idle' | 'autopilot' | 'awaiting' | 'complete' | 'sessionOver'
 
 interface SessionStats {
@@ -67,10 +67,72 @@ const MODES: { id: Mode; label: string; icon: typeof BookMarked; blurb: string }
   { id: 'time', label: 'Time', icon: Timer, blurb: '60 seconds on the clock. Every finished line buys you bonus time.' },
   { id: 'arena', label: 'Arena', icon: Swords, blurb: 'Ranked games vs a rated opponent playing real club replies. Elo moves on wins and losses.' },
   { id: 'puzzles', label: 'Puzzles', icon: Target, blurb: 'Real-game tactics from this exact opening, pulled at your puzzle rating.' },
+  { id: 'dojo', label: 'Dojo', icon: Dumbbell, blurb: 'The whole repertoire mixed. You are dropped into a random position from any course and must find your way out.' },
 ]
 
 const MASTERY_KEY = 'chessx.openings.mastery.v1'
 const MODE_KEY = 'chessx.openings.mode.v1'
+const DOJO_BEST_KEY = 'chessx.openings.dojoBest.v1'
+
+function loadDojoBest(): number {
+  if (typeof window === 'undefined') return 0
+  try {
+    return Math.max(0, Math.round(Number(window.localStorage.getItem(DOJO_BEST_KEY) ?? '0')) || 0)
+  } catch {
+    return 0
+  }
+}
+
+function saveDojoBest(streak: number) {
+  try {
+    const best = Math.max(loadDojoBest(), streak)
+    window.localStorage.setItem(DOJO_BEST_KEY, String(best))
+  } catch {
+    /* private mode */
+  }
+}
+
+/**
+ * One Dojo rep: a course, one of its lines, and the even index into the
+ * line where the student takes over (even = a student decision point,
+ * because lines alternate strictly student-first after the trunk).
+ */
+interface DojoRep {
+  course: RepertoireCourse
+  line: RepertoireLine
+  entryIdx: number
+}
+
+/**
+ * Pick the next Dojo rep the way chessreps does: overdue and shaky lines
+ * from the WHOLE repertoire dominate; untrained lines fill in; the take-over
+ * point is a random student decision in the line, not always the first.
+ */
+function pickDojoRep(mastery: MasteryMap, exclude?: DojoRep | null): DojoRep {
+  const now = Date.now()
+  const all: { course: RepertoireCourse; line: RepertoireLine; overdue: number; started: boolean }[] = []
+  for (const course of REPERTOIRE_COURSES) {
+    for (const line of course.lines) {
+      if (exclude && exclude.course.id === course.id && exclude.line.id === line.id) continue
+      const m = mastery[course.id]?.[line.id]
+      all.push({
+        course,
+        line,
+        started: !!m && m.reps > 0,
+        overdue: m && m.reps > 0 ? now - m.due : Number.MAX_SAFE_INTEGER,
+      })
+    }
+  }
+  const shaky = all.filter((x) => x.started && (mastery[x.course.id]?.[x.line.id]?.confidence ?? 10) < 10)
+  const overdue = shaky.filter((x) => x.overdue > 0)
+  const pool = overdue.length > 0 ? overdue : shaky.length > 0 ? shaky : all
+  const pick = pool[Math.floor(Math.random() * pool.length)]
+  // Student decision points = even indices (student moves first in every line).
+  const decisions: number[] = []
+  for (let i = 0; i < pick.line.moves.length; i += 2) decisions.push(i)
+  const entryIdx = decisions[Math.floor(Math.random() * decisions.length)] ?? 0
+  return { course: pick.course, line: pick.line, entryIdx }
+}
 
 function loadMastery(): MasteryMap {
   if (typeof window === 'undefined') return {}
@@ -97,9 +159,9 @@ function randomPraise(): string {
   return PRAISE[Math.floor(Math.random() * PRAISE.length)]
 }
 
-/** Opponent auto-play speed mirrors chessreps: fast in Drill/Time, calm otherwise. */
+/** Opponent auto-play speed mirrors chessreps: fast in Drill/Time/Dojo, calm otherwise. */
 function autopilotDelay(mode: Mode): number {
-  return mode === 'drill' || mode === 'time' ? 150 : 500
+  return mode === 'drill' || mode === 'time' || mode === 'dojo' ? 150 : 500
 }
 
 export function OpeningsView() {
@@ -122,6 +184,9 @@ export function OpeningsView() {
   const [showIdea, setShowIdea] = useState(false)
   const [stats, setStats] = useState<SessionStats>(EMPTY_STATS)
   const [lineProgress, setLineProgress] = useState({ done: 0, total: 0 })
+  const [dojoBest, setDojoBest] = useState(0)
+  const dojoRepRef = useRef<DojoRep | null>(null)
+  const [dojoSource, setDojoSource] = useState<string>('')
 
   const gameRef = useRef(new Chess())
   const courseRef = useRef<RepertoireCourse | null>(null)
@@ -138,6 +203,7 @@ export function OpeningsView() {
 
   useEffect(() => {
     setMastery(loadMastery())
+    setDojoBest(loadDojoBest())
     try {
       const savedMode = window.localStorage.getItem(MODE_KEY) as Mode | null
       if (savedMode && MODES.some((m) => m.id === savedMode)) setMode(savedMode)
@@ -171,11 +237,20 @@ export function OpeningsView() {
 
   const endSession = useCallback((reason: string) => {
     clearTimers()
-    setStats((s) => ({ ...s, seconds: mode === 'time' ? 60 : Math.round((Date.now() - (startRef.current || Date.now())) / 1000) }))
+    stopClock()
+    if (mode === 'dojo') {
+      setStats((s) => {
+        if (s.bestStreak > 0) saveDojoBest(s.bestStreak)
+        setDojoBest(loadDojoBest())
+        return { ...s, seconds: Math.round((Date.now() - (startRef.current || Date.now())) / 1000) }
+      })
+    } else {
+      setStats((s) => ({ ...s, seconds: mode === 'time' ? 60 : Math.round((Date.now() - (startRef.current || Date.now())) / 1000) }))
+    }
     setStatus(reason)
     setPhase('sessionOver')
     playSound(stats.lines > 0 ? 'win' : 'click', soundOn)
-  }, [clearTimers, mode, soundOn, stats.lines])
+  }, [clearTimers, mode, soundOn, stats.lines, stopClock])
 
   const startRef = useRef<number>(0)
 
@@ -217,6 +292,7 @@ export function OpeningsView() {
     setStats((s) => {
       const streak = lineCleanRef.current ? s.streak + 1 : 0
       const best = Math.max(s.bestStreak, streak)
+      if (mode === 'dojo' && best > 0) saveDojoBest(best)
       const next = {
         ...s,
         lines: s.lines + 1,
@@ -240,7 +316,7 @@ export function OpeningsView() {
   }, [applyMastery, mode, soundOn])
 
   /** Begin drilling one line: reset the board, auto-play trunk + branch. */
-  const drillLine = useCallback((course2: RepertoireCourse, line: RepertoireLine) => {
+  const drillLine = useCallback((course2: RepertoireCourse, line: RepertoireLine, entryIdx = 0) => {
     clearTimers()
     courseRef.current = course2
     lineRef.current = line
@@ -274,6 +350,21 @@ export function OpeningsView() {
     for (const san of course2.trunk) {
       try { g.move(san) } catch { break }
     }
+    if (entryIdx > 0) {
+      // Dojo arrival: fast-forward the opening of the line so the student
+      // takes over from an arbitrary position of their repertoire.
+      for (let i = 0; i < entryIdx; i++) {
+        try { g.move(line.moves[i]) } catch { break }
+      }
+      idxRef.current = entryIdx
+      let remaining = 0
+      for (let i = entryIdx; i < line.moves.length; i += 2) remaining++
+      setLineProgress({ done: 0, total: Math.max(1, remaining) })
+      setFen(g.fen())
+      setPhase('awaiting')
+      setStatus(`Your move, from a random ${course2.name} position.`)
+      return
+    }
     setFen(g.fen())
     setPhase('autopilot')
     setStatus('')
@@ -288,11 +379,39 @@ export function OpeningsView() {
     drillLine(course2, line)
   }, [drillLine, mastery])
 
-  const startCourse = useCallback((c: RepertoireCourse) => {
-    setCourseId(c.id)
+  /** Enter the Dojo: one mixed session over the ENTIRE repertoire. */
+  const startDojo = useCallback(() => {
+    clearTimers()
+    stopClock()
     setStats(EMPTY_STATS)
     setTimeScore(0)
     startRef.current = Date.now()
+    const rep = pickDojoRep(mastery)
+    dojoRepRef.current = rep
+    setDojoSource(rep.course.name)
+    setCourseId(rep.course.id)
+    drillLine(rep.course, rep.line, rep.entryIdx)
+  }, [clearTimers, drillLine, mastery, stopClock])
+
+  /** Next Dojo rep after a completed line (auto-advance keeps the rhythm). */
+  const nextDojoRep = useCallback(() => {
+    const rep = pickDojoRep(mastery, dojoRepRef.current)
+    dojoRepRef.current = rep
+    setDojoSource(rep.course.name)
+    setCourseId(rep.course.id)
+    drillLine(rep.course, rep.line, rep.entryIdx)
+  }, [drillLine, mastery])
+
+  const startCourse = useCallback((c: RepertoireCourse) => {
+    setStats(EMPTY_STATS)
+    setTimeScore(0)
+    startRef.current = Date.now()
+    if (mode === 'dojo') {
+      // Dojo ignores the clicked course: it always trains the whole repertoire.
+      startDojo()
+      return
+    }
+    setCourseId(c.id)
     // Arena and Puzzles run their own engines; the shell only selects the course.
     if (mode === 'arena' || mode === 'puzzles') {
       clearTimers()
@@ -321,7 +440,7 @@ export function OpeningsView() {
       const untrained = c.lines.find((l) => (mastery[c.id]?.[l.id]?.reps ?? 0) === 0)
       drillLine(c, untrained ?? pickNextLine(c, mastery[c.id]))
     }
-  }, [clearTimers, drillLine, endSession, mastery, mode, stopClock])
+  }, [clearTimers, drillLine, endSession, mastery, mode, startDojo, stopClock])
 
   // Pause the clock while the completion card shows; resume for the next line.
   useEffect(() => {
@@ -348,6 +467,14 @@ export function OpeningsView() {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
   }, [phase, mode, nextLine, stopClock, endSession])
+
+  // Dojo rhythm: the next random rep arrives on its own, like chessreps'
+  // 750-1000ms auto-advance; the student can still click "Next rep" sooner.
+  useEffect(() => {
+    if (mode !== 'dojo' || phase !== 'complete') return
+    const t = setTimeout(() => nextDojoRep(), 1800)
+    return () => clearTimeout(t)
+  }, [phase, mode, nextDojoRep])
 
   const [selectedLineId, setSelectedLineId] = useState<string | null>(null)
 
@@ -382,6 +509,10 @@ export function OpeningsView() {
           setStatus('Streak reset. Watch the line, then play it again.')
           setPhase('autopilot')
           timerRef.current = setTimeout(() => drillLine(course2, line), 900)
+        } else if (mode === 'dojo') {
+          // Dojo: no rewind theater; the miss costs the streak, snap-back is
+          // the teacher. Rescue still arrives at the third slip.
+          setStatus(attempt >= 3 ? `It is ${expected}.` : 'Not the rep. The streak is gone. Try again.')
         } else if (attempt >= 3) {
           // Rescue: play the move for the student so nobody gets stuck.
           setStatus(`It is ${expected}. Watch it once, then continue.`)
@@ -481,6 +612,67 @@ export function OpeningsView() {
   }
   if (course && mode === 'puzzles') {
     return <OpeningPuzzles course={course} onExit={backToCourses} />
+  }
+
+  /* ------------------------------ dojo picker hero ------------------------------ */
+  if (mode === 'dojo' && (phase === 'idle' || !course)) {
+    return (
+      <div className="mx-auto w-full max-w-5xl px-3 py-4 pb-24 sm:px-4 lg:pb-8">
+        <header className="mb-4">
+          <h1 className="flex items-center gap-2 font-display text-2xl font-extrabold tracking-tight">
+            <Target className="h-6 w-6 text-primary-light" aria-hidden /> Opening Training
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Drill your repertoire until the moves play themselves. Wrong moves snap back, the shakiest line always returns first.
+          </p>
+        </header>
+        <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4" role="tablist" aria-label="Training mode">
+          {MODES.map((m) => {
+            const Icon = m.icon
+            const active = mode === m.id
+            return (
+              <button
+                key={m.id}
+                role="tab"
+                aria-selected={active}
+                onClick={() => {
+                  setMode(m.id)
+                  try { window.localStorage.setItem(MODE_KEY, m.id) } catch { /* private mode */ }
+                }}
+                className={cn(
+                  'rounded-xl border p-3 text-left transition-all active:scale-[0.98]',
+                  active
+                    ? 'border-primary bg-primary/10 shadow-sm'
+                    : 'border-border bg-card hover:border-primary/40 hover:bg-accent/40',
+                )}
+              >
+                <div className="flex items-center gap-2 text-sm font-bold">
+                  <Icon className={cn('h-4 w-4', active ? 'text-primary' : 'text-muted-foreground')} aria-hidden />
+                  {m.label}
+                </div>
+                <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{m.blurb}</p>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-6 text-center shadow-sm">
+          <Dumbbell className="mx-auto h-10 w-10 text-primary" aria-hidden />
+          <h2 className="mt-3 font-display text-xl font-extrabold">The Dojo is the whole repertoire at once</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-snug text-muted-foreground">
+            Every rep drops you into a random position from any course you train. No course pick, no warm-up: find your move, finish the line, next rep. Streak survives only clean lines.
+          </p>
+          {dojoBest > 0 && (
+            <p className="mt-3 text-xs font-extrabold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+              Dojo best streak: {dojoBest}
+            </p>
+          )}
+          <Button size="lg" className="mt-4" onClick={startDojo}>
+            <Dumbbell className="mr-2 h-4 w-4" /> Enter the Dojo
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   /* ------------------------------ course picker ------------------------------ */
@@ -584,7 +776,7 @@ export function OpeningsView() {
       <div className="mx-auto flex w-full max-w-md flex-col items-center px-3 py-10 text-center">
         <Trophy className="h-12 w-12 text-primary-light" aria-hidden />
         <h2 className="mt-3 font-display text-2xl font-extrabold">Session complete</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{course.name} · {mode === 'time' ? 'Time attack' : MODES.find((m) => m.id === mode)?.label}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{mode === 'dojo' ? 'Dojo · whole repertoire' : `${course.name} · ${mode === 'time' ? 'Time attack' : MODES.find((m) => m.id === mode)?.label}`}</p>
         <div className="mt-6 grid w-full grid-cols-2 gap-3">
           <div className="rounded-xl border bg-card p-4">
             <div className="font-display text-3xl font-extrabold">{mode === 'time' ? timeScore : stats.lines}</div>
@@ -604,7 +796,7 @@ export function OpeningsView() {
           </div>
         </div>
         <div className="mt-6 flex w-full flex-col gap-2">
-          <Button onClick={() => startCourse(course)}>
+          <Button onClick={() => (mode === 'dojo' ? startDojo() : startCourse(course))}>
             <Play className="mr-2 h-4 w-4" /> Train again
           </Button>
           <Button variant="secondary" onClick={backToCourses}>
@@ -686,17 +878,33 @@ export function OpeningsView() {
                 <Hourglass className="h-3.5 w-3.5" aria-hidden /> {Math.max(0, Math.ceil(clock))}s
               </span>
             )}
-            {(mode === 'drill' || mode === 'time') && (
+            {(mode === 'drill' || mode === 'time' || mode === 'dojo') && (
               <span className="flex items-center gap-1 rounded-full bg-accent/60 px-3 py-1.5 text-xs font-extrabold tabular-nums">
                 <Zap className="h-3.5 w-3.5 text-amber-500" aria-hidden /> {stats.streak}
               </span>
             )}
-            <Button variant="secondary" size="sm" onClick={() => nextLine(course, line?.id)} title="Skip to the next line">
-              <SkipForward className="h-3.5 w-3.5" aria-label="Skip line" />
-            </Button>
+            {mode === 'dojo' ? (
+              <>
+                <Button variant="secondary" size="sm" onClick={nextDojoRep} title="Skip to the next random rep">
+                  <SkipForward className="h-3.5 w-3.5" aria-label="Skip rep" />
+                </Button>
+                <Button variant="secondary" size="sm" onClick={() => endSession('Dojo session ended.')} title="Finish and see the summary">
+                  Finish
+                </Button>
+              </>
+            ) : (
+              <Button variant="secondary" size="sm" onClick={() => nextLine(course, line?.id)} title="Skip to the next line">
+                <SkipForward className="h-3.5 w-3.5" aria-label="Skip line" />
+              </Button>
+            )}
           </div>
         </div>
 
+        {mode === 'dojo' && dojoSource && (
+          <div className="mb-2 flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-muted-foreground">
+            <Dumbbell className="h-3.5 w-3.5 text-primary" aria-hidden /> Dojo rep from {dojoSource}
+          </div>
+        )}
         <ChessBoard
           fen={fen}
           orientation={course.side}
@@ -742,6 +950,7 @@ export function OpeningsView() {
             <div className="flex justify-between"><dt className="text-muted-foreground">Accuracy</dt><dd className="font-extrabold tabular-nums">{stats.studentMoves + stats.mistakes > 0 ? Math.round((stats.studentMoves / (stats.studentMoves + stats.mistakes)) * 100) : 100}%</dd></div>
             <div className="flex justify-between"><dt className="text-muted-foreground">Best streak</dt><dd className="font-extrabold tabular-nums">{stats.bestStreak}</dd></div>
             {mode === 'time' && <div className="flex justify-between"><dt className="text-muted-foreground">Score</dt><dd className="font-extrabold tabular-nums">{timeScore}</dd></div>}
+            {mode === 'dojo' && <div className="flex justify-between"><dt className="text-muted-foreground">Dojo best</dt><dd className="font-extrabold tabular-nums">{Math.max(dojoBest, stats.bestStreak)}</dd></div>}
           </dl>
         </div>
 
@@ -753,7 +962,11 @@ export function OpeningsView() {
             </div>
             <div className="mt-1 font-mono text-xs text-muted-foreground">{line.moves.join(' ')}</div>
             <p className="mt-2 text-sm leading-snug">{line.idea}</p>
-            {mode !== 'time' && (
+            {mode === 'dojo' ? (
+              <Button size="sm" className="mt-3 w-full" onClick={nextDojoRep}>
+                Next rep <ArrowRight className="ml-1 h-3.5 w-3.5" />
+              </Button>
+            ) : mode !== 'time' && (
               <Button size="sm" className="mt-3 w-full" onClick={() => nextLine(course, line.id)}>
                 Next line <ArrowRight className="ml-1 h-3.5 w-3.5" />
               </Button>
