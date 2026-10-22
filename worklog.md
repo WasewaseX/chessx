@@ -268,3 +268,18 @@ Work Log:
 Stage Summary:
 - Plan now shows real cost per item; changelog documents the recovery fix; mobile green.
 - Next: full-view render sweep (hunt the "render errors" class), then Conversion trainer as the next feature.
+
+---
+Task ID: 12
+Agent: Z.ai Code (main)
+Task: Full-view render sweep (hunt the "render errors" class)
+
+Work Log:
+- agent-browser sweep at 1280px, signed in as admin: visited #/a #/p #/z #/l #/n #/tools/trainer #/tools/explorer #/review #/insights #/wrapped #/c #/rush #/battle #/lessons #/vision #/settings #/woodpecker #/globe #/leaderboard (19 views).
+- Zero console errors on every view; zero page errors; dev.log clean (no 500s, no unhandled).
+- Visual spot-check rendered correctly (puzzles screenshot re/shots/16-sweep-puzzles.png).
+- Earlier corrupted-looking source greps (woodpecker-view "const e, setMe]") were display artifacts; file verified intact via Read + tsc.
+
+Stage Summary:
+- The historical "it has render errors" complaint: no reproducible error anywhere in 19 views today. Accumulated fixes (prisma client regen, webpack mode, runtime guards) hold. Evidence committed.
+- Next: Convert-the-Win trainer (chessigma conversion-bot pattern) as the next feature build.
