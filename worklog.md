@@ -483,3 +483,19 @@ Stage Summary:
 - chessreps 12-item port list: 10 of 12 shipped (1-10); item 11 (cross-device sync envelope) and 12 (trial gate) intentionally out of scope for a free, single-device learning app.
 - Dojo completes the trainer's mode suite and is fully wired into mastery grading (reps grade their own course/line regardless of entry point).
 - Screenshots: download/verify-dojo-1-hero.png, -2-session.png, -3-nextrep.png.
+
+---
+Task ID: 16
+Agent: Z.ai Code (main)
+Task: chess.com 403 - bulk import moved to browser-first transport (user: single-game tabs must fetch from the browser)
+
+Work Log:
+- Found the remaining server-side chess.com dependency: BulkTab (By username) posted {platform,username,months} and the server fetched upstream -> datacenter 403. Single-game tabs and recent-games were already browser-side.
+- API /api/import/username now accepts {platform,username,pgns} (browser-fetched): sanitize username first, cap 250 games / 64KB each, plausiblePgn pre-filter, then storeImportedGames (which re-parses every PGN server-side, so junk cannot reach the db). Old months-mode kept as fallback. Rate limit unchanged.
+- BulkTab now fetches IN THE USER'S BROWSER: chess.com monthly archives (Promise.allSettled per month, 250 cap) or lichess /api/games/user PGN export split on [Event boundaries, then POSTs the PGNs for storage; on browser failure falls back to the server path (lichess usually succeeds there; chess.com 403s with the honest datacenter message). Loading copy updated: "Fetching the games ... in your browser".
+- Browser-verified: lichess bulk DrNykterstein -> "Imported 0 of 5 (5 duplicates skipped)" (dedupe works); Zhigalko_Sergei -> "Imported 100 of 100 (0 duplicates skipped)" (real insertion works); chess.com bulk from this sandbox -> browser 403 -> honest fallback message (expected: the sandbox egress IP is also a datacenter IP; a home user's browser is not blocked). Screenshot: download/verify-import-browser-first.png.
+- tsc --noEmit clean, eslint clean.
+
+Stage Summary:
+- Every chess.com transport is now browser-first: recent-games tab, single-game link tab, and bulk username import. The server only stores client-fetched PGNs (validated) or serves as the honest-failure fallback.
+- The user-facing promise "fetch from your own browser" is now true everywhere.

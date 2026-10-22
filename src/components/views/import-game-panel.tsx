@@ -232,6 +232,51 @@ interface ChessComArchiveGame {
 const CHESSCOM_BLOCKED =
   'chess.com would not answer this request (HTTP 403). It often blocks automated traffic from some networks — and unlike lichess there is no server fallback. Copy the PGN from the chess.com game page and paste it in the PGN / file tab; that path always works.'
 
+/**
+ * Bulk flow, browser-first: the user's own browser fetches the games (chess.com
+ * blocks the server's datacenter IP, not the user), the server only stores.
+ * Each monthly archive that fails is skipped; a total failure throws for the
+ * server-side fallback.
+ */
+async function fetchChessComArchivePgn(name: string, monthsBack: number): Promise<string[]> {
+  const clean = cleanUsername(name, 'chesscom')
+  const cursor = new Date()
+  const months: string[] = []
+  for (let i = 0; i < monthsBack; i++) {
+    months.push(`${cursor.getFullYear()}/${String(cursor.getMonth() + 1).padStart(2, '0')}`)
+    cursor.setMonth(cursor.getMonth() - 1)
+  }
+  const settled = await Promise.allSettled(
+    months.map(async (ym) => {
+      const res = await fetchWithTimeout(`https://api.chess.com/pub/player/${encodeURIComponent(clean)}/games/${ym}`)
+      if (!res.ok) throw new HttpError(`HTTP ${res.status}`, res.status)
+      const data = (await res.json().catch(() => null)) as { games?: ChessComArchiveGame[] } | null
+      return (data?.games ?? []).map((g) => (typeof g?.pgn === 'string' ? g.pgn : '')).filter(Boolean)
+    }),
+  )
+  const ok = settled.filter((s): s is PromiseFulfilledResult<string[]> => s.status === 'fulfilled').flatMap((s) => s.value)
+  if (ok.length === 0 && settled.every((s) => s.status === 'rejected')) {
+    const statuses = settled.filter((s): s is PromiseRejectedResult => s.status === 'rejected').map((s) => (s.reason instanceof HttpError ? s.reason.status : null))
+    if (statuses.includes(403)) throw new HttpError(CHESSCOM_BLOCKED, 403)
+    throw new HttpError('Could not reach chess.com from your browser.', null)
+  }
+  return ok.slice(0, 250)
+}
+
+/** Lichess multi-game PGN export, split into individual games. */
+async function fetchLichessUserPgn(name: string, max: number): Promise<string[]> {
+  const clean = cleanUsername(name, 'lichess')
+  const res = await fetchWithTimeout(
+    `https://lichess.org/api/games/user/${encodeURIComponent(clean)}?max=${max}&opening=true&clocks=false&evals=false`,
+    { headers: { Accept: 'application/x-chess-pgn' } },
+  )
+  if (res.status === 404) throw new HttpError(`lichess has no player named “${clean}”.`, 404)
+  if (!res.ok) throw new HttpError(`HTTP ${res.status}`, res.status)
+  const text = await res.text()
+  if (!looksLikePgn(text)) throw new HttpError('no PGN in the answer', res.status)
+  return text.split(/\n\s*\n(?=\[Event )/).map((g) => g.trim()).filter((g) => g.length > 20)
+}
+
 async function fetchChessComRecent(username: string): Promise<{ games: ChessComArchiveGame[]; months: string[] }> {
   const name = cleanUsername(username, 'chesscom')
   // The two most recent calendar months, today-based.
@@ -746,13 +791,21 @@ function BulkTab({ signedIn }: { signedIn: boolean }) {
     setLoading(true)
     setError(null)
     setSummary(null)
+    // Path 1 (primary): the BROWSER fetches the PGNs, the server only stores.
+    // chess.com blocks datacenter IPs, so the server path cannot be trusted
+    // for it; the user's own browser is the honest transport.
     try {
+      const pgns = platform === 'chesscom' ? await fetchChessComArchivePgn(name, Number(months)) : await fetchLichessUserPgn(name, 250)
+      if (pgns.length === 0) {
+        setSummary({ imported: 0, fetched: 0, skipped: 0, user: name, empty: true })
+        return
+      }
       const res = await fetchWithTimeout(
         '/api/import/username',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ platform, username: name, months: Number(months) }),
+          body: JSON.stringify({ platform, username: name, pgns }),
         },
         35_000,
       )
@@ -765,8 +818,34 @@ function BulkTab({ signedIn }: { signedIn: boolean }) {
       const fetched = typeof data?.fetched === 'number' ? data.fetched : 0
       const skipped = typeof data?.skipped === 'number' ? data.skipped : 0
       setSummary({ imported, fetched, skipped, user: name, empty: fetched === 0 })
-    } catch {
-      setError('Could not reach the import service. Check your connection and try again.')
+      return
+    } catch (browserErr) {
+      // Path 2 (fallback): the old server-side fetch. Works for lichess;
+      // chess.com usually answers 403 there, with an honest message.
+      try {
+        const res = await fetchWithTimeout(
+          '/api/import/username',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ platform, username: name, months: Number(months) }),
+          },
+          35_000,
+        )
+        const data = (await res.json().catch(() => null)) as BulkResult | null
+        if (!res.ok) {
+          setError(data && typeof data.error === 'string' ? data.error : `Import failed (HTTP ${res.status}).`)
+          return
+        }
+        const imported = typeof data?.imported === 'number' ? data.imported : 0
+        const fetched = typeof data?.fetched === 'number' ? data.fetched : 0
+        const skipped = typeof data?.skipped === 'number' ? data.skipped : 0
+        setSummary({ imported, fetched, skipped, user: name, empty: fetched === 0 })
+        return
+      } catch {
+        setError(browserErr instanceof HttpError && browserErr.status === 404 && platform === 'lichess' ? browserErr.message : 'Could not reach the import service. Check your connection and try again.')
+        return
+      }
     } finally {
       setLoading(false)
     }
@@ -816,7 +895,7 @@ function BulkTab({ signedIn }: { signedIn: boolean }) {
         Saves the most recent finished games to your history, insights and coach. Already-imported games are skipped automatically.
         {!signedIn && ' Sign in first — the server needs an account to save into.'}
       </p>
-      {loading && <p className="mt-3 text-xs font-semibold text-muted-foreground">Talking to {platform === 'chesscom' ? 'chess.com' : 'lichess'} from the server — this can take a few seconds…</p>}
+      {loading && <p className="mt-3 text-xs font-semibold text-muted-foreground">Fetching the games from {platform === 'chesscom' ? 'chess.com' : 'lichess'} in your browser — this can take a few seconds…</p>}
       {error && <ErrorNote>{error}</ErrorNote>}
       {summary && !error && (
         <p
