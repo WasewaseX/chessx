@@ -30,9 +30,25 @@ const DAY_MS = 24 * 60 * 60 * 1000
 let started = false
 
 /** Opaque to webpack: resolved by the real Node CJS loader at call time.
- *  Same helper as bank-bootstrap.ts. */
+ *  Same helper as bank-bootstrap.ts / gh-snapshot.ts, with the plain-bun
+ *  ESM fallback (eval('require') throws there): build a real require() from
+ *  the 'module' builtin via getBuiltinModule — no static import, so webpack
+ *  never tries to resolve node builtins at build time. */
 function nodeRequire(mod: string): any {
-  return (eval('require'))(mod)
+  try {
+    return (eval('require'))(mod) // works under webpack + node CJS
+  } catch {
+    const proc = globalThis.process as unknown as {
+      cwd?: () => string
+      getBuiltinModule?: (m: string) => unknown
+    }
+    const moduleBuiltin = proc?.getBuiltinModule?.('module') as
+      | { createRequire?: (f: string) => NodeRequire }
+      | undefined
+    const createRequire = moduleBuiltin?.createRequire
+    if (createRequire && proc?.cwd) return createRequire(`${proc.cwd()}/package.json`)(mod)
+    throw new Error(`nodeRequire: cannot load ${mod} in this runtime`)
+  }
 }
 
 function pathJoin(...parts: string[]): string {
@@ -115,31 +131,91 @@ async function backupLoop(): Promise<void> {
   }
 }
 
-/** Read the User count straight from the SQLite file with node:sqlite —
- *  deliberately NOT through Prisma: opening a Prisma connection caches a
- *  file handle that would keep pointing at the pre-restore (empty) inode
- *  after the snapshot swap. Read-only, closed immediately. */
-async function readUserCountRaw(): Promise<number | null> {
+/** Classify the local database straight from the SQLite file with
+ *  node:sqlite — deliberately NOT through Prisma: opening a Prisma connection
+ *  caches a file handle that would keep pointing at the pre-restore (empty)
+ *  inode after the snapshot swap. Read-only, closed immediately.
+ *
+ *  The Oct 22 lesson: "restore only when the User table is empty" was not
+ *  enough. A deployment that had been running since before the user signed
+ *  up carries exactly ONE row — the bootstrapped admin — and that row made a
+ *  database with zero real user data look "populated", so the snapshot with
+ *  the user's account was never pulled and sign-in kept failing with
+ *  "account not found" after every redeploy. The restore condition is
+ *  therefore about REAL user data, not merely the presence of any row:
+ *
+ *    empty     — no User rows at all (fresh volume)
+ *    pristine  — exactly the bootstrapped admin and zero activity anywhere
+ *                else (a stale deployment that nobody ever really used)
+ *    populated — anything else; NEVER overwritten by a restore
+ *    unknown   — unreadable file; fail safe, keep local */
+
+/** Minimal common denominator of node:sqlite's DatabaseSync and bun:sqlite's
+ *  Database — enough for read-only scalar probes. */
+interface RawSqlite {
+  prepare: (s: string) => { get: () => Record<string, unknown> | undefined }
+  close: () => void
+}
+
+/** Open a read-only SQLite connection with whatever runtime we happen to be
+ *  on: node:sqlite on Node, bun:sqlite under bun. The Oct 22 lesson: the
+ *  standalone production server may run under either, and a hard
+ *  node:sqlite requirement made the classifier return 'unknown' under bun —
+ *  silently disabling the user-data restore there. */
+function openRawReadOnly(dbPath: string): RawSqlite {
+  try {
+    const { DatabaseSync } = nodeRequire('node:sqlite') as {
+      DatabaseSync: new (p: string, opts?: { readOnly?: boolean }) => RawSqlite
+    }
+    return new DatabaseSync(dbPath, { readOnly: true })
+  } catch {
+    const { Database } = nodeRequire('bun:sqlite') as {
+      Database: new (p: string, opts?: { readonly?: boolean }) => RawSqlite
+    }
+    return new Database(dbPath, { readonly: true })
+  }
+}
+
+async function readLocalDataStateRaw(): Promise<'empty' | 'pristine' | 'populated' | 'unknown'> {
   try {
     const dbPath = dbFilePath()
-    if (!dbPath) return null
+    if (!dbPath) return 'unknown'
     const { existsSync } = nodeRequire('fs') as typeof import('fs')
-    if (!existsSync(dbPath)) return 0
-    const { DatabaseSync } = nodeRequire('node:sqlite') as {
-      DatabaseSync: new (p: string, opts?: { readOnly?: boolean }) => {
-        prepare: (s: string) => { get: () => Record<string, unknown> | undefined }
-        close: () => void
-      }
-    }
-    const raw = new DatabaseSync(dbPath, { readOnly: true })
+    if (!existsSync(dbPath)) return 'empty'
+    const raw = openRawReadOnly(dbPath)
     try {
-      const row = raw.prepare('SELECT COUNT(*) AS n FROM "User"').get()
-      return Number(row?.n ?? 0)
+      const scalar = (sql: string): number => {
+        try {
+          return Number(raw.prepare(sql).get()?.n ?? 0)
+        } catch {
+          return 0 // table not created yet in an older schema — no data there
+        }
+      }
+      const users = scalar('SELECT COUNT(*) AS n FROM "User"')
+      if (users === 0) return 'empty'
+      if (users > 1) return 'populated'
+      // Exactly one row: pristine ONLY if it is the bootstrapped admin AND
+      // every other user-data table is empty.
+      const bootAdmin = scalar(
+        `SELECT COUNT(*) AS n FROM "User" WHERE email = 'admin@chessx.local' AND role = 'admin'`,
+      )
+      if (bootAdmin !== 1) return 'populated'
+      const activity =
+        scalar('SELECT COUNT(*) AS n FROM "GameRecord"') +
+        scalar('SELECT COUNT(*) AS n FROM "PuzzleAttempt"') +
+        scalar('SELECT COUNT(*) AS n FROM "CoachGame"') +
+        scalar('SELECT COUNT(*) AS n FROM "RushRun"') +
+        scalar('SELECT COUNT(*) AS n FROM "DnaSnapshot"') +
+        scalar('SELECT COUNT(*) AS n FROM "OnlineGame"') +
+        scalar('SELECT COUNT(*) AS n FROM "BattleRecord"') +
+        scalar('SELECT COUNT(*) AS n FROM "ReviewItem"') +
+        scalar('SELECT COUNT(*) AS n FROM "ImportCache"')
+      return activity === 0 ? 'pristine' : 'populated'
     } finally {
       raw.close()
     }
   } catch {
-    return null // table missing / unreadable — treat as unknown
+    return 'unknown' // table missing / unreadable — fail safe, keep local
   }
 }
 
@@ -255,9 +331,12 @@ async function seedWhatsNew(): Promise<void> {
 
 /**
  * Full boot sequence, in strict order (the Oct 20 lesson: order is data):
- *   1. RESTORE — if the local database has zero users and the private
- *      GitHub snapshot repo has data, pull it BEFORE any account bootstrap
- *      can race in and make the database look populated.
+ *   1. RESTORE — if the local database has no REAL user data (empty, or
+ *      pristine with only the bootstrapped admin) and the private GitHub
+ *      snapshot repo has data, pull it BEFORE any account bootstrap can race
+ *      in. The Oct 22 refinement: counting users alone kept a stale
+ *      deployment's boot-admin blocking the restore forever, so the user's
+ *      account never came back after redeploys ("account not found").
  *   2. Admin bootstrap (local safety net for a genuinely fresh deployment).
  *   3. What's-new seed + daily snapshot loop.
  * Resolves once restore + admin bootstrap are done, so instrumentation can
@@ -267,17 +346,19 @@ export function runBootMaintenance(): Promise<void> {
   if (started) return Promise.resolve()
   started = true
   return (async () => {
-    // 1. Restore user data from GitHub when the local db is empty.
+    // 1. Restore user data from GitHub when the local db has no real data.
     try {
-      const count = await readUserCountRaw()
-      if (count === 0) {
+      const state = await readLocalDataStateRaw()
+      if (state === 'empty' || state === 'pristine') {
         const { restoreFromGithub } = await import('./gh-snapshot')
         const ok = await restoreFromGithub()
         if (ok) {
           // Drop any connection Prisma may have opened against the old
-          // (empty) file; the next query reopens the restored inode.
+          // (stale/empty) file; the next query reopens the restored inode.
           await db.$disconnect().catch(() => {})
-          console.log('[boot] user data restored from GitHub snapshot')
+          console.log(`[boot] user data restored from GitHub snapshot (local state was ${state})`)
+        } else {
+          console.log(`[boot] no snapshot pulled (local state ${state}); keeping local database`)
         }
       }
     } catch (e) {
