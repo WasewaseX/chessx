@@ -499,3 +499,18 @@ Work Log:
 Stage Summary:
 - Every chess.com transport is now browser-first: recent-games tab, single-game link tab, and bulk username import. The server only stores client-fetched PGNs (validated) or serves as the honest-failure fallback.
 - The user-facing promise "fetch from your own browser" is now true everywhere.
+
+---
+Task ID: 17
+Agent: Z.ai Code (main)
+Task: Final sweep - Eye Training verification, full-system health check, never-stop session close
+
+Work Log:
+- Eye Training verified live (built in prior sessions): 4 drills render (Square colors 30s sprint, Loose pieces 8 rounds LPDO, Rays & defenders, Flash chunks de Groot style) with real master-game positions; ran the Square colors sprint - answered Light on b8 (dark) -> "0 named - 1 missed", next answer Dark -> "1 named - 1 missed". Scoring and timers work. Screenshots: download/verify-eye-1.png, -2-drill.png.
+- Full-system health sweep: /api/health {"ok":true}; dev.log clean 200s (no 5xx, no render errors) across coach game, dojo, import, eye training sessions; watchdog alive (last action: proven auto-recovery); exactly ONE next-server instance; memory 1.4GB available after browser close.
+- Session totals: render-failure root cause eliminated (OOM heap cap + watchdog + boot arming), coach claim-guard proven in API + live board scenarios, Dojo shipped and drill-verified move-by-move, bulk import browser-first shipped and verified 100/100, Eye Training confirmed working.
+
+Stage Summary:
+- All four user-reported failure classes are closed with browser evidence: (1) render failed -> OOM-proofed + self-healing, (2) ai still so stupid -> claim-guard proven under pushback, (3) chess.com 403 -> browser-first everywhere with honest fallback, (4) takeback freeze + limits -> fixed and unlimited (prior session, re-verified by usage in this session's coach game).
+- chessreps port: 10 of 12 items live (1-10 incl. Dojo); 11-12 (cross-device sync envelope, trial gate) out of scope for a free single-device app by design.
+- Commits this session: 9ae9069 (OOM-proof + watchdog), f522c7d (consolidated watchdog + proof), 1368457 (coach claim-guard live proof), 9a88250 (Dojo), 7352c19 (browser-first bulk import). All pushed to origin/main.
