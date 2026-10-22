@@ -319,7 +319,9 @@ export function OpeningsView() {
       stopClock()
       timerRef.current = setTimeout(() => {
         if (courseRef.current) nextLine(courseRef.current, lineRef.current?.id)
-        if (!clockTickRef.current && phase !== 'sessionOver') {
+        // Resume the clock for the next line unless time already ran out
+        // (endSession stopped it and the session is over).
+        if (!clockTickRef.current && clockRef.current > 0) {
           clockTickRef.current = setInterval(() => {
             clockRef.current -= 0.2
             setClock(clockRef.current)
@@ -357,6 +359,7 @@ export function OpeningsView() {
       if (playedSan !== expected) {
         mistakesRef.current++
         lineCleanRef.current = false
+        setPraise(null)
         setStats((s) => ({ ...s, mistakes: s.mistakes + 1 }))
         if (mode === 'drill') setStats((s) => ({ ...s, streak: 0 }))
         setShake(true)

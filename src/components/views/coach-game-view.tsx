@@ -589,8 +589,8 @@ export function CoachGameView() {
     setSaved(false)
     setSelectedPly(null)
     setArrows([])
-    setTakebacks(2)
-    setHints(3)
+    setTakebacksUsed(0)
+    setHintsUsed(0)
     setPhase('playing')
     setChat([
       {
