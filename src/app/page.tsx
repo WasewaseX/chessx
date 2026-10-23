@@ -40,6 +40,7 @@ const WhatsNewView = dynamic(() => import('@/components/views/whatsnew-view').th
 const CoachGameView = dynamic(() => import('@/components/views/coach-game-view').then(m => ({ default: m.CoachGameView })), { loading: viewLoader })
 const EyeTrainingPanel = dynamic(() => import('@/components/views/eye-training-view').then(m => ({ default: m.EyeTrainingPanel })), { loading: viewLoader })
 const BrainGamesPanel = dynamic(() => import('@/components/views/brain-games-view').then(m => ({ default: m.BrainGamesView })), { loading: viewLoader })
+const ConversionTrainerPanel = dynamic(() => import('@/components/views/conversion-trainer-view').then(m => ({ default: m.ConversionTrainerView })), { loading: viewLoader })
 const OpeningsView = dynamic(() => import('@/components/views/openings-view').then(m => ({ default: m.OpeningsView })), { loading: viewLoader })
 const SharedDnaOverlay = dynamic(() => import('@/components/views/shared-dna-overlay').then(m => ({ default: m.SharedDnaOverlay })), { loading: viewLoader })
 
@@ -67,6 +68,8 @@ function ViewRouter() {
       return <EyeTrainingPanel />
     case 'braingames':
       return <BrainGamesPanel />
+    case 'conversion':
+      return <ConversionTrainerPanel />
     case 'openings':
       return <OpeningsView />
     case 'profile':

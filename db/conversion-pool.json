@@ -1,0 +1,3162 @@
+{
+ "builtAt": "2026-10-23T16:43:53.495Z",
+ "depth": 16,
+ "positions": [
+  {
+   "id": "Nl68I",
+   "fen": "8/8/5P1p/1R5P/5kp1/8/1p5r/1K6 b - - 0 59",
+   "evalCp": 545,
+   "winner": "b",
+   "bestLine": [
+    "Rf2",
+    "f7",
+    "Kg3",
+    "Rb6",
+    "Rxf7",
+    "Rxh6"
+   ],
+   "rating": 1824,
+   "themes": [
+    "advancedPawn",
+    "crushing",
+    "endgame",
+    "master",
+    "quietMove"
+   ]
+  },
+  {
+   "id": "Nl6Mz",
+   "fen": "5rk1/3b1ppp/N2p4/1p2n3/4n2q/4B2P/PPQ3P1/R3RB1K w - - 0 21",
+   "evalCp": 441,
+   "winner": "w",
+   "bestLine": [
+    "Kg1",
+    "Bxh3",
+    "Bf4",
+    "Bf5",
+    "Bxe5",
+    "dxe5"
+   ],
+   "rating": 2203,
+   "themes": [
+    "crushing",
+    "kingsideAttack",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "Nl7Aa",
+   "fen": "r1r3k1/3bbppp/p3pn2/1p1p4/8/2PQP1B1/PqN1NPPP/R4RK1 b - - 1 21",
+   "evalCp": 439,
+   "winner": "b",
+   "bestLine": [
+    "b4",
+    "Rfb1",
+    "Bb5",
+    "Rxb2",
+    "Bxd3",
+    "Nxb4"
+   ],
+   "rating": 1548,
+   "themes": [
+    "crushing",
+    "middlegame",
+    "short",
+    "trappedPiece"
+   ]
+  },
+  {
+   "id": "Nl7L2",
+   "fen": "r2q3k/pp2b3/2p3Qp/8/3P3r/4B3/PPP2P2/3R1RK1 w - - 1 24",
+   "evalCp": 491,
+   "winner": "w",
+   "bestLine": [
+    "Bf4",
+    "Bf6",
+    "Bg3",
+    "Bxd4",
+    "Bxh4",
+    "Qxh4"
+   ],
+   "rating": 1713,
+   "themes": [
+    "advantage",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "Nl7Lp",
+   "fen": "6r1/k7/pp6/7r/8/3PB2P/PP2Q1b1/R6K w - - 0 28",
+   "evalCp": 808,
+   "winner": "w",
+   "bestLine": [
+    "Qxg2",
+    "Rxg2",
+    "Kxg2",
+    "Kb7",
+    "Kg3",
+    "Rb5"
+   ],
+   "rating": 1513,
+   "themes": [
+    "crushing",
+    "discoveredAttack",
+    "discoveredCheck",
+    "endgame",
+    "long"
+   ]
+  },
+  {
+   "id": "Nl7fo",
+   "fen": "3r3k/pb3pp1/1p2n2p/5N2/PP3Pn1/6Pq/BBP1Q2P/4R1K1 b - - 3 31",
+   "evalCp": 897,
+   "winner": "b",
+   "bestLine": [
+    "Bf3",
+    "Qf2",
+    "Nxf2",
+    "Bxg7+",
+    "Nxg7",
+    "Nh4"
+   ],
+   "rating": 1523,
+   "themes": [
+    "crushing",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "Nl7jO",
+   "fen": "r2r2k1/2p2pp1/1b3np1/p2P4/1p6/3QB1Nq/PPB2P2/R4RK1 w - - 0 23",
+   "evalCp": 303,
+   "winner": "w",
+   "bestLine": [
+    "Bxb6",
+    "Ng4",
+    "Rfe1",
+    "Qh2+",
+    "Kf1",
+    "Qh3+"
+   ],
+   "rating": 1764,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "Nl8P4",
+   "fen": "8/1k6/1p1r1pp1/3P3p/3K1P2/6P1/7P/4R3 w - - 9 44",
+   "evalCp": 406,
+   "winner": "w",
+   "bestLine": [
+    "Re7+",
+    "Kc8",
+    "Rg7",
+    "g5",
+    "fxg5",
+    "fxg5"
+   ],
+   "rating": 1997,
+   "themes": [
+    "crushing",
+    "endgame",
+    "rookEndgame",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "Nl8oj",
+   "fen": "r4k2/3n1p1p/1p1Pp3/3p2N1/1npP4/6RP/1P3PPK/r7 b - - 1 33",
+   "evalCp": 765,
+   "winner": "b",
+   "bestLine": [
+    "Nf6",
+    "Re3",
+    "Nc2",
+    "Rc3",
+    "h6",
+    "Rxc2"
+   ],
+   "rating": 2222,
+   "themes": [
+    "deflection",
+    "endgame",
+    "mate",
+    "mateIn4",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "Nl9Lc",
+   "fen": "1r4k1/r3bpp1/p2p3p/2pB4/2PpQPq1/3P1R2/PP6/R1B3K1 w - - 0 25",
+   "evalCp": 437,
+   "winner": "w",
+   "bestLine": [
+    "Kh2",
+    "Bf6",
+    "Rg3",
+    "Qh5+",
+    "Rh3",
+    "Qd1"
+   ],
+   "rating": 1593,
+   "themes": [
+    "advantage",
+    "clearance",
+    "long",
+    "middlegame",
+    "trappedPiece"
+   ]
+  },
+  {
+   "id": "Nl9QH",
+   "fen": "r3k2r/1R1n1ppp/p1p1b3/4p1B1/q3pP2/b6P/P1P1B1P1/1Q3R1K b kq - 1 21",
+   "evalCp": 660,
+   "winner": "b",
+   "bestLine": [
+    "exf4",
+    "c4",
+    "O-O",
+    "Qxe4",
+    "Rae8",
+    "Bd1"
+   ],
+   "rating": 1884,
+   "themes": [
+    "crushing",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "Nl9RU",
+   "fen": "4r3/1n3ppk/p2p1q1p/2pP1P2/1pP3Q1/1P5P/Pr1N1PP1/1B1R2K1 b - - 12 32",
+   "evalCp": 351,
+   "winner": "b",
+   "bestLine": [
+    "Rxd2",
+    "Rxd2",
+    "Re1+",
+    "Kh2",
+    "Rxb1",
+    "Qe4"
+   ],
+   "rating": 1997,
+   "themes": [
+    "crushing",
+    "discoveredAttack",
+    "discoveredCheck",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlAaK",
+   "fen": "5rk1/4b1pp/1q2p3/2ppP3/8/2NQ2B1/2P3PP/R5K1 w - - 3 27",
+   "evalCp": 469,
+   "winner": "w",
+   "bestLine": [
+    "Qb5",
+    "Qb8",
+    "Qxb8",
+    "Rxb8",
+    "Kf1",
+    "h5"
+   ],
+   "rating": 2194,
+   "themes": [
+    "clearance",
+    "crushing",
+    "discoveredAttack",
+    "fork",
+    "long"
+   ]
+  },
+  {
+   "id": "NlBIe",
+   "fen": "r6k/pbp3pp/1p2Q3/n3b2q/3P4/2P3P1/PP3P1P/RNB2RK1 w - - 0 21",
+   "evalCp": 490,
+   "winner": "w",
+   "bestLine": [
+    "f3",
+    "Bd6",
+    "Nd2",
+    "Re8",
+    "Qg4",
+    "Qb5"
+   ],
+   "rating": 1839,
+   "themes": [
+    "advantage",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "NlBKj",
+   "fen": "7r/3Rbpk1/p3p3/1p5q/4QP2/P6P/1Pr3P1/3R3K b - - 4 32",
+   "evalCp": 498,
+   "winner": "b",
+   "bestLine": [
+    "Rc4",
+    "Qe3",
+    "Bh4",
+    "Kh2",
+    "Qg6",
+    "R1d3"
+   ],
+   "rating": 1720,
+   "themes": [
+    "advantage",
+    "fork",
+    "master",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlBPm",
+   "fen": "r4rk1/1p2bppp/p3p3/3p2P1/3B1P1q/1N3Q2/PP5P/5RK1 b - - 0 22",
+   "evalCp": 618,
+   "winner": "b",
+   "bestLine": [
+    "g6",
+    "Nc5",
+    "Bxc5",
+    "Bxc5",
+    "Rfc8",
+    "b4"
+   ],
+   "rating": 1546,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short",
+    "trappedPiece"
+   ]
+  },
+  {
+   "id": "NlBYQ",
+   "fen": "5r1k/p5p1/1p5p/1P2p3/4q2N/PQ5P/1P2r3/1KR2R2 w - - 0 32",
+   "evalCp": 601,
+   "winner": "w",
+   "bestLine": [
+    "Ka2",
+    "Rd8",
+    "Nf5",
+    "Qd3",
+    "Qxd3",
+    "Rxd3"
+   ],
+   "rating": 1750,
+   "themes": [
+    "advantage",
+    "fork",
+    "middlegame",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "NlBf5",
+   "fen": "r1b2r2/ppq4Q/2n1pkN1/2pp2N1/3P1b2/2P5/PP3PPP/R3K2R w KQ - 2 17",
+   "evalCp": 370,
+   "winner": "w",
+   "bestLine": [
+    "Nxf8",
+    "Qxh7",
+    "Nfxh7+",
+    "Kg6",
+    "h4",
+    "cxd4"
+   ],
+   "rating": 1500,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlC27",
+   "fen": "r5k1/2pb1r2/1p1p1p1Q/pP1Pq1p1/P3PR2/2PB2R1/6PP/6K1 w - - 0 26",
+   "evalCp": 439,
+   "winner": "w",
+   "bestLine": [
+    "Rxf6",
+    "Qxf6",
+    "Rxg5+",
+    "Qxg5",
+    "Qxg5+",
+    "Rg7"
+   ],
+   "rating": 2093,
+   "themes": [
+    "crushing",
+    "defensiveMove",
+    "middlegame",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "NlC4T",
+   "fen": "r6r/pR2kpbp/2Q1p1p1/3p4/3P1q2/5P1P/P4P2/5KR1 b - - 2 19",
+   "evalCp": 394,
+   "winner": "b",
+   "bestLine": [
+    "Kf8",
+    "Rg4",
+    "Qxf3",
+    "Rb3",
+    "Qd1+",
+    "Kg2"
+   ],
+   "rating": 2062,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlC9s",
+   "fen": "Q1bq3k/p2p2rp/1pn3p1/5pN1/8/2P5/PP2NPP1/4RK1R w - - 1 22",
+   "evalCp": 740,
+   "winner": "w",
+   "bestLine": [
+    "c4",
+    "Re7",
+    "Nc3",
+    "Rxe1+",
+    "Kxe1",
+    "Kg8"
+   ],
+   "rating": 1521,
+   "themes": [
+    "advantage",
+    "discoveredAttack",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlCrD",
+   "fen": "8/kp2Q3/pr5p/1r1PpPp1/4P1P1/2P2q2/PP2R2R/2K5 w - - 15 36",
+   "evalCp": 311,
+   "winner": "w",
+   "bestLine": [
+    "Qa3",
+    "h5",
+    "gxh5",
+    "g4",
+    "Rhf2",
+    "Qh1+"
+   ],
+   "rating": 2105,
+   "themes": [
+    "advantage",
+    "endgame",
+    "long",
+    "queensideAttack"
+   ]
+  },
+  {
+   "id": "NlDFH",
+   "fen": "r2q1rk1/p1pn1p1p/1p2pbp1/4N3/1P3P2/P1BBP3/2QP2bP/R3K1R1 b Q - 1 14",
+   "evalCp": 300,
+   "winner": "b",
+   "bestLine": [
+    "Bxe5",
+    "Rxg2",
+    "Bxc3",
+    "Qxc3",
+    "c5",
+    "Ba6"
+   ],
+   "rating": 2347,
+   "themes": [
+    "advantage",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "NlDtZ",
+   "fen": "r2q1rk1/4b1pp/1p4P1/p1p2P2/1n1pP3/5Q2/PPP2P1P/R1B2RK1 b - - 0 17",
+   "evalCp": 420,
+   "winner": "b",
+   "bestLine": [
+    "hxg6",
+    "Qb3+",
+    "c4",
+    "Qxc4+",
+    "Kh8",
+    "c3"
+   ],
+   "rating": 2154,
+   "themes": [
+    "advancedPawn",
+    "advantage",
+    "kingsideAttack",
+    "middlegame",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "NlEFq",
+   "fen": "3r1r1k/6p1/p6p/8/2Q1B2q/P3PP2/1P5P/1R3R1K w - - 1 33",
+   "evalCp": 835,
+   "winner": "w",
+   "bestLine": [
+    "Rbd1",
+    "Rb8",
+    "b4",
+    "Rbe8",
+    "Qc2",
+    "Re5"
+   ],
+   "rating": 1661,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlEkJ",
+   "fen": "r1b1k2N/ppp3pp/1b3n2/3pp3/2BqP3/2NP1Q2/PPP3PP/R4K1R w q - 0 13",
+   "evalCp": 673,
+   "winner": "w",
+   "bestLine": [
+    "Nxd5",
+    "Bg4",
+    "c3",
+    "Qxc4",
+    "dxc4",
+    "Bxf3"
+   ],
+   "rating": 1997,
+   "themes": [
+    "crushing",
+    "middlegame",
+    "short",
+    "skewer"
+   ]
+  },
+  {
+   "id": "NlFAi",
+   "fen": "6k1/p4pp1/Qp2p3/n2bNq2/3P4/6BP/6PK/8 b - - 3 31",
+   "evalCp": 561,
+   "winner": "b",
+   "bestLine": [
+    "Qc2",
+    "Qf1",
+    "f6",
+    "Ng4",
+    "Nc4",
+    "Bh4"
+   ],
+   "rating": 2066,
+   "themes": [
+    "advantage",
+    "endgame",
+    "fork",
+    "long"
+   ]
+  },
+  {
+   "id": "NlFll",
+   "fen": "5r1k/p5p1/1p6/1B6/PP6/8/2QKrP2/1R5q w - - 0 34",
+   "evalCp": 578,
+   "winner": "w",
+   "bestLine": [
+    "Bxe2",
+    "Qh6+",
+    "Kc3",
+    "Rf4",
+    "Kb3",
+    "Qe6+"
+   ],
+   "rating": 1832,
+   "themes": [
+    "advantage",
+    "attraction",
+    "defensiveMove",
+    "endgame",
+    "sacrifice"
+   ]
+  },
+  {
+   "id": "NlGBC",
+   "fen": "8/8/4k3/N1P4p/Pn1K2p1/1P6/6P1/8 w - - 0 50",
+   "evalCp": 435,
+   "winner": "w",
+   "bestLine": [
+    "g3",
+    "Kf5",
+    "Nc4",
+    "Nc6+",
+    "Kd3",
+    "Nb4+"
+   ],
+   "rating": 1702,
+   "themes": [
+    "advancedPawn",
+    "crushing",
+    "endgame",
+    "knightEndgame",
+    "quietMove"
+   ]
+  },
+  {
+   "id": "NlGSL",
+   "fen": "r6r/4kpQp/p2p2n1/1p3b2/4p1qP/1N1B2P1/PPP5/1K1R1R2 w - - 2 22",
+   "evalCp": 629,
+   "winner": "w",
+   "bestLine": [
+    "Be2",
+    "Qxe2",
+    "Nd4",
+    "Qxd1+",
+    "Rxd1",
+    "Bg4"
+   ],
+   "rating": 1966,
+   "themes": [
+    "crushing",
+    "hangingPiece",
+    "middlegame",
+    "queensideAttack",
+    "short"
+   ]
+  },
+  {
+   "id": "NlGZk",
+   "fen": "1b2r1k1/4qppp/8/3B4/2Q5/2P4P/PP2nP2/3R1K2 b - - 3 31",
+   "evalCp": 503,
+   "winner": "b",
+   "bestLine": [
+    "Nf4",
+    "Bc6",
+    "Rf8",
+    "a4",
+    "Nxh3",
+    "Qe4"
+   ],
+   "rating": 1980,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlGaD",
+   "fen": "4r1k1/1p3r1p/2pp1P2/6P1/2PNP1p1/pPNn2q1/P2Q4/1K5R b - - 2 29",
+   "evalCp": 381,
+   "winner": "b",
+   "bestLine": [
+    "Qf2",
+    "Qxf2",
+    "Nxf2",
+    "Rh4",
+    "Nxe4",
+    "Nxe4"
+   ],
+   "rating": 1622,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlH0A",
+   "fen": "8/6pp/4p1k1/4P3/n3N1KP/1p3RP1/1r6/8 b - - 1 43",
+   "evalCp": 591,
+   "winner": "b",
+   "bestLine": [
+    "h5+",
+    "Kf4",
+    "Re2",
+    "g4",
+    "b2",
+    "Rf1"
+   ],
+   "rating": 2175,
+   "themes": [
+    "crushing",
+    "endgame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlH0w",
+   "fen": "8/4b1B1/8/3k4/5p1P/PK6/1P5P/8 w - - 0 50",
+   "evalCp": 511,
+   "winner": "w",
+   "bestLine": [
+    "Kc3",
+    "Bxh4",
+    "Kd3",
+    "f3",
+    "Ke3",
+    "f2"
+   ],
+   "rating": 1975,
+   "themes": [
+    "bishopEndgame",
+    "crushing",
+    "endgame",
+    "long"
+   ]
+  },
+  {
+   "id": "NlHB7",
+   "fen": "4k3/5RP1/3p3r/p2PpP2/8/P7/1P1r1KR1/8 w - - 3 62",
+   "evalCp": 367,
+   "winner": "w",
+   "bestLine": [
+    "Kf3",
+    "e4+",
+    "Kxe4",
+    "Rxg2",
+    "Rf8+",
+    "Ke7"
+   ],
+   "rating": 1701,
+   "themes": [
+    "crushing",
+    "endgame",
+    "long",
+    "rookEndgame"
+   ]
+  },
+  {
+   "id": "NlHG7",
+   "fen": "4r2k/pp3R1p/8/7N/2P1r3/7P/P5PK/8 b - - 2 30",
+   "evalCp": 347,
+   "winner": "b",
+   "bestLine": [
+    "R4e7",
+    "Rf6",
+    "Rc8",
+    "g4",
+    "Rec7",
+    "Kg3"
+   ],
+   "rating": 1579,
+   "themes": [
+    "crushing",
+    "endgame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlI90",
+   "fen": "r5k1/pp1q1ppp/2p5/2bpB3/3n4/P1N3Pb/1P1Q1PBP/4R1K1 b - - 6 20",
+   "evalCp": 474,
+   "winner": "b",
+   "bestLine": [
+    "Bxg2",
+    "Bxd4",
+    "Bxd4",
+    "Qxd4",
+    "Bh3",
+    "f3"
+   ],
+   "rating": 2259,
+   "themes": [
+    "advantage",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "NlIks",
+   "fen": "r4rk1/pp3ppp/8/3Bn3/3b2bq/2N1B2P/PPP1QRP1/R5K1 w - - 6 16",
+   "evalCp": 352,
+   "winner": "w",
+   "bestLine": [
+    "Qd2",
+    "Bxe3",
+    "Qxe3",
+    "Rae8",
+    "Qf4",
+    "g5"
+   ],
+   "rating": 1967,
+   "themes": [
+    "crushing",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "NlIzk",
+   "fen": "5bk1/p7/7p/P1Pp1Pp1/1NbPr3/Pr2B3/5P1P/R2R2K1 w - - 1 30",
+   "evalCp": 448,
+   "winner": "w",
+   "bestLine": [
+    "h3",
+    "Bg7",
+    "Rab1",
+    "Rxa3",
+    "Nc6",
+    "Ba6"
+   ],
+   "rating": 2057,
+   "themes": [
+    "advantage",
+    "kingsideAttack",
+    "master",
+    "middlegame",
+    "quietMove"
+   ]
+  },
+  {
+   "id": "NlJfy",
+   "fen": "r4rk1/p1p3pp/2pp1p2/4nP2/1P2P3/P5Q1/1BP1qR2/R5K1 b - - 2 22",
+   "evalCp": 561,
+   "winner": "b",
+   "bestLine": [
+    "Qxe4",
+    "Raf1",
+    "Ng4",
+    "Rg2",
+    "Qe3+",
+    "Kh1"
+   ],
+   "rating": 1554,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlJjO",
+   "fen": "2k5/ppp3p1/1b3pNp/5n2/1P1P4/P1B5/4rPPP/3R2K1 b - - 4 25",
+   "evalCp": 305,
+   "winner": "b",
+   "bestLine": [
+    "Ra2",
+    "Be1",
+    "Rxa3",
+    "d5",
+    "Kd7",
+    "Nf8+"
+   ],
+   "rating": 2064,
+   "themes": [
+    "advantage",
+    "endgame",
+    "long"
+   ]
+  },
+  {
+   "id": "NlLLK",
+   "fen": "8/5k1p/p1P3p1/4B3/R5P1/1rn3KP/5P2/8 w - - 0 46",
+   "evalCp": 600,
+   "winner": "w",
+   "bestLine": [
+    "Rxa6",
+    "Rb2",
+    "c7",
+    "Rc2",
+    "Ra8",
+    "Ne4+"
+   ],
+   "rating": 1722,
+   "themes": [
+    "crushing",
+    "defensiveMove",
+    "discoveredAttack",
+    "discoveredCheck",
+    "endgame"
+   ]
+  },
+  {
+   "id": "NlLMn",
+   "fen": "r3r1k1/ppq2pp1/2p4p/2npPBb1/8/P1N3BP/1PP3P1/R2QR1K1 w - - 2 22",
+   "evalCp": 653,
+   "winner": "w",
+   "bestLine": [
+    "h4",
+    "Bf6",
+    "Qd4",
+    "Ne6",
+    "Qg4",
+    "Bd8"
+   ],
+   "rating": 1805,
+   "themes": [
+    "advantage",
+    "defensiveMove",
+    "hangingPiece",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "NlLtW",
+   "fen": "5r1k/4N1p1/3pQ1Pp/p1qP2b1/1p2pr2/5P2/PPP4R/1K5R b - - 7 33",
+   "evalCp": 395,
+   "winner": "b",
+   "bestLine": [
+    "Qd4",
+    "Nc6",
+    "Qe3",
+    "a4",
+    "bxa3",
+    "Rh5"
+   ],
+   "rating": 1967,
+   "themes": [
+    "advancedPawn",
+    "attraction",
+    "deflection",
+    "kingsideAttack",
+    "master"
+   ]
+  },
+  {
+   "id": "NlMDT",
+   "fen": "8/p4pp1/1p2p2p/4P1PP/4kP2/P5K1/1P6/8 b - - 0 41",
+   "evalCp": 498,
+   "winner": "b",
+   "bestLine": [
+    "hxg5",
+    "fxg5",
+    "Kxe5",
+    "Kg4",
+    "b5",
+    "h6"
+   ],
+   "rating": 2106,
+   "themes": [
+    "crushing",
+    "endgame",
+    "pawnEndgame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlNYB",
+   "fen": "7k/8/1pp4P/p2n4/3P2RN/2r5/8/7K b - - 1 46",
+   "evalCp": 323,
+   "winner": "b",
+   "bestLine": [
+    "b5",
+    "Kg1",
+    "Rh3",
+    "Ng6+",
+    "Kh7",
+    "Nf8+"
+   ],
+   "rating": 2041,
+   "themes": [
+    "crushing",
+    "endgame",
+    "master",
+    "quietMove",
+    "short"
+   ]
+  },
+  {
+   "id": "NlOng",
+   "fen": "3r2k1/pb2b1pp/8/1q2NQ1n/R2B4/2P4P/5PP1/6K1 b - - 0 32",
+   "evalCp": 553,
+   "winner": "b",
+   "bestLine": [
+    "Qd5",
+    "f3",
+    "Ng3",
+    "Qc2",
+    "Bd6",
+    "Nd3"
+   ],
+   "rating": 2254,
+   "themes": [
+    "advantage",
+    "fork",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "NlPQe",
+   "fen": "2k3r1/1r4pp/Rpq1p3/3p4/3PnQ2/6P1/1RP2P1P/6K1 b - - 11 27",
+   "evalCp": 441,
+   "winner": "b",
+   "bestLine": [
+    "Nf6",
+    "g4",
+    "Rd8",
+    "Rb3",
+    "Qc7",
+    "Qf3"
+   ],
+   "rating": 1872,
+   "themes": [
+    "crushing",
+    "exposedKing",
+    "fork",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "NlPXX",
+   "fen": "2k3r1/1pp1n3/p1pbq3/4p3/PP2P1p1/2PPB1Pr/4Q1KN/1R3R2 b - - 2 24",
+   "evalCp": 550,
+   "winner": "b",
+   "bestLine": [
+    "Nd5",
+    "Bd2",
+    "Nf4+",
+    "gxf4",
+    "exf4",
+    "Rxf4"
+   ],
+   "rating": 2015,
+   "themes": [
+    "advantage",
+    "fork",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "FYkvQ",
+   "fen": "2r2rk1/1p2b1pp/p1b5/3q1p2/2pP1N2/1P2P2P/1B2QPP1/RN3nK1 b - - 2 20",
+   "evalCp": 492,
+   "winner": "b",
+   "bestLine": [
+    "Qf7",
+    "bxc4",
+    "g5",
+    "Nd3",
+    "Qxc4",
+    "Nc3"
+   ],
+   "rating": 2228,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short",
+    "trappedPiece"
+   ]
+  },
+  {
+   "id": "FYkvh",
+   "fen": "8/3Rbkp1/8/6BP/6P1/3p1P2/6K1/4r3 w - - 6 60",
+   "evalCp": 526,
+   "winner": "w",
+   "bestLine": [
+    "Bxe7",
+    "Rxe7",
+    "Rxe7+",
+    "Kxe7",
+    "Kf2",
+    "d2"
+   ],
+   "rating": 1844,
+   "themes": [
+    "advancedPawn",
+    "crushing",
+    "endgame",
+    "long",
+    "master"
+   ]
+  },
+  {
+   "id": "FYlFM",
+   "fen": "6k1/pp1q3p/2p3pR/3pB1Q1/4b3/2P5/PPPK2P1/5r2 b - - 1 25",
+   "evalCp": 301,
+   "winner": "b",
+   "bestLine": [
+    "c5",
+    "b3",
+    "Qf5",
+    "Qd8+",
+    "Qf8",
+    "Qxf8+"
+   ],
+   "rating": 1811,
+   "themes": [
+    "advantage",
+    "endgame",
+    "long",
+    "sacrifice"
+   ]
+  },
+  {
+   "id": "FYlLC",
+   "fen": "r2qr1k1/1p1n2pp/p4np1/1B1P4/3Q4/B3P3/P4PPP/R4RK1 w - - 0 17",
+   "evalCp": 445,
+   "winner": "w",
+   "bestLine": [
+    "Be2",
+    "Rc8",
+    "d6",
+    "Qa5",
+    "Bb2",
+    "h5"
+   ],
+   "rating": 1573,
+   "themes": [
+    "advantage",
+    "defensiveMove",
+    "long",
+    "middlegame",
+    "skewer"
+   ]
+  },
+  {
+   "id": "FYlN9",
+   "fen": "r1b3k1/pp1n2bp/2p3p1/3pp1q1/3P4/3B1Q2/PPP1N1PP/5RK1 b - - 1 17",
+   "evalCp": 726,
+   "winner": "b",
+   "bestLine": [
+    "Qe7",
+    "Qe3",
+    "Bf8",
+    "c4",
+    "exd4",
+    "Qxe7"
+   ],
+   "rating": 1661,
+   "themes": [
+    "crushing",
+    "kingsideAttack",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "FYlNA",
+   "fen": "5k2/R4P2/7p/7P/8/5P2/p4KP1/r7 w - - 1 47",
+   "evalCp": 378,
+   "winner": "w",
+   "bestLine": [
+    "f4",
+    "Rh1",
+    "Rxa2",
+    "Rxh5",
+    "Ra7",
+    "Rf5"
+   ],
+   "rating": 1701,
+   "themes": [
+    "crushing",
+    "endgame",
+    "rookEndgame",
+    "short"
+   ]
+  },
+  {
+   "id": "FYliJ",
+   "fen": "6k1/ppb3pp/7q/n1Pp4/4rP2/2P1B2P/P4P1K/1Q2RR2 w - - 3 25",
+   "evalCp": 556,
+   "winner": "w",
+   "bestLine": [
+    "Qd3",
+    "Qe6",
+    "Rd1",
+    "d4",
+    "cxd4",
+    "Qd5"
+   ],
+   "rating": 2029,
+   "themes": [
+    "advantage",
+    "fork",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "FYmmo",
+   "fen": "r4k1r/p2q4/5pQ1/1pRPb3/3pP2p/P2P1B1b/1B3PP1/5RK1 w - - 2 25",
+   "evalCp": 641,
+   "winner": "w",
+   "bestLine": [
+    "Bc1",
+    "Ke7",
+    "Qg7+",
+    "Kd6",
+    "Rc6+",
+    "Qxc6"
+   ],
+   "rating": 2137,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "pin",
+    "short"
+   ]
+  },
+  {
+   "id": "FYnAG",
+   "fen": "6r1/5k2/1p1r4/1Rp2P2/2P1K1Pp/8/5P2/1R6 w - - 1 38",
+   "evalCp": 529,
+   "winner": "w",
+   "bestLine": [
+    "Ke5",
+    "Rd2",
+    "f3",
+    "Re2+",
+    "Kf4",
+    "Rc2"
+   ],
+   "rating": 2246,
+   "themes": [
+    "crushing",
+    "endgame",
+    "master",
+    "quietMove",
+    "rookEndgame"
+   ]
+  },
+  {
+   "id": "FYnAi",
+   "fen": "r5k1/pp2Q1pp/2bNp3/4Bp2/2p5/2P1P3/q4PrP/2R2R1K b - - 1 22",
+   "evalCp": 511,
+   "winner": "b",
+   "bestLine": [
+    "Rg6+",
+    "e4",
+    "Qe2",
+    "Qf7+",
+    "Kh8",
+    "Bg3"
+   ],
+   "rating": 1834,
+   "themes": [
+    "crushing",
+    "defensiveMove",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "FYnY6",
+   "fen": "r2r4/1p3pk1/p4qp1/2P1n3/4p3/5pPP/PPNR1P2/3Q1RK1 b - - 1 27",
+   "evalCp": 893,
+   "winner": "b",
+   "bestLine": [
+    "Rh8",
+    "Rd6",
+    "Qg5",
+    "Rxg6+",
+    "Kxg6",
+    "c6"
+   ],
+   "rating": 2002,
+   "themes": [
+    "advantage",
+    "defensiveMove",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "FYnrK",
+   "fen": "8/5K1p/6p1/4k1p1/6P1/7P/8/8 b - - 6 57",
+   "evalCp": 584,
+   "winner": "b",
+   "bestLine": [
+    "Kf4",
+    "Ke6",
+    "Kg3",
+    "Ke5",
+    "Kxh3",
+    "Kd4"
+   ],
+   "rating": 1502,
+   "themes": [
+    "crushing",
+    "endgame",
+    "long",
+    "pawnEndgame",
+    "zugzwang"
+   ]
+  },
+  {
+   "id": "FYoCa",
+   "fen": "7k/p5rp/1p2PP2/3N4/1P1P4/6N1/P2p3P/2q2Q1K w - - 1 35",
+   "evalCp": 855,
+   "winner": "w",
+   "bestLine": [
+    "fxg7+",
+    "Kxg7",
+    "Ne3",
+    "Qxf1+",
+    "Ngxf1",
+    "Kf6"
+   ],
+   "rating": 2202,
+   "themes": [
+    "advancedPawn",
+    "advantage",
+    "endgame",
+    "long",
+    "pin"
+   ]
+  },
+  {
+   "id": "FYoPR",
+   "fen": "5rk1/5ppp/1p1N4/1Pp1pN2/3b4/1b3QP1/5P1P/q4BK1 b - - 1 32",
+   "evalCp": 557,
+   "winner": "b",
+   "bestLine": [
+    "Be6",
+    "Kg2",
+    "e4",
+    "Ne7+",
+    "Kh8",
+    "Qxe4"
+   ],
+   "rating": 1526,
+   "themes": [
+    "advantage",
+    "deflection",
+    "kingsideAttack",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "FYocm",
+   "fen": "8/8/4p1p1/3kP1P1/5P1p/5K2/8/8 b - - 1 62",
+   "evalCp": 558,
+   "winner": "b",
+   "bestLine": [
+    "h3",
+    "Kg3",
+    "Ke4",
+    "Kxh3",
+    "Kxf4",
+    "Kg2"
+   ],
+   "rating": 1868,
+   "themes": [
+    "crushing",
+    "endgame",
+    "pawnEndgame",
+    "short"
+   ]
+  },
+  {
+   "id": "FYovZ",
+   "fen": "7k/1pp3p1/p7/3q4/3r1n1P/P5R1/1PQ2P2/1R4K1 w - - 2 39",
+   "evalCp": 457,
+   "winner": "w",
+   "bestLine": [
+    "Re1",
+    "Kg8",
+    "Qc3",
+    "c5",
+    "Qf3",
+    "Qxf3"
+   ],
+   "rating": 2010,
+   "themes": [
+    "crushing",
+    "discoveredAttack",
+    "endgame",
+    "fork",
+    "long"
+   ]
+  },
+  {
+   "id": "FYp5l",
+   "fen": "r1b2r2/p2k4/4pRQ1/8/2pq2P1/3B4/PPK5/R7 w - - 0 31",
+   "evalCp": 703,
+   "winner": "w",
+   "bestLine": [
+    "Qg7+",
+    "Kc6",
+    "Rxe6+",
+    "Bxe6",
+    "Qxd4",
+    "cxd3+"
+   ],
+   "rating": 1553,
+   "themes": [
+    "advantage",
+    "attraction",
+    "middlegame",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "FYpmO",
+   "fen": "r5k1/bbp1qpp1/p4n1p/8/R7/2N2N1P/1PQ2PP1/1BB3K1 w - - 0 22",
+   "evalCp": 482,
+   "winner": "w",
+   "bestLine": [
+    "Rf4",
+    "g5",
+    "Rf5",
+    "Rd8",
+    "Ba2",
+    "Kg7"
+   ],
+   "rating": 1743,
+   "themes": [
+    "crushing",
+    "deflection",
+    "kingsideAttack",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "FYpr1",
+   "fen": "4r1k1/3R1Nbp/p5p1/2p5/Q4B2/nP1R3P/2P2qPK/4r3 w - - 0 31",
+   "evalCp": 445,
+   "winner": "w",
+   "bestLine": [
+    "Rd8",
+    "Kxf7",
+    "Rxe8",
+    "Rxe8",
+    "Qd7+",
+    "Re7"
+   ],
+   "rating": 2307,
+   "themes": [
+    "crushing",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "FYpsl",
+   "fen": "8/R5pp/p1p1k1r1/2P2p2/3P3b/P4q2/5PPP/4Q1K1 b - - 1 33",
+   "evalCp": 478,
+   "winner": "b",
+   "bestLine": [
+    "Qe4",
+    "Qf1",
+    "Be7",
+    "Qc4+",
+    "Kf6",
+    "g3"
+   ],
+   "rating": 1751,
+   "themes": [
+    "crushing",
+    "endgame",
+    "skewer",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "FYqIm",
+   "fen": "3r1qk1/1p1b1p1p/p5p1/3p1nN1/2Pb4/3B4/3Q2PP/4RR1K w - - 0 23",
+   "evalCp": 590,
+   "winner": "w",
+   "bestLine": [
+    "Bxf5",
+    "gxf5",
+    "Qxd4",
+    "h6",
+    "Nf3",
+    "dxc4"
+   ],
+   "rating": 1956,
+   "themes": [
+    "crushing",
+    "long",
+    "master",
+    "middlegame",
+    "sacrifice"
+   ]
+  },
+  {
+   "id": "FYqPK",
+   "fen": "rnb1k2r/pp1p2pp/1n1Ppq2/2p3P1/2P5/3B1N1P/PP3P2/R2QK2R b KQkq - 0 18",
+   "evalCp": 579,
+   "winner": "b",
+   "bestLine": [
+    "Qf4",
+    "Qe2",
+    "Nc6",
+    "Rd1",
+    "Rf8",
+    "Be4"
+   ],
+   "rating": 1690,
+   "themes": [
+    "advantage",
+    "clearance",
+    "middlegame",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "FYqW5",
+   "fen": "r5k1/3b1pp1/n2p3p/2pPp3/q7/1p1QPN1P/6P1/1BR3K1 b - - 3 27",
+   "evalCp": 637,
+   "winner": "b",
+   "bestLine": [
+    "f5",
+    "Nd2",
+    "b2",
+    "Rf1",
+    "Nb4",
+    "Qc3"
+   ],
+   "rating": 2228,
+   "themes": [
+    "advantage",
+    "defensiveMove",
+    "middlegame",
+    "skewer",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "FYrDn",
+   "fen": "1q1r2k1/5ppp/8/P2p4/3Qp1r1/2R1P3/5PPP/2R3K1 w - - 0 30",
+   "evalCp": 568,
+   "winner": "w",
+   "bestLine": [
+    "a6",
+    "Rg6",
+    "a7",
+    "Qa8",
+    "Qa4",
+    "Rgd6"
+   ],
+   "rating": 1615,
+   "themes": [
+    "endgame"
+   ]
+  },
+  {
+   "id": "FYrFm",
+   "fen": "r4b1r/1kp1ppp1/p1P2n1p/Qq1p4/1P6/P3BB2/5P2/R3K1R1 b Q - 0 23",
+   "evalCp": 349,
+   "winner": "b",
+   "bestLine": [
+    "Kc8",
+    "Qxb5",
+    "axb5",
+    "Be2",
+    "e6",
+    "Kd2"
+   ],
+   "rating": 1676,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "FYrLc",
+   "fen": "1k1r3r/pp1b1p2/2n1p1np/1B2P3/3N2R1/P1B5/1KP2PP1/3R4 b - - 0 21",
+   "evalCp": 331,
+   "winner": "b",
+   "bestLine": [
+    "Ncxe5",
+    "Rxg6",
+    "Nxg6",
+    "Bxd7",
+    "Rxd7",
+    "Nc6+"
+   ],
+   "rating": 1940,
+   "themes": [
+    "crushing",
+    "long",
+    "master",
+    "middlegame",
+    "queensideAttack"
+   ]
+  },
+  {
+   "id": "FYsRo",
+   "fen": "3r3r/pkqp4/2p2R2/1p6/4PRp1/2QB4/PPP3P1/6K1 w - - 0 30",
+   "evalCp": 605,
+   "winner": "w",
+   "bestLine": [
+    "e5",
+    "g3",
+    "Kf1",
+    "Rde8",
+    "R6f5",
+    "Re7"
+   ],
+   "rating": 1865,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "FYsV9",
+   "fen": "8/7k/4rpR1/3p3p/P4P2/3p1NP1/5K1P/8 b - - 1 37",
+   "evalCp": 589,
+   "winner": "b",
+   "bestLine": [
+    "Re2+",
+    "Kf1",
+    "Kxg6",
+    "f5+",
+    "Kf7",
+    "a5"
+   ],
+   "rating": 1702,
+   "themes": [
+    "endgame"
+   ]
+  },
+  {
+   "id": "FYswm",
+   "fen": "4r1k1/1pp2p2/1n3qp1/3p3Q/3P4/1Pn1N1R1/r2P2PP/5RK1 b - - 1 28",
+   "evalCp": 769,
+   "winner": "b",
+   "bestLine": [
+    "Qxf1+",
+    "Kxf1",
+    "Ra1+",
+    "Nd1",
+    "Rxd1+",
+    "Qxd1"
+   ],
+   "rating": 1630,
+   "themes": [
+    "crushing",
+    "fork",
+    "long",
+    "master",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "FYtCp",
+   "fen": "4rk1r/p4p1p/5p2/2R2P1Q/8/6P1/Pq5P/3R2K1 w - - 1 26",
+   "evalCp": 715,
+   "winner": "w",
+   "bestLine": [
+    "Qh6+",
+    "Kg8",
+    "Rc4",
+    "Qe2",
+    "Rdd4",
+    "Qe1+"
+   ],
+   "rating": 2221,
+   "themes": [
+    "advantage",
+    "endgame",
+    "fork",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "FYtZ9",
+   "fen": "1r2k2r/p1p1q1pp/2pb4/3p1PPQ/2nPp3/2N1B2B/PPP4P/2K4R b k - 2 17",
+   "evalCp": 497,
+   "winner": "b",
+   "bestLine": [
+    "Qf7",
+    "g6",
+    "Qf8",
+    "Bg5",
+    "hxg6",
+    "Qxg6+"
+   ],
+   "rating": 2088,
+   "themes": [
+    "advancedPawn",
+    "advantage",
+    "fork",
+    "master",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "FYtiy",
+   "fen": "5r1k/p3q1b1/1p1p3p/4p1pQ/1P2B3/P5RP/1Br2P2/6K1 b - - 3 32",
+   "evalCp": 714,
+   "winner": "b",
+   "bestLine": [
+    "Rcxf2",
+    "Qg6",
+    "Rf1+",
+    "Kh2",
+    "R8f2+",
+    "Rg2"
+   ],
+   "rating": 1770,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "FYuBe",
+   "fen": "4k3/1p5p/4PB2/3K4/1p6/2p3P1/7P/8 w - - 0 42",
+   "evalCp": 514,
+   "winner": "w",
+   "bestLine": [
+    "Kc4",
+    "c2",
+    "Bg5",
+    "b3",
+    "Kxb3",
+    "c1=N+"
+   ],
+   "rating": 1794,
+   "themes": [
+    "advancedPawn",
+    "bishopEndgame",
+    "crushing",
+    "endgame",
+    "short"
+   ]
+  },
+  {
+   "id": "FYuNj",
+   "fen": "r5k1/pp3p1p/5Q2/2q5/5P1N/6P1/P6K/8 b - - 1 36",
+   "evalCp": 547,
+   "winner": "b",
+   "bestLine": [
+    "Qc6",
+    "Qg5+",
+    "Kh8",
+    "Qe5+",
+    "f6",
+    "Qh5"
+   ],
+   "rating": 2324,
+   "themes": [
+    "crushing",
+    "endgame",
+    "quietMove",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "FYuiD",
+   "fen": "rq4r1/4kp2/2Rbp2Q/1B2p3/P3n3/5N2/1P3PPP/6K1 b - - 0 25",
+   "evalCp": 503,
+   "winner": "b",
+   "bestLine": [
+    "Nf6",
+    "Nd2",
+    "e4",
+    "Nc4",
+    "Bf4",
+    "Qh3"
+   ],
+   "rating": 2076,
+   "themes": [
+    "advantage",
+    "hangingPiece",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "FYuw1",
+   "fen": "8/5pk1/2N1p2p/1P2P1p1/1qp5/6Pb/5Q2/6K1 b - - 2 47",
+   "evalCp": 610,
+   "winner": "b",
+   "bestLine": [
+    "Qb1+",
+    "Kh2",
+    "Bf5",
+    "Nd8",
+    "Qxb5",
+    "Nxf7"
+   ],
+   "rating": 2241,
+   "themes": [
+    "advancedPawn",
+    "advantage",
+    "endgame",
+    "master",
+    "short"
+   ]
+  },
+  {
+   "id": "FYvMc",
+   "fen": "5r1k/7p/Q7/2b1q3/P7/2P1ppPP/1P3P1K/2B2R2 w - - 0 30",
+   "evalCp": 752,
+   "winner": "w",
+   "bestLine": [
+    "Bxe3",
+    "h5",
+    "Qh6+",
+    "Kg8",
+    "Qg6+",
+    "Kh8"
+   ],
+   "rating": 1986,
+   "themes": [
+    "crushing",
+    "endgame",
+    "long",
+    "quietMove"
+   ]
+  },
+  {
+   "id": "FYvRe",
+   "fen": "7k/pp4bp/2p3q1/5Rp1/1P1P4/P5P1/1BQ3KP/4r3 b - - 2 28",
+   "evalCp": 314,
+   "winner": "b",
+   "bestLine": [
+    "Qh5",
+    "Qb3",
+    "Re2+",
+    "Rf2",
+    "Rxf2+",
+    "Kxf2"
+   ],
+   "rating": 1816,
+   "themes": [
+    "advantage",
+    "discoveredAttack",
+    "endgame",
+    "sacrifice",
+    "short"
+   ]
+  },
+  {
+   "id": "FYvp2",
+   "fen": "3r4/ppp2k2/2n2p1b/8/2P2P1q/P3QB2/KP6/6R1 b - - 8 32",
+   "evalCp": 326,
+   "winner": "b",
+   "bestLine": [
+    "Bxf4",
+    "Qc5",
+    "Bg5",
+    "Rg4",
+    "Qh7",
+    "Bd5+"
+   ],
+   "rating": 2218,
+   "themes": [
+    "crushing",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "FYvsb",
+   "fen": "6k1/2p1q2p/2p1P1p1/p2pbN2/6Q1/P6P/2P3P1/7K b - - 1 27",
+   "evalCp": 698,
+   "winner": "b",
+   "bestLine": [
+    "Qxa3",
+    "Nh6+",
+    "Kf8",
+    "e7+",
+    "Qxe7",
+    "g3"
+   ],
+   "rating": 1811,
+   "themes": [
+    "advancedPawn",
+    "crushing",
+    "endgame",
+    "fork",
+    "pin"
+   ]
+  },
+  {
+   "id": "FYwgH",
+   "fen": "5r1r/P1k3p1/1pN1b3/7p/2Pp4/2b1q3/Q3PPB1/3R1K1R w - - 1 33",
+   "evalCp": 590,
+   "winner": "w",
+   "bestLine": [
+    "a8=N+",
+    "Rxa8",
+    "Qxa8",
+    "Rxa8",
+    "fxe3",
+    "dxe3"
+   ],
+   "rating": 1588,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "pin",
+    "short"
+   ]
+  },
+  {
+   "id": "FYx3o",
+   "fen": "2kr1b1r/pppq1ppp/2n5/4p1N1/8/1QPP2P1/P3PP1P/R1B2RK1 w - - 4 13",
+   "evalCp": 316,
+   "winner": "w",
+   "bestLine": [
+    "Rb1",
+    "b6",
+    "Qc4",
+    "f6",
+    "Nf7",
+    "Be7"
+   ],
+   "rating": 1568,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "FYy2v",
+   "fen": "1r3rk1/5ppp/2p1p2P/p2p4/N5Q1/8/PPq3P1/6RK b - - 0 22",
+   "evalCp": 710,
+   "winner": "b",
+   "bestLine": [
+    "Qg6",
+    "Qxg6",
+    "hxg6",
+    "Rc1",
+    "gxh6",
+    "Nc5"
+   ],
+   "rating": 1961,
+   "themes": [
+    "advantage",
+    "endgame",
+    "long"
+   ]
+  },
+  {
+   "id": "FYy32",
+   "fen": "1r4k1/p4pp1/4p3/2pp2P1/2n5/P1P3K1/qBQ5/7R b - - 3 35",
+   "evalCp": 809,
+   "winner": "b",
+   "bestLine": [
+    "Qxb2",
+    "Qxb2",
+    "Rxb2",
+    "a4",
+    "Nd6",
+    "Kf4"
+   ],
+   "rating": 1588,
+   "themes": [
+    "crushing",
+    "endgame",
+    "long",
+    "quietMove",
+    "skewer"
+   ]
+  },
+  {
+   "id": "FYyEr",
+   "fen": "k7/p1p2P2/P6p/3p4/5K1P/5N2/1p6/5r2 b - - 0 48",
+   "evalCp": 360,
+   "winner": "b",
+   "bestLine": [
+    "b1=Q",
+    "f8=Q+",
+    "Qb8",
+    "Qxh6",
+    "c6+",
+    "Kg4"
+   ],
+   "rating": 2091,
+   "themes": [
+    "advancedPawn",
+    "crushing",
+    "endgame",
+    "hangingPiece",
+    "long"
+   ]
+  },
+  {
+   "id": "FYyFw",
+   "fen": "r1b1q1kr/ppp3pp/3b2n1/3p2N1/3P4/4BQ2/PPP2PPP/R3K2R b KQ - 4 12",
+   "evalCp": 692,
+   "winner": "b",
+   "bestLine": [
+    "c6",
+    "Qh5",
+    "Bf5",
+    "c3",
+    "Qd7",
+    "Nf3"
+   ],
+   "rating": 1520,
+   "themes": [
+    "crushing",
+    "fork",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "FYzT9",
+   "fen": "8/1p2R2N/7p/6pk/1r5P/p5PK/8/8 w - - 0 44",
+   "evalCp": 616,
+   "winner": "w",
+   "bestLine": [
+    "g4+",
+    "Rxg4",
+    "Nf6+",
+    "Kg6",
+    "Nxg4",
+    "h5"
+   ],
+   "rating": 1553,
+   "themes": [
+    "advancedPawn",
+    "crushing",
+    "endgame",
+    "master",
+    "masterVsMaster"
+   ]
+  },
+  {
+   "id": "FYzkl",
+   "fen": "8/R1p2pp1/2k4p/p6r/1pPK1PP1/1P5P/8/8 b - - 0 38",
+   "evalCp": 334,
+   "winner": "b",
+   "bestLine": [
+    "Rxh3",
+    "Ra6+",
+    "Kb7",
+    "Rxa5",
+    "Rxb3",
+    "Kc5"
+   ],
+   "rating": 1754,
+   "themes": [
+    "crushing",
+    "deflection",
+    "endgame",
+    "long",
+    "rookEndgame"
+   ]
+  },
+  {
+   "id": "FZ04r",
+   "fen": "5k2/7p/5np1/2P5/7Q/5q2/6rP/2RR3K w - - 0 32",
+   "evalCp": 547,
+   "winner": "w",
+   "bestLine": [
+    "Rd3",
+    "Rxh2+",
+    "Kxh2",
+    "Ng4+",
+    "Kg1",
+    "Qxd3"
+   ],
+   "rating": 2089,
+   "themes": [
+    "attraction",
+    "crushing",
+    "defensiveMove",
+    "discoveredCheck",
+    "doubleCheck"
+   ]
+  },
+  {
+   "id": "FZ0c3",
+   "fen": "2k5/ppp3pp/8/2b3N1/3n4/8/PPPPr1PP/RNBK4 w - - 0 18",
+   "evalCp": 645,
+   "winner": "w",
+   "bestLine": [
+    "c3",
+    "Rxg2",
+    "cxd4",
+    "Bb6",
+    "h4",
+    "h6"
+   ],
+   "rating": 2033,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "FZ19z",
+   "fen": "8/8/3k1ppp/1P1p4/3P1KPP/2P5/8/8 w - - 1 37",
+   "evalCp": 726,
+   "winner": "w",
+   "bestLine": [
+    "h5",
+    "gxh5",
+    "gxh5",
+    "Kc7",
+    "Kf5",
+    "Kb6"
+   ],
+   "rating": 1780,
+   "themes": [
+    "crushing",
+    "endgame",
+    "pawnEndgame",
+    "quietMove",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "FZ1Fi",
+   "fen": "7k/4q1pb/3p1p1p/1p1P3P/pPp3P1/P1r5/5QK1/3BR3 b - - 1 51",
+   "evalCp": 688,
+   "winner": "b",
+   "bestLine": [
+    "Be4+",
+    "Kf1",
+    "Qe5",
+    "Re3",
+    "Rc1",
+    "Qe2"
+   ],
+   "rating": 2251,
+   "themes": [
+    "advantage",
+    "clearance",
+    "endgame",
+    "pin",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "FZ1LW",
+   "fen": "4rk2/2R5/Q6p/3P2b1/1P3p2/P6q/4KP2/2R5 w - - 3 33",
+   "evalCp": 658,
+   "winner": "w",
+   "bestLine": [
+    "Kd2",
+    "Qf5",
+    "Qd6+",
+    "Kg8",
+    "Qc6",
+    "Kf8"
+   ],
+   "rating": 2367,
+   "themes": [
+    "crushing",
+    "endgame",
+    "exposedKing",
+    "long"
+   ]
+  },
+  {
+   "id": "FZ1Rz",
+   "fen": "3R4/r4ppk/8/4PPP1/1pp2K2/8/8/8 b - - 0 43",
+   "evalCp": 390,
+   "winner": "b",
+   "bestLine": [
+    "c3",
+    "e6",
+    "g6",
+    "f6",
+    "fxe6",
+    "Rc8"
+   ],
+   "rating": 2121,
+   "themes": [
+    "crushing",
+    "endgame",
+    "rookEndgame",
+    "short"
+   ]
+  },
+  {
+   "id": "FZ1et",
+   "fen": "r1b2rk1/pp2Qp1p/6p1/q1nP1n2/8/2N1PN2/PP2BPPP/R3K2R w KQ - 4 14",
+   "evalCp": 374,
+   "winner": "w",
+   "bestLine": [
+    "Qe5",
+    "f6",
+    "Qf4",
+    "g5",
+    "Qc4",
+    "Nd6"
+   ],
+   "rating": 1626,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "pin",
+    "short"
+   ]
+  },
+  {
+   "id": "FZ1mL",
+   "fen": "r2q1rk1/4bppp/p1bp4/1p2p1B1/4n3/2N2P2/PPPQB1PP/3R1RK1 w - - 0 15",
+   "evalCp": 526,
+   "winner": "w",
+   "bestLine": [
+    "Nxe4",
+    "f6",
+    "Bh4",
+    "d5",
+    "Nf2",
+    "Qc7"
+   ],
+   "rating": 2081,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "FZ1p5",
+   "fen": "2rr2k1/p4p1p/1pP2qp1/3B4/PP1bR3/8/2R2PPP/3Q2K1 w - - 3 25",
+   "evalCp": 775,
+   "winner": "w",
+   "bestLine": [
+    "Rxd4",
+    "Kg7",
+    "g3",
+    "h5",
+    "h4",
+    "a6"
+   ],
+   "rating": 1772,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "FZ1sy",
+   "fen": "1b1R4/p3Q1pk/7p/8/6q1/6P1/bP3P1P/6K1 w - - 0 28",
+   "evalCp": 477,
+   "winner": "w",
+   "bestLine": [
+    "Qe3",
+    "Bc4",
+    "b3",
+    "Bb5",
+    "h3",
+    "Qg6"
+   ],
+   "rating": 1617,
+   "themes": [
+    "crushing",
+    "endgame",
+    "long"
+   ]
+  },
+  {
+   "id": "FZ3HA",
+   "fen": "5r2/2R2P2/k1N1Br2/pp4p1/7p/7P/6PK/8 w - - 5 39",
+   "evalCp": 561,
+   "winner": "w",
+   "bestLine": [
+    "Re7",
+    "a4",
+    "Ne5",
+    "Rd8",
+    "Re8",
+    "Rd1"
+   ],
+   "rating": 2183,
+   "themes": [
+    "crushing",
+    "endgame",
+    "long"
+   ]
+  },
+  {
+   "id": "FZ3u0",
+   "fen": "8/p7/P2Q4/1P3p1p/k1P1q3/3p2P1/5P1K/8 w - - 0 45",
+   "evalCp": 364,
+   "winner": "w",
+   "bestLine": [
+    "b6",
+    "axb6",
+    "a7",
+    "h4",
+    "c5",
+    "hxg3+"
+   ],
+   "rating": 2174,
+   "themes": [
+    "advancedPawn",
+    "crushing",
+    "endgame",
+    "queenEndgame",
+    "short"
+   ]
+  },
+  {
+   "id": "FZ45O",
+   "fen": "8/8/2pk3p/1pr1p1p1/2P1Rp2/1PK2P2/1P3P1P/8 w - - 2 36",
+   "evalCp": 641,
+   "winner": "w",
+   "bestLine": [
+    "Kb4",
+    "h5",
+    "h3",
+    "Rd5",
+    "cxd5",
+    "Kxd5"
+   ],
+   "rating": 1787,
+   "themes": [
+    "advantage",
+    "defensiveMove",
+    "endgame",
+    "long",
+    "rookEndgame"
+   ]
+  },
+  {
+   "id": "FZ4RI",
+   "fen": "5rk1/2p3p1/8/2pqPpNn/p2n4/Pp6/1P3PPP/R3QRK1 w - - 0 25",
+   "evalCp": 368,
+   "winner": "w",
+   "bestLine": [
+    "f4",
+    "Rd8",
+    "Rd1",
+    "Nxf4",
+    "Rxf4",
+    "Nf3+"
+   ],
+   "rating": 2016,
+   "themes": [
+    "attraction",
+    "crushing",
+    "fork",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "FZ4c0",
+   "fen": "8/5p1k/2p1p1r1/7q/P3Q1p1/1P1P1r1P/2PR1PP1/5RK1 w - - 4 36",
+   "evalCp": 707,
+   "winner": "w",
+   "bestLine": [
+    "hxg4",
+    "Qxg4",
+    "Qxg4",
+    "Rxg4",
+    "g3",
+    "Kg7"
+   ],
+   "rating": 1586,
+   "themes": [
+    "crushing",
+    "discoveredAttack",
+    "discoveredCheck",
+    "endgame",
+    "long"
+   ]
+  },
+  {
+   "id": "FZ5VB",
+   "fen": "8/2R2pp1/p3pk1p/1b6/8/5B1P/1r3rP1/R5K1 b - - 3 28",
+   "evalCp": 597,
+   "winner": "b",
+   "bestLine": [
+    "Rfc2",
+    "Rxc2",
+    "Rxc2",
+    "Bb7",
+    "Rc7",
+    "Bxa6"
+   ],
+   "rating": 1592,
+   "themes": [
+    "advantage",
+    "endgame",
+    "hangingPiece",
+    "short"
+   ]
+  },
+  {
+   "id": "J3QS5",
+   "fen": "4r1k1/pp4p1/2q1p1Q1/2pr1P2/3P3b/P1P1R2P/1P4PK/5R2 b - - 0 25",
+   "evalCp": 491,
+   "winner": "b",
+   "bestLine": [
+    "Bf6",
+    "Kh1",
+    "cxd4",
+    "cxd4",
+    "Rxd4",
+    "Rfe1"
+   ],
+   "rating": 1838,
+   "themes": [
+    "advantage",
+    "deflection",
+    "kingsideAttack",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "J3QnD",
+   "fen": "r1bq3k/ppp3pp/2np2B1/7Q/3b4/8/P4PPP/2B2RK1 b - - 1 16",
+   "evalCp": 671,
+   "winner": "b",
+   "bestLine": [
+    "Qg8",
+    "Bxh7",
+    "Bg4",
+    "Qxg4",
+    "Qxh7",
+    "a4"
+   ],
+   "rating": 1894,
+   "themes": [
+    "attraction",
+    "crushing",
+    "discoveredCheck",
+    "doubleCheck",
+    "kingsideAttack"
+   ]
+  },
+  {
+   "id": "J3RLS",
+   "fen": "r4r2/p3p1kp/1n1p4/1BpP1p2/1p2nQ1P/5N2/qPP5/1NKR3R w - - 4 19",
+   "evalCp": 377,
+   "winner": "w",
+   "bestLine": [
+    "Rhg1+",
+    "Kh8",
+    "Qh6",
+    "Rg8",
+    "Ng5",
+    "Nxg5"
+   ],
+   "rating": 1758,
+   "themes": [
+    "advantage",
+    "defensiveMove",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "J3RVK",
+   "fen": "rr6/3k1ppp/2p5/P7/R2Q4/4p1P1/5qPK/8 b - - 1 32",
+   "evalCp": 650,
+   "winner": "b",
+   "bestLine": [
+    "Ke8",
+    "Qxg7",
+    "Qf5",
+    "a6",
+    "Qg6",
+    "Qc3"
+   ],
+   "rating": 2344,
+   "themes": [
+    "crushing",
+    "endgame",
+    "long"
+   ]
+  },
+  {
+   "id": "J3RoJ",
+   "fen": "r6r/1b2p2p/p3P1pk/1p1P4/8/1B1p1Qb1/PP4P1/7K b - - 1 27",
+   "evalCp": 700,
+   "winner": "b",
+   "bestLine": [
+    "Bd6",
+    "Qe3+",
+    "Kg7",
+    "Qd4+",
+    "Kg8",
+    "a4"
+   ],
+   "rating": 1540,
+   "themes": [
+    "advantage",
+    "endgame",
+    "fork",
+    "master",
+    "short"
+   ]
+  },
+  {
+   "id": "J3RyI",
+   "fen": "5rk1/1p3pbp/p2p2p1/3q4/3P4/PP1QP3/6PP/R4RK1 w - - 0 23",
+   "evalCp": 426,
+   "winner": "w",
+   "bestLine": [
+    "Rac1",
+    "Bh6",
+    "Rc7",
+    "f5",
+    "Re1",
+    "Re8"
+   ],
+   "rating": 1676,
+   "themes": [
+    "advantage",
+    "endgame",
+    "fork",
+    "long"
+   ]
+  },
+  {
+   "id": "J3S1Q",
+   "fen": "2QR4/1p3rpk/p1p4p/4p3/4Pp2/1P5P/1PP3PK/4q3 b - - 9 32",
+   "evalCp": 503,
+   "winner": "b",
+   "bestLine": [
+    "Qg3+",
+    "Kg1",
+    "f3",
+    "Rh8+",
+    "Kg6",
+    "Qe6+"
+   ],
+   "rating": 1958,
+   "themes": [
+    "advantage",
+    "endgame",
+    "short"
+   ]
+  },
+  {
+   "id": "J3Sgj",
+   "fen": "5r1k/1p4p1/p2PQ1p1/2p3b1/2P2rP1/8/PP3P2/5RK1 w - - 0 28",
+   "evalCp": 573,
+   "winner": "w",
+   "bestLine": [
+    "Kg2",
+    "Bh4",
+    "Qxg6",
+    "R8f6",
+    "Qh5+",
+    "Rh6"
+   ],
+   "rating": 2073,
+   "themes": [
+    "advantage",
+    "endgame",
+    "long",
+    "pin"
+   ]
+  },
+  {
+   "id": "J3SoR",
+   "fen": "5rk1/1q6/1Pnp3p/4bp2/Q1P1p3/1P4NP/3B1PP1/4R1K1 w - - 5 34",
+   "evalCp": 489,
+   "winner": "w",
+   "bestLine": [
+    "c5",
+    "d5",
+    "b4",
+    "f4",
+    "Nxe4",
+    "dxe4"
+   ],
+   "rating": 1711,
+   "themes": [
+    "advantage",
+    "master",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "J3UWr",
+   "fen": "8/8/p2k4/1p1p1ppp/3K4/1PP2PP1/P6P/8 w - - 0 33",
+   "evalCp": 590,
+   "winner": "w",
+   "bestLine": [
+    "f4",
+    "Ke6",
+    "fxg5",
+    "h4",
+    "g6",
+    "Kf6"
+   ],
+   "rating": 1802,
+   "themes": [
+    "crushing",
+    "deflection",
+    "endgame",
+    "pawnEndgame",
+    "short"
+   ]
+  },
+  {
+   "id": "J3Uzi",
+   "fen": "1r2k3/Q3pprp/2Np2p1/1qpP4/7P/p3P3/Pb3PP1/1R4K1 b - - 1 26",
+   "evalCp": 383,
+   "winner": "b",
+   "bestLine": [
+    "Qb7",
+    "Qxb8+",
+    "Qxb8",
+    "Nxb8",
+    "f5",
+    "Rd1"
+   ],
+   "rating": 1579,
+   "themes": [
+    "crushing",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "J3WVW",
+   "fen": "4rr1k/p1p4p/1p1p4/4n2p/7Q/2P1R1RP/P4qPK/8 b - - 5 28",
+   "evalCp": 819,
+   "winner": "b",
+   "bestLine": [
+    "Ng4+",
+    "Rxg4",
+    "Qxe3",
+    "Rg5",
+    "Rf1",
+    "Qd4+"
+   ],
+   "rating": 1706,
+   "themes": [
+    "crushing",
+    "discoveredAttack",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "J3XBO",
+   "fen": "3b1rk1/1bqn1ppp/p2p1n1B/3P1N2/1p3P2/1B5Q/PPP3PP/2K1R3 b - - 0 18",
+   "evalCp": 524,
+   "winner": "b",
+   "bestLine": [
+    "Re8",
+    "Rxe8+",
+    "Nxe8",
+    "Ba4",
+    "Bxd5",
+    "Nxg7"
+   ],
+   "rating": 1938,
+   "themes": [
+    "crushing",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "J3XGN",
+   "fen": "8/6Kp/2k3p1/2P2p2/8/6P1/7P/8 b - - 5 56",
+   "evalCp": 670,
+   "winner": "b",
+   "bestLine": [
+    "g5",
+    "Kxh7",
+    "f4",
+    "Kh6",
+    "f3",
+    "Kxg5"
+   ],
+   "rating": 2323,
+   "themes": [
+    "crushing",
+    "endgame",
+    "long",
+    "pawnEndgame",
+    "quietMove"
+   ]
+  },
+  {
+   "id": "J3Y6G",
+   "fen": "r4r2/pb3p1p/1p3k1R/4p3/3p4/2BB4/PPP2K2/8 b - - 1 29",
+   "evalCp": 676,
+   "winner": "b",
+   "bestLine": [
+    "Kg7",
+    "Rxh7+",
+    "Kg8",
+    "Bb4",
+    "e4",
+    "Rh4"
+   ],
+   "rating": 2180,
+   "themes": [
+    "advantage",
+    "endgame",
+    "interference",
+    "long"
+   ]
+  },
+  {
+   "id": "J3YcJ",
+   "fen": "8/p1p4p/3k2p1/1Kp2p2/3p4/1P6/P1P2PPP/8 b - - 7 27",
+   "evalCp": 495,
+   "winner": "b",
+   "bestLine": [
+    "Kd5",
+    "h3",
+    "c6+",
+    "Ka4",
+    "c4",
+    "b4"
+   ],
+   "rating": 2360,
+   "themes": [
+    "advantage",
+    "defensiveMove",
+    "endgame",
+    "pawnEndgame",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "J3YnK",
+   "fen": "2krqb1r/1pp2N1p/p3n1p1/3p1Q2/8/2P1P3/PP1B1PPP/1R3RK1 w - - 0 22",
+   "evalCp": 559,
+   "winner": "w",
+   "bestLine": [
+    "Qf3",
+    "Rd7",
+    "Nxh8",
+    "Ng5",
+    "Qe2",
+    "Ne4"
+   ],
+   "rating": 1717,
+   "themes": [
+    "advantage",
+    "clearance",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "J3Ywd",
+   "fen": "r3r1k1/Q1p2ppp/8/1p2Rq2/5P2/2P4P/PP1n1NP1/5RK1 b - - 2 24",
+   "evalCp": 739,
+   "winner": "b",
+   "bestLine": [
+    "Qxe5",
+    "Qxa8",
+    "Qe3",
+    "Qxe8+",
+    "Qxe8",
+    "Rd1"
+   ],
+   "rating": 2161,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "quietMove",
+    "short"
+   ]
+  },
+  {
+   "id": "J3Z0q",
+   "fen": "8/5ppk/p2p2rp/1p6/2q2P2/P3Q1P1/1P4R1/5NK1 w - - 9 42",
+   "evalCp": 456,
+   "winner": "w",
+   "bestLine": [
+    "Rd2",
+    "Kg8",
+    "Kf2",
+    "Re6",
+    "Qd3",
+    "Qc5+"
+   ],
+   "rating": 1629,
+   "themes": [
+    "advantage",
+    "endgame",
+    "short"
+   ]
+  },
+  {
+   "id": "J3ZWq",
+   "fen": "r2q3k/pb3Nb1/4Qr1p/1p6/2pp4/8/PPP2PPP/4RRK1 b - - 4 19",
+   "evalCp": 478,
+   "winner": "b",
+   "bestLine": [
+    "Rxf7",
+    "Qxf7",
+    "Bd5",
+    "Qf5",
+    "Qd6",
+    "Re2"
+   ],
+   "rating": 1678,
+   "themes": [
+    "crushing",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "J3Zk6",
+   "fen": "5r1k/p2qb2p/2p2p2/2p1P1nQ/2N2R2/2PP2B1/PP5K/8 w - - 1 29",
+   "evalCp": 444,
+   "winner": "w",
+   "bestLine": [
+    "exf6",
+    "Bxf6",
+    "Rxf6",
+    "Rxf6",
+    "Qxg5",
+    "Rg6"
+   ],
+   "rating": 2050,
+   "themes": [
+    "crushing",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "J3Zmc",
+   "fen": "2r4r/pp1b2k1/3p1nP1/4p3/4P1qp/1Q1P2P1/PP5P/4RRK1 b - - 0 30",
+   "evalCp": 850,
+   "winner": "b",
+   "bestLine": [
+    "Be6",
+    "Qxb7+",
+    "Nd7",
+    "Qb4",
+    "hxg3",
+    "Qxd6"
+   ],
+   "rating": 2145,
+   "themes": [
+    "advantage",
+    "deflection",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "J3ZvE",
+   "fen": "3rkb1r/1ppbq1pp/p4p2/4p3/Q2n4/2N1BNP1/PP3PBP/R4RK1 w k - 6 17",
+   "evalCp": 504,
+   "winner": "w",
+   "bestLine": [
+    "Qa5",
+    "Qc5",
+    "Qxc5",
+    "Bxc5",
+    "Bxd4",
+    "exd4"
+   ],
+   "rating": 2385,
+   "themes": [
+    "advantage",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "J3a2l",
+   "fen": "8/5p2/4pPpp/pp1pP3/2k2P1P/P1P5/3K4/8 b - - 6 36",
+   "evalCp": 634,
+   "winner": "b",
+   "bestLine": [
+    "d4",
+    "cxd4",
+    "Kxd4",
+    "a4",
+    "b4",
+    "h5"
+   ],
+   "rating": 2287,
+   "themes": [
+    "advancedPawn",
+    "crushing",
+    "endgame",
+    "pawnEndgame",
+    "veryLong"
+   ]
+  },
+  {
+   "id": "J3aLx",
+   "fen": "6k1/2q2pb1/1pp1p3/3rPp2/P1Q5/6BP/2Pr2P1/R3R1K1 b - - 4 25",
+   "evalCp": 335,
+   "winner": "b",
+   "bestLine": [
+    "Rc5",
+    "Qf4",
+    "Rcxc2",
+    "Rad1",
+    "Rxg2+",
+    "Kh1"
+   ],
+   "rating": 2368,
+   "themes": [
+    "advantage",
+    "master",
+    "masterVsMaster",
+    "middlegame",
+    "sacrifice"
+   ]
+  },
+  {
+   "id": "J3aOR",
+   "fen": "8/8/5ppp/8/3k1KPP/8/5P2/8 w - - 1 34",
+   "evalCp": 592,
+   "winner": "w",
+   "bestLine": [
+    "h5",
+    "gxh5",
+    "gxh5",
+    "Kc5",
+    "Kf5",
+    "Kd5"
+   ],
+   "rating": 2276,
+   "themes": [
+    "crushing",
+    "defensiveMove",
+    "endgame",
+    "long",
+    "pawnEndgame"
+   ]
+  },
+  {
+   "id": "J3ajF",
+   "fen": "1rb1R3/Q1b3pk/1p1q4/1P1pN2p/2pP4/2P4P/5PP1/6K1 b - - 0 33",
+   "evalCp": 457,
+   "winner": "b",
+   "bestLine": [
+    "Bf5",
+    "Rxb8",
+    "Bxb8",
+    "Qf7",
+    "Bg6",
+    "Qb7"
+   ],
+   "rating": 1965,
+   "themes": [
+    "advantage",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "J3beA",
+   "fen": "2kr3r/Qpp2p2/2pq1P2/8/2b5/6P1/P1P3B1/4R1K1 b - - 2 23",
+   "evalCp": 772,
+   "winner": "b",
+   "bestLine": [
+    "Qd4+",
+    "Qxd4",
+    "Rxd4",
+    "Bf3",
+    "Rhd8",
+    "Re3"
+   ],
+   "rating": 2248,
+   "themes": [
+    "advantage",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "J3bw3",
+   "fen": "1r3rk1/1b3pbp/3qp1p1/1Q2N1Bn/p2P1P2/2P4P/BP4P1/R3R1K1 w - - 1 23",
+   "evalCp": 343,
+   "winner": "w",
+   "bestLine": [
+    "Nxf7",
+    "Qc7",
+    "Bxe6",
+    "Bxg2",
+    "Qc5",
+    "Qxc5"
+   ],
+   "rating": 1542,
+   "themes": [
+    "crushing",
+    "middlegame",
+    "short"
+   ]
+  },
+  {
+   "id": "J3cEu",
+   "fen": "4rk2/p4ppQ/1p1P3p/2p4P/2P3b1/3R4/P1B2qPK/8 b - - 0 28",
+   "evalCp": 379,
+   "winner": "b",
+   "bestLine": [
+    "Qf4+",
+    "Rg3",
+    "Qxd6",
+    "Qh8+",
+    "Ke7",
+    "Qxg7"
+   ],
+   "rating": 2125,
+   "themes": [
+    "advancedPawn",
+    "advantage",
+    "defensiveMove",
+    "endgame",
+    "master"
+   ]
+  },
+  {
+   "id": "J3dHG",
+   "fen": "1r1q1k1r/2p2ppp/1b2p3/8/P1Q1NB1n/1PP2P2/5P1P/1R2K2R w K - 1 20",
+   "evalCp": 470,
+   "winner": "w",
+   "bestLine": [
+    "Bg3",
+    "Nxf3+",
+    "Ke2",
+    "Ng5",
+    "Rbd1",
+    "Qe7"
+   ],
+   "rating": 2371,
+   "themes": [
+    "advantage",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "J3dMX",
+   "fen": "3r4/2RP2R1/5p2/Kp2p2k/p2p4/1r6/8/8 b - - 3 42",
+   "evalCp": 344,
+   "winner": "b",
+   "bestLine": [
+    "Rc3",
+    "Ra7",
+    "a3",
+    "Ra6",
+    "a2",
+    "Kb6"
+   ],
+   "rating": 1636,
+   "themes": [
+    "crushing",
+    "endgame",
+    "rookEndgame",
+    "short"
+   ]
+  },
+  {
+   "id": "J3dQN",
+   "fen": "4r1k1/4r1pp/Q1nq4/4p3/3pR3/P4N2/1P3PPP/4R1K1 w - - 1 24",
+   "evalCp": 398,
+   "winner": "w",
+   "bestLine": [
+    "Rc1",
+    "Rc7",
+    "Qc4+",
+    "Kf8",
+    "Qc5",
+    "Qxc5"
+   ],
+   "rating": 1544,
+   "themes": [
+    "advantage",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "J3dvt",
+   "fen": "2r4R/3bk1p1/1Qpr2P1/8/5q2/8/PP6/1K2R3 b - - 3 37",
+   "evalCp": 489,
+   "winner": "b",
+   "bestLine": [
+    "Kf6",
+    "Rhh1",
+    "Qd4",
+    "Qb7",
+    "Kxg6",
+    "Ka1"
+   ],
+   "rating": 2071,
+   "themes": [
+    "collinearMove",
+    "crushing",
+    "exposedKing",
+    "middlegame",
+    "pin"
+   ]
+  },
+  {
+   "id": "J3e7B",
+   "fen": "2k5/1pp2pp1/1Q1bpqpr/p2r4/3P4/P3PN2/1B3PPP/2R2RK1 w - - 1 20",
+   "evalCp": 517,
+   "winner": "w",
+   "bestLine": [
+    "Ne5",
+    "Qh4",
+    "h3",
+    "Kb8",
+    "Qb3",
+    "g5"
+   ],
+   "rating": 2226,
+   "themes": [
+    "advantage",
+    "long",
+    "middlegame"
+   ]
+  },
+  {
+   "id": "J3gaT",
+   "fen": "8/6p1/1p5p/3N1K2/1P2P3/2P5/2r3k1/8 b - - 1 39",
+   "evalCp": 368,
+   "winner": "b",
+   "bestLine": [
+    "Kg3",
+    "Kg6",
+    "Re2",
+    "Nxb6",
+    "Rxe4",
+    "Nd7"
+   ],
+   "rating": 2270,
+   "themes": [
+    "crushing",
+    "endgame",
+    "fork",
+    "long"
+   ]
+  },
+  {
+   "id": "J3hJG",
+   "fen": "2r2rk1/2qp1ppp/8/1p2p3/4n1P1/PB2B3/P1PQ3P/2KR3R w - - 0 18",
+   "evalCp": 496,
+   "winner": "w",
+   "bestLine": [
+    "Qe1",
+    "Nc3",
+    "Rd3",
+    "e4",
+    "Rd4",
+    "Nxa2+"
+   ],
+   "rating": 1740,
+   "themes": [
+    "advantage",
+    "middlegame",
+    "short"
+   ]
+  }
+ ]
+}

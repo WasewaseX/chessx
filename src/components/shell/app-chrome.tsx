@@ -41,6 +41,7 @@ import {
   ScanEye,
   Brain,
   Route,
+  TrendingUp,
 } from 'lucide-react'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { ThemeToggle } from '@/components/shell/theme-toggle'
@@ -89,6 +90,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { name: 'openings', label: 'Opening Training', icon: Route, highlight: true },
       { name: 'eyetraining', label: 'Eye Training', icon: ScanEye, highlight: true },
       { name: 'braingames', label: 'Brain Games', icon: Brain, highlight: true },
+      { name: 'conversion', label: 'Conversion Trainer', icon: TrendingUp, highlight: true },
       { name: 'review', label: 'Game Review', icon: History },
       { name: 'analysis', label: 'Analysis', icon: LineChart },
     ],
