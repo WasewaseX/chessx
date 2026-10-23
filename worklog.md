@@ -583,3 +583,23 @@ Stage Summary:
 - Permanent revival chain shipped: engine-wrapper (every engine spawn revives) + canary (20s probes) + boot installer; all live and proven in-browser.
 - Sandbox law documented: tool-session processes are always reaped; only boot-tree (PID-1 descendants) survive - all future supervisors must be spawned by mini-services or the engine wrapper.
 - Site back up and verified; GitHub updated (858ed4d).
+
+---
+Task ID: 21
+Agent: Z.ai Code (main)
+Task: Conversion Trainer - port the chessigma daily-plan candidate (RE report section 8.4) as a new Learn sub-tab
+
+Work Log:
+- Designed the trainer chessx-native: technique drills = hold and convert a proven-winning position vs full engine defense. Chessigma's captured chunks had only the name; built the rules from the genre standard with chessx's honesty bar.
+- Built scripts/build-conversion-pool.ts: rowid-range sampling from the 5.77M bank (LIKE scan over the whole table timed out - rowid windows are instant), theme filter (material/endgame/advantage/crushing; no mateIn1/2), FEN-family dedupe, then Stockfish depth-16 verification of every candidate. First run exposed a real bug: readUntil used a PER-CALL cursor so every search after the first returned stale bestmove/score (6 positions with identical eval +570); fixed with a global consume cursor. Final run: 508 evaluated -> 150 accepted (+303..+897, no forced mates) in 227s, resumable, progress-logged to engine-revival.log.
+- /api/conversion: GET returns a pool position (recent-id exclusion via ?exclude=, solution withheld); POST records the outcome and returns the engine's model line for the summary. Stateless server; stats live in localStorage (chessx.conversion.*) like Brain Games.
+- conversion-trainer-view.tsx: intro card with honest stats (attempts/converted/blew/best streak), session board (user = winning side vs engine skill 20 depth 13), live eval bar + peak, per-move advantage chip (kept/leaked/slipped/lost) from eval deltas, Hint (engine arrow, usage-counted, unlimited per learning-first policy), Resign, rules panel, no takebacks (technique means living with your moves), summary card with peak/final/moves-defended + model line, Next position flow.
+- Endings: mate = converted; stalemate/50-move = draw; eval < +1.0 = blew it; eval >= +8.5 = defense collapsed (converted); >= +3.0 held for 30 user moves = converted (technique proven).
+- Wired: ViewName 'conversion', hash alias #/v, dynamic import in page.tsx, Learn sub-tab with TrendingUp icon + highlight.
+- Browser-verified end to end: intro -> start -> a5-a6 with real mouse -> engine defense replied -> "advantage kept: +5.7 -> +5.4" chip -> resign -> summary with model line -> Next position fresh session. Screenshots download/verify-conversion-*.png. tsc + eslint clean.
+- Testing note for future sessions: agent-browser synthetic events work for React handlers in this app (proven via Hint button), but board squares demand REAL CDP mouse input (agent-browser mouse move/down/up) at DOM-computed square centers; also synthetic clicks at empty squares are silent no-ops by design.
+
+Stage Summary:
+- Conversion Trainer shipped: 150 engine-verified winning positions, full drill loop, honest rules, model-line teaching, streak stats.
+- Pushed as bfbe29e.
+- Pool builder is resumable (bun scripts/build-conversion-pool.ts) if the pool ever needs growth.
