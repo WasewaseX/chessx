@@ -19,6 +19,13 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   reactStrictMode: false,
+  // Cuts webpack's resident memory further on top of maxGenerations below:
+  // the OOM killer repeatedly took down next-server mid-compile of `/`
+  // (dmesg: anon-rss 3.4GB against a 4GB cgroup). With these two guards the
+  // same compile stays well under the ceiling.
+  experimental: {
+    webpackMemoryOptimizations: true,
+  },
   // Memory guard for small hosts (4GB sandbox): dev webpack grows an
   // unbounded in-memory cache as routes compile. One generation keeps the
   // last compilation per entry and rebuilds on change — slightly more CPU on
@@ -28,6 +35,9 @@ const nextConfig: NextConfig = {
   webpack: (config, { dev }) => {
     if (dev) {
       config.cache = { type: "memory", maxGenerations: 1 }
+      // Fewer parallel workers = lower peak memory; the box has 2 usable
+      // cores and parallelism only inflates simultaneous module graphs.
+      config.parallelism = 2
     }
     return config
   },

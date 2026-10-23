@@ -148,18 +148,23 @@ log_step_end "Health check"
 
 start_mini_services
 
-# Self-healing watchdog: the sandbox OOM-killer has repeatedly murdered
-# next-server mid-session (3.3GB+ RSS spikes during route compilation),
-# leaving port 3000 dead and the user staring at "render failed" until the
-# agent noticed. The watchdog polls :3000 every 15s and restarts the dev
-# server if it ever stops answering. Double-fork + setsid so it reparents
-# to init and outlives this script (same pattern as mini-services above).
-# It also inherits the NODE_OPTIONS heap cap from package.json's dev script,
-# which keeps V8 in GC territory well below the kernel OOM threshold.
-if [ -f "$PROJECT_DIR/scripts/dev-watchdog.sh" ]; then
-        echo "Starting dev-server watchdog in background..."
-        ( setsid bash "$PROJECT_DIR/scripts/dev-watchdog.sh" > /dev/null 2>&1 & ) || true
-        echo "Watchdog armed. Log: $PROJECT_DIR/scripts/watchdog.log"
+# Self-healing watchdog — DISABLED here on purpose.
+#
+# History: this used to arm scripts/dev-watchdog.sh (setsid'd bash probe
+# loop) at boot. On the 2026-10-23 boot it armed, then died silently before
+# writing a single log line (scripts/watchdog.log stayed empty while the dev
+# server it was supposed to guard was OOM-killed at 11:01 — the site stayed
+# down until the user reported "render failed again"). Root cause unknown.
+#
+# The single watchdog now lives inside the game-service mini-service
+# (mini-services/game-service/index.ts): it is a boot-surviving bun process
+# (proven alive across the whole session), hot-reload-safe via a globalThis
+# guard, probes :3000 every 20s and respawns `bun run dev` detached with a
+# 90s cooldown. Exactly ONE watchdog must run — two would fight over
+# restarts. If you ever re-enable this block, remove the game-service
+# watchdog first.
+if false; then
+        echo "(watchdog arming disabled — game-service watchdog is the single guard)"
 fi
 
 echo "Next.js dev server is running in background (PID: $DEV_PID)."

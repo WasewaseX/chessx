@@ -699,4 +699,83 @@ io.on('connection', (socket) => {
 // keep an unused import path alive for prisma composite keys
 // ratingFor covers all rating lookups
 
+// ---------------------------------------------------------------------------
+// Dev-server watchdog.
+//
+// Why this lives here: this process was spawned by the sandbox boot script,
+// so it survives indefinitely. Processes spawned from agent tool calls are
+// reaped the moment the tool call ends (proven empirically with a setsid'd
+// `sleep`), and the boot-time dev server itself was killed once by the
+// kernel OOM killer (4GB cgroup, webpack compile peaked at 3.4GB) with
+// nothing to revive it — the site just stayed down ("render failed again").
+//
+// So the watchdog runs HERE: every 20s it probes 127.0.0.1:3000 and, if the
+// Next.js dev server is down, respawns `bun run dev` detached. The spawn
+// happens inside this boot-context process, outside any tool-call window,
+// so the reaper never sees it. A 90s cooldown prevents spawn storms if the
+// server ever crashes instantly in a loop.
+// ---------------------------------------------------------------------------
+const DEV_PORT = 3000
+const WATCHDOG_INTERVAL_MS = 20_000
+const WATCHDOG_SPAWN_COOLDOWN_MS = 90_000
+let lastDevSpawnAt = 0
+
+async function devPortAlive(port: number): Promise<boolean> {
+  try {
+    const conn = await Bun.connect({ hostname: '127.0.0.1', port })
+    conn.end()
+    return true
+  } catch {
+    return false
+  }
+}
+
+async function reviveDevServer(): Promise<void> {
+  const now = Date.now()
+  if (now - lastDevSpawnAt < WATCHDOG_SPAWN_COOLDOWN_MS) return
+  lastDevSpawnAt = now
+  console.log('[watchdog] port 3000 down — respawning Next.js dev server')
+  try {
+    const proc = Bun.spawn(['bun', 'run', 'dev'], {
+      cwd: '/home/z/my-project',
+      stdin: 'ignore',
+      stdout: 'ignore',
+      stderr: 'ignore',
+      env: { ...process.env, BUN_BE_BUN: '1' },
+    })
+    proc.unref?.()
+    await Bun.write(
+      '/home/z/my-project/.zscripts/watchdog.log',
+      `[${new Date().toISOString()}] watchdog respawned dev server (pid ${proc.pid})\n`,
+      { append: true },
+    )
+  } catch (err) {
+    console.log('[watchdog] respawn failed:', err)
+  }
+}
+
+// globalThis guard: bun --hot re-executes this module on every file change;
+// without the guard each reload would stack another interval.
+const __watchdog = globalThis as unknown as { __devWatchdogStarted?: boolean }
+if (!__watchdog.__devWatchdogStarted) {
+  __watchdog.__devWatchdogStarted = true
+  let aliveStreak = 0
+  const tick = async () => {
+    try {
+      if (await devPortAlive(DEV_PORT)) {
+        aliveStreak++
+        return
+      }
+      aliveStreak = 0
+      await reviveDevServer()
+    } catch (err) {
+      console.log('[watchdog] tick error:', err)
+    }
+  }
+  setInterval(() => void tick(), WATCHDOG_INTERVAL_MS)
+  // first probe shortly after (re)load so a dead server is revived fast
+  setTimeout(() => void tick(), 5_000)
+  console.log('[watchdog] dev-server watchdog active (probe :3000 every 20s)')
+}
+
 console.log(`ChessX game service listening on :${PORT}`)
