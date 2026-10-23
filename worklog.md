@@ -603,3 +603,27 @@ Stage Summary:
 - Conversion Trainer shipped: 150 engine-verified winning positions, full drill loop, honest rules, model-line teaching, streak stats.
 - Pushed as bfbe29e.
 - Pool builder is resumable (bun scripts/build-conversion-pool.ts) if the pool ever needs growth.
+
+---
+Task ID: 22
+Agent: Z.ai Code (main)
+Task: Post-ship sweep - mobile overflow fix, footer compliance, all-tab error sweep
+
+Work Log:
+- Mobile (390px) audit found the home page pushing scrollWidth to 525px: the
+  "Live chess around the world" globe section's implicit single-column grid
+  sized itself to the globe wrapper's max-w-md (448px), since grid items
+  refuse to shrink below content min-width. Fixed with explicit
+  grid-cols-[minmax(0,1fr)] + min-w-0 wrappers (chess-globe.tsx); desktop
+  re-verified at 1440px (two 460px columns, scrollWidth 1425).
+- Footer compliance verified by the standard: short page (#/conversion, 900px
+  viewport) -> footer bottom lands exactly at viewport bottom; long page
+  (home, 2082px) -> footer pushed down naturally below content.
+- Swept all Learn sub-tabs (lessons, coachgame, openings, eyetraining,
+  braingames, review, analysis) plus conversion: zero page errors, zero
+  console errors.
+
+Stage Summary:
+- Mobile overflow fixed (375px at 390px viewport, was 525px); evidence
+  screenshots in download/verify-mobile-*.png. Pushed as c5ed662.
+- App-wide error sweep clean on every view.
