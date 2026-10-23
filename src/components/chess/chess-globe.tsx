@@ -826,11 +826,13 @@ export function GlobeSection() {
         </div>
       </div>
 
-      <div className="grid gap-6 px-6 py-6 lg:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 px-6 py-6 lg:grid-cols-2">
         {/* the globe always renders — even while loading or on API failure */}
-        <ChessGlobe games={games} selected={selected} onSelect={setSelected} />
+        <div className="min-w-0">
+          <ChessGlobe games={games} selected={selected} onSelect={setSelected} />
+        </div>
 
-        <div>
+        <div className="min-w-0">
           {status === 'loading' && (
             <div className="space-y-2" role="status" aria-label="Loading live games">
               {Array.from({ length: 4 }, (_, i) => (
