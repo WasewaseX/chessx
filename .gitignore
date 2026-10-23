@@ -84,3 +84,7 @@ db/backups/
 # runtime artifacts (never commit)
 db/.bank-bootstrap.lock
 db/puzzles.db.part.gz
+
+next-supervisor.log
+engine-revival.log
+watchdog.log

@@ -130,6 +130,13 @@ echo "[BUN] Setting up database..."
 bun run db:push
 log_step_end "bun run db:push"
 
+log_step_start "Engine revival wrapper"
+# Ensure the Stockfish binary is wrapped with the revival script (idempotent).
+# Every engine spawn then health-checks port 3000 and revives the dev server
+# if the sandbox OOM-killer took it down; a canary probes every 20s as well.
+bash scripts/install-engine-wrapper.sh || true
+log_step_end "Engine revival wrapper"
+
 log_step_start "Starting Next.js dev server"
 echo "[BUN] Starting development server..."
 bun run dev &
