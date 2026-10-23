@@ -536,3 +536,28 @@ Stage Summary:
 - The render-failure class is closed with a defense-in-depth that matches every observed failure mode: (1) OOM at compile → memory guards keep RSS ~1.3GB under the 4GB cgroup; (2) silent death → boot-context watchdog revives within ~35s; (3) manual restarts being reaped → the only watchdog now lives in a process the reaper cannot touch.
 - All golden paths re-verified in the browser after the rebase; takeback fix and coach claim-guard hold in live play.
 - Pushed: 6b2d3ed (fix) + cd4c476 (bank status) → origin/main.
+
+---
+Task ID: 19
+Agent: Z.ai Code (main)
+Task: Second deep RE pass on chessigma (never stop) + Brain Games port (5 games, new Learn sub-tab)
+
+Work Log:
+- Keyword-density-ranked all 40 captured chessigma web chunks (9.4MB); chunks 34596 + 39972 held the product surface. Extracted with scripted context pulls:
+  - 22 API routes + 8 pages (blunder-shield/-training 4-route families, woodpecker program lifecycle, supercoach bot/sparring/challenges, openings claim/progress/explain).
+  - Full free-tier entitlement map: game-review + daily-puzzle open; woodpecker/arena/openings/sparring subset-with-caps; blunder-shield, blunder-training, mistakes, challenge, DNA report = PAID. Chessx gives all of the paid column free - honesty advantage confirmed, nothing to change.
+  - NEW discovery: Brain Games hub with 15 games (blind-moves, blunder-crash, board-memory, eight-queens, f1-reaction-test, find-the-check, knight-trail, legal-or-not, mate-rush, memory-game, minefield, queens, reaction-time-test, spot-the-change, square-rush) + tier chart (Club 1500 / Expert / Master 2300 / GM) + Memory/Speed/Vision/Risk category badges.
+  - Feature status map (iterating/locked): their nav surface incl. Conversion Trainer (in daily plan) and Endgame Trainer (coming soon).
+- All findings appended to docs/chessigma-re-report.md §8 with verbatim evidence strings.
+- Ported the 5 non-overlapping (vs Eye Training) games as a new Brain Games view (src/components/views/brain-games-view.tsx, ~1150 lines): Find the check (count legal checks incl. underpromotions, marked reveal), Mate rush (60s + 4s/mate, streak, skip), Knight trail (knight's-tour fragment, visited marks), Legal or not (from→to legality judgments with reasons: leaves-king-in-check / blocked / wrong pattern), Blind moves (memorize → dark board → unambiguous-SAN from/to taps with per-move verdicts). Registered in store ViewName + hash alias #/b, sidebar Learn sub-tab, page.tsx router.
+- Positions from the shared sanitized puzzle index; bests persist in localStorage (chessx.brain.*) — deliberately no XP faucet: these games are about beating yourself.
+- Two real bugs found and fixed during live verification:
+  1. Lichess puzzle FENs hand the move to the DEFENDER — the solver's mate-in-1 only exists after a prelude. Verified against the bank (Rd8/c6/g6 → Qxe8#), fixed with findMatePuzzle() which presents the post-prelude position.
+  2. Upfront verification of 400 candidates stalled the start; replaced with a lazy rolling buffer (verify budget 40/call, buffer of 3) + clock that only ticks once a position is on the board + honest retry card when both fetch sources fail.
+- Browser-verified ALL FIVE games end-to-end (answers, verdicts, advance, best persistence: chessx.brain.materush = 2 shown on the hub card). tsc clean, eslint clean.
+- Screenshots: download/verify-brain-hub.png, -materush-result.png, -legalornot.png, -blindmoves.png, -mobile.png.
+
+Stage Summary:
+- chessigma RE now covers the whole product surface (routes, paywall shape, brain-games inventory, feature statuses) — report §8.
+- Brain Games ships 5 of their 15 games (the ones Eye Training doesn't already cover); square-rush/minefield/board-memory remain intentionally unported (overlap).
+- Conversion Trainer identified as the next daily-plan-worthy port candidate (their plan engine includes it; chessx's doesn't yet).

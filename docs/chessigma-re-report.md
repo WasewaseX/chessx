@@ -77,3 +77,74 @@ Chessx already matches or exceeds chessigma on: 5.77M-puzzle serving bank (chess
 
 - chess.com and lichess were NOT directly fuzzed from this sandbox: chess.com's Cloudflare challenges every host including `api.chess.com` (evidence: challenge HTML captured in `re/chess-com/home.html` attempts; agent-browser held at the challenge; CDN returns 403). The chess.com integration evidence comes from chessigma's own production code, which is stronger for porting purposes anyway.
 - The full-function decompile (all 3,962 functions) was smoke-scoped; `decomp.c` covers the interesting subset (102 KB) plus the index for the rest. Nothing crypto/security-relevant surfaced that would justify a deeper native pass.
+
+---
+
+## 8. Second deep pass (2026-10-23): entitlement map + full product surface
+
+Method: keyword-density ranking over the 40 captured Next.js chunks (9.4MB), then
+scripted context extraction around the densest files (34596, 39972). Evidence lines
+below are verbatim strings from those chunks.
+
+### 8.1 Server route inventory (22 API routes + 8 pages, from chunk 34596)
+
+```
+app/api/arena/game/start/route.ts
+app/api/blunder-shield/{route,session,next,attempt}.ts
+app/api/blunder-training/{route,session,attempt,fallback-puzzles,explain}.ts
+app/api/woodpecker/{programs,attempts} + programs/[id]/{next,advance,cycle-summary}
+app/api/supercoach/{challenges,bot/move,sparring/games}
+app/api/openings/{claim,progress,explain}
+pages: puzzles/{blunder-shield,blunder-training,mistakes,classic},
+       supercoach/{challenge,report}, sparring/game/[id], openings/review
+```
+
+### 8.2 Free-tier entitlement map (their paywall shape)
+
+| Feature      | Free access | Limits / exclusions                          |
+|--------------|-------------|----------------------------------------------|
+| game-review  | open        | —                                            |
+| daily-puzzle | open        | —                                            |
+| woodpecker   | subset      | excludes sets flagged `requires_supercoach`  |
+| arena        | subset      | gamesPerCourse + startsPerCourse caps        |
+| openings     | subset      | claimedCourses: 2, trainableLinesPerCourse cap|
+| sparring     | subset      | only `kid` + `cabin-boy` personas            |
+| blunder-shield | **paid**  | —                                            |
+| blunder-training | **paid**| —                                           |
+| mistakes     | **paid**    | —                                            |
+| challenge    | **paid**    | —                                            |
+| report (DNA) | **paid**    | —                                            |
+
+Chessx position: everything in the paid column is free in chessx (blunder shield,
+mistakes review, DNA report). Nothing to change — this is the honesty advantage.
+
+### 8.3 NEW discovery: Brain Games hub (15 games, chunk 39972)
+
+Complete game inventory from `brain/games/*.webp` asset keys:
+blind-moves, blunder-crash, board-memory, eight-queens, f1-reaction-test,
+find-the-check, knight-trail, legal-or-not, mate-rush, memory-game, minefield,
+queens, reaction-time-test, spot-the-change, square-rush.
+
+Tier chart on their results view: Club 1500, Expert, Master 2300, GM.
+Score economy: per-game gold score + best score + share cards with
+category badges (Memory / Speed / Vision / Risk).
+
+Overlap with chessx Eye Training: square-rush ≈ our Square colors sprint;
+minefield ≈ loose-piece safety; board-memory ≈ Flash chunks.
+NON-overlapping games worth porting (board-skill value ranked):
+1. find-the-check — count all legal checks in a position (board vision)
+2. mate-rush — mate-in-1 speed round (mating pattern fluency)
+3. knight-trail — knight's-tour trail challenge (knight geometry)
+4. legal-or-not — is the position legal? (rules depth: castling, ep, pins)
+5. blind-moves — execute a move sequence blindfolded (visualization)
+
+### 8.4 Feature status map (chunk 39972, `status:"iterating"|"locked"`)
+
+Their nav surface: Home, Train, Supercoach, Tools, Brain Games, Sparring (bot
+ladder), Endgame Trainer (coming soon), Courses (coming soon), Today (daily
+plan), Report (locked), Chat coach (locked), Game Review, Woodpecker,
+Blunder training, Conversion Trainer (daily plan), Puzzles, Arena, Streak
+navbar block, Leaderboard (podium), day-log history.
+
+Actionable for chessx: Conversion Trainer (convert winning positions) is in
+their daily plan but absent from chessx — candidate for the plan engine.
