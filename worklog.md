@@ -797,3 +797,26 @@ Stage Summary:
 - Opening Training now teaches like chessreps: essentials-first ladder, honest celebrations, real memory model.
 - chessable.com documented as unreachable from this sandbox (Cloudflare), like chess.com.
 - Pushed to origin/main.
+---
+Task ID: 3
+Agent: main (Z.ai Code)
+Task: Root out "session init failed" (user priority: "this error happens many times root it out")
+
+Work Log:
+- Searched entire codebase/desktop/mini-services/gateway for the literal error string — not ours; it is the preview platform's error when the sandbox app fails to answer during session establishment.
+- Caught the kernel OOM kill red-handed in dmesg: "Out of memory: Killed process 1693 (next-server) anon-rss:3442932kB" at uptime 166s, mid first-compile, on a 3.9GB box. Old boot flow started the server once and exited — zero auto-recovery, so every OOM = site dead until full sandbox reboot = "session init failed" / "render failed" every time.
+- Reproduced live: next-server died during first compile again at boot (port 3000 refusing connections, process gone).
+- Root-out, three layers:
+  L1 Prevention — NODE_OPTIONS=--max-old-space-size=1536 (V8 hard-GC before OS OOM); bank-fetch (546MB download) delayed 45s past the boot-critical compile window (src/lib/server/instrumentation-node.ts).
+  L2 Cure — scripts/dev-watchdog.sh: HTTP-health supervision (GET / every 5s, 3 consecutive failures → restart, exponential backoff 5→60s, stop-flag + signal-trap shutdown). scripts/dev-server.sh: idempotent detached starter (frees orphaned port, heap cap). dev.sh exec's into the watchdog = one long-lived boot process. First watchdog version (child-PID tracking) and second version (PPID liveness) both failed in live tests; health-based design passed the full kill→recovery cycle.
+  L3 Boot hardening — dev.sh: db:push failure warns instead of aborting boot (was a latent boot-killer: prisma wanted to drop dead OpeningProgress table and exited 1 under set -e); warm-up compiles / and /api/auth/me BEFORE the preview connects; mini-services idempotent (port probe from index.ts const PORT).
+- Killed dead OpeningProgress table (3 stale rows, zero code references) via prisma db push --accept-data-loss.
+- package.json: dev log now `tee -a` (append) so crash history survives restarts.
+- VALIDATED end-to-end: SIGKILL next-server → watchdog detected 3 bad checks → auto-restart → HTTP 200 in ~23s with real SSR content. Heap cap verified in /proc/<pid>/environ; RSS 1123MB vs 3442MB at OOM time; 2.4GB now free.
+- Note: harness reaps tool-spawned background trees between tool calls (even setsid); double-fork survives; at real sandbox boot start.sh owns the tree so the watchdog persists for the whole session.
+
+Stage Summary:
+- "session init failed" root cause = kernel OOM kill of next-server at boot + no supervisor. Fixed by prevention (heap cap + delayed bank fetch) and cure (health-based watchdog with proven kill→recovery cycle).
+- db:push boot-killer found and defused; dead OpeningProgress table dropped.
+- Artifacts: .zscripts/dev.sh (rewritten), scripts/dev-server.sh, scripts/dev-watchdog.sh, package.json (tee -a), src/lib/server/instrumentation-node.ts (45s bank delay).
+- Side finding: tiktokaltrachel@atomicmail.io EXISTS and is intact in db/custom.db (user + onboarded profile + attempts) — "account not found" was transient (empty-db window before gh-restore) or wrong password; account verified valid bcrypt hash.

@@ -31,12 +31,20 @@ async function scheduledGithubBackup(): Promise<void> {
 export function nodeBoot(): void {
   // Record the boot time for /api/build-info (deployment freshness probe).
   ;(globalThis as { __chessxBootIso?: string }).__chessxBootIso = new Date().toISOString()
-  try {
-    kickBankBootstrap()
-  } catch {
-    // Best effort only. The puzzle API routes kick the same idempotent
-    // installer as a backstop on first use.
-  }
+  // Bank install is a detached child process (see bank-bootstrap.ts), but its
+  // 546MB download still competes for disk/page-cache right when the first
+  // webpack compile needs every spare byte — the Oct 24 OOM (next-server
+  // killed at 3.44GB RSS, uptime 166s) landed exactly in this window. Delay
+  // the kick past the boot-critical first minute; API routes kick it on first
+  // puzzle use anyway, and the installer is idempotent.
+  setTimeout(() => {
+    try {
+      kickBankBootstrap()
+    } catch {
+      // Best effort only. The puzzle API routes kick the same idempotent
+      // installer as a backstop on first use.
+    }
+  }, 45 * 1000).unref?.()
   if (process.env.NEXT_RUNTIME !== 'nodejs') return
   // STRICT ORDER (the Oct 20 account-loss lesson): boot-maintenance must
   // restore user data from the GitHub snapshot BEFORE any account bootstrap
