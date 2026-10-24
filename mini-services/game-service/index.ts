@@ -735,3 +735,5 @@ io.on('connection', (socket) => {
 }
 
 console.log(`ChessX game service listening on :${PORT}`)
+
+// re-arm nudge: hang-kill hardening in watchdog-child.ts (2026-10-24)

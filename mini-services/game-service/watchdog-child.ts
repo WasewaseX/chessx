@@ -78,21 +78,42 @@ async function portAlive(): Promise<boolean> {
 // --- main loop ---------------------------------------------------------------
 let misses = 0
 let lastSpawnAt = 0
+let hangSince = 0
+
+// A Next.js process that exists but cannot serve (GC thrash, wedged worker,
+// deadlocked compile) must never pin the dead port forever. Ten minutes of
+// "process alive + port dead" is far beyond any compile on this box (worst
+// observed full cold start ~2min), so past that the stale processes are
+// killed and the normal respawn path takes over on the next tick.
+const HANG_KILL_MS = 10 * 60_000
 
 log(`watchdog child started (pid ${process.pid})`)
 
 async function tick(): Promise<void> {
   if (await portAlive()) {
     misses = 0
+    hangSince = 0
     return
   }
   misses++
   if (misses < 2) return // one miss may be a long compile — wait for two
   if (devProcessExists()) {
+    if (!hangSince) hangSince = Date.now()
+    if (Date.now() - hangSince > HANG_KILL_MS) {
+      log(`port 3000 down with a live Next.js process for ${Math.round((Date.now() - hangSince) / 1000)}s — treating as HUNG, killing stale processes`)
+      try {
+        Bun.spawn(['pkill', '-f', 'next-server'])
+        Bun.spawn(['pkill', '-f', 'next dev'])
+      } catch {}
+      hangSince = 0
+      misses = 0
+      return
+    }
     log('port 3000 down but a Next.js process exists — waiting (compile?)')
     misses = 1
     return
   }
+  hangSince = 0
   const now = Date.now()
   if (now - lastSpawnAt < SPAWN_COOLDOWN_MS) return
   lastSpawnAt = now
