@@ -680,3 +680,37 @@ Stage Summary:
   clean 503 surface (no more raw 500s); dev server now self-heals from a
   platform-owned process (watchdog), so renders stop "failing randomly".
 - Pushed as fd0fcbf + 9c468bb.
+
+---
+Task ID: 24
+Agent: Z.ai Code (main)
+Task: Chessreps RE port item 8 (high-score economy) + Dojo parity bug found by live verification
+
+Work Log:
+- Audited both RE port lists: all chessigma priorities (1-5) and chessreps
+  items 1-7/9/10 were already landed by Tasks 13-22. Remaining: item 8
+  (high-score economy) and item 11 (progress sync envelope).
+- Ported item 8 as src/lib/chess/opening-records.ts: per-course
+  daily/weekly/monthly/all-time max-merge buckets (ISO-8601 week keys),
+  honest beaten-only reporting, streak milestone tiers + next-milestone
+  nudges; wired into the openings view (live records card, session-over
+  records table with NEW chips, milestone praise at exact crossing, legacy
+  dojo-best key seeds the store once).
+- Live verification (agent-browser, real flows): logged in, drilled London
+  line 1 clean via real board input — records wrote 1 across all buckets and
+  the card rendered them; Dojo rep completed clean; session-over shows the
+  records table with NEW chips on all four buckets; zero console errors.
+- Found + fixed a real bug during verification: pickDojoRep assumed lines
+  alternate student-first, but with an odd trunk (London/Italian/Sicilian)
+  even indices are the OPPONENT's turn — Dojo stranded the student on a
+  "Your move" board where nothing was movable. Fixed parity via
+  (trunk.length + i) vs course side, plus a turn guard in drillLine.
+- Interaction testing note: synthetic pointerdown tap-move (source square,
+  then target square) works for React handlers on this board; the dojo
+  "deadlock" was NOT an input problem — fiber inspection showed
+  interactive:true with game.turn() on the opponent side.
+
+Stage Summary:
+- chessreps port item 8 shipped and browser-verified; Dojo deadlock fixed;
+  evidence screenshot download/verify-records-1-dojo-summary.png.
+- Pushed as 4a949bc.
