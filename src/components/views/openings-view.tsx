@@ -34,6 +34,11 @@ import {
   masteryPercent, newMastery, pickNextLine,
   type LineMastery, type MasteryMap, type RepertoireCourse, type RepertoireLine,
 } from '@/lib/chess/opening-reps'
+import {
+  allTimeBest, loadRecords, milestoneFor, nextMilestone, recordKindLabel,
+  recordScore,
+  type CourseRecords, type PeriodKind, type RecordKind,
+} from '@/lib/chess/opening-records'
 import { OpeningArena } from '@/components/views/opening-arena'
 import { OpeningPuzzles } from '@/components/views/opening-puzzles'
 
@@ -127,9 +132,18 @@ function pickDojoRep(mastery: MasteryMap, exclude?: DojoRep | null): DojoRep {
   const overdue = shaky.filter((x) => x.overdue > 0)
   const pool = overdue.length > 0 ? overdue : shaky.length > 0 ? shaky : all
   const pick = pool[Math.floor(Math.random() * pool.length)]
-  // Student decision points = even indices (student moves first in every line).
+  // Student decision points: the mover of line.moves[i] is WHITE when
+  // (trunk.length + i) is even (white always played the 1st trunk ply). The
+  // student takes over exactly on indices where the mover matches their side.
+  // The old even-index-only assumption landed the student on the OPPONENT's
+  // turn whenever trunk.length was odd (London 3, Italian 5, Sicilian 9) —
+  // the board then sat at "Your move" with every white piece unmovable.
   const decisions: number[] = []
-  for (let i = 0; i < pick.line.moves.length; i += 2) decisions.push(i)
+  for (let i = 0; i < pick.line.moves.length; i++) {
+    const moverIsWhite = (pick.course.trunk.length + i) % 2 === 0
+    const moverIsStudent = pick.course.side === 'w' ? moverIsWhite : !moverIsWhite
+    if (moverIsStudent) decisions.push(i)
+  }
   const entryIdx = decisions[Math.floor(Math.random() * decisions.length)] ?? 0
   return { course: pick.course, line: pick.line, entryIdx }
 }
@@ -195,15 +209,27 @@ export function OpeningsView() {
   const mistakesRef = useRef(0)
   const hintsRef = useRef(0)
   const lineCleanRef = useRef(true) // no mistakes AND no hints this line
+  const streakRef = useRef(0) // mirrors the live streak for post-update reads
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const clockRef = useRef(60)
   const [clock, setClock] = useState(60)
   const clockTickRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [timeScore, setTimeScore] = useState(0)
+  // Records economy (chessreps §7 item 8): per-course daily/weekly/monthly/
+  // all-time maxes. `records` mirrors the current course's card; `newRecords`
+  // accumulates the buckets this session beat, for the honest celebration.
+  const [records, setRecords] = useState<CourseRecords | null>(null)
+  const [newRecords, setNewRecords] = useState<PeriodKind[]>([])
 
   useEffect(() => {
     setMastery(loadMastery())
-    setDojoBest(loadDojoBest())
+    // Seed the records store from the legacy single-number dojo key exactly
+    // once: old installs keep their streak, new installs start fresh.
+    const legacy = loadDojoBest()
+    if (legacy > 0 && allTimeBest('dojo', 'dojo') === 0) {
+      recordScore('dojo', 'dojo', legacy)
+    }
+    setDojoBest(Math.max(legacy, allTimeBest('dojo', 'dojo')))
     try {
       const savedMode = window.localStorage.getItem(MODE_KEY) as Mode | null
       if (savedMode && MODES.some((m) => m.id === savedMode)) setMode(savedMode)
@@ -211,6 +237,27 @@ export function OpeningsView() {
   }, [])
 
   const course = useMemo(() => REPERTOIRE_COURSES.find((c) => c.id === courseId) ?? null, [courseId])
+
+  // Keep the record maxes fresh on every relevant change. recordScore is a
+  // max-merge, so redundant writes are harmless; `beaten` accumulates what
+  // this session improved, per period, for the session-over celebration.
+  useEffect(() => {
+    const cid = mode === 'dojo' ? 'dojo' : course?.id
+    if (!cid) return
+    if (mode === 'time') {
+      if (timeScore > 0) {
+        const { beaten, records: card } = recordScore('time', cid, timeScore)
+        setRecords(card)
+        if (beaten.length > 0) setNewRecords((p) => Array.from(new Set([...p, ...beaten])))
+      }
+    } else if (stats.bestStreak > 0) {
+      const kind: RecordKind = mode === 'dojo' ? 'dojo' : 'drill'
+      const { beaten, records: card } = recordScore(kind, cid, stats.bestStreak)
+      setRecords(card)
+      if (beaten.length > 0) setNewRecords((p) => Array.from(new Set([...p, ...beaten])))
+      if (mode === 'dojo') setDojoBest(card.dojo.allTime?.value ?? stats.bestStreak)
+    }
+  }, [mode, course?.id, stats.bestStreak, timeScore])
 
   const applyMastery = useCallback((courseId2: string, lineId: string, mistakes: number, hints: number, streak: number) => {
     setMastery((prev) => {
@@ -240,6 +287,8 @@ export function OpeningsView() {
     stopClock()
     if (mode === 'dojo') {
       setStats((s) => {
+        // Legacy single-number key stays in sync for downgrade safety; the
+        // per-period records store is written by the records effect.
         if (s.bestStreak > 0) saveDojoBest(s.bestStreak)
         setDojoBest(loadDojoBest())
         return { ...s, seconds: Math.round((Date.now() - (startRef.current || Date.now())) / 1000) }
@@ -306,11 +355,19 @@ export function OpeningsView() {
         setClock(clockRef.current)
         setTimeScore((t) => t + Math.ceil(line.moves.length / 2) * (1 + Math.floor(streak / 3)))
       }
+      streakRef.current = streak
       return next
     })
     setShowIdea(true)
     setStatus(corrupted ? 'Line finished.' : 'Line complete.')
-    setPraise(randomPraise())
+    // Streak milestones (chessreps §7 item 8): a named tier exactly when it is
+    // crossed replaces the random praise; otherwise keep the rotating praise.
+    const ms = milestoneFor(streakRef.current)
+    setPraise(
+      streakRef.current > 0 && ms && ms.at === streakRef.current
+        ? `${ms.label} — ${streakRef.current} in a row!`
+        : randomPraise(),
+    )
     playSound('win', soundOn)
     setPhase('complete')
   }, [applyMastery, mode, soundOn])
@@ -357,8 +414,18 @@ export function OpeningsView() {
         try { g.move(line.moves[i]) } catch { break }
       }
       idxRef.current = entryIdx
+      // Safety net for hand-edited or imported repertoire data: if the landed
+      // position is somehow the OPPONENT's move (bad entry index), play that
+      // one move and hand over — a "Your move" board the student cannot move
+      // on is the one failure mode this view must never show.
+      if (g.turn() !== course2.side && idxRef.current < line.moves.length) {
+        try {
+          const mv = g.move(line.moves[idxRef.current])
+          if (mv) idxRef.current++
+        } catch { /* leave as-is; the picker guarantees parity normally */ }
+      }
       let remaining = 0
-      for (let i = entryIdx; i < line.moves.length; i += 2) remaining++
+      for (let i = idxRef.current; i < line.moves.length; i += 2) remaining++
       setLineProgress({ done: 0, total: Math.max(1, remaining) })
       setFen(g.fen())
       setPhase('awaiting')
@@ -385,6 +452,8 @@ export function OpeningsView() {
     stopClock()
     setStats(EMPTY_STATS)
     setTimeScore(0)
+    setNewRecords([])
+    setRecords(loadRecords('dojo'))
     startRef.current = Date.now()
     const rep = pickDojoRep(mastery)
     dojoRepRef.current = rep
@@ -405,6 +474,8 @@ export function OpeningsView() {
   const startCourse = useCallback((c: RepertoireCourse) => {
     setStats(EMPTY_STATS)
     setTimeScore(0)
+    setNewRecords([])
+    setRecords(mode === 'dojo' ? loadRecords('dojo') : loadRecords(c.id))
     startRef.current = Date.now()
     if (mode === 'dojo') {
       // Dojo ignores the clicked course: it always trains the whole repertoire.
@@ -772,6 +843,11 @@ export function OpeningsView() {
     const acc = stats.studentMoves + stats.mistakes > 0
       ? Math.round((stats.studentMoves / (stats.studentMoves + stats.mistakes)) * 100)
       : 0
+    const kind: RecordKind = mode === 'time' ? 'time' : mode === 'dojo' ? 'dojo' : 'drill'
+    const card = records ?? loadRecords(mode === 'dojo' ? 'dojo' : course.id)
+    const periodNames: Record<PeriodKind, string> = {
+      daily: 'daily', weekly: 'weekly', monthly: 'monthly', allTime: 'all-time',
+    }
     return (
       <div className="mx-auto flex w-full max-w-md flex-col items-center px-3 py-10 text-center">
         <Trophy className="h-12 w-12 text-primary-light" aria-hidden />
@@ -789,11 +865,52 @@ export function OpeningsView() {
           <div className="rounded-xl border bg-card p-4">
             <div className="font-display text-3xl font-extrabold">{stats.bestStreak}</div>
             <div className="text-xs text-muted-foreground">best streak</div>
+            {(() => {
+              const ms = milestoneFor(stats.bestStreak)
+              return ms ? (
+                <div className="mt-1 text-[10px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400">{ms.label}</div>
+              ) : null
+            })()}
           </div>
           <div className="rounded-xl border bg-card p-4">
             <div className="font-display text-3xl font-extrabold">{stats.mistakes}</div>
             <div className="text-xs text-muted-foreground">mistakes</div>
           </div>
+        </div>
+        {/* Records table (chessreps §7 item 8) with this session's honest
+            new-record chips — a chip only appears for a bucket actually beaten. */}
+        <div className="mt-4 w-full rounded-xl border bg-card p-4 text-left">
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Records — {recordKindLabel(kind)}</div>
+            <Trophy className="h-3.5 w-3.5 text-amber-500" aria-hidden />
+          </div>
+          <dl className="mt-2 space-y-1.5 text-sm">
+            {([
+              ['Today', 'daily'],
+              ['This week', 'weekly'],
+              ['This month', 'monthly'],
+              ['All time', 'allTime'],
+            ] as [string, PeriodKind][]).map(([label, period]) => {
+              const entry = card[kind][period]
+              const isNew = newRecords.includes(period)
+              return (
+                <div key={period} className="flex justify-between">
+                  <dt className="text-muted-foreground">{label}</dt>
+                  <dd className="flex items-center gap-1.5">
+                    {isNew && (
+                      <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400">new</span>
+                    )}
+                    <span className="font-extrabold tabular-nums">{entry ? entry.value : '—'}</span>
+                  </dd>
+                </div>
+              )
+            })}
+          </dl>
+          {newRecords.length > 0 && (
+            <div className="mt-2 rounded-lg bg-amber-500/10 px-2 py-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+              {newRecords.map((p) => periodNames[p]).join(' · ')} record{newRecords.length > 1 ? 's' : ''} this session — beat {newRecords.length > 1 ? 'them' : 'it'} tomorrow.
+            </div>
+          )}
         </div>
         <div className="mt-6 flex w-full flex-col gap-2">
           <Button onClick={() => (mode === 'dojo' ? startDojo() : startCourse(course))}>
@@ -948,11 +1065,58 @@ export function OpeningsView() {
           <dl className="mt-2 space-y-1.5 text-sm">
             <div className="flex justify-between"><dt className="text-muted-foreground">Lines</dt><dd className="font-extrabold tabular-nums">{stats.lines}</dd></div>
             <div className="flex justify-between"><dt className="text-muted-foreground">Accuracy</dt><dd className="font-extrabold tabular-nums">{stats.studentMoves + stats.mistakes > 0 ? Math.round((stats.studentMoves / (stats.studentMoves + stats.mistakes)) * 100) : 100}%</dd></div>
-            <div className="flex justify-between"><dt className="text-muted-foreground">Best streak</dt><dd className="font-extrabold tabular-nums">{stats.bestStreak}</dd></div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Best streak</dt>
+              <dd className="flex items-center gap-2">
+                {(() => {
+                  const ms = milestoneFor(stats.bestStreak)
+                  return ms ? (
+                    <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400">{ms.label}</span>
+                  ) : null
+                })()}
+                <span className="font-extrabold tabular-nums">{stats.bestStreak}</span>
+              </dd>
+            </div>
             {mode === 'time' && <div className="flex justify-between"><dt className="text-muted-foreground">Score</dt><dd className="font-extrabold tabular-nums">{timeScore}</dd></div>}
             {mode === 'dojo' && <div className="flex justify-between"><dt className="text-muted-foreground">Dojo best</dt><dd className="font-extrabold tabular-nums">{Math.max(dojoBest, stats.bestStreak)}</dd></div>}
+            {(() => {
+              const nm = nextMilestone(stats.bestStreak)
+              return nm ? (
+                <div className="text-xs text-muted-foreground">{nm.at - stats.bestStreak} more clean {nm.at - stats.bestStreak === 1 ? 'line' : 'lines'} to {nm.label.toLowerCase()}</div>
+              ) : stats.bestStreak > 0 ? (
+                <div className="text-xs font-bold text-amber-600 dark:text-amber-400">Top tier reached.</div>
+              ) : null
+            })()}
           </dl>
         </div>
+
+        {/* Records (chessreps §7 item 8): daily / weekly / monthly / all-time
+            maxes per course, kept fresh while the session runs. */}
+        {records && (() => {
+          const kind: RecordKind = mode === 'time' ? 'time' : mode === 'dojo' ? 'dojo' : 'drill'
+          const rows: { label: string; entry: typeof records[RecordKind][PeriodKind] }[] = [
+            { label: 'Today', entry: records[kind].daily },
+            { label: 'This week', entry: records[kind].weekly },
+            { label: 'This month', entry: records[kind].monthly },
+            { label: 'All time', entry: records[kind].allTime },
+          ]
+          return (
+            <div className="rounded-xl border bg-card p-3">
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Records — {recordKindLabel(kind)}</div>
+                <Trophy className="h-3.5 w-3.5 text-amber-500" aria-hidden />
+              </div>
+              <dl className="mt-2 space-y-1.5 text-sm">
+                {rows.map((r) => (
+                  <div key={r.label} className="flex justify-between">
+                    <dt className="text-muted-foreground">{r.label}</dt>
+                    <dd className="font-extrabold tabular-nums">{r.entry ? r.entry.value : '—'}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )
+        })()}
 
         {/* completion card */}
         {phase === 'complete' && line && (
