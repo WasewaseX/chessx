@@ -714,3 +714,42 @@ Stage Summary:
 - chessreps port item 8 shipped and browser-verified; Dojo deadlock fixed;
   evidence screenshot download/verify-records-1-dojo-summary.png.
 - Pushed as 4a949bc.
+
+---
+Task ID: 25
+Agent: Z.ai Code (main)
+Task: Chessreps RE port item 11 (durable progress sync + forget-line); watchdog rebuilt as child process
+
+Work Log:
+- Ported item 11: OpeningProgress table + /api/openings/progress route
+  (GET/PUT/DELETE with rate limits and origin checks). Field-level
+  convergent merge: reps/lapses/bestStreak take the max; confidence/due/
+  lastGrade follow newer updatedAt. Local-first unchanged: signed-out users
+  keep pure-local behavior; signed-in users get silent pull-on-mount +
+  debounced (1.5s) push on every applied result, server-merged results
+  folded back.
+- LineMastery gained updatedAt (set on every result) to drive LWW; old
+  installs merge cleanly (missing updatedAt loses only LWW fields against a
+  server that has data, counters still max-merge).
+- Forget-line: per-line unlearn button (visible only for lines with reps),
+  clears locally and deletes the server row.
+- Watchdog lesson #2, found live: bun --hot DISPOSES module-scope timers on
+  every file reload — the in-process watchdog died the first time its file
+  was edited, leaving the app unwatched mid-session. Rebuilt as
+  mini-services/game-service/watchdog-child.ts: standalone process, own
+  timers, pid-lockfile singleton, spawned by the platform-owned game-service
+  (reaper-immune). Verified live: revived the dead server; the /proc guard
+  held off respawning during a long compile with the exact log line
+  "port 3000 down but a Next.js process exists — waiting (compile?)".
+- Live verification of the sync: clean drill of london-kid -> server row
+  {reps 1, bestStreak 1, confidence 7, grade good}; localStorage wipe +
+  reload -> progress RESTORED from the server (new-device simulation);
+  forget-line -> row count back to 0; zero console errors.
+
+Stage Summary:
+- Opening progress is now durable per account; the chessreps port list is
+  fully landed except the trial gate (deliberately skipped: this product is
+  for learning, not for ripping people off).
+- Watchdog architecture hardened against both failure modes found today
+  (tool-call reaper + hot-reload timer disposal).
+- Pushed as f9a795c.
