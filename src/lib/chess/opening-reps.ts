@@ -44,6 +44,7 @@ export interface LineMastery {
   lapses: number
   lastGrade: RepGrade | 'new'
   bestStreak: number
+  updatedAt?: number // epoch ms — set on every result; drives sync LWW
 }
 
 export type MasteryMap = Record<string, Record<string, LineMastery>>
@@ -83,6 +84,7 @@ export function applyResult(prev: LineMastery | undefined, grade: RepGrade, stre
     lapses,
     lastGrade: grade,
     bestStreak: Math.max(base.bestStreak, streak),
+    updatedAt: Date.now(),
   }
 }
 

@@ -24,6 +24,7 @@ model User {
   gamesAsWhite  OnlineGame[]   @relation("gameWhite")
   gamesAsBlack  OnlineGame[]   @relation("gameBlack")
   profile       Profile?
+  openingProgress OpeningProgress[]
   desktopHandoffTokens DesktopHandoffToken[]
 }
 
@@ -527,4 +528,26 @@ model ImportCache {
   fetchedAt     DateTime @default(now())
 
   @@unique([platform, usernameLower, month])
+}
+
+// Opening-training mastery, synced from the local-first store
+// (chessreps port item 11: progress survives devices and reinstalls).
+// Merge rules live in src/app/api/openings/progress/route.ts: monotonic
+// counters take the max, the rest follows the newer updatedAt.
+model OpeningProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId    String
+  lineId      String
+  confidence  Int      @default(5) // 0..10
+  due         DateTime @default(now()) // epoch ms as a date
+  reps        Int      @default(0)
+  lapses      Int      @default(0)
+  lastGrade   String   @default("new")
+  bestStreak  Int      @default(0)
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@unique([userId, courseId, lineId])
+  @@index([userId])
 }

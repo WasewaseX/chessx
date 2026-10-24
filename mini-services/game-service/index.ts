@@ -709,119 +709,29 @@ io.on('connection', (socket) => {
 // keep an unused import path alive for prisma composite keys
 // ratingFor covers all rating lookups
 
-// ---------------------------------------------------------------------------
-// Dev-server watchdog.
-//
-// Why this lives here: this process was spawned by the sandbox boot script,
-// so it survives indefinitely. Processes spawned from agent tool calls are
-// reaped the moment the tool call ends (proven empirically with a setsid'd
-// `sleep`), and the boot-time dev server itself was killed once by the
-// kernel OOM killer (4GB cgroup, webpack compile peaked at 3.4GB) with
-// nothing to revive it — the site just stayed down ("render failed again").
-//
-// So the watchdog runs HERE: every 20s it probes 127.0.0.1:3000 and, if the
-// Next.js dev server is down, respawns `bun run dev` detached. The spawn
-// happens inside this boot-context process, outside any tool-call window,
-// so the reaper never sees it. A 90s cooldown prevents spawn storms if the
-// server ever crashes instantly in a loop.
-// ---------------------------------------------------------------------------
-const DEV_PORT = 3000
-const WATCHDOG_INTERVAL_MS = 20_000
-const WATCHDOG_SPAWN_COOLDOWN_MS = 90_000
-let lastDevSpawnAt = 0
-
-async function devPortAlive(port: number): Promise<boolean> {
-  try {
-    const conn = await Bun.connect({ hostname: '127.0.0.1', port })
-    conn.end()
-    return true
-  } catch {
-    return false
-  }
-}
-
-/** True when a Next.js dev/server process already exists. Without this guard
- *  a long webpack compile (probe timeout) would stack a second dev server on
- *  the same port — the survivor wins, the loser exits EADDRINUSE, log noise
- *  and wasted memory in a 4GB sandbox. Reads /proc cmdline directly. */
-function devProcessExists(): boolean {
-  try {
-    const fs = nodeFs()
-    for (const pid of fs.readdirSync('/proc')) {
-      if (!/^\d+$/.test(pid)) continue
-      try {
-        const cmd = fs.readFileSync(`/proc/${pid}/cmdline`, 'utf8').replace(/\0/g, ' ')
-        if (cmd.includes('next-server')) return true
-        if (cmd.includes('next') && cmd.split(' ').includes('dev')) return true
-      } catch {
-        // process vanished between readdir and read — ignore
-      }
-    }
-  } catch {
-    // /proc unreadable — fall back to probe-only behavior
-  }
-  return false
-}
-
-let _nodeFsCache: ReturnType<typeof import('node:fs')> | null = null
-function nodeFs() {
-  if (!_nodeFsCache) _nodeFsCache = require('node:fs') as ReturnType<typeof import('node:fs')>
-  return _nodeFsCache!
-}
-
-async function reviveDevServer(): Promise<void> {
-  const now = Date.now()
-  if (now - lastDevSpawnAt < WATCHDOG_SPAWN_COOLDOWN_MS) return
-  // Never double-spawn while a Next.js process merely exists but is slow
-  // (e.g. a long webpack compile makes the probe time out). Reads /proc
-  // cmdlines directly; if ANY next dev/server process is alive, leave it be.
-  if (devProcessExists()) {
-    console.log('[watchdog] port 3000 down but a Next.js process exists — waiting (compile?)')
-    return
-  }
-  lastDevSpawnAt = now
-  console.log('[watchdog] port 3000 down — respawning Next.js dev server')
-  try {
-    const proc = Bun.spawn(['bun', 'run', 'dev'], {
-      cwd: '/home/z/my-project',
-      stdin: 'ignore',
-      stdout: 'ignore',
-      stderr: 'ignore',
-      env: { ...process.env, BUN_BE_BUN: '1' },
-    })
-    proc.unref?.()
-    await Bun.write(
-      '/home/z/my-project/.zscripts/watchdog.log',
-      `[${new Date().toISOString()}] watchdog respawned dev server (pid ${proc.pid})\n`,
-      { append: true },
-    )
-  } catch (err) {
-    console.log('[watchdog] respawn failed:', err)
-  }
-}
-
-// globalThis guard: bun --hot re-executes this module on every file change;
-// without the guard each reload would stack another interval.
-const __watchdog = globalThis as unknown as { __devWatchdogStarted?: boolean }
-if (!__watchdog.__devWatchdogStarted) {
-  __watchdog.__devWatchdogStarted = true
-  let aliveStreak = 0
-  const tick = async () => {
+// Re-arm on every module (re)load — via a SEPARATE PROCESS. The Oct 24
+// lesson #2: bun --hot DISPOSES module-scope timers on every reload, so an
+// in-process watchdog silently died mid-session the first time this file was
+// edited (the app server sat unwatched until noticed). The watchdog now lives
+// in watchdog-child.ts — its own process, own timers, spawned from THIS
+// platform-owned process so the sandbox reaper never sees it. Reloads of this
+// module merely ensure the child is still running (pid-lockfile singletons).
+{
+  const ensureWatchdogChild = () => {
     try {
-      if (await devPortAlive(DEV_PORT)) {
-        aliveStreak++
-        return
-      }
-      aliveStreak = 0
-      await reviveDevServer()
+      const proc = Bun.spawn(['bun', 'run', 'watchdog-child.ts'], {
+        cwd: '/home/z/my-project/mini-services/game-service',
+        stdin: 'ignore',
+        stdout: 'ignore',
+        stderr: 'ignore',
+      })
+      proc.unref?.()
+      console.log('[watchdog] ensured watchdog child is running')
     } catch (err) {
-      console.log('[watchdog] tick error:', err)
+      console.log('[watchdog] failed to spawn watchdog child:', err)
     }
   }
-  setInterval(() => void tick(), WATCHDOG_INTERVAL_MS)
-  // first probe shortly after (re)load so a dead server is revived fast
-  setTimeout(() => void tick(), 5_000)
-  console.log('[watchdog] dev-server watchdog active (probe :3000 every 20s)')
+  ensureWatchdogChild()
 }
 
 console.log(`ChessX game service listening on :${PORT}`)

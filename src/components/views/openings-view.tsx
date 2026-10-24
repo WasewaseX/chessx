@@ -27,7 +27,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
   ArrowRight, BookMarked, Brain, Check, ChevronLeft, Dumbbell, GraduationCap, Hourglass,
-  Lightbulb, Loader2, Play, SkipForward, Swords, Target, Timer, Trophy, Zap,
+  Lightbulb, Loader2, Play, RotateCcw, SkipForward, Swords, Target, Timer, Trophy, Zap,
 } from 'lucide-react'
 import {
   REPERTOIRE_COURSES, applyResult, confidenceDot, gradeFor, masteryLabel,
@@ -39,6 +39,7 @@ import {
   recordScore,
   type CourseRecords, type PeriodKind, type RecordKind,
 } from '@/lib/chess/opening-records'
+import { forgetLineProgress, pullProgress, pushProgress } from '@/lib/chess/opening-sync'
 import { OpeningArena } from '@/components/views/opening-arena'
 import { OpeningPuzzles } from '@/components/views/opening-puzzles'
 
@@ -259,6 +260,43 @@ export function OpeningsView() {
     }
   }, [mode, course?.id, stats.bestStreak, timeScore])
 
+  // ---- Progress sync (chessreps item 11): pull the server mirror on mount,
+  // debounced push on every local change. Local-first: the view never blocks
+  // or waits on the network; signed-out users keep pure-local behavior.
+  const syncQueueRef = useRef<Map<string, { courseId: string; lineId: string }>>(new Map())
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      const merged = await pullProgress(loadMastery())
+      if (cancelled) return
+      saveMastery(merged)
+      setMastery(merged)
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const flushSyncQueue = useCallback(() => {
+    syncTimerRef.current = null
+    const keys = [...syncQueueRef.current.values()]
+    syncQueueRef.current.clear()
+    if (keys.length === 0) return
+    void (async () => {
+      const merged = await pushProgress(loadMastery(), keys)
+      saveMastery(merged)
+      setMastery(merged)
+    })()
+  }, [])
+
+  const queueSync = useCallback((courseId2: string, lineId: string) => {
+    syncQueueRef.current.set(`${courseId2}\u0000${lineId}`, { courseId: courseId2, lineId })
+    if (syncTimerRef.current) clearTimeout(syncTimerRef.current)
+    syncTimerRef.current = setTimeout(flushSyncQueue, 1_500)
+  }, [flushSyncQueue])
+
   const applyMastery = useCallback((courseId2: string, lineId: string, mistakes: number, hints: number, streak: number) => {
     setMastery((prev) => {
       const courseMap = { ...(prev[courseId2] ?? {}) }
@@ -266,8 +304,22 @@ export function OpeningsView() {
       courseMap[lineId] = applyResult(courseMap[lineId] ?? newMastery(), grade, streak)
       const next = { ...prev, [courseId2]: courseMap }
       saveMastery(next)
+      queueSync(courseId2, lineId)
       return next
     })
+  }, [queueSync])
+
+  /** Forget-line (chessreps "unlearn this line"): clears locally and on the
+   *  server mirror. Confirmation happens inline via a second click. */
+  const forgetLine = useCallback((courseId2: string, lineId: string) => {
+    setMastery((prev) => {
+      const courseMap = { ...(prev[courseId2] ?? {}) }
+      delete courseMap[lineId]
+      const next = { ...prev, [courseId2]: courseMap }
+      saveMastery(next)
+      return next
+    })
+    void forgetLineProgress(courseId2, lineId)
   }, [])
 
   const clearTimers = useCallback(() => {
@@ -950,19 +1002,33 @@ export function OpeningsView() {
               const active = selectedLineId === l.id && (line?.id === l.id)
               const dueSoon = m && m.reps > 0 && m.due <= Date.now()
               return (
-                <button
+                <div
                   key={l.id}
-                  onClick={() => drillLine(course, l)}
                   className={cn(
-                    'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs transition-colors',
-                    active ? 'bg-primary/15 font-bold' : 'hover:bg-accent/60',
+                    'flex w-full items-center gap-0.5 rounded-lg transition-colors',
+                    active ? 'bg-primary/15' : 'hover:bg-accent/60',
                   )}
                 >
-                  <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', confidenceDot(m))} aria-hidden />
-                  <span className="min-w-0 flex-1 truncate">{l.moves.slice(0, 4).join(' ')}{l.moves.length > 4 ? ' …' : ''}</span>
-                  {dueSoon && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" title="Due for review" aria-hidden />}
-                  <span className="shrink-0 tabular-nums text-[10px] text-muted-foreground">{m?.confidence ?? 5}/10</span>
-                </button>
+                  <button
+                    onClick={() => drillLine(course, l)}
+                    className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs"
+                  >
+                    <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', confidenceDot(m))} aria-hidden />
+                    <span className="min-w-0 flex-1 truncate">{l.moves.slice(0, 4).join(' ')}{l.moves.length > 4 ? ' …' : ''}</span>
+                    {dueSoon && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" title="Due for review" aria-hidden />}
+                    <span className="shrink-0 tabular-nums text-[10px] text-muted-foreground">{m?.confidence ?? 5}/10</span>
+                  </button>
+                  {m && m.reps > 0 && (
+                    <button
+                      onClick={() => forgetLine(course.id, l.id)}
+                      title="Unlearn this line — forgets its progress here and in your account"
+                      aria-label={`Unlearn ${l.moves.slice(0, 3).join(' ')}`}
+                      className="mr-1 shrink-0 rounded p-1 text-muted-foreground/40 hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <RotateCcw className="h-3 w-3" aria-hidden />
+                    </button>
+                  )}
+                </div>
               )
             })}
           </div>
