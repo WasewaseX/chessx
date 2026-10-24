@@ -15,6 +15,21 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { getSessionUser, rateLimit, originOk, ORIGIN_BLOCKED_MSG } from '@/lib/auth'
 
+// ts-fsrs v6 Card snapshot (JSON-safe shape, dates as epoch ms) — see
+// src/lib/chess/opening-reps.ts. Stored as a JSON string column; merged with
+// the LWW group (never blend two memory states from different timelines).
+const fsrsCardSchema = z.object({
+  due: z.number().int().min(0),
+  stability: z.number().min(0).max(100_000),
+  difficulty: z.number().min(0).max(10),
+  scheduled_days: z.number().int().min(0).max(36_500),
+  learning_steps: z.number().int().min(0).max(100),
+  reps: z.number().int().min(0).max(100_000),
+  lapses: z.number().int().min(0).max(100_000),
+  state: z.number().int().min(0).max(3),
+  last_review: z.number().int().min(0).nullable(),
+})
+
 const entrySchema = z.object({
   courseId: z.string().min(1).max(80),
   lineId: z.string().min(1).max(120),
@@ -25,11 +40,47 @@ const entrySchema = z.object({
   lastGrade: z.enum(['good', 'hard', 'again', 'new']),
   bestStreak: z.number().int().min(0).max(100_000),
   updatedAt: z.number().int().min(0),
+  fsrsCard: fsrsCardSchema.optional(),
 })
 
 const putSchema = z.object({ entries: z.array(entrySchema).max(2000) })
 
 type Entry = z.infer<typeof entrySchema>
+
+function rowToEntry(r: {
+  courseId: string
+  lineId: string
+  confidence: number
+  due: Date
+  reps: number
+  lapses: number
+  lastGrade: string
+  bestStreak: number
+  updatedAt: Date
+  fsrsCard: string | null
+}): Entry {
+  let fsrsCard: Entry['fsrsCard']
+  if (r.fsrsCard) {
+    try {
+      const parsed = fsrsCardSchema.safeParse(JSON.parse(r.fsrsCard))
+      if (parsed.success) fsrsCard = parsed.data
+    } catch {
+      /* torn/legacy write: treat as absent */
+    }
+  }
+  return {
+    courseId: r.courseId,
+    lineId: r.lineId,
+    confidence: r.confidence,
+    due: r.due.getTime(),
+    reps: r.reps,
+    lapses: r.lapses,
+    lastGrade: (r.lastGrade as Entry['lastGrade']) ?? 'new',
+    bestStreak: r.bestStreak,
+    updatedAt: r.updatedAt.getTime(),
+    fsrsCard,
+  }
+}
 
 export async function GET(req: NextRequest) {
   if (!originOk(req)) return NextResponse.json({ error: ORIGIN_BLOCKED_MSG }, { status: 403 })
@@ -42,17 +93,7 @@ export async function GET(req: NextRequest) {
   const progress: Record<string, Record<string, Entry>> = {}
   for (const r of rows) {
     const course = (progress[r.courseId] ??= {})
-    course[r.lineId] = {
-      courseId: r.courseId,
-      lineId: r.lineId,
-      confidence: r.confidence,
-      due: r.due.getTime(),
-      reps: r.reps,
-      lapses: r.lapses,
-      lastGrade: (r.lastGrade as Entry['lastGrade']) ?? 'new',
-      bestStreak: r.bestStreak,
-      updatedAt: r.updatedAt.getTime(),
-    }
+    course[r.lineId] = rowToEntry(r)
   }
   return NextResponse.json({ progress }, { headers: { 'cache-control': 'no-store' } })
 }
@@ -68,6 +109,7 @@ function merge(local: Entry, remote: Entry | null): Entry {
     due: newer.due,
     lastGrade: newer.lastGrade,
     updatedAt: newer.updatedAt,
+    fsrsCard: newer.fsrsCard,
     reps: Math.max(local.reps, remote.reps),
     lapses: Math.max(local.lapses, remote.lapses),
     bestStreak: Math.max(local.bestStreak, remote.bestStreak),
@@ -93,20 +135,9 @@ export async function PUT(req: NextRequest) {
   const merged: Entry[] = []
   for (const entry of parsed.data.entries) {
     const row = byKey.get(`${entry.courseId}\u0000${entry.lineId}`)
-    const remote: Entry | null = row
-      ? {
-          courseId: row.courseId,
-          lineId: row.lineId,
-          confidence: row.confidence,
-          due: row.due.getTime(),
-          reps: row.reps,
-          lapses: row.lapses,
-          lastGrade: (row.lastGrade as Entry['lastGrade']) ?? 'new',
-          bestStreak: row.bestStreak,
-          updatedAt: row.updatedAt.getTime(),
-        }
-      : null
+    const remote: Entry | null = row ? rowToEntry(row) : null
     const next = merge(entry, remote)
+    const fsrsCardJson = next.fsrsCard ? JSON.stringify(next.fsrsCard) : null
     await db.openingProgress.upsert({
       where: { userId_courseId_lineId: { userId: user.id, courseId: entry.courseId, lineId: entry.lineId } },
       create: {
@@ -120,6 +151,7 @@ export async function PUT(req: NextRequest) {
         lastGrade: next.lastGrade,
         bestStreak: next.bestStreak,
         updatedAt: new Date(next.updatedAt),
+        fsrsCard: fsrsCardJson,
       },
       update: {
         confidence: next.confidence,
@@ -129,6 +161,7 @@ export async function PUT(req: NextRequest) {
         lastGrade: next.lastGrade,
         bestStreak: next.bestStreak,
         updatedAt: new Date(next.updatedAt),
+        fsrsCard: fsrsCardJson,
       },
     })
     merged.push(next)

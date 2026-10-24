@@ -241,6 +241,13 @@ async function readLocalDataStateRaw(): Promise<'empty' | 'pristine' | 'populate
 async function seedWhatsNew(): Promise<void> {
   const SEEDS: { title: string; body: string; tag: string; version?: string; pinned?: boolean }[] = [
     {
+      title: 'Opening mastery now runs the real FSRS-6 memory model',
+      tag: 'feature',
+      version: '0.4.5',
+      body:
+        'Opening Training scheduling upgraded from fixed intervals to the real FSRS-6 algorithm — the same open-source scheduler (ts-fsrs v6, request retention 0.9) the best opening trainers run. Every line now carries true memory state: stability and difficulty. A line you keep acing spaces out — 10 minutes, then days, then weeks; a line you slip on comes back in minutes while the memory is fresh. Forget-lines and multi-device sync carry the full scheduler state, and your existing progress migrates automatically: counters and records are kept, the memory model converges on your next review.',
+    },
+    {
       title: 'Eye training: see the board like a master',
       tag: 'feature',
       version: '0.4.4',

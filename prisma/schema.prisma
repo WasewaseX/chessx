@@ -547,6 +547,9 @@ model OpeningProgress {
   lastGrade   String   @default("new")
   bestStreak  Int      @default(0)
   updatedAt   DateTime @default(now()) @updatedAt
+  // ts-fsrs v6 Card snapshot (JSON: epoch-ms dates) — the real FSRS-6 memory
+  // state; follows the LWW group exactly like confidence/due/lastGrade.
+  fsrsCard    String?
 
   @@unique([userId, courseId, lineId])
   @@index([userId])

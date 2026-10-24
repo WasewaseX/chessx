@@ -6,12 +6,24 @@
  * position; a shared trunk is auto-played before the student's first
  * decision; per-position idea notes replace their `descriptions` map.
  *
- * Mastery is an FSRS-lite port of their `Cc/Wc/Tc` trio:
- *  - grade from mistakes+hints: 0/0 -> good, 1 -> hard, >=2 -> again
- *  - confidence 0..10 (default 5, +2 perfect, minus mistakes/hints, clamped)
- *  - due = now + interval by grade (again 5min, hard 1d, good scales with reps)
+ * Mastery scheduling is the REAL ts-fsrs v6 (FSRS-6.0) — the exact open-source
+ * scheduler chessreps.com inlines in their bundle (RE report: request_retention
+ * 0.9, maximum_interval 36500, grades mapped from mistakes+hints). No more
+ * fixed-interval approximation: per-line memory state (stability/difficulty)
+ * drives the next due date, so a line you keep acing spaces out to weeks and
+ * a line you keep lapsing comes back in minutes — like the real thing.
+ *
+ *  - grade from mistakes+hints: 0/0 -> good, 1 -> hard, >=2 -> again (their rule)
+ *  - confidence 0..10 stays as the UX-facing number (default 5, +/-2 per grade)
+ *  - due/fsrsCard come from the scheduler (short-term learning steps included,
+ *    exactly like chessreps: a fresh line comes back within minutes, then days)
  *  - picker: started-but-not-perfected first, sort by overdue, random top-3
+ *
+ * Legacy records (pre-FSRS) migrate by letting the scheduler start fresh on
+ * their next review; reps/lapses/confidence counters are preserved so records
+ * and UI never lose history.
  */
+import { createEmptyCard, fsrs, generatorParameters, Rating, type Card, type Grade as FsrsGrade } from 'ts-fsrs'
 
 export type RepGrade = 'again' | 'hard' | 'good'
 
@@ -36,6 +48,23 @@ export interface RepertoireCourse {
   openings: string[]
 }
 
+/**
+ * JSON-safe snapshot of a ts-fsrs Card (Date fields as epoch ms) — this exact
+ * shape is what localStorage and the server mirror both persist.
+ */
+export interface FsrsCard {
+  due: number // epoch ms
+  stability: number
+  difficulty: number
+  scheduled_days: number
+  learning_steps: number
+  reps: number
+  lapses: number
+  /** 0 New | 1 Learning | 2 Review | 3 Relearning (ts-fsrs State) */
+  state: number
+  last_review: number | null
+}
+
 /** Per-line mastery state persisted locally (chessreps is local-first too). */
 export interface LineMastery {
   confidence: number // 0..10
@@ -45,12 +74,56 @@ export interface LineMastery {
   lastGrade: RepGrade | 'new'
   bestStreak: number
   updatedAt?: number // epoch ms — set on every result; drives sync LWW
+  fsrsCard?: FsrsCard // scheduler memory state (absent on pre-FSRS records)
 }
 
 export type MasteryMap = Record<string, Record<string, LineMastery>>
 
 const DAY = 86_400_000
-const MIN = 60_000
+
+/**
+ * The scheduler, exactly as chessreps configures it (RE report evidence):
+ * ts-fsrs defaults with request_retention 0.9 and maximum_interval 36500.
+ * Short-term learning steps stay enabled (their fresh lines return in
+ * minutes too — it is what makes a first session actually teach).
+ */
+const scheduler = fsrs(generatorParameters({ request_retention: 0.9, maximum_interval: 36500 }))
+
+const GRADE_TO_FSRS: Record<RepGrade, FsrsGrade> = {
+  again: Rating.Again,
+  hard: Rating.Hard,
+  good: Rating.Good,
+}
+
+/** Date-bearing Card -> JSON-safe snapshot. */
+function serializeCard(c: Card): FsrsCard {
+  return {
+    due: c.due.getTime(),
+    stability: c.stability,
+    difficulty: c.difficulty,
+    scheduled_days: c.scheduled_days,
+    learning_steps: c.learning_steps,
+    reps: c.reps,
+    lapses: c.lapses,
+    state: c.state,
+    last_review: c.last_review ? c.last_review.getTime() : null,
+  }
+}
+
+/** JSON-safe snapshot -> Date-bearing Card for the scheduler. */
+function reviveCard(s: FsrsCard): Card {
+  return {
+    due: new Date(s.due),
+    stability: s.stability,
+    difficulty: s.difficulty,
+    scheduled_days: s.scheduled_days,
+    learning_steps: s.learning_steps,
+    reps: s.reps,
+    lapses: s.lapses,
+    state: s.state as Card['state'],
+    last_review: s.last_review ? new Date(s.last_review) : undefined,
+  }
+}
 
 /** Default mastery for a never-touched line. */
 export function newMastery(): LineMastery {
@@ -68,24 +141,29 @@ export function gradeFor(mistakes: number, hints: number): RepGrade {
 /** Apply one drill result to a line's mastery (pure; returns the next state). */
 export function applyResult(prev: LineMastery | undefined, grade: RepGrade, streak: number): LineMastery {
   const base = prev ?? newMastery()
+  const now = new Date()
+  // Pre-FSRS records (reps>0, no card) start the scheduler fresh: the counters
+  // keep their history, the memory model just needs a couple of reviews to
+  // converge onto the student's real forgetting curve.
+  const card = base.fsrsCard ? reviveCard(base.fsrsCard) : createEmptyCard(now)
+  const nextCard = scheduler.repeat(card, now)[GRADE_TO_FSRS[grade]].card
   const confidence = Math.max(0, Math.min(10, base.confidence + (grade === 'good' ? 2 : grade === 'hard' ? 0 : -2)))
-  const reps = base.reps + 1
-  const lapses = base.lapses + (grade === 'again' ? 1 : 0)
-  const interval =
-    grade === 'again'
-      ? 5 * MIN
-      : grade === 'hard'
-        ? DAY
-        : Math.min(21, 3 + reps) * DAY
   return {
     confidence,
-    due: Date.now() + interval,
-    reps,
-    lapses,
+    due: nextCard.due.getTime(),
+    reps: base.reps + 1,
+    lapses: base.lapses + (grade === 'again' ? 1 : 0),
     lastGrade: grade,
     bestStreak: Math.max(base.bestStreak, streak),
-    updatedAt: Date.now(),
+    updatedAt: now.getTime(),
+    fsrsCard: serializeCard(nextCard),
   }
+}
+
+/** Days until due (fractional, >=0) — used by the line list. */
+export function daysUntilDue(m: LineMastery | undefined): number | null {
+  if (!m || m.reps === 0) return null
+  return Math.max(0, (m.due - Date.now()) / DAY)
 }
 
 /** Confidence 0..10 -> dot color class (chessreps line-list dots). */

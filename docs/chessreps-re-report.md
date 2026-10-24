@@ -289,3 +289,26 @@ All from primary artifacts in `/tmp` (bundles under `/tmp/cr-chunks/`).
 4. Whether a dedicated cross-course "due reviews" queue screen exists (not in fetched pages; scheduling is folded into mode line-pickers).
 5. The native iOS/Android apps' parity with web behavior (not fetched).
 6. `PUBLIC_OPENING_ENCRYPTION_KEY` consumption site (present in env payload; presumably encrypts private user-created course data before Supabase upload — not confirmed in the downloaded chunks).
+
+## Port status addendum (2026-10-24): item 2 upgraded to the real scheduler
+
+The original item 2 said "port an FSRS-lite". It shipped as a fixed-interval
+approximation (again 5min / hard 1d / good 3+reps days, cap 21). It has now
+been REPLACED by the real thing:
+
+- Dependency: `ts-fsrs@6.0.0-beta.15` (FSRS-6.0) — the exact package version
+  class chessreps inlines into their trainer bundle (see evidence above:
+  request_retention 0.9, maximum_interval 36500).
+- Engine: `src/lib/chess/opening-reps.ts` — `applyResult()` now runs the real
+  scheduler (`scheduler.repeat(card, now)[grade].card`); grades map
+  again/hard/good → Rating 1/2/3 (their mistakes+hints rule unchanged);
+  short-term learning steps stay enabled (a fresh line returns in minutes,
+  exactly like chessreps).
+- Persistence: `LineMastery.fsrsCard` (JSON-safe Card snapshot, epoch-ms
+  dates) in localStorage AND the server mirror (`OpeningProgress.fsrsCard`
+  JSON column) — merge follows the LWW group (never blend two memory states).
+- Migration: pre-FSRS records keep reps/lapses/confidence/bestStreak; the
+  scheduler starts fresh and converges after a couple of reviews.
+- Verified in browser: clean London drill → card {stability 2.307,
+  difficulty 2.118, state Learning, due +10min} → PUT row in SQLite with the
+  full card → localStorage wipe + reload → card restored from the server.

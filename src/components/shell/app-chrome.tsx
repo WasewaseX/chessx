@@ -458,7 +458,7 @@ export function AppFooter() {
   }, [])
   return (
     <footer className="mt-auto border-t border-border px-4 py-3 text-center text-[11px] text-muted-foreground">
-      ChessX v0.4.4{stamp ? <> · {stamp}</> : null} · Not affiliated with chess.com or Lichess. Piece set: cburnett
+      ChessX v0.4.5{stamp ? <> · {stamp}</> : null} · Not affiliated with chess.com or Lichess. Piece set: cburnett
       (CC BY-SA 3.0). Engine: Stockfish.
     </footer>
   )

@@ -753,3 +753,24 @@ Stage Summary:
 - Watchdog architecture hardened against both failure modes found today
   (tool-call reaper + hot-reload timer disposal).
 - Pushed as f9a795c.
+
+---
+Task ID: 26
+Agent: Z.ai Code (main)
+Task: Root out "session init failed" (watchdog layer) + upgrade Opening Training to the real ts-fsrs v6 scheduler
+
+Work Log:
+- Session-init failure stack closed end-to-end: found port 3000 DEAD on arrival (dmesg: next-server OOM-killed at 3.4GB RSS on the 4GB box, ~2min after boot, never restarted) and proved tool-call-spawned processes get reaped (setsid/nohup/disown all die; only the double-fork `(setsid cmd &)` orphan pattern survives tool-call boundaries, and only platform-owned parents are reaper-immune).
+- Consolidated the watchdog architecture to exactly one active watcher: the game-service-spawned watchdog-child (platform-owned, pid-lockfile singleton). Killed the redundant bash watchdog; added the missing hardening to watchdog-child.ts: a HUNG next-server (process alive, port dead — GC thrash/wedged worker) previously waited forever; now 10 minutes of process-alive+port-dead pkills the stale processes and the next tick respawns (verified live: the log line "port 3000 down with a live Next.js process for 600s — treating as HUNG" fired during this session's restart, and the server revived at pid 5213).
+- chessreps RE port item 2 upgraded from the FSRS-lite approximation to the REAL scheduler: ts-fsrs@6.0.0-beta.15 (FSRS-6.0) — the exact package chessreps inlines (request_retention 0.9, maximum_interval 36500). applyResult() now runs scheduler.repeat per drill result (grades again/hard/good from mistakes+hints unchanged, short-term learning steps on like chessreps).
+- Full-stack persistence: LineMastery.fsrsCard (JSON-safe Card, epoch-ms) in localStorage; OpeningProgress.fsrsCard JSON column (db push) in the server mirror; zod-validated on the wire; merge follows the LWW group (never blend two memory states); client opening-sync.ts carries the card both directions.
+- Legacy migration: pre-FSRS records keep reps/lapses/confidence/bestStreak; scheduler starts fresh and converges after a couple of reviews (counters never reset).
+- Found + fixed en route: (a) ts-fsrs Card.last_review is Date|undefined not null (tsc caught); (b) the dev server cached a broken Prisma client module after a mid-flight db:push regeneration — db.openingProgress went undefined → progress route 500s; fixed by a full server restart (watchdog revived it), after which the sync worked; (c) board tap-move needs the full drag event chain (pointerdown on source square → pointermove → pointerup on target square, React drag-board handlers), not two clicks.
+- Browser-verified end to end with real board input: line 1 clean (12 half-moves) → grade good → card {stability 2.307, difficulty 2.118, state Learning, due +10min}; line 2 clean → PUT row in SQLite carrying the full fsrsCard JSON; localStorage wipe + reload → card RESTORED from the server with the exact scheduler state (stability 2.307, due 9min). Screenshot download/verify-fsrs-1-line-complete.png.
+- What's New v0.4.5 entry + footer stamp bumped; RE report addendum documents the item-2 upgrade.
+- tsc clean, eslint clean.
+
+Stage Summary:
+- "session init failed" is now dead at every layer: OOM prevented (heap cap), crashes auto-revived (platform-owned watchdog), hung servers killed after 10min (new), SQLite write storms absorbed (prior session's WAL work).
+- Opening Training schedules with the genuine FSRS-6 memory model — stability/difficulty per line, minutes-to-weeks spacing, multi-device durable, legacy-safe. This is chessreps' actual scheduler, not an approximation.
+- Pushed to origin/main.

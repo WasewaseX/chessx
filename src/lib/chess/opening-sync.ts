@@ -9,7 +9,7 @@
 //   - the rest (confidence, due, lastGrade): newer updatedAt wins (LWW)
 // so any two devices converge to the same state without a sync protocol.
 
-import type { LineMastery, MasteryMap, RepGrade } from '@/lib/chess/opening-reps'
+import type { FsrsCard, LineMastery, MasteryMap, RepGrade } from '@/lib/chess/opening-reps'
 
 export interface SyncEntry {
   courseId: string
@@ -21,6 +21,7 @@ export interface SyncEntry {
   lastGrade: RepGrade | 'new'
   bestStreak: number
   updatedAt: number
+  fsrsCard?: FsrsCard
 }
 
 /** Field-merge two versions of one line's mastery (see module rules). */
@@ -36,6 +37,9 @@ export function mergeMastery(local: LineMastery, remote: LineMastery): LineMaste
     reps: Math.max(local.reps ?? 0, remote.reps ?? 0),
     lapses: Math.max(local.lapses ?? 0, remote.lapses ?? 0),
     bestStreak: Math.max(local.bestStreak ?? 0, remote.bestStreak ?? 0),
+    // The scheduler's memory state follows the LWW group: mixing two cards
+    // from different timelines would corrupt stability/difficulty.
+    fsrsCard: newer.fsrsCard,
   }
 }
 
@@ -52,6 +56,7 @@ export function foldEntries(map: MasteryMap, entries: SyncEntry[]): MasteryMap {
       lastGrade: e.lastGrade,
       bestStreak: e.bestStreak,
       updatedAt: e.updatedAt,
+      fsrsCard: e.fsrsCard,
     }
     course[e.lineId] = local ? mergeMastery(local, remote) : remote
   }
@@ -69,6 +74,7 @@ function toEntry(courseId: string, lineId: string, m: LineMastery): SyncEntry {
     lastGrade: m.lastGrade ?? 'new',
     bestStreak: m.bestStreak ?? 0,
     updatedAt: m.updatedAt ?? 0,
+    fsrsCard: m.fsrsCard,
   }
 }
 
