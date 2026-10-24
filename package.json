@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "private": true,
   "scripts": {
-    "dev": "bun scripts/gh-restore.ts && next dev --webpack -p 3000 2>&1 | tee -a dev.log",
+    "dev": "bun scripts/gh-restore.ts && NODE_OPTIONS=--max-old-space-size=1536 next dev --webpack -p 3000 2>&1 | tee -a dev.log",
     "watchdog": "bash scripts/dev-watchdog.sh",
     "dev-server": "bash scripts/dev-server.sh",
     "backup": "bun scripts/gh-backup.ts manual",
