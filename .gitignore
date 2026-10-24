@@ -88,3 +88,7 @@ db/puzzles.db.part.gz
 next-supervisor.log
 engine-revival.log
 watchdog.log
+.watchdog.lock
+.zscripts/watchdog-child.pid
+db/custom.db-shm
+db/custom.db-wal
