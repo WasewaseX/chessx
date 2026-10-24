@@ -161,7 +161,14 @@ interface RawSqlite {
  *  on: node:sqlite on Node, bun:sqlite under bun. The Oct 22 lesson: the
  *  standalone production server may run under either, and a hard
  *  node:sqlite requirement made the classifier return 'unknown' under bun —
- *  silently disabling the user-data restore there. */
+ *  silently disabling the user-data restore there.
+ *
+ *  WAL caveat (Oct 2026, the "session init failed" fix put the database in
+ *  WAL journal mode): a SQLITE_OPEN_READONLY connection cannot run WAL
+ *  recovery, which is needed after an unclean shutdown that left a non-empty
+ *  -wal sidecar. In that state the read-only open itself throws. Fallback:
+ *  reopen read-write — recovery runs, the probe SELECTs still only read, and
+ *  the connection closes immediately. */
 function openRawReadOnly(dbPath: string): RawSqlite {
   try {
     const { DatabaseSync } = nodeRequire('node:sqlite') as {
@@ -169,11 +176,20 @@ function openRawReadOnly(dbPath: string): RawSqlite {
     }
     return new DatabaseSync(dbPath, { readOnly: true })
   } catch {
+    // fall through to bun or the read-write fallback
+  }
+  try {
     const { Database } = nodeRequire('bun:sqlite') as {
       Database: new (p: string, opts?: { readonly?: boolean }) => RawSqlite
     }
     return new Database(dbPath, { readonly: true })
+  } catch {
+    // fall through to the read-write recovery fallback
   }
+  const { DatabaseSync } = nodeRequire('node:sqlite') as {
+    DatabaseSync: new (p: string, opts?: { readOnly?: boolean }) => RawSqlite
+  }
+  return new DatabaseSync(dbPath) // read-write: allows WAL recovery, probe is still read-only
 }
 
 async function readLocalDataStateRaw(): Promise<'empty' | 'pristine' | 'populated' | 'unknown'> {

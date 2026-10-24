@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { db } from '@/lib/db'
+import { db, withWriteRetry } from '@/lib/db'
 import {
   clientIp,
   createSession,
@@ -66,23 +66,37 @@ export async function POST(req: NextRequest) {
   }
 
   const passwordHash = await hashPassword(password)
-  const user = await db.user.create({
-    data: {
-      email,
-      username,
-      usernameLower: username.toLowerCase(),
-      passwordHash,
-      profile: { create: { name: username } },
-      ratings: {
-        // The overall pool starts from the self-assessed skill seed, the same
-        // number the profile route and puzzle ratings use. A hardcoded start
-        // would put every newcomer at the same Elo regardless of level.
-        create: { pool: 'overall', rating: seedForSkill('beginner'), rd: 350 },
+  // Account creation must survive a transient lock (see src/lib/db.ts).
+  const user = await withWriteRetry(() =>
+    db.user.create({
+      data: {
+        email,
+        username,
+        usernameLower: username.toLowerCase(),
+        passwordHash,
+        profile: { create: { name: username } },
+        ratings: {
+          // The overall pool starts from the self-assessed skill seed, the same
+          // number the profile route and puzzle ratings use. A hardcoded start
+          // would put every newcomer at the same Elo regardless of level.
+          create: { pool: 'overall', rating: seedForSkill('beginner'), rd: 350 },
+        },
       },
-    },
-  })
+    }),
+  )
 
-  const { token, expiresAt } = await createSession(user.id)
+  // Same last-resort surface as login: session writes already retry
+  // internally; a leftover failure is a clean, retryable 503.
+  let token: string
+  let expiresAt: Date
+  try {
+    ;({ token, expiresAt } = await createSession(user.id))
+  } catch {
+    return NextResponse.json(
+      { error: 'The server is busy starting your session — please try again in a moment.' },
+      { status: 503, headers: { 'cache-control': 'no-store' } },
+    )
+  }
   // Token in the body as well, for browsers that block cookies in the preview
   // iframe; the client mirrors it into localStorage (see src/lib/session.ts).
   const res = NextResponse.json(

@@ -218,6 +218,21 @@ export async function restoreFromGithub(): Promise<boolean> {
     // the SAME inode a live SQLite connection may hold — a corruption risk;
     // `mv` leaves any old file descriptor untouched on its own (now-orphaned)
     // inode and swaps the path in one syscall.
+    // WAL sidecar hygiene (the -wal/-shm files are named by PATH, not inode):
+    // after the swap they still sit next to the fresh file but hold the OLD
+    // database's frames. A later connection would run WAL "recovery" against
+    // them and could resurrect old transactions into the restored file —
+    // exactly the class of bug that loses accounts. Delete them before any
+    // connection opens the new file. Absent files are fine (first error is
+    // swallowed via try/catch below).
+    const { unlinkSync } = nodeRequire('fs')
+    for (const suffix of ['-wal', '-shm']) {
+      try {
+        unlinkSync(`${DB_PATH}${suffix}`)
+      } catch {
+        // no sidecar present — nothing to clean
+      }
+    }
     console.log(`[gh-snapshot] restored database from GitHub (${Math.round(gz.length / 1024)} KB gz)`)
     return true
   } catch (err) {

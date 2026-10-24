@@ -5,7 +5,7 @@ import 'server-only'
 import { createHash, randomBytes, timingSafeEqual } from 'crypto'
 import { cookies, headers } from 'next/headers'
 import bcrypt from 'bcryptjs'
-import { db } from '@/lib/db'
+import { db, withWriteRetry } from '@/lib/db'
 
 export const SESSION_COOKIE = 'chessx_session'
 const SESSION_DAYS = 30
@@ -66,7 +66,12 @@ export function safeEqual(a: string, b: string): boolean {
 export async function createSession(userId: string): Promise<{ token: string; expiresAt: Date }> {
   const token = newToken()
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 86400_000)
-  await db.session.create({ data: { id: hashToken(token), userId, expiresAt } })
+  // Session creation is the entry point of every flow — login, signup, OAuth,
+  // desktop handoff. A transient SQLITE_BUSY here was exactly what users saw
+  // as an intermittent "session init failed". Retry through lock contention.
+  await withWriteRetry(() =>
+    db.session.create({ data: { id: hashToken(token), userId, expiresAt } }),
+  )
   return { token, expiresAt }
 }
 

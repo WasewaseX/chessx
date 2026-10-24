@@ -49,7 +49,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: UNSUPPORTED_ACCOUNT_MSG }, { status: 403 })
   }
 
-  const { token, expiresAt } = await createSession(user.id)
+  // Session writes are retried internally (see withWriteRetry); a failure
+  // reaching this point is a genuinely unhealthy store — surface a clean,
+  // retryable 503 rather than an unhandled 500.
+  let token: string
+  let expiresAt: Date
+  try {
+    ;({ token, expiresAt } = await createSession(user.id))
+  } catch {
+    return NextResponse.json(
+      { error: 'The server is busy starting your session — please try again in a moment.' },
+      { status: 503, headers: { 'cache-control': 'no-store' } },
+    )
+  }
   // The token also rides in the body: browsers that block third-party cookies
   // inside the preview iframe never store the cookie, so the client mirrors
   // the token into localStorage and sends it as an Authorization header.

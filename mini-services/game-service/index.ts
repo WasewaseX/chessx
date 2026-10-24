@@ -21,6 +21,16 @@ import { PrismaClient } from '@prisma/client'
 if (!process.env.DATABASE_URL) process.env.DATABASE_URL = 'file:/home/z/my-project/db/custom.db'
 const prisma = new PrismaClient()
 
+// Match the app's SQLite durability settings (see src/lib/db.ts): this service
+// writes rated-game results into the same file from a second process. WAL
+// (persistent, file-level) plus a busy timeout keeps a concurrent app write
+// from failing a rated game with SQLITE_BUSY.
+void prisma
+  .$queryRawUnsafe('PRAGMA journal_mode=WAL')
+  .catch(() => {})
+  .then(() => prisma.$queryRawUnsafe('PRAGMA busy_timeout=5000'))
+  .catch(() => {})
+
 const PORT = 3030
 const RECONNECT_GRACE_MS = 60_000
 const SWEEP_MS = 250
@@ -779,3 +789,88 @@ if (!__watchdog.__devWatchdogStarted) {
 }
 
 console.log(`ChessX game service listening on :${PORT}`)
+
+// ---------------------------------------------------------------------------
+// Dev-server watchdog — the root fix for "the site randomly stops rendering".
+//
+// The sandbox reaps every process spawned from a tool-exec session when that
+// session ends: a Next.js server restarted from a shell dies silently minutes
+// later, and the preview panel then serves connection refused / failed
+// session errors. THIS service is spawned by the container boot chain, so
+// anything IT spawns is immune. A 15s probe against the app port revives the
+// Next.js dev server from inside a platform-owned process, forever.
+// ---------------------------------------------------------------------------
+const W = globalThis as unknown as Record<string, unknown>
+if (!W.__chessxDevWatchdogStarted) {
+  W.__chessxDevWatchdogStarted = true
+  const APP_URL = 'http://127.0.0.1:3000/'
+
+  /** True when a Next.js dev/server process already exists (never double-spawn
+   *  while one is merely recompiling). Reads /proc cmdline directly. */
+  const devProcessExists = (): boolean => {
+    try {
+      const fs = nodeFs()
+      for (const pid of fs.readdirSync('/proc')) {
+        if (!/^\d+$/.test(pid)) continue
+        try {
+          const cmd = fs.readFileSync(`/proc/${pid}/cmdline`, 'utf8').replace(/\0/g, ' ')
+          if (cmd.includes('next-server')) return true
+          if (cmd.includes('next') && cmd.split(' ').includes('dev')) return true
+        } catch {
+          // process vanished between readdir and read — ignore
+        }
+      }
+    } catch {
+      // /proc unreadable — fall back to probe-only behavior
+    }
+    return false
+  }
+
+  /** Lazily required fs (kept out of any bundler graph; this file runs as
+   *  plain bun script, but discipline costs nothing). */
+  let _fs: ReturnType<typeof import('node:fs')> | null = null
+  function nodeFs() {
+    if (!_fs) _fs = require('node:fs') as ReturnType<typeof import('node:fs')>
+    return _fs!
+  }
+
+  const probeApp = async (): Promise<boolean> => {
+    try {
+      const res = await fetch(APP_URL, { signal: AbortSignal.timeout(4000) })
+      return res.status < 500
+    } catch {
+      return false
+    }
+  }
+
+  let failures = 0
+  let cooldownUntil = 0
+  setInterval(async () => {
+    if (Date.now() < cooldownUntil) return
+    if (await probeApp()) {
+      failures = 0
+      return
+    }
+    failures++
+    if (failures < 2) return // one miss may be a long compile — wait for two
+    if (devProcessExists()) {
+      // A server process is alive but unhappy: leave it alone, keep probing.
+      failures = 1
+      return
+    }
+    cooldownUntil = Date.now() + 45_000
+    failures = 0
+    try {
+      Bun.spawn(['bun', 'run', 'dev'], {
+        cwd: '/home/z/my-project',
+        stdin: 'ignore',
+        stdout: 'ignore',
+        stderr: 'ignore',
+      }).unref?.()
+      console.log('[watchdog] app server was down — spawned `bun run dev`')
+    } catch (e) {
+      console.error('[watchdog] spawn failed:', e)
+    }
+  }, 15_000)
+  console.log('[watchdog] dev-server watchdog armed (probe every 15s)')
+}
