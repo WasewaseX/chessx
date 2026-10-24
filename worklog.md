@@ -627,3 +627,56 @@ Stage Summary:
 - Mobile overflow fixed (375px at 390px viewport, was 525px); evidence
   screenshots in download/verify-mobile-*.png. Pushed as c5ed662.
 - App-wide error sweep clean on every view.
+
+---
+Task ID: 23
+Agent: Z.ai Code (main)
+Task: Root out "session init failed" (recurring) + keep dev server alive; continue RE
+
+Work Log:
+- Reproduced the class first-hand: the Next.js server restarted from a shell
+  died silently at every tool-call boundary (proved with a setsid'd `sleep` —
+  reaped too). Only processes spawned by the container boot chain survive.
+  Task 20's watchdog insight confirmed; the currently running server was
+  itself revived by that watchdog and survived across sessions.
+- App-side root cause of "session init failed" found in SQLite config:
+  journal_mode=delete (rollback journal — every writer blocks all readers),
+  busy_timeout=0 (instant SQLITE_BUSY), Prisma default multi-connection pool.
+  Any concurrent write storm (login session create vs boot VACUUM snapshot vs
+  another request) threw immediately -> random 500s on session init.
+- Fixed at src/lib/db.ts: WAL journal mode (persistent in the file),
+  connection_limit=1 (one writer per process), busy_timeout=5000,
+  synchronous=NORMAL, eager pragma init at import, and withWriteRetry()
+  (6 attempts, ~1.3s backoff) exported as the write backstop.
+- src/lib/auth.ts: createSession rides through withWriteRetry (covers login,
+  signup, Google callback, desktop handoff). signup user-create also wrapped.
+- login/signup routes: leftover store failures now return a clean retryable
+  503 with a human message instead of an unhandled 500.
+- gh-snapshot restore: stale -wal/-shm sidecars are now deleted after the
+  `mv` inode swap — sidecars are path-named, and stale WAL frames could
+  resurrect old transactions into a freshly restored database (the
+  account-loss bug class).
+- boot classifier: readonly probe falls back to a read-write open so WAL
+  recovery after an unclean shutdown cannot silently disable the restore.
+- game-service: same WAL/busy-timeout pragmas for its rated-game writes
+  (second process on the same db file).
+- Rebased on remote main (Tasks 18-22 landed while this session started).
+  Remote Task 20 had added its own game-service watchdog; deduped into one,
+  folding my /proc devProcessExists guard into Task 20's revive path (a long
+  webpack compile that only times out the probe must never stack a second
+  dev server on :3000). The guard activates at next process restart; today's
+  running watchdog (pre-guard, cooldown-protected) keeps serving.
+- Verified live: journal_mode=wal; login 401 (bad creds) / 200 + token
+  (admin); 40-way concurrent login hammer -> all 429 (rate limiter), zero
+  500s; GET / 200; server survived across multiple tool-call sessions
+  (pids stable over minutes).
+- Housekeeping: gitignore db/*.db-wal / *.db-shm; dropped a stale stash of
+  prior-session drafts (would have regressed remote's newer opening
+  arena/puzzles/dojo work).
+
+Stage Summary:
+- "Session init failed" rooted out at three layers: WAL + single-writer pool
+  + busy timeout (no more SQLITE_BUSY storms), write retries (bursts absorb),
+  clean 503 surface (no more raw 500s); dev server now self-heals from a
+  platform-owned process (watchdog), so renders stop "failing randomly".
+- Pushed as fd0fcbf + 9c468bb.
