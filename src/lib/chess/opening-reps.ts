@@ -35,6 +35,19 @@ export interface RepertoireLine {
   idea: string
 }
 
+/**
+ * chessreps depthTiers (report §6/§7 item 7): a course may group its lines
+ * into named tiers ("Essentials" then "Mastery"); the auto-picker trains
+ * tiers in order — a tier unlocks once every line of the previous tier has
+ * been drilled at least once. Direct line clicks stay free (exploration is
+ * never gated); only the scheduler respects the ladder.
+ */
+export interface RepertoireTier {
+  name: string
+  /** How many of the course's lines belong to this tier, in line order. */
+  count: number
+}
+
 export interface RepertoireCourse {
   id: string
   name: string
@@ -46,6 +59,8 @@ export interface RepertoireCourse {
   lines: RepertoireLine[]
   /** Lichess opening tags used to pull this course's puzzle pool (Puzzles mode). */
   openings: string[]
+  /** Optional depth tiers (essentials before mastery). */
+  tiers?: RepertoireTier[]
 }
 
 /**
@@ -186,13 +201,72 @@ export function masteryPercent(lines: RepertoireLine[], map: Record<string, Line
 }
 
 /**
+ * Tier boundaries as [start, end) line-index ranges, in course line order.
+ * Empty for courses without tiers (the whole course is one implicit tier).
+ */
+export function tierRanges(course: RepertoireCourse): { name: string; start: number; end: number }[] {
+  if (!course.tiers?.length) return []
+  const out: { name: string; start: number; end: number }[] = []
+  let at = 0
+  for (const t of course.tiers) {
+    const end = Math.min(course.lines.length, at + Math.max(0, t.count))
+    if (end > at) out.push({ name: t.name, start: at, end })
+    at = end
+  }
+  return out
+}
+
+/**
+ * How many lines (from the top of the course) the AUTO-PICKER may choose:
+ * tiers unlock in order, a tier unlocking when every one of its lines has
+ * been drilled at least once. Courses without tiers are fully open.
+ */
+export function unlockedLineCount(course: RepertoireCourse, map: Record<string, LineMastery> | undefined): number {
+  const ranges = tierRanges(course)
+  if (ranges.length === 0) return course.lines.length
+  // Tier 0 is available from the start in full; tier N unlocks once tier
+  // N-1 is fully learned (every line drilled at least once).
+  let unlocked = ranges[0].end
+  for (let i = 1; i < ranges.length; i++) {
+    const prev = course.lines.slice(ranges[i - 1].start, ranges[i - 1].end)
+    if (!prev.every((l) => (map?.[l.id]?.reps ?? 0) > 0)) break
+    unlocked = ranges[i].end
+  }
+  return unlocked
+}
+
+/** Per-tier progress for the line-list headers and celebrations. */
+export function tierProgressList(
+  course: RepertoireCourse,
+  map: Record<string, LineMastery> | undefined,
+): { name: string; start: number; end: number; learned: number; total: number; mastered: boolean; unlocked: boolean }[] {
+  const ranges = tierRanges(course)
+  const out: { name: string; start: number; end: number; learned: number; total: number; mastered: boolean; unlocked: boolean }[] = []
+  let unlockedThrough = 0
+  for (const r of ranges) {
+    const lines = course.lines.slice(r.start, r.end)
+    const learned = lines.filter((l) => (map?.[l.id]?.reps ?? 0) > 0).length
+    const mastered = lines.length > 0 && lines.every((l) => (map?.[l.id]?.confidence ?? 5) >= 10)
+    // Tier 0 is always unlocked; tier N once every earlier tier is learned.
+    const unlocked = r.start === 0 || r.start <= unlockedThrough
+    out.push({ name: r.name, start: r.start, end: r.end, learned, total: lines.length, mastered, unlocked })
+    if (learned === lines.length && lines.length > 0) unlockedThrough = r.end
+  }
+  return out
+}
+
+/**
  * The chessreps line picker: prefer started-but-not-perfected lines, sort by
  * overdue (now - due; never-trained = infinitely overdue = front), then pick
  * a random line among the top 3 so sessions never feel scripted.
+ * Depth tiers gate the pool: locked tiers are never auto-picked (report
+ * item 7 — essentials before mastery).
  */
 export function pickNextLine(course: RepertoireCourse, map: Record<string, LineMastery> | undefined, excludeId?: string): RepertoireLine {
   const now = Date.now()
+  const limit = unlockedLineCount(course, map)
   const scored = course.lines
+    .slice(0, limit)
     .filter((l) => l.id !== excludeId)
     .map((l) => {
       const m = map?.[l.id]
@@ -229,6 +303,10 @@ export const REPERTOIRE_COURSES: RepertoireCourse[] = [
     blurb: 'Solid d4+d5+Bf4 setup. One system, lifelong friend: almost no theory, clear plans every game.',
     trunk: ['d4', 'd5', 'Bf4'],
     openings: ['London_System', 'Queens_Pawn_Game_Accelerated_London_System'],
+    tiers: [
+      { name: 'Essentials', count: 3 },
+      { name: 'Mastery', count: 2 },
+    ],
     lines: [
       { id: 'london-nf6-e6', moves: ['Nf6', 'Nf3', 'e6', 'e3', 'Bd6', 'Bg3', 'O-O', 'Bd3', 'b6', 'Nbd2', 'Bb7', 'Ne5'], idea: 'Classical London: trade the dark bishops with Bg3, build with e3+Bd3, and the f3-knight hops to e5, the dream square.' },
       { id: 'london-kid', moves: ['Nf6', 'e3', 'g6', 'Nf3', 'Bg7', 'Nbd2', 'O-O', 'Be2', 'c5', 'c3'], idea: 'Against King\u2019s Indian setups: hold the center with e3+c3, keep Bf4 eyeing g7, and play for e4 at the right moment.' },
@@ -244,6 +322,10 @@ export const REPERTOIRE_COURSES: RepertoireCourse[] = [
     blurb: '1.e4 e5 with the Italian bishop. The classical way to fight for the center since the 1500s.',
     trunk: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4'],
     openings: ['Italian_Game'],
+    tiers: [
+      { name: 'Essentials', count: 3 },
+      { name: 'Mastery', count: 1 },
+    ],
     lines: [
       { id: 'italian-pianissimo', moves: ['Bc5', 'c3', 'Nf6', 'd3', 'd6', 'O-O', 'O-O', 'Re1', 'a6', 'Nbd2', 'Ba7'], idea: 'Giuoco Pianissimo: slow build, c3+d3 wedge, Re1 then d4 later. Patience first, storms later.' },
       { id: 'italian-two-knights', moves: ['Nf6', 'd3', 'Bc5', 'c3', 'd6', 'O-O', 'O-O', 'Re1'], idea: 'Two Knights with d3: refuse the Ng5 gamble, outdevelop, and meet ...Ng4 with d4 when ready.' },
@@ -258,6 +340,10 @@ export const REPERTOIRE_COURSES: RepertoireCourse[] = [
     blurb: 'The main battlefield of 1.e4: c5 met head-on with Nf3, d4 and big theory. Choose your weapon.',
     trunk: ['e4', 'c5', 'Nf3', 'd6', 'd4', 'cxd4', 'Nxd4', 'Nf6', 'Nc3'],
     openings: ['Sicilian_Defense', 'Sicilian_Defense_Najdorf_Variation'],
+    tiers: [
+      { name: 'Essentials', count: 2 },
+      { name: 'Mastery', count: 2 },
+    ],
     lines: [
       { id: 'najdorf-be2', moves: ['a6', 'Be2', 'e5', 'Nb3', 'Be7', 'O-O', 'O-O', 'Be3', 'Be6'], idea: 'Classical Najdorf: quiet Be2, meet ...e5 with Nb3 and re-route via c2-e3. Long-term kingside space.' },
       { id: 'najdorf-english', moves: ['a6', 'Be3', 'e5', 'Nb3', 'Be6', 'f3', 'Be7', 'Qd2', 'O-O', 'O-O-O', 'Nbd7'], idea: 'English Attack: f3+Qd2+O-O-O. The pawn race is on: who mates first, wins.' },
@@ -272,6 +358,10 @@ export const REPERTOIRE_COURSES: RepertoireCourse[] = [
     blurb: 'Black\u2019s rock: challenge e4 with ...c6 and keep a healthy structure no matter what White tries.',
     trunk: ['e4', 'c6', 'd4', 'd5'],
     openings: ['Caro-Kann_Defense'],
+    tiers: [
+      { name: 'Essentials', count: 2 },
+      { name: 'Mastery', count: 2 },
+    ],
     lines: [
       { id: 'caro-advance-bf5', moves: ['e5', 'Bf5', 'Nf3', 'e6', 'Be2', 'c5', 'Be3', 'Qb6', 'Nc3'], idea: 'Vs the Advance: Bf5 BEFORE ...e6 (the whole point of ...c6), then hit d4 with ...c5 and ...Qb6.' },
       { id: 'caro-classical', moves: ['Nc3', 'dxe4', 'Nxe4', 'Bf5', 'Ng3', 'Bg6', 'h4', 'h6', 'Nf3', 'Nd7', 'h5', 'Bh7', 'Bd3', 'Bxd3', 'Qxd3'], idea: 'Classical: ...Bf5 challenges the knight, ...Bg6+h6 dodges h4-h5 tricks, trade on d3, free easy game.' },
@@ -286,6 +376,10 @@ export const REPERTOIRE_COURSES: RepertoireCourse[] = [
     blurb: 'The classical answer to 1.d4: rock-solid ...e6, free development, and a structure that endgames love.',
     trunk: ['d4', 'd5', 'c4'],
     openings: ['Queens_Gambit_Declined', 'Semi-Slav_Defense'],
+    tiers: [
+      { name: 'Essentials', count: 2 },
+      { name: 'Mastery', count: 1 },
+    ],
     lines: [
       { id: 'qgd-orthodox', moves: ['e6', 'Nc3', 'Nf6', 'Bg5', 'Be7', 'e3', 'O-O', 'Nf3', 'h6', 'Bh4', 'b6'], idea: 'Orthodox: h6 kicks the g5 bishop before ...b6 unpins. Slow, solid, unbreakable.' },
       { id: 'qgd-tarrasch', moves: ['e6', 'Nc3', 'c5', 'cxd5', 'exd5', 'Nf3', 'Nc6', 'g3', 'Nf6', 'Bg2', 'Be7', 'O-O', 'O-O'], idea: 'Tarrasch: grab the center with ...c5, accept the isolated pawn, and outplay them with piece activity.' },

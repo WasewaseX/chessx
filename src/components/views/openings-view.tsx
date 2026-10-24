@@ -27,11 +27,11 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
   ArrowRight, BookMarked, Brain, Check, ChevronLeft, Dumbbell, GraduationCap, Hourglass,
-  Lightbulb, Loader2, Play, RotateCcw, SkipForward, Swords, Target, Timer, Trophy, Zap,
+  Lightbulb, Loader2, Lock, Play, RotateCcw, SkipForward, Star, Swords, Target, Timer, Trophy, Zap,
 } from 'lucide-react'
 import {
   REPERTOIRE_COURSES, applyResult, confidenceDot, gradeFor, masteryLabel,
-  masteryPercent, newMastery, pickNextLine,
+  masteryPercent, newMastery, pickNextLine, tierProgressList, tierRanges, unlockedLineCount,
   type LineMastery, type MasteryMap, type RepertoireCourse, type RepertoireLine,
 } from '@/lib/chess/opening-reps'
 import {
@@ -305,6 +305,29 @@ export function OpeningsView() {
       const next = { ...prev, [courseId2]: courseMap }
       saveMastery(next)
       queueSync(courseId2, lineId)
+      // Tier celebrations (chessreps §7 item 7) live HERE — this updater is
+      // the only place with the true pre-update state (reading localStorage
+      // from finishLine races React's commit and never sees the change).
+      // The deferred setPraise runs after finishLine's own praise, so a tier
+      // moment outranks the random pool.
+      try {
+        const course = REPERTOIRE_COURSES.find((c) => c.id === courseId2)
+        const ranges = course ? tierRanges(course) : []
+        if (course && ranges.length > 1) {
+          const ub = unlockedLineCount(course, prev[courseId2])
+          const ua = unlockedLineCount(course, courseMap)
+          if (ua > ub) {
+            const finishedTier = ranges.find((r) => r.end === ub)?.name ?? 'Essentials'
+            const nextTier = ranges.find((r) => r.start === ub)?.name ?? 'the next tier'
+            setTimeout(() => setPraise(`${finishedTier} learned — ${nextTier} unlocked!`), 0)
+          } else {
+            const beforeP = tierProgressList(course, prev[courseId2])
+            const afterP = tierProgressList(course, courseMap)
+            const newly = afterP.find((t, i) => t.mastered && !beforeP[i]?.mastered)
+            if (newly) setTimeout(() => setPraise(`${newly.name} perfected — every line at 10/10!`), 0)
+          }
+        }
+      } catch { /* celebrations must never break the drill loop */ }
       return next
     })
   }, [queueSync])
@@ -414,6 +437,8 @@ export function OpeningsView() {
     setStatus(corrupted ? 'Line finished.' : 'Line complete.')
     // Streak milestones (chessreps §7 item 8): a named tier exactly when it is
     // crossed replaces the random praise; otherwise keep the rotating praise.
+    // Depth-tier celebrations fire from applyMastery (they need the true
+    // pre-update mastery state) and override this when they happen.
     const ms = milestoneFor(streakRef.current)
     setPraise(
       streakRef.current > 0 && ms && ms.at === streakRef.current
@@ -439,7 +464,10 @@ export function OpeningsView() {
     setFlashes([])
     setShake(false)
     setShowIdea(false)
-    setPraise(null)
+    // Praise is deliberately NOT cleared here: the completion praise (random,
+    // streak milestone, or depth-tier celebration) renders in the awaiting
+    // phase — i.e. while the student plays the NEXT line. A wrong move or
+    // leaving the course dismisses it (those sites clear it themselves).
     setSelectedLineId(line.id)
     // Count the student's moves in this line for the progress readout:
     // replay the full sequence and count student-side moves after the trunk.
@@ -997,37 +1025,61 @@ export function OpeningsView() {
             <span className="text-xs font-extrabold">{masteryPercent(course.lines, mastery[course.id])}%</span>
           </div>
           <div className="mt-2 max-h-[50vh] space-y-1 overflow-y-auto scroll-slim lg:max-h-[60vh]">
-            {course.lines.map((l) => {
+            {course.lines.map((l, li) => {
               const m = mastery[course.id]?.[l.id]
               const active = selectedLineId === l.id && (line?.id === l.id)
               const dueSoon = m && m.reps > 0 && m.due <= Date.now()
+              const tiers = tierProgressList(course, mastery[course.id])
+              const myTier = tiers.find((t) => li >= t.start && li < t.end)
+              const tierHeader = myTier && li === myTier.start
+              const locked = myTier ? !myTier.unlocked : false
               return (
-                <div
-                  key={l.id}
-                  className={cn(
-                    'flex w-full items-center gap-0.5 rounded-lg transition-colors',
-                    active ? 'bg-primary/15' : 'hover:bg-accent/60',
-                  )}
-                >
-                  <button
-                    onClick={() => drillLine(course, l)}
-                    className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs"
-                  >
-                    <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', confidenceDot(m))} aria-hidden />
-                    <span className="min-w-0 flex-1 truncate">{l.moves.slice(0, 4).join(' ')}{l.moves.length > 4 ? ' …' : ''}</span>
-                    {dueSoon && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" title="Due for review" aria-hidden />}
-                    <span className="shrink-0 tabular-nums text-[10px] text-muted-foreground">{m?.confidence ?? 5}/10</span>
-                  </button>
-                  {m && m.reps > 0 && (
-                    <button
-                      onClick={() => forgetLine(course.id, l.id)}
-                      title="Unlearn this line — forgets its progress here and in your account"
-                      aria-label={`Unlearn ${l.moves.slice(0, 3).join(' ')}`}
-                      className="mr-1 shrink-0 rounded p-1 text-muted-foreground/40 hover:bg-destructive/10 hover:text-destructive"
+                <div key={l.id}>
+                  {tierHeader && (
+                    <div
+                      className={cn(
+                        'mb-1 flex items-center gap-1.5 px-2.5 pt-1 text-[10px] font-bold uppercase tracking-wide',
+                        locked ? 'text-muted-foreground/50' : 'text-muted-foreground',
+                      )}
                     >
-                      <RotateCcw className="h-3 w-3" aria-hidden />
-                    </button>
+                      {locked ? (
+                        <Lock className="h-3 w-3" aria-hidden />
+                      ) : myTier.mastered ? (
+                        <Star className="h-3 w-3 text-amber-500" aria-hidden />
+                      ) : null}
+                      <span>{myTier.name}</span>
+                      <span className="tabular-nums">{myTier.learned}/{myTier.total}</span>
+                      {locked && <span className="normal-case font-medium">· unlocks as these are drilled</span>}
+                      {myTier.mastered && <span className="normal-case font-medium text-amber-600 dark:text-amber-400">· perfected</span>}
+                    </div>
                   )}
+                  <div
+                    className={cn(
+                      'flex w-full items-center gap-0.5 rounded-lg transition-colors',
+                      active ? 'bg-primary/15' : 'hover:bg-accent/60',
+                      locked && 'opacity-60',
+                    )}
+                  >
+                    <button
+                      onClick={() => drillLine(course, l)}
+                      className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs"
+                    >
+                      <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', confidenceDot(m))} aria-hidden />
+                      <span className="min-w-0 flex-1 truncate">{l.moves.slice(0, 4).join(' ')}{l.moves.length > 4 ? ' …' : ''}</span>
+                      {dueSoon && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" title="Due for review" aria-hidden />}
+                      <span className="shrink-0 tabular-nums text-[10px] text-muted-foreground">{m?.confidence ?? 5}/10</span>
+                    </button>
+                    {m && m.reps > 0 && (
+                      <button
+                        onClick={() => forgetLine(course.id, l.id)}
+                        title="Unlearn this line — forgets its progress here and in your account"
+                        aria-label={`Unlearn ${l.moves.slice(0, 3).join(' ')}`}
+                        className="mr-1 shrink-0 rounded p-1 text-muted-foreground/40 hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <RotateCcw className="h-3 w-3" aria-hidden />
+                      </button>
+                    )}
+                  </div>
                 </div>
               )
             })}

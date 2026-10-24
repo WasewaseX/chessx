@@ -774,3 +774,26 @@ Stage Summary:
 - "session init failed" is now dead at every layer: OOM prevented (heap cap), crashes auto-revived (platform-owned watchdog), hung servers killed after 10min (new), SQLite write storms absorbed (prior session's WAL work).
 - Opening Training schedules with the genuine FSRS-6 memory model — stability/difficulty per line, minutes-to-weeks spacing, multi-device durable, legacy-safe. This is chessreps' actual scheduler, not an approximation.
 - Pushed to origin/main.
+
+---
+Task ID: 27
+Agent: Z.ai Code (main)
+Task: chessreps port item 7 completion (depth tiers) + chessable.com RE boundary
+
+Work Log:
+- chessable.com RE attempt (the last major opening-trainer competitor): live site serves a Cloudflare 403 shell (same boundary class as chess.com); api.chessable.com unreachable; web.archive.org course pages time out from this sandbox. Boundary documented honestly; no port speculation without evidence.
+- Audited the chessreps port list against landed work: items 1-6, 8-11 verified shipped (praise pool/sounds/milestones confirmed present in code); item 12 (trial gate) stays deliberately skipped (learning, not ripping off). The one honest gap was item 7's depthTiers.
+- Depth tiers shipped (chessreps depthTiers shape): RepertoireCourse.tiers {name,count}[]; tierRanges/unlockedLineCount/tierProgressList in opening-reps.ts; tiered courses (London 3+2, Italian 3+1, Open Sicilian 2+2, Caro-Kann 2+2, QGD 2+1; single-line courses stay untiered). The AUTO-PICKER respects the ladder: tier 0 fully available from the start, tier N unlocks when every line of tier N-1 has reps>0; direct line clicks stay free (exploration never gated).
+- Line list grouped by tier: headers with learned/total, lock icon + dimming while locked, star + "perfected" when all lines hit 10/10 confidence.
+- Tier celebrations: "Essentials learned — Mastery unlocked!" at exact tier crossing, "… perfected — every line at 10/10!" when a tier maxes out.
+- Two real bugs found by live verification and fixed:
+  (a) unlockedLineCount/tierProgressList off-by-one: the first-tier fallback capped availability at ONE line (fresh students could only ever be picked line 1) and Mastery showed locked after Essentials completed; rewritten as explicit tier-0-unlocked + prev-tier-learned unlock walk.
+  (b) The celebration never fired: it read localStorage inside finishLine, which runs before React commits applyMastery's state update — before/after were always identical. Moved into the applyMastery updater (the only place with the true pre-update state) with a deferred setPraise so tier moments outrank the random pool.
+  (c) Pre-existing praise bug surfaced by (b): praise rendered only in the awaiting phase, but drillLine cleared it exactly when entering that phase — praise had NEVER displayed since Task 13. drillLine no longer clears it (wrong moves and course exit still dismiss it).
+- Browser-verified with real board input: forget-line → Mastery re-locks (lock icon + dimming return); clean re-drill → "Essentials learned — Mastery unlocked! Your move." visible in the status strip while the next line plays (download/verify-tiers-3-celebration.png); picker never leaks locked-tier lines (80-sample test, node-level); tsc + eslint clean.
+
+Stage Summary:
+- The chessreps port list is now 11/12 (all but the deliberately-skipped trial gate), with item 2 upgraded to the real FSRS-6 scheduler earlier this session.
+- Opening Training now teaches like chessreps: essentials-first ladder, honest celebrations, real memory model.
+- chessable.com documented as unreachable from this sandbox (Cloudflare), like chess.com.
+- Pushed to origin/main.
