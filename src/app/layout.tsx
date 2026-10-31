@@ -19,7 +19,7 @@ export const viewport: Viewport = {
 };
 
 // The puzzle bank self-heal is NOT kicked from here on purpose: layout.tsx is
-// compiled for the client bundle too, and bank-bootstrap needs node:child_
+// compiled for the client bundle too, and gh-snapshot needs node:child_
 // process, which webpack cannot resolve in a browser graph (UnhandledScheme
 // 500s on every page). The boot kick lives in src/instrumentation.ts
 // (server-only runtime hook), and the puzzle API routes kick the same

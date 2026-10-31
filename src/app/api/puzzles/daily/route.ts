@@ -3,7 +3,7 @@ import { PUZZLES } from '@/content/puzzles'
 import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import { dailyPuzzleIndex } from '@/lib/api'
-import { lichessAvailable, lichessDaily } from '@/lib/server/lichess-bank'
+import { lichessDaily } from '@/lib/server/lichess-bank'
 
 // The deterministic rotation itself lives in src/lib/api.ts so the attempt
 // route validates daily completions against the very same pick.
@@ -23,11 +23,12 @@ export async function GET(req: NextRequest) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dayKey)) {
     return NextResponse.json({ error: 'bad day param' }, { status: 400 })
   }
-  // The Lichess bank serves the daily when installed (deterministic per
-  // dayKey — the same position for everyone, from the 5M+ real-game pool).
+  // The light source serves the daily: the free lichess daily API (cached
+  // for hours) with the deterministic pack daily as fallback — the same
+  // position for everyone on the same day either way.
   let full: { id: string; fen: string; rating: number } | undefined
-  if (lichessAvailable()) {
-    const lp = lichessDaily(dayKey)
+  {
+    const lp = await lichessDaily(dayKey)
     if (lp) full = { id: lp.id, fen: lp.fen, rating: lp.rating }
   }
   if (!full) {

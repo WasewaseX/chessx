@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import { lichessAvailable, lichessCount, lichessOpeningWindow } from '@/lib/server/lichess-bank'
-import { kickBankBootstrap } from '@/lib/server/bank-bootstrap'
 
 /**
  * GET /api/puzzles/opening?openings=Tag1,Tag2&elo=1250&exclude=id,id
@@ -20,8 +19,6 @@ import { kickBankBootstrap } from '@/lib/server/bank-bootstrap'
 export async function GET(req: NextRequest) {
   const user = await getSessionUser()
   if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
-
-  if (!lichessAvailable()) kickBankBootstrap()
 
   const openingsParam = req.nextUrl.searchParams.get('openings') ?? ''
   const openings = openingsParam

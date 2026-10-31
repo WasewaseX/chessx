@@ -136,14 +136,14 @@ async function toolReviewOnlineGame(args: Record<string, unknown>) {
   return reviewOnlineGames(source, username, max, 10, Date.now() + GAME_BUDGET_MS)
 }
 
-async function toolGetDailyPuzzle(args: Record<string, unknown>) {
+async async function toolGetDailyPuzzle(args: Record<string, unknown>) {
   const date = asString(args.date).trim() || new Date().toISOString().slice(0, 10)
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) {
     throw new ToolError(`Invalid date "${date}" — use YYYY-MM-DD`)
   }
-  const puzzle = dailyPuzzle(date)
+  const puzzle = await dailyPuzzle(date)
   if (!puzzle) {
-    throw new ToolError('The puzzle bank (db/puzzles.db) is not readable on this host')
+    throw new ToolError('The light puzzle source (db/puzzle-pack.json) is not readable on this host')
   }
   return { date, ...puzzle } // spoiler policy: the solution moves are never returned
 }
@@ -254,7 +254,7 @@ const TOOLS: ToolDef[] = [
   {
     name: 'get_daily_puzzle',
     description:
-      'The deterministic daily puzzle from the app\'s 5.77M-row Lichess puzzle bank — the SAME position the ChessX app serves for that date (FNV-1a date seed, 1000-2000 rating band). Spoiler policy: the solution moves are never returned.',
+      'The daily puzzle from the app\'s light puzzle source — the SAME position the ChessX app serves for that date (free lichess daily API when reachable, otherwise the deterministic FNV-1a-seeded pack pick, 1000-2000 rating band). Spoiler policy: the solution moves are never returned.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -455,5 +455,5 @@ Bun.serve({
 
 console.log(`[mcp] chessx-mcp v1.0.0 listening on http://localhost:${PORT}/mcp (gateway: /mcp?XTransformPort=${PORT})`)
 console.log(`[mcp] engine binary: ${findBinary()}`)
-console.log(`[mcp] puzzle bank:   ${puzzleBankPath() ?? 'NOT FOUND (get_daily_puzzle will error honestly)'}`)
+console.log(`cp] puzzle source:  ${puzzleBankPath() ?? "NOT FOUND (get_daily_puzzle will error honestly)"} + lichess daily API`)
 console.log(`[mcp] opening guides: ${OPENING_GUIDES.length} loaded`)

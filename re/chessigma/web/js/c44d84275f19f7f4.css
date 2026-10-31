@@ -1,0 +1,1 @@
+.csRoot .glErrMark{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;color:var(--csDanger);background:var(--csWell);border:1px solid var(--csDangerLine);box-shadow:var(--csCutShadow)}.csRoot .glErrActions{display:inline-flex;align-items:center;gap:14px}.csRoot .glErrHome{font-size:13.5px;font-weight:500}

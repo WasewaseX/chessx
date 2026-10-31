@@ -14,7 +14,7 @@
 // execution, not compilation). Every import here must resolve under the edge
 // target too — hence bcryptjs directly instead of @/lib/auth, which drags in
 // the node-only 'crypto' module and breaks the edge build (the exact failure
-// mode bank-bootstrap's header documents).
+// mode gh-snapshot's header documents).
 import 'server-only'
 import bcrypt from 'bcryptjs'
 import { db } from '@/lib/db'

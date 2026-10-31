@@ -124,6 +124,8 @@ export interface Level {
   n: number
   title: string
   subtitle: string
+  /** One-line pitch shown on the level card (optional; older levels omit it). */
+  tagline?: string
   minutes: number
   steps: LessonStep[]
   /** 2..4 concept ids from CONCEPTS that this level actually teaches. */

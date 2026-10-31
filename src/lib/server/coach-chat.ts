@@ -1,0 +1,339 @@
+// Shared coach-chat pipeline, extracted from /api/ai/chat so the classic
+// route and the SSE streaming route run the exact same prompt, routing and
+// post-processing. Next.js route files may only export HTTP handlers, which
+// is why this lives in a lib module.
+import { NextRequest, NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import { clientIp, getSessionUser, rateLimit } from '@/lib/auth'
+import { getAiConfig, type AiConfig, type ChatMessage } from '@/lib/ai'
+import { coachById } from '@/lib/coaches'
+import {
+  extractSkillBlock,
+  resolveLevelContext,
+  runSkill,
+  checkRateLimit,
+  skillProtocolLines,
+  SKILL_IDS,
+  SkillError,
+  type SkillId,
+} from '@/lib/server/coach-skills'
+import { routeMessage, hasGenerationIntent, type CommandOutcome, type CoachAction } from '@/lib/server/coach-commands'
+import { stripUnsolved, type ArtifactView } from '@/lib/coach-artifacts'
+import { describeFen } from '@/lib/server/chess-describe'
+import { coachMemoryBrief } from '@/lib/server/coach-memory'
+import { dayKeyLocal } from '@/lib/day'
+
+export const CHAT_VALID_VIEWS = new Set(['home', 'play', 'lessons', 'puzzles', 'review', 'coach', 'analysis', 'profile', 'settings'])
+const CHAT_VALID_COACHES = new Set(['nina', 'victor', 'elena', 'sasha'])
+
+/** Model-emitted app actions, whitelisted and shape-checked. */
+export function parseActionBlock(raw: string): CoachAction | null {
+  const matches = [...raw.matchAll(/```(?:chessx-action|action)\s*\n?([\s\S]*?)```/gi)]
+  if (!matches.length) return null
+  const last = matches[matches.length - 1]
+  const braceStart = last[1].indexOf('{')
+  const braceEnd = last[1].lastIndexOf('}')
+  if (braceStart === -1 || braceEnd <= braceStart) return null
+  try {
+    const obj = JSON.parse(last[1].slice(braceStart, braceEnd + 1)) as Record<string, unknown>
+    const type = String(obj.action ?? obj.type ?? '')
+    if (type === 'flip_board') return { type: 'flip_board' }
+    if (type === 'reset_board') return { type: 'reset_board' }
+    if (type === 'toggle_dark') return { type: 'toggle_dark' }
+    if (type === 'toggle_sound') return { type: 'toggle_sound' }
+    if (type === 'goto' && CHAT_VALID_VIEWS.has(String(obj.view ?? ''))) {
+      return { type: 'goto', view: String(obj.view) }
+    }
+    if (type === 'switch_coach' && CHAT_VALID_COACHES.has(String(obj.coachId ?? ''))) {
+      return { type: 'switch_coach', coachId: String(obj.coachId) }
+    }
+  } catch {
+    /* a malformed block is simply ignored */
+  }
+  return null
+}
+
+export function stripActionBlock(raw: string): string {
+  return raw
+    .replace(/```(?:chessx-action|action)\s*\n?[\s\S]*?```/gi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
+export interface CoachChatRequest {
+  user: { id: string; username: string }
+  profile: { id: string; name: string; skillLevel: string; coach: string; darkMode: string; soundEnabled: boolean; aiProvider: string }
+  cfg: AiConfig
+  messages: ChatMessage[]
+  lastUser: string
+  ctxIn: {
+    fen?: string
+    tier?: unknown
+    level?: unknown
+    theme?: unknown
+    lessonTitle: string
+    stepHint: string
+    pgn: string
+    moves: string
+    gameId: string
+  }
+  rawCtx: Record<string, unknown>
+  skill: string
+  coach: ReturnType<typeof coachById>
+  levelCtx: ReturnType<typeof resolveLevelContext>
+  runGeneration: (skillId: SkillId, theme?: unknown) => Promise<ArtifactView>
+}
+
+/** Auth, rate limit, body parse and context build for both chat routes.
+ * Returns either the parsed request or an error response. */
+export async function parseCoachChatRequest(req: NextRequest): Promise<{ ok: true; req: CoachChatRequest } | { ok: false; res: NextResponse }> {
+  const user = await getSessionUser()
+  if (!user) return { ok: false, res: NextResponse.json({ error: 'Not signed in' }, { status: 401 }) }
+
+  // Resource guard: chat is the most model-hungry endpoint in the app, so it
+  // carries its own per-account and per-IP budgets (separate from the
+  // generation limiter, which only covers material creation).
+  if (!rateLimit(`chat:${user.id}`, 20, 60_000) || !rateLimit(`chat-ip:${clientIp(req)}`, 40, 60_000)) {
+    return { ok: false, res: NextResponse.json({ error: 'Slow down a moment, the coach needs to breathe. Try again shortly.' }, { status: 429 }) }
+  }
+
+  let profile = await db.profile.findUnique({ where: { userId: user.id } })
+  if (!profile) profile = await db.profile.create({ data: { userId: user.id, name: user.username } })
+
+  const body = (await req.json().catch(() => ({}))) as Record<string, unknown>
+  const messages: ChatMessage[] = Array.isArray(body.messages)
+    ? (body.messages as { role?: string; content?: string }[])
+        .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+        .slice(-16)
+        .map((m) => ({ role: m.role as 'user' | 'assistant', content: (m.content as string).slice(0, 4000) }))
+    : []
+  if (messages.length === 0) {
+    return { ok: false, res: NextResponse.json({ error: 'messages required' }, { status: 400 }) }
+  }
+  const lastUser = [...messages].reverse().find((m) => m.role === 'user')?.content ?? ''
+
+  const ctx = (body.context ?? {}) as Record<string, unknown>
+  const str = (v: unknown, max: number): string => (typeof v === 'string' ? v.slice(0, max) : '')
+  const ctxIn = {
+    fen: typeof ctx.fen === 'string' && ctx.fen.length < 200 ? ctx.fen : undefined,
+    tier: ctx.tier,
+    level: ctx.level,
+    theme: ctx.theme,
+    lessonTitle: str(ctx.lessonTitle, 200),
+    stepHint: str(ctx.stepHint, 400),
+    pgn: str(ctx.pgn, 3000),
+    moves: str(ctx.moves, 1200),
+    gameId: str(ctx.gameId, 64),
+  }
+  const skill = String(ctx.skillLevel ?? 'beginner')
+  const coach = coachById(typeof ctx.coach === 'string' ? ctx.coach : 'nina')
+  const cfg = await getAiConfig(profile.id)
+
+  const levelCtx = resolveLevelContext(ctx.tier, ctx.level, skill)
+
+  const runGeneration = async (skillId: SkillId, theme?: unknown) => {
+    const limited = checkRateLimit(profile.id, dayKeyLocal())
+    if (limited) throw new SkillError(limited)
+    return runSkill({
+      skill: skillId,
+      cfg,
+      profileId: profile.id,
+      skillLevel: profile.skillLevel,
+      tier: ctx.tier,
+      level: ctx.level,
+      theme,
+      fen: ctxIn.fen,
+    })
+  }
+
+  return {
+    ok: true,
+    req: {
+      user: { id: user.id, username: user.username },
+      profile: {
+        id: profile.id,
+        name: profile.name,
+        skillLevel: profile.skillLevel,
+        coach: profile.coach,
+        darkMode: profile.darkMode,
+        soundEnabled: profile.soundEnabled,
+        aiProvider: profile.aiProvider,
+      },
+      cfg,
+      messages,
+      lastUser,
+      ctxIn,
+      rawCtx: ctx,
+      skill,
+      coach,
+      levelCtx,
+      runGeneration,
+    },
+  }
+}
+
+/** The deterministic router both routes share. */
+export function routeCoachMessage(r: CoachChatRequest): Promise<CommandOutcome | null> {
+  return routeMessage({
+    message: r.lastUser,
+    cfg: r.cfg,
+    profile: r.profile,
+    ctx: { fen: r.ctxIn.fen, tier: r.ctxIn.tier, level: r.ctxIn.level, theme: r.ctxIn.theme },
+    coach: r.coach,
+    runGeneration: r.runGeneration,
+  })
+}
+
+/** Spoiler-guarded payload shaping for a routed (deterministic) outcome. */
+export function routedPayload(r: CoachChatRequest, out: CommandOutcome) {
+  const shipped = (out.artifacts ?? []).map(stripUnsolved)
+  return {
+    content: out.content,
+    provider: r.cfg.provider,
+    ...(shipped.length ? { artifacts: shipped } : {}),
+    ...(shipped.length === 1 ? { artifact: shipped[0] } : {}),
+    ...(out.action ? { action: out.action } : {}),
+    ...(out.agentTaskId ? { agentTaskId: out.agentTaskId } : {}),
+  }
+}
+
+/** Conversation context lines, identical for both routes. */
+export async function buildCoachContextLines(r: CoachChatRequest): Promise<string[]> {
+  const contextLines: string[] = []
+  const ctxIn = r.ctxIn
+  if (ctxIn.fen) {
+    contextLines.push(`Current position FEN: ${ctxIn.fen}`)
+    const described = describeFen(String(ctxIn.fen))
+    if (described) contextLines.push(described)
+  }
+  if (ctxIn.lessonTitle) contextLines.push(`The student is working on the lesson "${ctxIn.lessonTitle}".`)
+  if (ctxIn.stepHint) contextLines.push(`Current exercise: ${ctxIn.stepHint}`)
+  if (ctxIn.pgn) contextLines.push(`Game so far (PGN):\n${ctxIn.pgn}`)
+  if (ctxIn.moves) contextLines.push(`Moves played so far: ${ctxIn.moves}`)
+  if (r.rawCtx.tier != null || r.rawCtx.level != null) {
+    contextLines.push(`Course progress: ${r.levelCtx.tierTitle}, Level ${r.levelCtx.levelN} ("${r.levelCtx.levelTitle}").`)
+  }
+
+  const memory = await coachMemoryBrief(r.profile.id).catch(() => null)
+  if (memory) contextLines.push(`Memory of this student (facts from this app's ledger, use naturally, never recite the list): ${memory}`)
+
+  if (typeof ctxIn.gameId === 'string' && ctxIn.gameId.length > 5 && ctxIn.gameId.length < 64) {
+    const saved = await db.gameRecord.findFirst({
+      where: { id: ctxIn.gameId, profileId: r.profile.id },
+    })
+    if (saved) {
+      contextLines.push(
+        `Saved game: the student played ${saved.color === 'w' ? 'White' : 'Black'} against ${saved.botName}, a ChessX practice bot. Result: ${saved.result} by ${saved.reason}, ${saved.moveCount} moves.`,
+      )
+      if (saved.analyzedAt && saved.whiteAcc != null && saved.blackAcc != null) {
+        let countsLine = ''
+        try {
+          const counts = JSON.parse(saved.labelsJson ?? '{}') as Record<string, { w: number; b: number }>
+          const side = (c: 'w' | 'b') =>
+            (['brilliant', 'great', 'best', 'excellent', 'good', 'book', 'inaccuracy', 'mistake', 'miss', 'blunder'] as const)
+              .filter((l) => (counts[l]?.[c] ?? 0) > 0)
+              .map((l) => `${counts[l][c]} ${l}${counts[l][c] === 1 ? '' : 's'}`)
+              .join(', ')
+          const w = side('w')
+          const b = side('b')
+          countsLine = ` White moves: ${w || 'all clean'}. Black moves: ${b || 'all clean'}.`
+        } catch {
+          // malformed counts stay out; accuracy lines below are still real
+        }
+        contextLines.push(
+          `Engine report stored by this app (quote these numbers as facts): Opening: ${saved.opening ?? 'not identified'}. Accuracy: White ${saved.whiteAcc}%, Black ${saved.blackAcc}%. The student's accuracy: ${saved.playerAcc ?? saved.whiteAcc ?? '?'}%.${countsLine}`,
+        )
+      } else {
+        contextLines.push('This game has not been run through the engine report yet, so no accuracy numbers exist. Do not invent any; analyze the moves directly.')
+      }
+      if (saved.pgn) contextLines.push(`Full game PGN:\n${saved.pgn.slice(0, 3000)}`)
+    }
+  }
+  return contextLines
+}
+
+/** The coach system prompt, identical for both routes. */
+export function buildCoachSystem(r: CoachChatRequest, contextLines: string[]): string {
+  const coach = r.coach
+  return [
+    `You are ${coach.name}, the coach inside ChessX, a chess training app, and you are talking with one student${r.profile.name ? ` called ${r.profile.name}` : ''}. You are a person at a chessboard, not a menu and not a script.`,
+    coach.systemLine,
+    `The student self-identifies as: ${r.skill}. Calibrate depth to that level.`,
+    'How you talk:',
+    '- Short and alive. A few sentences at most. Sound like a coach sitting across the board, not like a manual.',
+    '- If the student greets you, greet them back warmly and offer one concrete next step (a puzzle, a look at the board, a lesson). Two sentences, then stop.',
+    '- If the student makes small talk or asks something unrelated to chess (weather, mood, life), answer honestly and briefly in one sentence, with a little warmth or dry humor, then offer the next chess thing. Never refuse, never lecture, never pretend to fetch live data you do not have.',
+    '- Match their energy. Excited gets quick and punchy. Tired gets gentle. Confused gets simple words and one idea at a time.',
+    '- Ask a short follow-up question when it moves the conversation forward, but not on every message.',
+    '- Plain, direct chess language. No hype, no emojis, no filler like "great question".',
+    '- Never use the em dash character. Use commas, periods or parentheses instead.',
+    '- When a position is given, read the ASCII board carefully square by square before answering. Trust the board, not guesses about move order. Be concrete: name squares, pieces and moves in SAN.',
+    '- Only name an opening or variation if you are certain it matches the moves actually played. If unsure, describe the moves and plans instead of guessing a name.',
+    '- In a lesson exercise, guide with questions and ideas. Do NOT hand over the solution move unless the student explicitly asks for it after trying.',
+    '- You may be wrong about deep calculation; hedge when unsure and suggest checking with the engine.',
+    '- The student can type / to see your skills (commands like /puzzle, /mate, /analyze, /recap). Mention one fitting command when it is the fastest path to what they want. There is also /help.',
+    '- Formatting: markdown is rendered. Use short paragraphs and, when listing several moves or ideas, tight bullet lists. Never produce walls of text.',
+    '- When your answer discusses one concrete position, you may end the reply with ONE fenced block showing it, and the app draws the board for the student:',
+    '```fen',
+    '<the FEN>',
+    '```',
+    'Use the fen block at most once per reply and only for a position you are actually given or derived from the game; never invent a FEN you have not seen or legally reached.',
+    '- Long-form work: for goals that need several steps (a training plan, a game autopsy, a bootcamp, a weakness scan), the agent runs MISSIONS with a visible checklist: /plan, /autopsy, /bootcamp, /radar, /repertoire, /lab, /gauntlet, /masterclass, /regimen, /sparring, and /agent followed by any goal. When the student wants that kind of multi-step work, tell them you are on it and name the exact command; the app launches the mission when the request is unambiguous, and you do not need to do anything else.',
+    '- When the memory section is present, use it like a coach who remembers their student: reference at most one fact when it genuinely helps, never recite, and never invent facts beyond it.',
+    ...skillProtocolLines(),
+    'Controlling the app (your hands):',
+    'When the student asks you to change the app itself (flip or turn the board, reset the board, open a section, switch the coach), end your reply with ONE block:',
+    '```chessx-action',
+    '{"action":"flip_board"}',
+    '```',
+    'Valid actions: flip_board, reset_board, toggle_dark, toggle_sound, goto (add "view": home|play|lessons|puzzles|review|coach|analysis|profile|settings), switch_coach (add "coachId": nina|victor|elena|sasha).',
+    'The app executes the action after your reply. Only include the block when the student clearly wants the app itself to change.',
+    contextLines.length ? `\nContext:\n${contextLines.join('\n')}` : '',
+  ].join('\n')
+}
+
+export interface FinishedReply {
+  content: string
+  artifact: ArtifactView | null
+  action: CoachAction | null
+}
+
+/** Post-process a complete model reply: parse actions, honor skill blocks
+ * behind the deterministic generation gate. Shared by both routes. */
+export async function finishModelReply(
+  r: CoachChatRequest,
+  raw: string,
+): Promise<FinishedReply> {
+  let content = raw
+  let artifact: ArtifactView | null = null
+  let action: CoachAction | null = null
+  let extraNote = ''
+
+  const parsedAction = parseActionBlock(raw)
+  if (parsedAction) {
+    action = parsedAction
+    content = stripActionBlock(content)
+  }
+
+  const extracted = extractSkillBlock(content)
+  if (extracted) {
+    content = extracted.content
+    const skillId = String(extracted.params.skill ?? '')
+    if (hasGenerationIntent(r.lastUser)) {
+      if (SKILL_IDS.includes(skillId as SkillId)) {
+        try {
+          artifact = await r.runGeneration(skillId as SkillId, extracted.params.theme)
+        } catch (e) {
+          const reason = e instanceof SkillError ? e.message : 'the generation did not pass verification'
+          extraNote = `\n\n(I tried to generate that material but it failed: ${reason} The skill buttons under the chat retry the same request.)`
+        }
+      } else {
+        extraNote = '\n\n(I meant to generate material but named an unknown skill. Use the skill buttons under the chat instead.)'
+      }
+    } else if (!content.trim()) {
+      content = 'I can build that for you: a puzzle, a mate hunt, a drill from the board or a quiz. Say the word and it appears, verified.'
+    }
+  }
+
+  return { content: (content + extraNote).trim(), artifact, action }
+}

@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getSessionUser, rateLimit } from '@/lib/auth'
 import { engineAvailable, engineIdentity } from '@/lib/server/engine'
-import { bankStatus, kickBankBootstrap } from '@/lib/server/bank-bootstrap'
 import { lichessAvailable, lichessCount, lichessThemeStats } from '@/lib/server/lichess-bank'
 import { buildPlan } from '@/lib/server/daily-plan'
 import { buildDnaReport } from '@/lib/server/chess-dna'
@@ -71,11 +70,9 @@ export async function GET() {
         if (!up) throw new Error('engine not responding')
         return (await engineIdentity()) ?? 'up'
       }),
-      timed('puzzleBank', async () => {
-        kickBankBootstrap()
-        const s = bankStatus()
-        if (!s.available) throw new Error(s.phase || 'bank unavailable')
-        return `${lichessCount().toLocaleString('en-US')} puzzles on disk`
+      timed('puzzleSource', async () => {
+        if (!lichessAvailable()) throw new Error('puzzle pack not loaded')
+        return `${lichessCount().toLocaleString('en-US')} puzzles (pack + served LRU, lichess daily API)`
       }),
       timed('planBuilder', async () => {
         const plan = await buildPlan(profile.id, dayKeyLocal())
@@ -88,7 +85,7 @@ export async function GET() {
       timed('gameService', async () => serviceUp(3030)),
       timed('mcpServer', async () => serviceUp(3031)),
       timed('puzzleThemes', async () => {
-        if (!lichessAvailable()) throw new Error('bank not mounted yet')
+        if (!lichessAvailable()) throw new Error('puzzle pack not loaded')
         const themes = lichessThemeStats(5)
         return `${themes.length} theme rows indexed`
       }),

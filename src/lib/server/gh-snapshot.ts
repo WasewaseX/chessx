@@ -12,7 +12,7 @@
 //
 // Env: GH_BACKUP_TOKEN (PAT), GH_BACKUP_REPO (default WasewaseX/chessx-backups)
 
-// WEBPACK CONSTRAINT (see bank-bootstrap.ts — do not undo): this module is
+// WEBPACK CONSTRAINT (see gh-snapshot.ts — do not undo): this module is
 // reached from instrumentation, which webpack compiles for multiple targets.
 // Static node builtin imports here break the edge/client graphs. All node
 // builtins are required LAZILY through eval('require') below.

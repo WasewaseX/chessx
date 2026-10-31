@@ -1,13 +1,13 @@
 // Cross-platform production launcher: sets NODE_ENV without unix-only env
 // syntax, spawns the standalone server, and tees its output to server.log.
 //
-// Runtime choice (the Oct 22 lesson): the standalone server.js runs under
-// NODE by default, and parts of the server legitimately need node-only
-// builtins — node:sqlite in the puzzle bank (lichess-bank.ts) and the boot
-// restore policy (boot-maintenance.ts). Bun does not implement node:sqlite,
-// and running the server under bun silently disabled BOTH the user-data
-// restore on boot AND every puzzle-bank route. The launcher therefore
-// prefers `node` and only falls back to `bun` when node is unavailable.
+// Runtime choice (the Oct 22 lesson, updated Oct 24): the standalone
+// server.js runs under NODE by default, and parts of the server legitimately
+// need node-only builtins — node:sqlite in the gh-snapshot restore path
+// (boot-maintenance.ts). Bun does not implement node:sqlite, and running the
+// server under bun silently disabled the user-data restore on boot. The
+// puzzle core no longer needs node:sqlite at all (light pack + lichess API),
+// but the restore path still does, so node stays the launcher default.
 import { spawn } from 'child_process'
 import { createWriteStream } from 'fs'
 
