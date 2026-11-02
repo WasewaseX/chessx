@@ -11,9 +11,9 @@ import { db } from '@/lib/db'
 import { getSessionUser, rateLimit, clientIp } from '@/lib/auth'
 import { runChat, getAiConfig, type ChatMessage } from '@/lib/ai'
 import { coachById } from '@/lib/coaches'
-import { buildDossier } from '@/lib/server/position-dossier'
+import { buildDossierStructured } from '@/lib/server/position-dossier'
 import { describeFen } from '@/lib/server/chess-describe'
-import { verifyClaims, repairInstruction } from '@/lib/server/claim-guard'
+import { verifyClaims, repairInstruction, type EngineVerdictInfo } from '@/lib/server/claim-guard'
 
 export const maxDuration = 120
 
@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
 
   const coach = coachById(coachId)
   const cfg = await getAiConfig(profile.id)
+  let engineInfo: EngineVerdictInfo | undefined
 
   // ---------------------------------------------------------------
   // Grounding: the position dossier (board, pieces, legal census, engine
@@ -118,9 +119,11 @@ export async function POST(req: NextRequest) {
   }
   if (fen) {
     contextLines.push(`Current position FEN: ${fen}`)
-    const dossier = await buildDossier(fen).catch(() => null)
-    if (dossier) contextLines.push(dossier)
-    else {
+    const dossier = await buildDossierStructured(fen).catch(() => null)
+    if (dossier) {
+      contextLines.push(dossier.text)
+      engineInfo = { topSan: dossier.engine.topSan, altSans: dossier.engine.altSans }
+    } else {
       const described = describeFen(fen)
       if (described) contextLines.push(described)
     }
@@ -197,7 +200,7 @@ export async function POST(req: NextRequest) {
     // position, so the pre-final board joins the phrase window.
     const phraseFens = replayOk && fenBefores.length ? [fenBefores[fenBefores.length - 1]] : undefined
     if (guardFen) {
-      const first = verifyClaims(content, guardFen, historyFens, phraseFens)
+      const first = verifyClaims(content, guardFen, historyFens, phraseFens, engineInfo)
       if (!first.ok) {
         const repairSystem = `${system}\n\n${repairInstruction(first.violations)}`
         const repaired = await runChat(cfg, repairSystem, [
@@ -207,7 +210,7 @@ export async function POST(req: NextRequest) {
         ]).catch(() => null)
         if (repaired) {
           content = repaired
-          const second = verifyClaims(content, guardFen, historyFens, phraseFens)
+          const second = verifyClaims(content, guardFen, historyFens, phraseFens, engineInfo)
           if (!second.ok) {
             content += `\n\n(Board fact-check: ${second.violations.slice(0, 3).join('; ')}. Verify against the board.)`
           }

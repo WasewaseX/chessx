@@ -67,9 +67,60 @@ function stripPiecePhrases(text: string): string {
 }
 
 const MOVE_INTENT = /\b(plays?|played|playing|moves?|reply|answers?|responds?|goes|push(?:es)?|tries|tried|offers?|follow(?:ed)?\s+by|then|instead)\b[^.?!]{0,18}$/i
+// "e5 is the best move" is move intent even though no play-verb appears:
+// the wild failure this catches is the coach naming an ILLEGAL square as the
+// best move and the guard letting it through because no verb matched.
+const BEST_MOVE_INTENT = /(?:\bis\s+(?:the\s+)?(?:best|strongest|winning|top)\b|\bbest\s+move\b|\brecommends?\b)/i
 
 function hasMoveIntent(textBefore: string): boolean {
-  return MOVE_INTENT.test(textBefore.slice(-40))
+  const tail = textBefore.slice(-40)
+  return MOVE_INTENT.test(tail) || BEST_MOVE_INTENT.test(tail)
+}
+
+/** Sentences that assert WHICH move is best. Tokens named inside one of these
+ * are checked against the engine verdict (when one exists) so a coach can
+ * never name move X best in one reply and move Y best in the next. */
+const BEST_ASSERTION =
+  /\b(?:best\s+(?:move|play|continuation|reply)|top\s+move|strongest\s+(?:move|continuation)|i\s+recommend|i(?:'|’)?d\s+(?:play|recommend)|you\s+should\s+(?:play|go)|the\s+(?:right|correct|better|stronger)\s+(?:move|reply|continuation)|best\s+here|to\s+play\s+is|better\s+move|stronger\s+move)\b/i
+// Line-building or past/hypothetical sentences ("after Nf3 the best reply is
+// Nc6", "you should have played Nf3 there") talk about a FUTURE or PAST
+// position where the base engine verdict does not apply. Only sentences
+// WITHOUT these shifters are held to the base verdict.
+const LINE_SHIFTER =
+  /\b(after|then|if |next|follows|later|once|should\s+have|could\s+have|would\s+have|missed|there\s+(?:was|were)|back\s+then|was|were)\b/i
+
+function checkBestMoveClaims(text: string, base: Chess, engineTopSan: string, engineAltSans: string[]): string[] {
+  const violations: string[] = []
+  const sentences = stripNoise(text).split(/(?<=[.!?])\s+|\n+/)
+  for (const sentence of sentences) {
+    if (!BEST_ASSERTION.test(sentence) || LINE_SHIFTER.test(sentence)) continue
+    for (const m of sentence.matchAll(MOVE_RE)) {
+      const san = m[1].replace(/[!?]+$/, '')
+      // Only tokens that are legal in the BASE position are verdict claims
+      // about THIS position; anything else is a future/past line the replay
+      // already handles.
+      let legal = false
+      try {
+        legal = Boolean(base.move(san, { strict: false }))
+      } catch {
+        legal = false
+      }
+      base.undo()
+      if (!legal) continue
+      if (san === engineTopSan) continue
+      if (engineAltSans.includes(san)) {
+        violations.push(
+          `the reply calls "${san}" the best move, but the engine's verified best move is "${engineTopSan}" ("${san}" is only an alternative line). Name "${engineTopSan}" as the best move and present "${san}" as a secondary idea if needed.`,
+        )
+      } else {
+        violations.push(
+          `the reply calls "${san}" the best move, but the engine's verified best move is "${engineTopSan}". The engine verdict is final: never name a different move as the best move in this position.`,
+        )
+      }
+      break // one verdict per sentence is enough
+    }
+  }
+  return violations
 }
 
 function checkSideClaims(text: string, g: Chess): string[] {
@@ -202,8 +253,21 @@ function legalChecks(g: Chess): string[] {
  * position ("the queen took the pawn on f7") - true in the pre-move position
  * and no longer true on the final board. Each phrase check passes when it is
  * clean against the current board OR any phrase window position.
+ *
+ * `engine` (optional) carries the verified engine verdict for THIS position.
+ * When present, every "the best move is X" claim is compared against it: the
+ * coach's first answer must BE the engine's answer, in this reply and in
+ * every future reply of the conversation (this is what makes flip-flopping
+ * structurally impossible rather than merely discouraged).
  */
-export function verifyClaims(text: string, fen: string, historyFens?: string[], phraseFens?: string[]): ClaimVerdict {
+export interface EngineVerdictInfo {
+  /** SAN of the engine's top move in the current position (null = no verdict) */
+  topSan: string | null
+  /** SANs of the engine's lower-ranked alternatives (rank 2+) */
+  altSans: string[]
+}
+
+export function verifyClaims(text: string, fen: string, historyFens?: string[], phraseFens?: string[], engine?: EngineVerdictInfo): ClaimVerdict {
   if (!fen) return { ok: true, violations: [] }
   let base: Chess
   try {
@@ -246,6 +310,12 @@ export function verifyClaims(text: string, fen: string, historyFens?: string[], 
   violations.push(...phraseCheck(checkMateClaims))
   violations.push(...phraseCheck(checkPositionClaims))
 
+  // Best-move verdict consistency: only when a real engine verdict exists.
+  // No verdict -> nothing to compare against, check honestly skipped.
+  if (engine?.topSan) {
+    violations.push(...checkBestMoveClaims(text, base, engine.topSan, engine.altSans))
+  }
+
   // Move replay: walk tokens in order; on failure retry from the base
   // position (the model often restarts lines: "after e5, what if Nxe5?").
   // chess.js leaves the game state untouched on a failed move, so a bad token
@@ -254,6 +324,20 @@ export function verifyClaims(text: string, fen: string, historyFens?: string[], 
   const cursor = new Chess(fen)
   const fresh = new Chess(fen)
   const historyFresh = history.map((g) => new Chess(g.fen()))
+  // Opponent-reply board: the same position with the OTHER side to move. A
+  // coach constantly narrates the opponent's best answer ("Black will capture
+  // with Nxh5") - a move that is ILLEGAL for the side to move but perfectly
+  // real for the opponent. Without this board those mentions were false
+  // violations that triggered pointless repairs (caught live Nov 2).
+  const opponentBoard = (() => {
+    try {
+      const parts = fen.split(' ')
+      parts[1] = parts[1] === 'w' ? 'b' : 'w'
+      return new Chess(parts.join(' '))
+    } catch {
+      return null
+    }
+  })()
   let lastIdx = 0
   for (const m of replayText.matchAll(MOVE_RE)) {
     const san = m[1].replace(/[!?]+$/, '')
@@ -273,21 +357,43 @@ export function verifyClaims(text: string, fen: string, historyFens?: string[], 
       })
       .find(Boolean)
     if (!playedSomewhere) {
-      // Historical moves: legal in any earlier position of this game counts
-      // as real (the reply is discussing the past, not inventing the future).
-      const historical = historyFresh.some((g) => {
+      // Opponent-reply hypothesis: the sentence names the OTHER side as the
+      // mover ("Black will capture it with Nxh5", "White would reply Qd2").
+      // Accept the token when it is legal on the flipped board and the
+      // sentence's side-subject matches the opponent. A sentence that names
+      // the SIDE TO MOVE as the mover ("White plays Nf6" with White to move)
+      // stays a violation: that is a genuine side-mixing hallucination.
+      const sentenceStart = replayText.lastIndexOf('.', Math.max(0, (m.index ?? 1) - 1)) + 1
+      const sentence = replayText.slice(sentenceStart, m.index ?? undefined)
+      const sideWords = [...sentence.matchAll(/\b(white|black)\b/gi)].map((s) => s[1].toLowerCase())
+      const mover = cursor.turn() === 'w' ? 'white' : 'black'
+      const namesOpponent = sideWords.length > 0 && sideWords[0] !== mover
+      let opponentOk = false
+      if (opponentBoard && (namesOpponent || sideWords.length === 0)) {
         try {
-          return Boolean(g.move(san, { strict: false }))
+          opponentOk = Boolean(opponentBoard.move(san, { strict: false }))
         } catch {
-          return false
+          opponentOk = false
         }
-      })
-      if (!historical) {
-        // Bare squares ("the e5 square is weak") are only violations when the
-        // reply clearly meant a move ("White plays e5"). Named moves (Nxe5,
-        // O-O, exd5) are always strict.
-        if (!bare || hasMoveIntent(replayText.slice(lastIdx, m.index))) {
-          violations.push(`the move "${san}" is not legal in the current position or in any line named before it`)
+        if (opponentOk) opponentBoard.undo()
+      }
+      if (!opponentOk) {
+        // Historical moves: legal in any earlier position of this game counts
+        // as real (the reply is discussing the past, not inventing the future).
+        const historical = historyFresh.some((g) => {
+          try {
+            return Boolean(g.move(san, { strict: false }))
+          } catch {
+            return false
+          }
+        })
+        if (!historical) {
+          // Bare squares ("the e5 square is weak") are only violations when the
+          // reply clearly meant a move ("White plays e5"). Named moves (Nxe5,
+          // O-O, exd5) are always strict.
+          if (!bare || hasMoveIntent(replayText.slice(lastIdx, m.index))) {
+            violations.push(`the move "${san}" is not legal in the current position or in any line named before it`)
+          }
         }
       }
     }
@@ -300,9 +406,15 @@ export function verifyClaims(text: string, fen: string, historyFens?: string[], 
 
 /** Build the repair instruction fed back to the model for a second pass. */
 export function repairInstruction(violations: string[]): string {
+  const verdictFix = violations.some((v) => v.includes("the engine's verified best move"))
   return [
     'FACT-CHECK FAILURE: parts of your last reply contradict the verified board. The app verified every claim and found:',
     ...violations.slice(0, 6).map((v) => `- ${v}`),
     'Rewrite your reply using ONLY the verified move lists, piece list and engine lines from the context. If you are not certain a move is legal, do not name it: describe the idea instead. Keep the same coaching intent.',
+    ...(verdictFix
+      ? [
+          'CRITICAL: the engine verdict about the best move is FINAL and appears verbatim in the context. Your rewritten reply must name the engine\u2019s move as the best move. Do not switch to a different move, do not hedge, do not agree with a student suggestion that contradicts it.',
+        ]
+      : []),
   ].join('\n')
 }
