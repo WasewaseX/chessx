@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getSessionUser, rateLimit } from '@/lib/auth'
 import { engineAvailable, engineIdentity } from '@/lib/server/engine'
-import { lichessAvailable, lichessCount, lichessThemeStats } from '@/lib/server/lichess-bank'
+import { lichessAvailable, lichessProbe } from '@/lib/server/lichess-bank'
 import { buildPlan } from '@/lib/server/daily-plan'
 import { buildDnaReport } from '@/lib/server/chess-dna'
 import { dayKeyLocal } from '@/lib/day'
@@ -70,9 +70,12 @@ export async function GET() {
         if (!up) throw new Error('engine not responding')
         return (await engineIdentity()) ?? 'up'
       }),
-      timed('puzzleSource', async () => {
-        if (!lichessAvailable()) throw new Error('puzzle pack not loaded')
-        return `${lichessCount().toLocaleString('en-US')} puzzles (pack + served LRU, lichess daily API)`
+      timed('puzzleBank', async () => {
+        // One cheap live fetch of the official daily — proves the free
+        // Lichess puzzle API is reachable end-to-end. No disk bank anymore:
+        // the 1.5GB file is gone (Nov 2 lightweight mandate).
+        if (!lichessAvailable()) throw new Error('lichess in failure cooldown')
+        return await lichessProbe()
       }),
       timed('planBuilder', async () => {
         const plan = await buildPlan(profile.id, dayKeyLocal())
@@ -84,11 +87,6 @@ export async function GET() {
       }),
       timed('gameService', async () => serviceUp(3030)),
       timed('mcpServer', async () => serviceUp(3031)),
-      timed('puzzleThemes', async () => {
-        if (!lichessAvailable()) throw new Error('puzzle pack not loaded')
-        const themes = lichessThemeStats(5)
-        return `${themes.length} theme rows indexed`
-      }),
     ]),
   )
 

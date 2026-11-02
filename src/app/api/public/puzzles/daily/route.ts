@@ -1,18 +1,18 @@
-// GET /api/public/puzzles/daily — today's deterministic daily puzzle from
-// the Lichess bank, spoiler-free: id, FEN, rating, themes, move count. No
-// solution, no title, no source. Falls back to the curated pool's own
-// deterministic rotation when the bank file is absent, so the endpoint
+// GET /api/public/puzzles/daily — today's official Lichess daily puzzle,
+// live from the free API, spoiler-free: id, FEN, rating, themes, move count.
+// No solution, no title, no source. Falls back to the curated pool's own
+// deterministic rotation when the upstream is unreachable, so the endpoint
 // always answers honestly instead of 500ing.
 import { NextRequest, NextResponse } from 'next/server'
 import { sanitizePuzzle, preflight, withPublic } from '@/lib/server/public-api'
-import { lichessDaily } from '@/lib/server/lichess-bank'
+import { lichessAvailable, lichessDaily } from '@/lib/server/lichess-bank'
 import { PUZZLES } from '@/content/puzzles'
 import { dailyPuzzleIndex } from '@/lib/api'
 
 export async function GET(req: NextRequest) {
   return withPublic(req, async () => {
     const dayKey = new Date().toISOString().slice(0, 10)
-    {
+    if (lichessAvailable()) {
       const lp = await lichessDaily(dayKey)
       if (lp) return NextResponse.json(sanitizePuzzle(lp))
     }

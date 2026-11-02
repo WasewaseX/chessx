@@ -10,7 +10,7 @@
     "backup:restore": "bun scripts/gh-restore.ts",
     "build": "prisma generate && next build --webpack && bun scripts/collect-standalone.ts",
     "start": "bun scripts/start-prod.ts",
-    "lint": "eslint .",
+    "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",

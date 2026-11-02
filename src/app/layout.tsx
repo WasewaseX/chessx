@@ -18,12 +18,13 @@ export const viewport: Viewport = {
   themeColor: "#312e2b",
 };
 
-// The puzzle bank self-heal is NOT kicked from here on purpose: layout.tsx is
-// compiled for the client bundle too, and gh-snapshot needs node:child_
-// process, which webpack cannot resolve in a browser graph (UnhandledScheme
-// 500s on every page). The boot kick lives in src/instrumentation.ts
-// (server-only runtime hook), and the puzzle API routes kick the same
-// idempotent installer as a backstop on first use.
+// No puzzle bootstrapping happens here or anywhere else: puzzles stream live
+// from the free Lichess puzzle API plus the small in-git pack (the 1.57GB
+// disk bank is retired), so there is nothing to install, kick or warm.
+// layout.tsx is compiled for the client bundle too, and gh-snapshot needs
+// node:child_process, which webpack cannot resolve in a browser graph —
+// node-only boot work stays behind the guarded import in
+// src/instrumentation.ts (server-only runtime hook).
 
 export default function RootLayout({
   children,

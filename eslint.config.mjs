@@ -51,7 +51,10 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
     // re/ holds reverse-engineering evidence extracted from third-party
     // artifacts (Chessigma asar sources, REA tool outputs). It is analysis
     // material, not project code, and predates/defies the app's lint rules.
-    "re/**"]
+    "re/**",
+    // research/ is a root-owned clone artifact (unreadable to the lint
+    // process); it is sandbox forensics, not project code.
+    "research/"]
 }];
 
 export default eslintConfig;
