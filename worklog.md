@@ -879,3 +879,19 @@ Work Log:
 Stage Summary:
 - The app is genuinely lightweight now: no 1.57GB file, no 546MB boot download, no page-cache eviction churn — puzzles stream from a 132KB in-git pack plus one cached API call a day. Every puzzle surface kept its contract; the daily got BETTER (the real worldwide lichess puzzle of the day).
 - Pushed as the "puzzles went cloud-light" commit with the repo-hygiene cleanup.
+
+---
+Task ID: 7
+Agent: main (Z.ai Code)
+Task: "continue never stop render stopped" + successor handoff — fuse the two lightweight lineages, prove the feed end to end
+
+Work Log:
+- Found the sandbox freshly cloned (rsync 16:50) with the local branch ROLLED BACK to a pre-86afc4b base while origin/main carried the Oct 31 lightweight retirement (2ae1572, pushed by the prior session before it died). db/puzzles.db (1.5GB) was back on disk via the clone.
+- Deleted the 1.5GB puzzles.db again, plus bank-bootstrap.ts, bank-status installer route, bank-fetch.mjs.
+- Rewrote lichess-bank.ts on the free Lichess puzzle API and PROBED the upstream contract live: anonymous /api/puzzle/next serves ONE puzzle per call with NO fen (position = replay game.pgn to initialPly+1 plies — calibrated against the daily's real fen, 6/6 full-line replays clean); the anonymous themes filter is IGNORED (locally filtered instead); the opening filter WORKS. Every candidate must replay its whole UCI solution — unsound ones are rejected, never served.
+- Caught a defect in my own first health flag: a single 429 inside a parallel batch flipped the feed red for 60s. Rebuilt as a 3-strikes sliding window.
+- Discovered the divergence with origin/main, reconciled deterministically: reset to 2ae1572 (keeping their pack + durable served-puzzle store + honest status route + dead-code deletions), then re-applied my deltas (async API-first routes, health probe, client copy, eslint src). lichess-bank.ts is a fusion: my live-API windows/rush/openings + their pack fallbacks + their durable served store.
+- Re-proved the cross-bundle dev bug fixed: puzzle LESo0 served by /api/puzzles/index (bundle A) graded by /api/puzzles/move (bundle B) in 11ms, hintFrom d1.
+- E2E verified signed-in (agent-browser): rated tab renders a live 1274-puzzle board with true theme-chip counts; daily 279ms; rush 3.6s cold -> 7ms cached; woodpecker fork set built live 319ms; deep health ALL GREEN ("daily puzzle live from lichess.org (rating 1997)"); SSR warm 51ms; memory stable ~1.9GB dev-mode RSS (vs OOM 3.44GB in the bank era), disk freed (db/ 1.6MB).
+- eslint: fixed the root-owned research/ dir trap (EACCES) by ignoring it and targeting src; lint script now `eslint src`.
+Result: commit fd8b1d2 pushed. The app is disk-light (zero puzzle bytes on disk beyond a 132KB pack), crash-loop source eliminated, all puzzle surfaces live and verified.
