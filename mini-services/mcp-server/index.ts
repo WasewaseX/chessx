@@ -136,7 +136,7 @@ async function toolReviewOnlineGame(args: Record<string, unknown>) {
   return reviewOnlineGames(source, username, max, 10, Date.now() + GAME_BUDGET_MS)
 }
 
-async async function toolGetDailyPuzzle(args: Record<string, unknown>) {
+async function toolGetDailyPuzzle(args: Record<string, unknown>) {
   const date = asString(args.date).trim() || new Date().toISOString().slice(0, 10)
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) {
     throw new ToolError(`Invalid date "${date}" — use YYYY-MM-DD`)
