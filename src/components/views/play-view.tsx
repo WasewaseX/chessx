@@ -960,6 +960,19 @@ function PersonaRecordBadge({ wins, losses, draws, played }: { wins: number; los
   )
 }
 
+// Shown when the engine failed twice for a position and the game was handed
+// back to the player instead of stranding them on the bot's turn.
+const ENGINE_STALL_BARKS = [
+  'My engine stalled on that position — I gave you your move back. Play something else.',
+  'Brain hiccup. Your last move is back on the board — carry on.',
+  'That one broke me. Take it from your previous move.',
+]
+
+// Shown when the engine is dead before the game even starts (bot to open).
+const ENGINE_DEAD_BARKS = [
+  'My engine is not responding at all. Resign to get back to the lobby and try again.',
+]
+
 function GameScreen({
   setup,
   theme,
@@ -1080,10 +1093,29 @@ function GameScreen({
   }, [end, recorded, setup, moves.length, playerName, setProfile, sound, sayBark])
 
   const botBusyRef = useRef(false)
-  const botMove = useCallback(async () => {
-    if (botBusyRef.current) return
+  // Generation token for the bot-move pipeline. Takebacks bump it, so any
+  // engine reply computed for a position that no longer exists is discarded
+  // on arrival instead of being applied to the rewound game state.
+  const moveGenRef = useRef(0)
+  const [botTick, setBotTick] = useState(0)
+  const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(
+    () => () => {
+      if (retryTimer.current) clearTimeout(retryTimer.current)
+    },
+    [],
+  )
+
+  /** Ask the engine for a move in the CURRENT position and apply it.
+   * Returns 'moved' (a move was applied), 'skipped' (superseded by a takeback
+   * or another call already running — the caller must not retry), or
+   * 'failed' (both engines came up empty; the caller may retry). */
+  const botMove = useCallback(async (): Promise<'moved' | 'skipped' | 'failed'> => {
+    if (botBusyRef.current) return 'skipped'
     const g = gameRef.current
-    if (g.isGameOver()) return
+    if (g.isGameOver()) return 'moved' // nothing to do; not a failure
+    const gen = moveGenRef.current
+    const askedFen = g.fen()
     botBusyRef.current = true
     setEngineThinking(true)
     try {
@@ -1091,36 +1123,68 @@ function GameScreen({
       // Level and bot personality); the browser wasm stays as the fallback.
       let uci: string | null = null
       try {
-        const res = await fetch('/api/engine/move', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fen: g.fen(),
-            skill: setup.bot.skill,
-            depth: setup.bot.depth,
-            minTime: setup.bot.minTime,
-            blunder: setup.bot.blunder,
-            aggression: setup.bot.aggression ?? 0,
-          }),
-        })
-        if (res.ok) {
-          const d = (await res.json()) as { uci?: string | null }
-          uci = d.uci ?? null
+        // Hard 20s ceiling: a wedged server engine used to hold the fetch open
+        // forever, which kept botBusyRef true and froze the whole game on the
+        // bot's turn. Aborting here guarantees the lock is always released.
+        const ctrl = new AbortController()
+        const kill = setTimeout(() => ctrl.abort(), 20000)
+        try {
+          const res = await fetch('/api/engine/move', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fen: askedFen,
+              skill: setup.bot.skill,
+              depth: setup.bot.depth,
+              minTime: setup.bot.minTime,
+              blunder: setup.bot.blunder,
+              aggression: setup.bot.aggression ?? 0,
+            }),
+            signal: ctrl.signal,
+          })
+          if (res.ok) {
+            const d = (await res.json()) as { uci?: string | null }
+            uci = d.uci ?? null
+          }
+        } finally {
+          clearTimeout(kill)
         }
       } catch {
-        /* server engine unreachable, use the browser engine below */
+        /* aborted or unreachable, use the browser engine below */
       }
+      // A takeback while we were waiting means this reply is for a position
+      // that no longer exists — discard it instead of corrupting the game.
+      if (moveGenRef.current !== gen) return 'skipped'
       if (!uci) {
-        const r = await engine.bestMove({
-          fen: g.fen(),
-          skill: setup.bot.skill,
-          depth: setup.bot.depth,
-          minTime: setup.bot.minTime,
-          blunder: 0, // the server already rolled personality moves; avoid double-rolling
+        // The wasm fallback must never hang the pipeline: if its worker failed
+        // to load, engine-client's init() await would never settle (there is
+        // no onerror hook on the fallback worker), so race a hard 10s ceiling.
+        let killed = false
+        const wasmCeiling = new Promise<null>((resolve) => {
+          setTimeout(() => {
+            if (!killed) resolve(null)
+          }, 10000)
         })
-        uci = r.uci
+        try {
+          const r = await Promise.race([
+            engine.bestMove({
+              fen: askedFen,
+              skill: setup.bot.skill,
+              depth: setup.bot.depth,
+              minTime: setup.bot.minTime,
+              blunder: 0, // the server already rolled personality moves; avoid double-rolling
+            }),
+            wasmCeiling,
+          ])
+          killed = true
+          uci = r?.uci ?? null
+        } catch {
+          killed = true
+          uci = null
+        }
       }
-      if (uci && uci.length >= 4) {
+      if (moveGenRef.current !== gen) return 'skipped'
+      if (uci && uci.length >= 4 && gameRef.current.fen() === askedFen) {
         const mv = g.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || undefined })
         if (mv) {
           setFen(g.fen())
@@ -1133,19 +1197,68 @@ function GameScreen({
           const delta = materialFor(g.fen(), setup.playerColor) - matBeforeRef.current
           if (delta <= -2 && Math.random() < 0.6) sayBark(setup.bot.barks.playerBlunder)
           else if (delta >= 2 && Math.random() < 0.6) sayBark(setup.bot.barks.playerGood)
+          return 'moved'
         }
       }
+      return 'failed'
     } finally {
-      botBusyRef.current = false
-      setEngineThinking(false)
+      // Only the owner of the CURRENT generation may release the lock — the
+      // takeback that bumped the generation already released it.
+      if (moveGenRef.current === gen) {
+        botBusyRef.current = false
+        setEngineThinking(false)
+      }
     }
   }, [setup.bot, setup.playerColor, evaluateEnd, sound, sayBark])
 
+  /** Rewind to the player's previous decision point and invalidate any
+   * engine reply in flight. This is the game's universal recovery hatch: it
+   * works on the player's turn AND while the bot is thinking, so a stalled
+   * engine can never freeze the board (the old version refused to run while
+   * `engineThinking` and was disabled off-turn — exactly the reported
+   * "I used takeback but I can't move now" freeze). Invariant: afterwards it
+   * is either the player's turn (bot cancelled mid-think) or the bot's turn
+   * with a fresh, cancelled-free driver that will immediately reply. */
+  const applyTakeback = useCallback((): boolean => {
+    const g = gameRef.current
+    if (g.history().length === 0) return false
+    // Cancel any in-flight engine reply BEFORE touching the state, and give
+    // the position we are fleeing from a fresh attempt budget.
+    moveGenRef.current++
+    botBusyRef.current = false
+    setEngineThinking(false)
+    if (retryTimer.current) {
+      clearTimeout(retryTimer.current)
+      retryTimer.current = null
+    }
+    botAttemptsRef.current.delete(g.fen())
+    // On the player's turn: remove the bot's reply, then the player's move.
+    // Mid-think (bot's turn): remove just the player's move.
+    const undoCount = Math.min(g.turn() === setup.playerColor ? 2 : 1, g.history().length)
+    for (let i = 0; i < undoCount; i++) {
+      if (!g.undo()) break
+      setMoves((m) => m.slice(0, -1))
+    }
+    const hist = g.history({ verbose: true })
+    const top = hist[hist.length - 1]
+    setLastMove(top ? { from: top.from, to: top.to } : null)
+    setHintArrow(null)
+    setFen(g.fen())
+    return true
+  }, [setup.playerColor])
+
+  const takeback = useCallback(() => {
+    if (end) return
+    applyTakeback()
+  }, [applyTakeback, end])
+
   // Sole driver of bot moves: whenever it is the bot's turn and the game is
   // live, ask the engine. This covers the player choosing Black (the bot must
-  // open the game) as well as replying after every player move. The effect
-  // re-runs after each fen change and stops once it is the player's turn; the
-  // per-position attempt cap keeps an engine failure from looping forever.
+  // open the game) as well as replying after every player move. A silent
+  // failure used to strand the game on the bot's turn forever (the effect
+  // never re-ran on a failed attempt and every recovery button was disabled):
+  // now a failure schedules exactly one retry, and after the second failure
+  // the game self-heals by handing the player their last move back.
   const botAttemptsRef = useRef(new Map<string, number>())
   useEffect(() => {
     if (end) return
@@ -1153,11 +1266,24 @@ function GameScreen({
     if (g.isGameOver() || g.turn() === setup.playerColor) return
     const key = g.fen()
     const tries = botAttemptsRef.current.get(key) ?? 0
-    if (tries >= 2) return
+    if (tries >= 2) {
+      // Self-heal: never leave the player frozen on the bot's turn.
+      if (applyTakeback()) sayBark(ENGINE_STALL_BARKS)
+      else sayBark(ENGINE_DEAD_BARKS)
+      return
+    }
     if (botAttemptsRef.current.size > 32) botAttemptsRef.current.clear()
     botAttemptsRef.current.set(key, tries + 1)
-    void botMove()
-  }, [fen, end, setup.playerColor, botMove])
+    const gen = moveGenRef.current
+    void botMove().then((status) => {
+      // One bounded retry after a real failure; a stale or skipped call must
+      // never schedule anything (the game state has moved on without us).
+      if (status === 'failed' && moveGenRef.current === gen) {
+        if (retryTimer.current) clearTimeout(retryTimer.current)
+        retryTimer.current = setTimeout(() => setBotTick((t) => t + 1), 700)
+      }
+    })
+  }, [fen, end, setup.playerColor, botMove, botTick, applyTakeback, sayBark])
 
   const onPlayerMove = useCallback(
     (from: Square, to: Square, promotion?: string) => {
@@ -1181,18 +1307,6 @@ function GameScreen({
     },
     [setup.playerColor, evaluateEnd, sound],
   )
-
-  const takeback = useCallback(() => {
-    const g = gameRef.current
-    if (g.isGameOver() || engineThinking) return
-    const undoCount = g.turn() === setup.playerColor ? 2 : 1
-    for (let i = 0; i < undoCount; i++) {
-      const mv = g.undo()
-      if (mv) setMoves((m) => m.slice(0, -1))
-    }
-    setFen(g.fen())
-    setLastMove(null)
-  }, [engineThinking, setup.playerColor])
 
   const showHint = useCallback(async () => {
     const g = gameRef.current
@@ -1245,7 +1359,7 @@ function GameScreen({
           <Button variant="secondary" size="sm" className="h-11 lg:h-8" onClick={() => setFlipped(!flipped)}>
             Flip
           </Button>
-          <Button variant="secondary" size="sm" className="h-11 lg:h-8" onClick={takeback} disabled={!playerOnMove || moves.length < 2}>
+          <Button variant="secondary" size="sm" className="h-11 lg:h-8" onClick={takeback} disabled={Boolean(end) || moves.length < 1}>
             <Undo2 className="h-4 w-4" /> Takeback
           </Button>
           <Button variant="secondary" size="sm" className="h-11 lg:h-8" onClick={showHint} disabled={!playerOnMove || hintLoading}>
