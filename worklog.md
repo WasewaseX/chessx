@@ -895,3 +895,41 @@ Work Log:
 - E2E verified signed-in (agent-browser): rated tab renders a live 1274-puzzle board with true theme-chip counts; daily 279ms; rush 3.6s cold -> 7ms cached; woodpecker fork set built live 319ms; deep health ALL GREEN ("daily puzzle live from lichess.org (rating 1997)"); SSR warm 51ms; memory stable ~1.9GB dev-mode RSS (vs OOM 3.44GB in the bank era), disk freed (db/ 1.6MB).
 - eslint: fixed the root-owned research/ dir trap (EACCES) by ignoring it and targeting src; lint script now `eslint src`.
 Result: commit fd8b1d2 pushed. The app is disk-light (zero puzzle bytes on disk beyond a 132KB pack), crash-loop source eliminated, all puzzle surfaces live and verified.
+
+---
+Task ID: 8
+Agent: main (Z.ai Code)
+Task: Coach intelligence — "ai still so stupid" (coach contradicted itself about the best move in a live lesson)
+
+Work Log:
+- Root causes found in the live-lesson failure (commit ab21400, 4 files, +434/-39):
+  (a) boardBest (the deterministic engine answer) never saw a position when the client sent only a move list — the route now replays the move list server-side and feeds the derived anchor to the router, so "what is the best move" ALWAYS gets the engine's move with no LLM hedging possible on that path.
+  (b) POV inversion: the "after" eval came from the OPPONENT's POV and was converted as the mover's — Qxf7?? read as +9 and was praised as "excellent". Caught live; now says blunder + Kxf7.
+  (c) Claim guard hardened: "the best move is X" claims are verified against the real engine verdict (position-dossier returns structured top move + alternates); naming any other move best triggers a repair pass whose instruction says the verdict is FINAL. Flip-flopping is structurally impossible, not discouraged.
+  (d) The student's last move is classified by the app's 12-label standard (move-classification.ts) with real engine evals BEFORE the coach speaks, so the coach's verdict matches the badge the app itself would draw.
+  (e) False-positive repair loops killed: opponent-reply mentions (legal on the flipped board) no longer flagged; history positions reconstructed from the move list so discussing a real past move is never a hallucination; past-tense and line-building sentences exempt from the base verdict check.
+- Live verification (this session, curl): start position "What is the best move?" -> "e4 is the move..." (engine's choice, provider builtin); Scholar's-mate position asked TWICE -> identical "Qxf7# is the move..." both times — engine-correct, deterministic, no flip-flop.
+
+Stage Summary:
+- The coach's first answer is now the engine's answer, its verdict matches the 12-label badge standard, and the anti-flip-flop guard is mechanical. Proven live on a forced-mate position.
+
+---
+Task ID: 9
+Agent: main (Z.ai Code)
+Task: Takeback freeze — "i used take back but i cant move now" (root cause + unlimited recovery hatch), plus backlog verification sweep
+
+Work Log:
+- Root causes (play-view.tsx GameScreen) — four strands, all ending the same way: the game stranded on the bot's turn with every recovery affordance disabled:
+  1. /api/engine/move was fetched with NO timeout: a wedged engine held botBusyRef forever, the bot never replied, and takeback refused to run while engineThinking. Fixed: fetch aborts at 20s; lock always released.
+  2. The wasm fallback could hang forever too: if its worker script fails to load, engine-client's init() await never settles (no onerror hook on the fallback worker). Fixed: raced against a hard 10s ceiling.
+  3. A failed attempt never re-armed the driver effect: the game sat at tries=1 with no retry and no way out. Fixed: one bounded retry scheduled on failure; after the second failure the game SELF-HEALS by handing the player their last move back (with an honest bark) instead of freezing.
+  4. Takeback was disabled off-turn and refused mid-think. Now the universal recovery hatch: cancels any in-flight engine reply via a generation token (stale replies discarded on arrival — no ghost moves), refunds the attempt budget for the position being fled, always ends with the player able to move. Takebacks/hints remain unlimited (no quota exists in Play or coach games).
+- E2E proof (agent-browser, three scenarios):
+  (a) Golden path vs Pip: 1.Na3 e5 2.d3 -> takeback -> board rewound to 1.Na3 -> e5 again -> bot replied Nb1. No freeze.
+  (b) Total engine outage vs Maple: ALL engine paths blocked via network interception (server route + stockfish worker + fallback worker) -> e4 played -> two bounded attempts (~10s each) -> AUTO-TAKEBACK restored the position with "Your move"; after unblocking, e4 -> instant e5 reply. No zombie driver.
+  (c) Mid-think cancel vs Maximum (depth 20): d4 played -> takeback clicked DURING the bot's think -> board rewound, my turn, no ghost reply ever appeared (6s watch), then e4 -> e5. Stale-reply guard proven.
+- Backlog sweep verified live: chess.com import — server-side bulk honestly 403s from datacenter IPs with the pointer copy; the panel is browser-first with the PGN-paste path FIRST in the UI; paste path E2E-proven (Opera Game loaded: Philidor Defence detected, 17 moves, analyzer ready). Worklog/succession chain updated.
+
+Stage Summary:
+- The freeze class is dead: no game state can strand the player any more — the takeback always exists, the driver self-heals after engine failures, and stale replies can never corrupt a rewound game. All proven in a real browser.
+Result: commit cdffa96 pushed (play-view.tsx, +162/-48).
