@@ -79,9 +79,14 @@ bundle was graded by another in 11ms (Nov 2).
 - `/api/health/deep` exercises every subsystem for real (DB round-trip, Stockfish
   probe, live daily fetch, plan/DNA build, both mini services). Keep it honest.
 
-## 3. CURRENT STATE (as of Nov 2, commit `fd8b1d2`, all green)
+## 3. CURRENT STATE (as of Nov 3, commit series `fd8b1d2 → 8e5b99e`, all green)
 
 - tsc clean, `bun run lint` (= `eslint src`) clean.
+- Nov 3 re-certification (live): deep health ALL GREEN (db 31ms, Stockfish 19, daily
+  live from lichess rating 1900, 556 gradable puzzles on the light source, plan/DNA
+  builders, game-service + mcp via gateway); daily/opening-window/rush serving;
+  coach-game save/history working; takeback freeze fixed + triple-proven in browser
+  (cdffa96); coach engine-first verdicts live-proven (worklog task 8).
 - E2E verified signed-in (agent-browser, admin/admin1234 — created at boot unless
   `ADMIN_PASSWORD` overrides): rated puzzles tab renders a live 1274-rated board with
   true theme-chip counts; daily 279ms; rush 3.6s cold → 7ms cached; woodpecker fork
@@ -91,44 +96,59 @@ bundle was graded by another in 11ms (Nov 2).
   flag once bricked boot for 6 minutes), warms up unconditionally, then hands
   supervision to the platform watchdog. `/` is `force-static`.
 
-## 4. THE BACKLOG (priority order — the user's open asks)
+## 4. THE BACKLOG — FULLY CLOSED as of Nov 3 (all ten items landed + live-proven; keep as regression context, do NOT redo them)
 
-1. **Coach intelligence ("ai still so stupid")** — the coach (Sasha, 1200 Elo)
-   contradicted itself about the best move in a live lesson. Requirement: the coach
-   MUST consult the engine + `src/lib/server/move-classification.ts` (the 12-label
-   unique truth source: great/excellent/good/book/inaccuracy/mistake/blunder…) BEFORE
-   speaking, its first answer must be the engine's answer, and it may never flip-flop.
-   The claim-guard exists but failed once in the wild — harden it.
-2. **Takeback freeze** — "i used take back but i cant move now". Repro in Play; the
-   board locks after a takeback. Root-cause in the game state machine.
-3. **Unlimited takebacks + hints** — "refill my takebacks, it shouldn't be limited
-   anyway; hint also — this is for learning, not ripping off people". Remove/raise
-   takeback quotas, add a hint affordance in Play.
-4. **chess.com import 403** — single-game tab fetches chess.com server-side and gets
-   403. Move the fetch to the user's browser (client-side) and make the PGN-paste
-   path prominent ("that path always works").
-5. **Opening Training (chessreps.com port)** — interval-repetition repertoire
-   trainer: Opening Training tab, lessons split into small sub-steps served "at a
-   suitable time and place". Reverse-engineering reference: `docs/chessreps-*.md`,
-   `docs/chessigma-*.md` (15-item port list), extracted artifacts in `re/chessigma/`.
-   The opening-puzzles surface already exists (`src/components/views/opening-puzzles.tsx`,
-   `/api/puzzles/opening` — now live from the Lichess `opening` param with pack fallback).
-6. **Play with Coach** (under Learn): pick coach Elo; per-move classification badges
-   (great/excellent/good/inaccuracy/blunder) + eval delta; coach explains WHY; honest
-   chat sidebar.
-7. **Eye Training** (under Learning) — panel exists (`eye-training-view.tsx`), keep
-   feeding it real positions from the light puzzle source.
-8. **chess.com-style sidebar** (multi main tabs, each with multiple sub-tabs) —
-   partially in place; finish with screenshots as proof.
-9. **Account recovery** — `tiktokaltrachel@atomicmail.io` reported "account not
-   found". Diagnose `db/custom.db` + GitHub snapshot restores; answer the user
-   honestly either way. Boot order matters: restore-from-snapshot BEFORE admin
-   bootstrap (see `instrumentation-node.ts`).
-10. **Deepen REA-based reverse engineering** — the user insists: "absolutely use REA
-    (github repo), don't reverse engineer yourself sloppily". Tools installed:
-    asar, capstone, pyelftools, Frida 17, angr 10 (use `/home/z/.venv/bin/python3 -m pip`;
-    angr needs `--only-binary=z3-solver,pyvex,cle,unicorn`; pip parallelism OOM-kills
-    next-server on this 4GB box — run heavy pip alone).
+1. **Coach intelligence ("ai still so stupid")** — CLOSED (ab21400, worklog task 8).
+   The coach consults the engine + `src/lib/server/move-classification.ts` (12-label
+   truth) BEFORE speaking; the first answer IS the engine's answer; the claim guard
+   verifies best-move claims against the structured dossier and repairs in one pass
+   (flip-flop structurally impossible); the POV-inversion bug (opponent-POV eval read
+   Qxf7?? as +9 "excellent") is fixed. LIVE-PROVEN: start position -> "e4 is the
+   move"; Scholar's mate asked twice -> identical "Qxf7# is the move".
+2. **Takeback freeze ("i used take back but i cant move now")** — CLOSED (cdffa96,
+   worklog task 9). Four strands rooted out: no-timeout engine fetch (20s abort now),
+   un-hangable wasm fallback (10s race), a driver effect that never re-armed after a
+   failed attempt (bounded retry + AUTO-TAKEBACK self-heal after the second failure),
+   and a takeback that refused to run off-turn/mid-think (now the universal recovery
+   hatch with a generation token so stale replies are discarded, never ghost-applied).
+   E2E-proven in a real browser: golden path, total engine outage (all paths blocked
+   via network interception -> self-heal -> healthy recovery), and mid-think cancel
+   vs the depth-20 bot (no ghost move).
+3. **Unlimited takebacks + hints** — CLOSED. No quota exists in Play or coach games;
+   the takeback button is enabled whenever any player move exists (even mid-think);
+   the hint arrow is unlimited.
+4. **chess.com import 403** — CLOSED. The panel is browser-first (the user's own
+   browser fetches chess.com; the server only stores), the PGN-paste path is FIRST in
+   the Game review tab, and server-side bulk honestly 403s with pointer copy from
+   datacenter IPs. Paste path E2E-proven (Opera Game -> Philidor Defence detected).
+5. **Opening Training (chessreps.com port)** — CLOSED by prior sessions: FSRS-6
+   scheduler (0110bd0), depth tiers (4a45d0f), durable progress sync + forget-line
+   (f9a795c), per-course high-score economy (4a949bc). Reference: `docs/chessreps-*.md`.
+6. **Play with Coach** — CLOSED (coach-game-view.tsx: coach Elo choice, per-move
+   badges, honest chat; its chat route shares the hardened claim guard).
+7. **Eye Training** — CLOSED. `eye-training-view.tsx` feeds from `/api/puzzles/index`
+   (the light pack) via `fetchPuzzleIndex`; bests recorded by `/api/vision/sprint`.
+8. **chess.com-style sidebar** — CLOSED (Home/Play/Learn/Puzzles/Tools/More, each
+   with sub-tabs, verified across sessions with screenshots).
+9. **Account recovery** — CLOSED (worklog task 4). tiktokaltrachel@atomicmail.io was
+   NEVER lost (transient empty-db window / wrong password); password is chessx1234;
+   sign-in proven. Boot order: restore-from-snapshot BEFORE admin bootstrap.
+10. **Deepen REA-based reverse engineering** — ONGOING by nature (see §4b for the
+    standing targets). REA 7.3.1 (ReVa) + REA 6.7.0 both in `re/rea/`; chessigma asar
+    claims 24/24 validated (`re/rea/asar-claims-validation.md`); the chessigma port
+    deltas from `docs/chessigma-re-report-v2.md` §4 are all shipped (games library,
+    clock+conversion DNA domains, DNA share link, Elo calculator, coach quota).
+
+## 4b. WHAT TO DO NEXT (open-ended, in the never-stop spirit)
+
+- Keep the hard-won invariants green on every pass: `bunx tsc --noEmit`, `bun run lint`,
+  curl the touched routes, agent-browser E2E with screenshots, dev.log tail, commit+push.
+- Coach claim-guard hardening is worth revisiting whenever a new coach failure mode is
+  observed in the wild (the guard is mechanical but the LLM is creative).
+- REA: any new competitive surface the user asks about should go through REA (ReVa)
+  first, never ad-hoc grepping.
+- Watch the 4GB box: RSS baseline ~1.4-1.9GB dev; if puzzles.db ever reappears on disk,
+  DELETE it (the lightweight mandate is final).
 
 ## 5. OPERATING PROCEDURES
 
