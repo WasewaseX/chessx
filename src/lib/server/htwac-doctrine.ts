@@ -1,5 +1,5 @@
 // Teaching doctrine distilled from "How to Win at Chess" by Levy Rozman
-// (GothamChess), the method the How to Win at Chess course tier teaches.
+// (GothamChess), the method the book teaches.
 // Injected into every coach system prompt so the chat coach teaches the same
 // method the lessons teach: principles first, ideas over memorized lines,
 // honest endgame technique, and a fixed thinking scan.

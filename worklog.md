@@ -969,3 +969,15 @@ Work Log:
 - Verification: bun run validate:content clean, eslint clean, tsc clean, SSR 200, browser E2E as admin: Study renders 0/132 (23/23/24/21/21/20 per tier), new lessons at correct positions (Opening don'ts at Beginner 4), nb-21 played end to end in the lesson player (text points, Ruy Lopez demo playback, drill e4 e5 Nf3 Nc6 on the real board with auto-replies), no console errors, no dev.log errors.
 - Evidence: download/verify-book-lessons-{home,newbie,study,lesson-notation}.png
 
+
+---
+Task ID: 41b
+Agent: main (Z.ai Code)
+Task: Reconcile with origin/main: keep the parallel session's coach doctrine, remove the rejected separate Tier 7
+
+Work Log:
+- Pushing surfaced a parallel session's commit (531a6fa) that had implemented the same book as a SEPARATE Tier 7 ("How to Win at Chess", src/content/tiers/howtowin.ts). The user's later instruction explicitly rejected that shape: "just add them at the suitable place of learning tab not just make a new thing entirely."
+- Rebased my 12-lesson in-place expansion onto origin/main (resolved worklog + whatsnew seed conflicts, both entries kept; deleted the stale db/.bank-status.json which the lightweight-puzzles migration had removed upstream).
+- Removed the rejected separate tier: deleted howtowin.ts, reverted levels.ts to the six-course tiers, dropped the 20 hw-* graduation lines, removed the Chapter VII sentence from the Study intro. Existing progress IDs are untouched.
+- KEPT the valuable half of the parallel commit: src/lib/server/htwac-doctrine.ts (golden rules, CCA scan, defense checklist, endgame doctrine, openings-by-level, never resign, draw knowledge) stays injected into buildCoachSystem, /api/ai/chat, and the in-game coach chat, so the AI coach teaches the same book method the new in-place lessons teach.
+- Post-reconciliation checks: validator green (6 tiers, 132 levels, 1038 steps, 1256 checks), tsc clean, eslint clean.

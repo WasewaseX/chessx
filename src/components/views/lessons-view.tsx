@@ -101,9 +101,7 @@ export function LessonsView() {
             finds it on a real board. Make a mistake and it is caught on the spot: the move comes back, your coach
             explains the idea in one line, and you try again before you go on. Every level ends with the result in your own hands: usually a win to deliver, sometimes a fortress to hold. Answer on the first try and your streak builds
             at the top of the screen. Levels unlock in order: finish one and the next opens, and every chapter opens
-            at its first level, so if you already know how the pieces move, start at Beginner. Chapter VII, How to
-            Win at Chess, is Levy Rozman's full method from his book, rebuilt as twenty playable levels from first
-            moves to the 1200 thinking method.
+            at its first level, so if you already know how the pieces move, start at Beginner.
           </p>
 
           <div className="mt-5 flex items-center gap-3">

@@ -246,6 +246,8 @@ async function seedWhatsNew(): Promise<void> {
       version: '0.4.6',
       body:
         'The course grew from 120 to 132 levels, upgraded with the teaching structure of Levy Rozman\'s How to Win at Chess. Newbie gains notation, how games are actually won, and how to practice. Beginner gains the opening don\'ts (with the punished queen raid), trading pieces when ahead, and batteries plus the smothered mate. Intermediate gains a White and a Black repertoire (London/Vienna, Scandinavian/Caro-Kann/QGD), gambits with the Blackburne punishment drill, and the CCA method with the Philidor finish. Advanced gains knight endings and the two-weakness doctrine; Master gains the Maróczy Bind. Existing lessons were deepened too: the family fork and absolute versus relative pins now live in the fork and pin lessons.',
+    },
+    {
       title: 'Puzzles went cloud-light',
       tag: 'feature',
       version: '0.4.6',

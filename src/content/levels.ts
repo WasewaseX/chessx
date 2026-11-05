@@ -5,9 +5,8 @@ import { intermediate } from './tiers/intermediate'
 import { advanced } from './tiers/advanced'
 import { master } from './tiers/master'
 import { grandmaster } from './tiers/grandmaster'
-import { howtowin } from './tiers/howtowin'
 
-export const TIERS: Tier[] = [newbie, beginner, intermediate, advanced, master, grandmaster, howtowin]
+export const TIERS: Tier[] = [newbie, beginner, intermediate, advanced, master, grandmaster]
 
 export interface LevelRef {
   tier: Tier
