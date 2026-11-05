@@ -392,9 +392,9 @@ export function OpeningPuzzles({ course, onExit }: { course: RepertoireCourse; o
       <Shell onExit={onExit} course={course}>
         <div className="flex flex-col items-center py-16 text-center">
           <FlaskConical className="h-8 w-8 text-amber-500" aria-hidden />
-          <h2 className="mt-3 font-display text-xl font-extrabold">Puzzle bank is warming up</h2>
+          <h2 className="mt-3 font-display text-xl font-extrabold">Reconnecting to the puzzle feed</h2>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            The 5.77M-puzzle library installs itself in the background after a fresh boot. Give it a minute, then retry.
+            Puzzles stream live from Lichess's free API and the connection just dropped. Give it a few seconds, then retry.
           </p>
           <Button className="mt-4" onClick={retryLoad}>
             <RefreshCcw className="mr-2 h-4 w-4" /> Retry
@@ -410,8 +410,8 @@ export function OpeningPuzzles({ course, onExit }: { course: RepertoireCourse; o
           <Target className="h-8 w-8 text-primary" aria-hidden />
           <h2 className="mt-3 font-display text-xl font-extrabold">No puzzles left in this window</h2>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            Every {course.name} puzzle near your rating is already on your seen-list, and the pool is momentarily
-            exhausted. This clears as the bank refreshes — or come back after your rating moves.
+            Every {course.name} puzzle near your rating is already on your seen-list, and the feed momentarily
+            returned nothing new. This clears as the feed refreshes — or come back after your rating moves.
           </p>
           <Button variant="secondary" className="mt-4" onClick={onExit}>
             <ChevronLeft className="mr-1 h-4 w-4" /> Back to repertoires
@@ -492,7 +492,7 @@ export function OpeningPuzzles({ course, onExit }: { course: RepertoireCourse; o
         </Button>
       </div>
       <p className="mt-2 text-center text-[11px] text-muted-foreground">
-        Real games from the {course.name.replace(/ System| Game| Defense/i, '')} pool{totalInPool != null ? ` · ${totalInPool.toLocaleString()} puzzles in the bank` : ''}
+        Real games from the {course.name.replace(/ System| Game| Defense/i, '')} pool{totalInPool != null ? ` · ${totalInPool.toLocaleString()} puzzles in the live feed` : ''}
       </p>
     </div>
   )

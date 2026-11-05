@@ -14,7 +14,7 @@
 // Everything here is fire-and-forget: failures are logged and never take
 // the server down.
 //
-// WEBPACK CONSTRAINT (same as bank-bootstrap.ts — do not undo): this module
+// WEBPACK CONSTRAINT (same as gh-snapshot.ts — do not undo): this module
 // is reached from instrumentation, and webpack compiles that graph for
 // multiple targets. Any STATIC node builtin import (fs/promises, path) makes
 // the other-target builds fail with Module not found and every page 500s.
@@ -30,7 +30,7 @@ const DAY_MS = 24 * 60 * 60 * 1000
 let started = false
 
 /** Opaque to webpack: resolved by the real Node CJS loader at call time.
- *  Same helper as bank-bootstrap.ts / gh-snapshot.ts, with the plain-bun
+ *  Same helper as gh-snapshot.ts, with the plain-bun
  *  ESM fallback (eval('require') throws there): build a real require() from
  *  the 'module' builtin via getBuiltinModule — no static import, so webpack
  *  never tries to resolve node builtins at build time. */
@@ -240,6 +240,20 @@ async function readLocalDataStateRaw(): Promise<'empty' | 'pristine' | 'populate
  *  missing entry (matched by title, never updated, never duplicated). */
 async function seedWhatsNew(): Promise<void> {
   const SEEDS: { title: string; body: string; tag: string; version?: string; pinned?: boolean }[] = [
+    {
+      title: 'The Study: 12 new lessons built from How to Win at Chess',
+      tag: 'feature',
+      version: '0.4.6',
+      body:
+        'The course grew from 120 to 132 levels, upgraded with the teaching structure of Levy Rozman\'s How to Win at Chess. Newbie gains notation, how games are actually won, and how to practice. Beginner gains the opening don\'ts (with the punished queen raid), trading pieces when ahead, and batteries plus the smothered mate. Intermediate gains a White and a Black repertoire (London/Vienna, Scandinavian/Caro-Kann/QGD), gambits with the Blackburne punishment drill, and the CCA method with the Philidor finish. Advanced gains knight endings and the two-weakness doctrine; Master gains the Maróczy Bind. Existing lessons were deepened too: the family fork and absolute versus relative pins now live in the fork and pin lessons.',
+    },
+    {
+      title: 'Puzzles went cloud-light',
+      tag: 'feature',
+      version: '0.4.6',
+      body:
+        'The giant 1.5GB puzzle download is gone. Puzzles now come from a small curated pack (~540 vetted puzzles covering every rating band, opening and theme you train) plus the free lichess daily puzzle API — the app boots faster, uses far less memory, and never blocks you on a download again. Same surfaces, same honest grading, same spoiler policy; the daily is now the real worldwide lichess puzzle of the day.',
+    },
     {
       title: 'Opening mastery now runs the real FSRS-6 memory model',
       tag: 'feature',

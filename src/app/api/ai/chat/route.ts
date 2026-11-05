@@ -17,15 +17,41 @@ import {
 import { routeMessage, hasGenerationIntent, type CommandOutcome, type CoachAction } from '@/lib/server/coach-commands'
 import { stripUnsolved, type ArtifactView } from '@/lib/coach-artifacts'
 import { describeFen } from '@/lib/server/chess-describe'
-import { buildDossier } from '@/lib/server/position-dossier'
-import { verifyClaims, repairInstruction } from '@/lib/server/claim-guard'
+import { buildDossierStructured, classifyLastPlayedMove } from '@/lib/server/position-dossier'
+import { verifyClaims, repairInstruction, type EngineVerdictInfo } from '@/lib/server/claim-guard'
 import { coachMemoryBrief } from '@/lib/server/coach-memory'
+import { htwacDoctrineLines } from '@/lib/server/htwac-doctrine'
 import { dayKeyLocal } from '@/lib/day'
+import { Chess } from 'chess.js'
 
 export const maxDuration = 120
 
 const VALID_VIEWS = new Set(['home', 'play', 'lessons', 'puzzles', 'review', 'coach', 'analysis', 'profile', 'settings'])
 const VALID_COACHES = new Set(['nina', 'victor', 'elena', 'sasha', ...COACH_VOICE_IDS])
+
+/** Parse a client move string ("1. e4 e5 2. Nf3 ..." or bare SAN) into a
+ * clean SAN list. Anything that does not look like a move token is dropped;
+ * an empty list is the honest "no move history" result. */
+function parseMoveList(raw: string | undefined): string[] {
+  if (!raw) return []
+  const tokens = raw
+    .replace(/\b\d+\s*\.{1,3}\s*/g, ' ')
+    .replace(/(1-0|0-1|1\/2-1\/2|\*)/g, ' ')
+    .split(/[\s,;]+/)
+    .map((t) => t.replace(/^[({\[]+|[)\]}]+$/g, '').replace(/[^a-zA-Z0-9\-+#=]/g, ''))
+    .filter(Boolean)
+  const out: string[] = []
+  const probe = new Chess()
+  for (const t of tokens.slice(-80)) {
+    try {
+      if (probe.move(t)) out.push(t)
+    } catch {
+      // a non-move token (comment fragment, eval, ...) simply stops nothing:
+      // the walk continues from the same position
+    }
+  }
+  return out
+}
 
 /** Model-emitted app actions, whitelisted and shape-checked. */
 function parseActionBlock(raw: string): CoachAction | null {
@@ -134,6 +160,44 @@ export async function POST(req: NextRequest) {
   const levelCtx = resolveLevelContext(ctx.tier, ctx.level, skill)
 
   // ---------------------------------------------------------------
+  // Server-side reconstruction of the game so far. The client sends a
+  // move string; replaying it HERE produces honest history positions for
+  // the claim guard (a legal-in-history move must never be flagged as a
+  // hallucination) and, when the client sent no FEN at all, an anchor
+  // position derived from the moves themselves. The derived anchor also
+  // feeds the deterministic router, so "what is the best move" gets the
+  // real engine answer even when the client only sent the move list.
+  // ---------------------------------------------------------------
+  const movesSan = parseMoveList(ctxIn.moves)
+  let historyFens: string[] = []
+  let anchorFen = ctxIn.fen
+  {
+    const replay = new Chess()
+    const fens: string[] = []
+    for (const san of movesSan) {
+      fens.push(replay.fen())
+      try {
+        if (!replay.move(san)) break
+      } catch {
+        break
+      }
+    }
+    if (movesSan.length && fens.length === movesSan.length) {
+      const replayedFinal = replay.fen()
+      const sameBoard = (f: string) => f.split(' ').slice(0, 2).join(' ')
+      if (anchorFen) {
+        // The client FEN must agree with the replay, or the history is not
+        // trustworthy (stale move list): keep it only when boards match.
+        if (sameBoard(anchorFen) === sameBoard(replayedFinal)) historyFens = fens
+      } else {
+        // No FEN provided: the replayed position IS the anchor (derived truth).
+        anchorFen = replayedFinal
+        historyFens = fens
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------
   // Deterministic routing: /commands, greetings, app actions and
   // unambiguous generation requests never reach the language model.
   // This is the reliability guarantee: "hi" can never come back as a
@@ -151,7 +215,7 @@ export async function POST(req: NextRequest) {
         darkMode: profile.darkMode,
         soundEnabled: profile.soundEnabled,
       },
-      ctx: { fen: ctxIn.fen, tier: ctxIn.tier, level: ctxIn.level, theme: ctxIn.theme },
+      ctx: { fen: anchorFen, tier: ctxIn.tier, level: ctxIn.level, theme: ctxIn.theme },
       coach,
       runGeneration,
       unlocked,
@@ -183,16 +247,30 @@ export async function POST(req: NextRequest) {
   // Conversation context
   // ---------------------------------------------------------------
   const contextLines: string[] = []
-  if (ctxIn.fen) {
-    contextLines.push(`Current position FEN: ${ctxIn.fen}`)
+  // Engine verdict for the anchor position, fed to the claim guard so the
+  // best-move consistency is enforced mechanically, not just prompted.
+  let engineInfo: EngineVerdictInfo | undefined
+  if (anchorFen) {
+    contextLines.push(`Current position FEN: ${anchorFen}`)
     // The dossier is the structural honesty layer: board, piece list, legal
     // move census, threats and engine lines, all verified before the model
     // speaks. describeFen stays as the fallback if the dossier fails.
-    const dossier = await buildDossier(ctxIn.fen).catch(() => null)
+    const dossier = await buildDossierStructured(anchorFen).catch(() => null)
     if (dossier) {
-      contextLines.push(dossier)
+      contextLines.push(dossier.text)
+      engineInfo = { topSan: dossier.engine.topSan, altSans: dossier.engine.altSans }
+      // The student's last move, classified by this app's 12-label standard
+      // with real engine evals, so the coach's verdict always matches the
+      // badge the app itself would draw (and it can never flip-flop about a
+      // verdict the engine already made).
+      const verdict = await classifyLastPlayedMove(anchorFen, movesSan, dossier.topLines).catch(() => null)
+      if (verdict) {
+        contextLines.push(
+          `CLASSIFIED LAST MOVE (verified, this app's standard labels): ${verdict.color} played ${verdict.san} = "${verdict.labelMetaText}" (${verdict.meaning})${verdict.bestSan && !verdict.isBest ? `. The engine's move in that position was ${verdict.bestSan}.` : ''}`,
+        )
+      }
     } else {
-      const described = describeFen(String(ctxIn.fen))
+      const described = describeFen(String(anchorFen))
       if (described) contextLines.push(described)
     }
   }
@@ -254,6 +332,7 @@ export async function POST(req: NextRequest) {
     // nothing extra is added and the prompt is byte-for-byte as before.
     ...(voice && voice.systemFragment ? ['Stay in character but NEVER let style override the rules below.'] : []),
     `The student self-identifies as: ${skill}. Calibrate depth to that level.`,
+    ...htwacDoctrineLines(),
     'How you talk:',
     '- Short and alive. A few sentences at most. Sound like a coach sitting across the board, not like a manual.',
     '- If the student greets you, greet them back warmly and offer one concrete next step (a puzzle, a look at the board, a lesson). Two sentences, then stop.',
@@ -264,8 +343,10 @@ export async function POST(req: NextRequest) {
     '- Never use the em dash character. Use commas, periods or parentheses instead.',
     '- When a position is given, read the ASCII board carefully square by square before answering. Trust the board, not guesses about move order. Be concrete: name squares, pieces and moves in SAN.',
     '- Only name an opening or variation if you are certain it matches the moves actually played. If unsure, describe the moves and plans instead of guessing a name.',
-    '- In a lesson exercise, guide with questions and ideas. Do NOT hand over the solution move unless the student explicitly asks for it after trying.',
-    '- You may be wrong about deep calculation; hedge when unsure and suggest checking with the engine.',
+    '- In a lesson exercise, guide with questions and ideas. Do NOT hand over the solution move unless the student explicitly asks for it after trying. When you DO reveal the solution move, it must be the engine\'s move from the context, never an invention.',
+    '- VERDICT CONSISTENCY (outranks every other style rule): when the context contains an ENGINE VERDICT or a CLASSIFIED LAST MOVE, those verdicts are FINAL. Your first answer about the best move IS the engine\'s first line. You may add your own ideas only as clearly-labeled alternatives, never as the best move.',
+    '- Never flip-flop. If you already named a best move earlier in this conversation, and the student pushes back or suggests something else, restate the engine facts calmly and HOLD the verdict. Changing your answer to please the student is lying, and it is forbidden.',
+    '- You may be wrong about deep calculation; hedge when unsure and suggest checking with the engine. You are NEVER wrong about a verdict already present in the context: those are engine-verified facts, not opinions, so do not hedge them away.',
     '- The student can type / to see your skills (commands like /puzzle, /mate, /analyze, /recap). Mention one fitting command when it is the fastest path to what they want. There is also /help.',
     '- Long-form work: for goals that need several steps (a training plan, a game autopsy, a bootcamp, a weakness scan), the agent runs MISSIONS with a visible checklist: /plan, /autopsy, /bootcamp, /radar, /repertoire, /lab, /gauntlet, /masterclass, /regimen, /sparring, and /agent followed by any goal. When the student wants that kind of multi-step work, tell them you are on it and name the exact command; the app launches the mission when the request is unambiguous, and you do not need to do anything else.',
     '- When the memory section is present, use it like a coach who remembers their student: reference at most one fact when it genuinely helps, never recite, and never invent facts beyond it.',
@@ -326,9 +407,16 @@ export async function POST(req: NextRequest) {
     // side-to-move and false mate claims trigger one repair pass with
     // the exact violations; a second failure gets an honest correction
     // appended instead of shipping silently wrong chess.
+    //
+    // The guard also sees the reconstructed history (real past positions
+    // of THIS game, so discussing an earlier move is never a false
+    // violation) and the engine verdict (so a reply that names a
+    // different "best move" than the engine is repaired into consistency
+    // — the mechanical anti-flip-flop guarantee).
     // ---------------------------------------------------------------
-    if (ctxIn.fen) {
-      const first = verifyClaims(content, ctxIn.fen)
+    if (anchorFen) {
+      const phraseFens = historyFens.length ? [historyFens[historyFens.length - 1]] : undefined
+      const first = verifyClaims(content, anchorFen, historyFens, phraseFens, engineInfo)
       if (!first.ok) {
         const repairSystem = `${system}\n\n${repairInstruction(first.violations)}`
         const repaired = await runChat(cfg, repairSystem, [
@@ -338,7 +426,7 @@ export async function POST(req: NextRequest) {
         ]).catch(() => null)
         if (repaired) {
           const repairedContent = stripActionBlock(extractSkillBlock(repaired)?.content ?? repaired)
-          const second = verifyClaims(repairedContent, ctxIn.fen)
+          const second = verifyClaims(repairedContent, anchorFen, historyFens, phraseFens, engineInfo)
           if (second.ok) {
             content = repairedContent
           } else {

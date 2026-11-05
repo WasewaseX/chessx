@@ -2,16 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import { lichessAvailable, lichessCount, lichessOpeningWindow } from '@/lib/server/lichess-bank'
-import { kickBankBootstrap } from '@/lib/server/bank-bootstrap'
 
 /**
  * GET /api/puzzles/opening?openings=Tag1,Tag2&elo=1250&exclude=id,id
  *
  * The Opening Training puzzles mode (chessreps port, deep-dive P4): a
- * rating window of puzzles from the 5.77M bank filtered by the repertoire
- * course's opening tags. The response never carries a solution, a theme or
- * a title — grading stays behind /api/puzzles/move exactly like every other
- * puzzle surface.
+ * rating window of puzzles filtered by the repertoire course's opening
+ * family, pulled live from the free Lichess puzzle API (`opening` param).
+ * The response never carries a solution, a theme or a title — grading stays
+ * behind /api/puzzles/move exactly like every other puzzle surface.
  *
  * - `openings`: up to 4 lichess opening tags (underscored, e.g. `London_System`).
  * - `elo`: rating window center; defaults to the player's puzzle rating.
@@ -20,8 +19,6 @@ import { kickBankBootstrap } from '@/lib/server/bank-bootstrap'
 export async function GET(req: NextRequest) {
   const user = await getSessionUser()
   if (!user) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
-
-  if (!lichessAvailable()) kickBankBootstrap()
 
   const openingsParam = req.nextUrl.searchParams.get('openings') ?? ''
   const openings = openingsParam
@@ -48,12 +45,12 @@ export async function GET(req: NextRequest) {
   }
 
   if (!lichessAvailable()) {
-    // Honest state: the self-healing installer is running. The client shows
-    // its "bank is warming up" card instead of an empty session.
+    // Honest state: the upstream just hiccuped (60s cooldown). The client
+    // shows its reconnecting card instead of an empty session.
     return NextResponse.json({ puzzles: [], total: 0, lichessTotal: 0, warming: true })
   }
 
-  const rows = lichessOpeningWindow(rating, openings, exclude, 200)
+  const rows = await lichessOpeningWindow(rating, openings, exclude, 50)
   const puzzles = rows.map((p) => ({ id: p.id, fen: p.fen, rating: p.rating }))
   return NextResponse.json({ puzzles, total: puzzles.length, lichessTotal: lichessCount() })
 }

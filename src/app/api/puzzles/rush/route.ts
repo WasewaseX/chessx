@@ -14,10 +14,11 @@ import { numOr, publicProfile } from '@/lib/api'
  * Grading happens server-side via /api/puzzles/move.
  */
 export async function GET() {
-  // The Lichess bank feeds Rush when installed: buckets walk the whole
-  // 399-3283 rating range, so every level gets a real run.
+  // The Lichess API feeds Rush: five parallel calls of 50 walk the whole
+  // 600-2800 rating ladder, so every level gets a real run. Cached ten
+  // minutes — a repeat hit costs nothing.
   if (lichessAvailable()) {
-    const batch = lichessRushBatch(250)
+    const batch = await lichessRushBatch(250)
     if (batch.length) {
       return NextResponse.json({
         puzzles: batch.map((p) => ({ id: p.id, fen: p.fen, rating: p.rating })),

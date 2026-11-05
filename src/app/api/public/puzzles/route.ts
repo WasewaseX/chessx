@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
       .map((t) => t.trim())
       .filter(Boolean)
       .slice(0, MAX_THEMES)
-    const rows = lichessWindow(rating, PAGE, themes).map(sanitizePuzzle)
+    const rows = (await lichessWindow(rating, PAGE, themes)).map(sanitizePuzzle)
     return NextResponse.json({ count: rows.length, puzzles: rows, totalAvailable: lichessCount() })
   })
 }

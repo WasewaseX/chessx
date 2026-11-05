@@ -358,7 +358,7 @@ const PUBLIC_ENDPOINTS: { method: 'GET' | 'POST'; path: string; desc: string; cu
   {
     method: 'GET',
     path: '/api/public/puzzles?rating=1200&themes=mate,fork',
-    desc: 'Ten sanitized puzzles around a rating (600-2800), optionally filtered by up to five theme ids. The first call for a fresh rating/theme combo scans the bank; repeats are cached for ~10 minutes.',
+    desc: 'Ten sanitized puzzles around a rating (600-2800), optionally filtered by up to five theme ids. Puzzles stream live from the free Lichess API; repeat calls for the same combo are cached for ~10 minutes.',
     curl: 'curl "http://localhost:3000/api/public/puzzles?rating=1200&themes=mate,fork"',
   },
   {
@@ -396,7 +396,7 @@ function PublicApiCard() {
         <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">30 requests per minute, no key required</span>
       </div>
       <p className="mt-1.5 text-sm text-muted-foreground">
-        A small read-only JSON API over this app&apos;s engine and puzzle bank — build bots, dashboards or study scripts on it. CORS is open and every response carries <code className="font-mono text-xs">X-RateLimit</code> headers. Examples point at a local dev server; replace the origin with yours.
+        A small read-only JSON API over this app&apos;s engine and puzzle feed — build bots, dashboards or study scripts on it. CORS is open and every response carries <code className="font-mono text-xs">X-RateLimit</code> headers. Examples point at a local dev server; replace the origin with yours.
       </p>
       <ul className="mt-3 space-y-2.5">
         {PUBLIC_ENDPOINTS.map((e, i) => (

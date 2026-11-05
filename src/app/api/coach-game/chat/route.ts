@@ -11,9 +11,10 @@ import { db } from '@/lib/db'
 import { getSessionUser, rateLimit, clientIp } from '@/lib/auth'
 import { runChat, getAiConfig, type ChatMessage } from '@/lib/ai'
 import { coachById } from '@/lib/coaches'
-import { buildDossier } from '@/lib/server/position-dossier'
+import { buildDossierStructured } from '@/lib/server/position-dossier'
 import { describeFen } from '@/lib/server/chess-describe'
-import { verifyClaims, repairInstruction } from '@/lib/server/claim-guard'
+import { verifyClaims, repairInstruction, type EngineVerdictInfo } from '@/lib/server/claim-guard'
+import { htwacInGameLines } from '@/lib/server/htwac-doctrine'
 
 export const maxDuration = 120
 
@@ -80,6 +81,7 @@ export async function POST(req: NextRequest) {
 
   const coach = coachById(coachId)
   const cfg = await getAiConfig(profile.id)
+  let engineInfo: EngineVerdictInfo | undefined
 
   // ---------------------------------------------------------------
   // Grounding: the position dossier (board, pieces, legal census, engine
@@ -118,9 +120,11 @@ export async function POST(req: NextRequest) {
   }
   if (fen) {
     contextLines.push(`Current position FEN: ${fen}`)
-    const dossier = await buildDossier(fen).catch(() => null)
-    if (dossier) contextLines.push(dossier)
-    else {
+    const dossier = await buildDossierStructured(fen).catch(() => null)
+    if (dossier) {
+      contextLines.push(dossier.text)
+      engineInfo = { topSan: dossier.engine.topSan, altSans: dossier.engine.altSans }
+    } else {
       const described = describeFen(fen)
       if (described) contextLines.push(described)
     }
@@ -170,6 +174,7 @@ export async function POST(req: NextRequest) {
     '- Never upgrade or downgrade a verdict because the student pushes back, doubts you, or says "duh". If the student disputes your assessment, restate the engine facts (label, eval swing, engine best move) calmly and HOLD your position. Changing your answer to please the student is lying and is forbidden.',
     '- If the student\'s question contains a false premise ("why was X the best move" when the engine says otherwise), correct the premise FIRST with the engine facts, then teach. Never answer a "why was X best" question by inventing justifications for a move the engine did not rank first.',
     '- When the student asks "what is the best move" about a position in the context, answer exactly the recorded engine move. If you add other candidate moves, clearly label them as your own ideas, never as "the best move".',
+    ...htwacInGameLines(),
     'You cannot touch the board: you cannot move pieces, take moves back, refill anything or change the position. If the student reports a problem with the board or buttons, tell them honestly you cannot operate the board and guide them to the Take back / Hint buttons.',
     'How you talk:',
     '- Short, warm and concrete. A few sentences at most. Name squares, pieces and moves in SAN.',
@@ -197,7 +202,7 @@ export async function POST(req: NextRequest) {
     // position, so the pre-final board joins the phrase window.
     const phraseFens = replayOk && fenBefores.length ? [fenBefores[fenBefores.length - 1]] : undefined
     if (guardFen) {
-      const first = verifyClaims(content, guardFen, historyFens, phraseFens)
+      const first = verifyClaims(content, guardFen, historyFens, phraseFens, engineInfo)
       if (!first.ok) {
         const repairSystem = `${system}\n\n${repairInstruction(first.violations)}`
         const repaired = await runChat(cfg, repairSystem, [
@@ -207,7 +212,7 @@ export async function POST(req: NextRequest) {
         ]).catch(() => null)
         if (repaired) {
           content = repaired
-          const second = verifyClaims(content, guardFen, historyFens, phraseFens)
+          const second = verifyClaims(content, guardFen, historyFens, phraseFens, engineInfo)
           if (!second.ok) {
             content += `\n\n(Board fact-check: ${second.violations.slice(0, 3).join('; ')}. Verify against the board.)`
           }

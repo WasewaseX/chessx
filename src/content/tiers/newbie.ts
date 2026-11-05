@@ -121,8 +121,62 @@ export const newbie: Tier = {
       ],
     },
     {
-      id: 'nb-02',
+      id: 'nb-21',
       n: 2,
+      title: 'Reading and writing moves',
+      subtitle: 'The language every chess book, video and coach speaks.',
+      minutes: 8,
+      concepts: ['technique', 'development'],
+      steps: [
+        text(
+          'The alphabet of chess',
+          [
+            'Every square has a name: the files are letters a through h, the ranks are numbers 1 through 8. e4, d5, h7: each is one square, and every move you will ever study is written with them.',
+            'Pieces are written with a capital letter: K king, Q queen, R rook, B bishop, N knight. Pawns get no letter at all: a pawn move to e4 is just e4.',
+            'You do not need notation to play a game. You need it to learn: every opening, every puzzle book, every coach comment is written in it.',
+          ],
+          'Notation is how chess players talk to each other.',
+        ),
+        demo(
+          'A famous opening, written down',
+          [
+            'This line is written 1.e4 e5 2.Nf3 Nc6 3.Bb5. Read it move by move and watch the board: pawn, pawn, knight, knight, bishop.',
+            'The bishop lands on b5 and stares at the knight that guards e5. This opening is centuries old and has a name: the Ruy Lopez. Every one of its millions of games is stored as exactly this kind of text.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Bb5'], caption: '1.e4 e5 2.Nf3 Nc6 3.Bb5' },
+        ),
+        drill(
+          'Play what you read',
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          ['e4', 'e5', 'Nf3', 'Nc6'],
+          'Play the moves written as 1.e4 e5 2.Nf3 Nc6',
+          'White\'s moves are yours to play; Black\'s replies happen automatically. e4, then Nf3.',
+          'Four moves, written in the shortest form. When two of your pieces could go to the same square, the move gets an extra letter: Nbd2 means the b1 knight, not the f3 one.',
+        ),
+        quiz('What does exd5 mean?', 'You see the move exd5 written down. What happened?', [
+          right('A pawn captured something on d5', 'No letter means pawn, and x means capture. exd5: the e-pawn took on d5.'),
+          wrong('A knight captured on d5', 'A knight would be written Nxd5 or Ndxe5. No letter means pawn.'),
+          wrong('A pawn moved to d5 without capturing', 'A quiet pawn move is just the square name: d5. The x is the capture.'),
+        ]),
+        quiz('Castling in notation', 'How is kingside castling written?', [
+          right('O-O', 'O-O is kingside, O-O-O is queenside. The king always walks two squares toward the rook.'),
+          wrong('K-R', 'There is no K-R. Castling has its own two symbols.'),
+          wrong('0-1', '0-1 is a game result: it means Black won. Castling is O-O.'),
+        ]),
+        text(
+          'The suffixes that tell the truth',
+          [
+            'Moves carry small marks with exact meanings: x is a capture, + is a check, # is checkmate, =Q is a promotion to a queen. Rh8+ means the rook lands on h8 and gives check.',
+            'These marks are enforced honesty: if a move is written with x, a capture happened. When you replay your own games, the notation records everything, so your coach and the engine can see exactly where things went wrong.',
+          ],
+          'x captures, + checks, # mates, =Q promotes.',
+        ),
+      ],
+    },
+    {
+      id: 'nb-02',
+      n: 3,
       title: 'The pawn',
       subtitle: 'Forward only, captures diagonally, never back.',
       minutes: 9,
@@ -223,7 +277,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-03',
-      n: 3,
+      n: 4,
       title: 'The knight',
       subtitle: 'The only piece that jumps.',
       minutes: 9,
@@ -317,7 +371,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-04',
-      n: 4,
+      n: 5,
       title: 'The bishop',
       subtitle: 'One color of squares for its whole life.',
       minutes: 9,
@@ -394,7 +448,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-05',
-      n: 5,
+      n: 6,
       title: 'The rook',
       subtitle: 'Straight lines, open files, and the last rank.',
       minutes: 9,
@@ -459,7 +513,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-06',
-      n: 6,
+      n: 7,
       title: 'The queen',
       subtitle: 'Rook moves and bishop moves in one piece. Worth 9 pawns.',
       minutes: 9,
@@ -534,7 +588,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-07',
-      n: 7,
+      n: 8,
       title: 'The king',
       subtitle: 'Slow in the opening, decisive at the end.',
       minutes: 9,
@@ -625,7 +679,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-08',
-      n: 8,
+      n: 9,
       title: 'Check',
       subtitle: 'The king is attacked. Three ways out.',
       minutes: 8,
@@ -686,8 +740,71 @@ export const newbie: Tier = {
       ],
     },
     {
+      id: 'nb-22',
+      n: 10,
+      title: 'How games are actually won',
+      subtitle: 'Checkmate, resignation, the clock, and why you never quit early.',
+      minutes: 9,
+      concepts: ['mate', 'defense'],
+      steps: [
+        text(
+          'Four ways a game ends',
+          [
+            'A game ends in four ways: checkmate, resignation, running out of clock time, or a player walking away. Only the first is chess; the other three are agreements and rules around the board.',
+            'Checkmate is the king attacked with no escape: it cannot move to safety, nothing can block the attack, and nothing can capture the attacker. That is the whole game: make the last escape impossible.',
+            'The draws, like stalemate and repetition, get their own lesson soon. First own the wins.',
+          ],
+          'The real goal is not material. It is an inescapable attack on the king.',
+        ),
+        text(
+          'Never resign yet',
+          [
+            'When you are losing, the temptation is to resign. At beginner level, resist it: your opponent still has to actually deliver the mate, and missed mates happen every single minute at this level.',
+            'Stay on the board, defend actively, and set small traps. Half of all beginner comebacks start with the losing side refusing to give up.',
+            'Resigning is a skill for later, when you can see with certainty that the end is forced. Until then: play on.',
+          ],
+          'Until the mate is on the board, the game is alive.',
+        ),
+        demo(
+          'The fastest mate in chess',
+          [
+            'Fool\'s Mate ends in two moves: 1.f3 e5 2.g4 and the queen arrives on h4 with checkmate. It works only because White tore open the king\'s diagonal and did nothing to defend it.',
+            'Nobody plays this way twice. The lesson is not the trick: it is that games end when the king runs out of squares, and that sloppy first moves are how it happens.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['f3', 'e5', 'g4', 'Qh4#'], caption: '1.f3 e5 2.g4 Qh4#: the shortest possible game' },
+        ),
+        drill(
+          'Deliver the fastest mate',
+          'rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 3',
+          ['Qh4#'],
+          'You are Black. Checkmate in one',
+          'White\'s first moves opened the a2-g8 diagonal. Your queen on d8 can fly to h4.',
+          'Qh4 is mate: the king cannot escape, nothing can block, and nothing can capture the queen.',
+        ),
+        quiz('The lost position', 'You are down a queen but not checkmated. What should a beginner do?', [
+          right('Keep playing: defend, look for checks and traps, never hand the win over', 'At this level mates get missed constantly. Making your opponent actually finish the job is your best winning chance.'),
+          wrong('Resign immediately to save time', 'You are throwing away every chance. Games are won on the board, not by hope.'),
+          wrong('Just move the king back and forth', 'Passive shuffling loses to patient play. Defend with purpose: checks, captures, and reuniting your pieces.'),
+        ]),
+        quiz('The clock win', 'Your opponent\'s clock runs out completely, but you have only a king and a knight left. What is the result?', [
+          right('A draw: a king and knight can never checkmate', 'The rule protects against flag-falling with no mating material. A lone knight can never deliver mate, so the game is drawn.'),
+          wrong('You win on time', 'Time only wins if you could still deliver mate. King and knight cannot, so the rule steps in.'),
+          wrong('You lose for not mating faster', 'Nothing punishes you here. The game is simply drawn.'),
+        ]),
+        text(
+          'Walking away and other endings',
+          [
+            'A player who stops moving and leaves loses by abandonment. It happened even in the 19th century, when a famous player preferred disappearing over playing on against a rival.',
+            'These rule-based endings are rare in your games. What matters: checkmate is the real win, resignation and clock wins are the shortcuts around it, and every one of them requires the game to be decided the only way that counts.',
+          ],
+          'Every ending is checkmate, or an agreement that checkmate was coming.',
+        ),
+      ],
+    },
+    {
       id: 'nb-09',
-      n: 9,
+      n: 11,
       title: 'Checkmate: the back rank',
       subtitle: 'The most common mate in beginner chess.',
       minutes: 9,
@@ -747,7 +864,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-10',
-      n: 10,
+      n: 12,
       title: 'Castling',
       subtitle: 'King and rook move together, once per game.',
       minutes: 9,
@@ -828,7 +945,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-11',
-      n: 11,
+      n: 13,
       title: 'En passant',
       subtitle: 'The strange pawn capture everyone discovers late.',
       minutes: 8,
@@ -874,7 +991,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-12',
-      n: 12,
+      n: 14,
       title: 'Promotion',
       subtitle: 'A pawn reaches the last rank and becomes something huge.',
       minutes: 8,
@@ -931,7 +1048,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-13',
-      n: 13,
+      n: 15,
       title: 'Stalemate and draws',
       subtitle: 'Games do not always end in a mate.',
       minutes: 13,
@@ -1012,7 +1129,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-14',
-      n: 14,
+      n: 16,
       title: 'Values and trades',
       subtitle: 'Know what your pieces are worth before you swap.',
       minutes: 9,
@@ -1082,7 +1199,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-15',
-      n: 15,
+      n: 17,
       title: 'Is it safe to play that?',
       subtitle: 'The one question that prevents most beginner blunders.',
       minutes: 8,
@@ -1135,8 +1252,60 @@ export const newbie: Tier = {
       ],
     },
     {
+      id: 'nb-23',
+      n: 18,
+      title: 'How to practice',
+      subtitle: 'Play, solve, review: the loop that makes every other lesson stick.',
+      minutes: 8,
+      concepts: ['technique', 'calculation'],
+      steps: [
+        text(
+          'The practice loop',
+          [
+            'Chess skill comes from a loop, and the loop has three parts: play real games, solve puzzles, and review what you played. Skip a part and the loop leaks.',
+            'Games are where you practice decisions. Puzzles are where patterns get drilled until you see forks and mates before they happen. Reviewing losses is where the actual lessons hide.',
+            'Do all three a little and often, rather than one of them a lot and rarely. Ten puzzles and one reviewed game beat a two-hour opening video every time.',
+          ],
+          'Play a lot, solve a little every day, review every loss.',
+        ),
+        text(
+          'The review that matters',
+          [
+            'After every game you lose, do this: replay it, find the FIRST real mistake, and keep one sentence about it. Not five sentences. One.',
+            'The engine can show you the worst move, but look without it first: your own eyes catching your own mistake is the skill that improves.',
+            'Every strong player has a review habit. None of them started with talent; all of them started with looking at lost games.',
+          ],
+          'Losses are the syllabus: find the first mistake, keep one lesson.',
+        ),
+        demo(
+          'A review moment',
+          [
+            'Here is the kind of moment a review turns up. White grabbed the pawn on e5 with the knight, and the knight on c6 was guarding it the whole time.',
+            'One capture, one recapture, a piece gone. The one-sentence lesson: count the guards before any capture. That sentence, collected ten times, is worth more than any video.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Nxe5', 'Nxe5'], caption: 'The knight was guarded: a review finds it in seconds' },
+        ),
+        quiz('After the loss', 'You just lost in twenty moves. What is the best next step?', [
+          right('Replay the loss and find the first real mistake', 'The first mistake is where the game was actually decided. Everything after it is noise.'),
+          wrong('Queue a rematch immediately, while angry', 'Tilt loses rematches. One calm review first.'),
+          wrong('Watch two hours of opening videos', 'Openings rarely decide beginner games. The blunder does. Review the blunder.'),
+        ]),
+        quiz('Why puzzles daily?', 'What does solving puzzles every day actually train?', [
+          right('Pattern recognition: seeing forks and mates without calculating from zero', 'Patterns are chess vocabulary. Volume builds vocabulary, and vocabulary is what lets you calculate fast.'),
+          wrong('Memorizing positions move by move', 'Positions differ every game. What transfers is the pattern, not the memorized line.'),
+          wrong('Nothing: puzzles are just for fun', 'They are fun, and also the fastest pattern-builder known. Both are true.'),
+        ]),
+        quiz('Bots as practice', 'Are games against bots a good way to practice?', [
+          right('Fine for warmup, but bots do not play like humans do', 'Bots make different mistakes than people. Warm up on them, sharpen on humans.'),
+          wrong('Never: bots are useless', 'They are useful for loosening up and testing openings without pressure.'),
+          wrong('Bots are better practice than humans', 'They are different practice. Human opponents punish human mistakes, and that is what your rating depends on.'),
+        ]),
+      ],
+    },
+    {
       id: 'nb-16',
-      n: 16,
+      n: 19,
       title: 'Practice arena I',
       subtitle: 'Capture drills: spot the free pieces.',
       minutes: 14,
@@ -1208,7 +1377,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-17',
-      n: 17,
+      n: 20,
       title: 'Practice arena II',
       subtitle: 'Give check. Escape check. Six drills.',
       minutes: 9,
@@ -1274,7 +1443,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-18',
-      n: 18,
+      n: 21,
       title: 'Practice arena III',
       subtitle: 'Review: castling, en passant, promotion.',
       minutes: 8,
@@ -1344,7 +1513,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-19',
-      n: 19,
+      n: 22,
       title: 'The opening plan',
       subtitle: 'Center, develop, castle. Three jobs, first ten moves.',
       minutes: 10,
@@ -1403,7 +1572,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-20',
-      n: 20,
+      n: 23,
       title: 'Newbie graduation',
       subtitle: 'A famous trap, one last quiz, and your first full game.',
       minutes: 22,

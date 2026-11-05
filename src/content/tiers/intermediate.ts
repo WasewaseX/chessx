@@ -117,92 +117,8 @@ export const intermediate: Tier = {
       ],
     },
     {
-      id: 'int-cca',
-      n: 3,
-      title: 'The CCA scan',
-      subtitle: 'Checks, captures, attacks. Every move, in that order.',
-      minutes: 10,
-      concepts: ['calculation', 'doubleAttack', 'winningMaterial'],
-      steps: [
-        text(
-          'The scan that finds everything',
-          [
-            'Strong players do not find tactics by inspiration. They run a checklist, every single move, and the checklist is three letters: CCA.',
-            'C, checks: every check you can give. Checks force; they are the strongest move in chess, so they get scanned first.',
-            'C, captures: every capture on the board, even the bad-looking ones.',
-            'A, attacks: every move that threatens something. A threat that forces a reply is half a check.',
-          ],
-          'Checks first, captures second, attacks third. Every move. That is the whole method.',
-        ),
-        demo(
-          'Scan step one: checks',
-          [
-            'White to move. No brilliant idea in sight? Good: run the scan anyway.',
-            'Checks: the knight on d5 can jump to e7 with check, and that check lands next to the rook on c8. The scan did not find a pretty idea; it found a king-and-rook fork.',
-          ],
-          '2r3k1/p4p1p/8/3N4/8/8/PP3PPP/R5K1 w - - 0 1',
-          { moves: ['Ne7+', 'Kh8', 'Nxc8'], caption: 'The check scan found a king-and-rook fork in seconds.' },
-        ),
-        drill(
-          'Fork by check',
-          '2r3k1/p4p1p/8/3N4/8/8/PP3PPP/R5K1 w - - 0 1',
-          ['Ne7+'],
-          'One move: the check that wins a rook',
-          'Knight checks from e7 hit the king AND the rook on c8.',
-          'Ne7+! The fork was always there. The scan found it.',
-        ),
-        quiz(
-          'The order',
-          'What is the correct scanning order before every move?',
-          [
-            right('All checks, then all captures, then all attacks', 'Checks first because they force. Then captures because they win material. Then threats.'),
-            wrong('All captures first: material decides', 'Material matters, but a check can force mate before any capture lands.'),
-            wrong('Only the move that looks strongest', '"Looks strongest" is how blunders are born. Scan everything, every move.'),
-          ],
-        ),
-        text(
-          'When the scan finds nothing',
-          [
-            'No checks, no profitable captures? Step three: attacks.',
-            'An attack is any move that threatens something valuable: a piece, a square, a structure. It does not force like a check, but it spends your opponent\'s time.',
-            'The Italian\'s Ng5 is pure step three: no check, no capture, just a knight staring at f7 with the bishop. Black must respond NOW, and responding to threats is how you lose control.',
-          ],
-          'Threats are cheaper than checks and still tax the clock.',
-        ),
-        drill(
-          'The attack scan',
-          'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
-          ['Ng5'],
-          'No check, no capture: find the attack',
-          'A knight jump that aims at f7 together with the bishop.',
-          'Ng5! Threatening Nxf7, forking queen and rook. Black must react right now.',
-        ),
-        quiz(
-          'False positives',
-          'Your capture scan finds Bxf7+ in the Italian position. Why is it NOT on your candidate list?',
-          [
-            right('The king simply recaptures: it wins a bishop for one pawn', 'A capture is only a candidate if the math works. Kxf7 is a losing trade.'),
-            wrong('Captures of pawns are illegal in the opening', 'Pawn captures are always legal. They are just bad when the recapture kills you.'),
-            wrong('It IS the best move: checks always work', 'A check the defender is happy to answer is not a check worth playing.'),
-          ],
-        ),
-        playout(
-          'Scan under fire',
-          'Play the opening running the scan before every move. Get castled by move 12 without losing material.',
-          START,
-          'w',
-          'Castled, even, nothing hung',
-          2,
-          'castle',
-          12,
-          'The scan is becoming a habit. Take it into every game you play.',
-          'The scan slipped and material went with it. Slow down: checks, captures, attacks.',
-        ),
-      ],
-    },
-    {
       id: 'int-03',
-      n: 4,
+      n: 3,
       title: 'The zwischenzug',
       subtitle: 'Before recapturing, ask: is there something stronger?',
       minutes: 9,
@@ -253,7 +169,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-04',
-      n: 5,
+      n: 4,
       title: 'Deflection',
       subtitle: 'Pull the defender away, then strike.',
       minutes: 9,
@@ -307,7 +223,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-05',
-      n: 6,
+      n: 5,
       title: 'Decoy and clearance',
       subtitle: 'Lure to a doomed square, sweep the road behind you.',
       minutes: 9,
@@ -355,8 +271,207 @@ export const intermediate: Tier = {
       ],
     },
     {
-      id: 'int-06',
+      id: 'int-21',
+      n: 6,
+      title: 'Openings for White: pick one, own it',
+      subtitle: 'London or Vienna: one system, chosen by style, studied deep.',
+      minutes: 11,
+      concepts: ['development', 'center'],
+      steps: [
+        text(
+          'Depth beats breadth',
+          [
+            'Choosing an opening is not about finding the best one. It is about matching your style, then going deep: one system, played for months, until its plans feel like your own handwriting.',
+            'Solid player who wants low theory and a safe king? The London System: 1.d4, bishop to f4, e3, Nf3. The same healthy setup against nearly everything Black tries.',
+            'Aggressive player who wants central fire? The Vienna: 1.e4 e5 2.Nc3, and if Black plays along, the Vienna Gambit 3.f4: a pawn hurled at the center for fast development and attacks.',
+          ],
+          'One opening owned deeply beats five openings skimmed.',
+        ),
+        demo(
+          'The London System',
+          [
+            '1.d4 d5 2.Bf4: the bishop steps out before the knight, hitting c7 and controlling e5. Then e3, Nf3, and White has the same solid setup against nearly any defense.',
+            'The London is famous for being hard to bust: Black gets no free counterplay, and White picks the moment to strike with c4 or Ne5.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['d4', 'd5', 'Bf4', 'Nf6', 'e3', 'e6', 'Nf3'], caption: 'The same healthy wall, game after game' },
+        ),
+        demo(
+          'The Vienna and its gambit',
+          [
+            '1.e4 e5 2.Nc3 protects e4 and keeps every option open. If Black plays quietly, 3.f4 offers a pawn to seize the center and open the f-file for the rook.',
+            'Accepting the gambit invites fast White development; declining it leaves White a pleasant big center. The Vienna suits players who want tactics early and often.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['e4', 'e5', 'Nc3', 'Nf6', 'f4'], caption: 'The Vienna Gambit: a pawn for the initiative' },
+        ),
+        drill(
+          'Open the London',
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          ['d4', 'd5', 'Bf4'],
+          'Play the first three moves of the London System',
+          'Queen pawn first, then the bishop steps outside the pawn chain to f4.',
+          'd4, Bf4. The bishop develops before the knight, which is the London\'s signature.',
+        ),
+        quiz('Which system fits?', 'You want a solid, low-theory White opening you can play against almost anything. Pick:', [
+          right('The London System', 'One setup, low theory, hard to bust. The classic pick for consistency.'),
+          wrong('The King\'s Gambit', 'Sharp, romantic, and theory-heavy when Black knows the lines. The opposite of low theory.'),
+          wrong('The Danish Gambit', 'Three pawns for development: fun, razor sharp, and punishing if you forget one line.'),
+        ]),
+        quiz('Facing the Sicilian', 'You play 1.e4 and Black answers 1...c5. The clean, simple answer is:', [
+          right('2.c3, the Alapin: prepare d4 and keep the center on your terms', 'The Alapin sidesteps oceans of Open Sicilian theory with one clear plan: c3 then d4.'),
+          wrong('2.Nf3 and dive into Open Sicilian theory', 'The Open Sicilian is a lifetime of study. A strong choice for professionals, heavy for everyone else.'),
+          wrong('2.Qh5, the wayward queen raid', 'You know this one: the queen gets chased and Black develops for free.'),
+        ]),
+        text(
+          'The rest of the shortlist',
+          [
+            'Against the French and Caro-Kann, the Advance Variation (e4, e6 or d5, then e5) grabs space and steers the game toward plans you set up at home. Against the Scandinavian, simple development punishes the early queen.',
+            'Whatever you pick: play it for a month, review your losses inside it, and patch one hole per week. Repertoire building is gardening, not shopping.',
+          ],
+          'One opening, reviewed weekly, becomes a weapon.',
+        ),
+      ],
+    },
+    {
+      id: 'int-22',
       n: 7,
+      title: 'Openings for Black: three answers that work',
+      subtitle: 'One reply for e4, one for d4, known by plan.',
+      minutes: 11,
+      concepts: ['center', 'development'],
+      steps: [
+        text(
+          'Two moves, two answers',
+          [
+            'White opens with e4 or d4 in the huge majority of games, so Black needs one comfortable answer to each. Not ten answers: two.',
+            'Against e4, the honest shortlist: the Scandinavian (1...d5, meeting the center head-on), the Caro-Kann (1...c6 preparing d5, solid and unburstable), or a setup defense like the King\'s Indian or Pirc if you prefer the same formation every game.',
+            'Against d4: the Queen\'s Gambit Declined, 1...d5 2...e6, the classical wall of center pawns that has been holding for a century.',
+          ],
+          'Fight the center early, keep the king safe, know your plan.',
+        ),
+        demo(
+          'The Scandinavian: hit immediately',
+          [
+            '1.e4 d5: Black challenges the center on move one. After the trade, the queen recaptures, active but exposed, and White usually kicks it with Nc3.',
+            'The queen retreats with a plan (Qd8, Qd6 or Qa5), and Black develops freely while White spent time chasing a pawn that was never really won.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['e4', 'd5', 'exd5', 'Qxd5', 'Nc3', 'Qa5'], caption: 'The queen recaptures and retreats with purpose' },
+        ),
+        demo(
+          'The Caro-Kann: solid as brick',
+          [
+            '1.e4 c6 2.d4 d5: the c-pawn supports the d5 push, so after e4xd5, c6xd5 recaptures with a PAWN and the center stays healthy. No exposed queen, no weak squares.',
+            'The Caro-Kann is the defense for players who value a safe king over early fireworks. Its structures teach endgame-friendly chess.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['e4', 'c6', 'd4', 'd5'], caption: 'The recapture is a pawn: the center never cracks' },
+        ),
+        demo(
+          'The Queen\'s Gambit Declined',
+          [
+            '1.d4 d5 2.c4 e6: Black declines the pawn, solidifies d5, and opens the f8 bishop. The name says gambit; the position says no thanks.',
+            'Black develops Nf6, Be7, O-O, and White\'s c-pawn either trades, restoring Black\'s center, or sits there as a target. Both outcomes are fine.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['d4', 'd5', 'c4', 'e6'], caption: 'Decline politely, develop calmly' },
+        ),
+        drill(
+          'Meet 1.e4 with the Caro-Kann',
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          ['e4', 'c6', 'd4', 'd5'],
+          'You are Black. Play the Caro-Kann setup against 1.e4',
+          'c6 first, supporting the d5 push, then d5 once White takes the center.',
+          'c6 and d5: the brick wall. The pawn recaptures after any trade, and your king castles to safety behind a healthy center.',
+        ),
+        quiz('The immediate fighter', 'Which Black reply challenges the center on move one against 1.e4?', [
+          right('1...d5, the Scandinavian', 'It hits e4 immediately and forces White to decide what the center is.'),
+          wrong('1...Nf6', 'A fine modern move, but it delays the central fight and invites e5.'),
+          wrong('1...c6', 'c6 PREPARES d5. The fight starts on move two or three, not move one.'),
+        ]),
+        quiz('Setup defenses', 'What is the trade-off of setup defenses like the King\'s Indian or Pirc?', [
+          right('The same comfortable formation every game, at the cost of letting White take the center first', 'Familiarity is real value; so is the space you concede. The setup player accepts the bargain.'),
+          wrong('They are simply better than classical defenses', 'They are different. White\'s big center is real, and the counterattack must be executed well.'),
+          wrong('They avoid all theory forever', 'Setup defenses have their own theory, just less of it early on.'),
+        ]),
+        text(
+          'Know the plan, not just the moves',
+          [
+            'Whichever defense you pick, learn its PLAN: where the bishop goes, which pawn break frees your game, where the king castles. Moves without plans evaporate under pressure.',
+            'And stay consistent: play your two answers for a month before judging them. The discomfort of move five today is familiarity by move fifty.',
+          ],
+          'Two answers, two plans, one month of loyalty.',
+        ),
+      ],
+    },
+    {
+      id: 'int-23',
+      n: 8,
+      title: 'Gambits: accept, decline, or punish',
+      subtitle: 'Pawn offers, poison pawns, and the keeping-it rule.',
+      minutes: 11,
+      concepts: ['sacrifice', 'development'],
+      steps: [
+        text(
+          'What a gambit really is',
+          [
+            'A gambit offers a pawn, usually in the opening, to buy something bigger: development speed, an open file, or an attack before the defender is ready.',
+            'The honest warning: White gambits are the safer kind, because White is already a tempo ahead and the offer comes with development. Black gambits are riskier: Black is answering moves, and handing over material hands White a target.',
+            'Famous names to recognize: the King\'s Gambit, the Danish Gambit, the Smith-Morra against the Sicilian, and the Queen\'s Gambit, which is not really a gambit at all because White just recaptures.',
+          ],
+          'A pawn is a fair price for development, if you actually collect the development.',
+        ),
+        demo(
+          'The Smith-Morra',
+          [
+            '1.e4 c5 2.d4 cxd4 3.c3: White offers a pawn to build one of the biggest development leads in amateur chess. If Black keeps the pawn carelessly, White\'s pieces arrive on the kingside before Black\'s do.',
+            'Black\'s sane choices: return the pawn with 3...d3 and develop, or play 3...Nc6 and defend precisely. Greed is what the Morra is designed to punish.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['e4', 'c5', 'd4', 'cxd4', 'c3'], caption: 'A pawn for a development avalanche' },
+        ),
+        demo(
+          'The poison pawn',
+          [
+            'The Blackburne Shilling Trap: 1.e4 e5 2.Nf3 Nc6 3.Bc4 Nd4 dares White to grab e5. 4.Nxe5 looks like winning a pawn.',
+            'Qg5 follows: the queen attacks g2 and builds mate ideas down the middle. The extra pawn is a stone around White\'s neck: 5.Nxf7 Qxg2 6.Rf1 Qxe4+ 7.Be2 Nf3# is the famous finish.',
+            'The lesson under the trap: not every offered pawn is free. Count what guards it, and what the capturer leaves behind.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Nd4', 'Nxe5', 'Qg5'], caption: '4...Qg5: the extra pawn starts costing White the game' },
+        ),
+        drill(
+          'Cash the poison pawn',
+          'r1b1kb1r/pppp1Npp/8/6q1/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 5',
+          ['Qxg2', 'Rf1', 'Qxe4+', 'Be2', 'Nf3#'],
+          'You are Black: White grabbed e5 and then f7. Punish the greed all the way to mate',
+          'The queen on g5 takes g2 first, dragging the rook to f1. Then the check on e4 walks the bishop to e2, and the knight lands on f3 with mate.',
+          'The full Blackburne finish: Qxg2, Qxe4+, and Nf3 mate. Greed has a schedule, and this is it.',
+        ),
+        quiz('The keeping-it rule', 'You are offered a gambit pawn. What is the safe policy?', [
+          right('Accept only if you can keep it and survive the development race; otherwise return it for development', 'A held pawn must pay rent. If it costs two tempi to defend, give it back and finish your pieces.'),
+          wrong('Always accept: material is material', 'Gambits are TESTS of greed. Accepting without a plan is exactly what the gambiteer wants.'),
+          wrong('Always decline', 'Some gambit pawns are simply free. The skill is telling them apart, not refusing everything.'),
+        ]),
+        quiz('Why Black gambits are riskier', 'Black gambits like the Englund are riskier than White gambits because:', [
+          right('Black is already a tempo behind and hands White the initiative along with the material', 'Down a tempo and down a pawn, any slip is fatal. White\'s extra move makes every attack faster.'),
+          wrong('Black gambits are always losing by force', 'They are not losing by force. They are just far less forgiving.'),
+          wrong('The fifty-move rule makes them draw', 'The fifty-move rule is about long endgames. It has nothing to do with gambits.'),
+        ]),
+        text(
+          'Your own gambits',
+          [
+            'Play gambits yourself for the training value: the Vienna Gambit as White, or the Danish for pure development practice. They teach tempo, initiative, and the courage to give material back.',
+            'But carry the policy from this lesson into every game: a gambit is a bet, the stake is development, and the player who forgets to collect loses the bet.',
+          ],
+          'Take gambits seriously: as tests of greed when offered, and as tempo machines when played.',
+        ),
+      ],
+    },
+    {
+      id: 'int-06',
+      n: 9,
       title: 'Outposts and weak squares',
       subtitle: 'Plant a knight where it can never be evicted.',
       minutes: 10,
@@ -419,7 +534,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-07',
-      n: 8,
+      n: 10,
       title: 'Open files and the 7th rank',
       subtitle: 'Rooks need roads. Give them the best one.',
       minutes: 9,
@@ -473,7 +588,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-08',
-      n: 9,
+      n: 11,
       title: 'Pawn structure sins',
       subtitle: 'Doubled, isolated, backward: know what you create.',
       minutes: 10,
@@ -537,7 +652,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-09',
-      n: 10,
+      n: 12,
       title: 'Good and bad bishops',
       subtitle: 'Same piece, wildly different jobs.',
       minutes: 9,
@@ -591,8 +706,70 @@ export const intermediate: Tier = {
       ],
     },
     {
+      id: 'int-24',
+      n: 13,
+      title: 'The CCA method: checks, captures, attacks',
+      subtitle: 'The three-question scan that finds forcing moves in order.',
+      minutes: 10,
+      concepts: ['calculation', 'mate'],
+      steps: [
+        text(
+          'The scan, in order',
+          [
+            'When it is your move, run the same scan every time: first every CHECK, then every CAPTURE, then every ATTACK (threat). Checks first because they are the most forcing: the opponent gets almost no choice.',
+            'This is the CCA method, and it works because forcing moves shrink the opponent\'s replies. The more their options shrink, the further you can see with confidence.',
+            'Pattern recognition still does the heavy lifting: you notice the right check instantly because you have drilled a thousand of them. CCA is the net that catches what the eye skips.',
+          ],
+          'Checks, captures, attacks: the same order, every move, no exceptions.',
+        ),
+        demo(
+          'Checks first: the ladder closes',
+          [
+            'White has two rooks and a simple job. Run the scan: checks first. Rb8 is check, and the rook on a7 already seals the seventh rank.',
+            'The scan found mate in one. Beginners miss this because they look at pawn moves first; trained players find it because they check first, every time.',
+          ],
+          '6k1/R5pp/8/8/8/8/6PP/1R4K1 w - - 0 1',
+          { moves: ['Rb8#'], caption: 'The scan starts with checks: Rb8 ends it' },
+        ),
+        text(
+          'Mate in two: checks all the way',
+          [
+            'When the scan finds a check that does not mate, follow it one move deeper: after the forced reply, run the scan again. Mate-in-two positions are found almost entirely by this discipline.',
+            'The famous finish of the smothered mate works exactly this way: every move for the attacker is a check, so the defender never gets a real choice.',
+          ],
+          'Run the scan after every forcing reply: the tree stays narrow and the mate appears.',
+        ),
+        drill(
+          'Checks lead the way',
+          '5r1k/6pp/7N/8/8/1Q6/8/6K1 w - - 0 1',
+          ['Qg8+', 'Rxg8', 'Nf7#'],
+          'White to play and mate. Start with the checks',
+          'The queen can land on g8 with check. The king cannot take because your knight on h6 guards that square, so the rook must capture.',
+          'Qg8+, Rxg8, Nf7: the Philidor finish. Checks, forced replies, checks again. The scan wrote the line for you.',
+        ),
+        quiz('The order', 'What is the correct CCA order and why?', [
+          right('Checks, then captures, then attacks: most forcing first', 'Checks restrict the opponent most, captures second. Ordering the scan means the deepest lines get calculated first.'),
+          wrong('Captures, checks, attacks: material first', 'Material instinct is exactly what the scan corrects. A check that mates beats a capture that wins a pawn.'),
+          wrong('Attacks first: threats win games', 'Threats can be parried. Checks and captures must be answered.'),
+        ]),
+        quiz('Under attack, scan anyway', 'Your bishop is attacked. Why run the CCA scan instead of just saving it?', [
+          right('A check or counterattack might be stronger than the saved piece', 'Defense is one option among many. The scan compares saving the piece with every forcing move on the board.'),
+          wrong('Never: saving the piece is always first', 'That habit loses games. Countless positions are won by a check played while a piece hangs.'),
+          wrong('The scan is for quiet positions only', 'The scan matters most when things are urgent: forcing moves decide chaos.'),
+        ]),
+        text(
+          'Volume builds the eye',
+          [
+            'The method is the net; the patterns are the fish. Solving puzzles daily loads your eye with motifs, so the scan becomes instant instead of slow.',
+            'A thousand solved puzzles from now, you will not run CCA consciously. You will see the check the way you see a door in a room. Until then: run it anyway, every move, in order.',
+          ],
+          'Scan every move now; soon the eye does it alone.',
+        ),
+      ],
+    },
+    {
       id: 'int-10',
-      n: 11,
+      n: 14,
       title: 'Practice arena: weapons',
       subtitle: 'Mixed drills from the whole arsenal.',
       minutes: 11,
@@ -636,166 +813,8 @@ export const intermediate: Tier = {
       ],
     },
     {
-      id: 'int-london',
-      n: 12,
-      title: 'The London System',
-      subtitle: 'One setup, minimal theory, a real middlegame plan.',
-      minutes: 10,
-      concepts: ['development', 'kingSafety', 'pieceActivity'],
-      steps: [
-        text(
-          'A system, not a memory test',
-          [
-            'You do not need twenty lines of opening theory at this level. You need one healthy setup you can reach against almost anything.',
-            'The London: 1.d4, 2.Bf4, then e3, Nf3, Bd3, Nbd2, castle. The same eight moves nearly every game, against nearly every defense.',
-            'The bishop goes to f4 BEFORE e3 locks it in: active diagonal first, pawn chain second. That one move order is the whole secret of the system.',
-          ],
-          'd4, Bf4, e3, Nf3, Bd3, Nbd2, castle. Nearly every game, the same healthy machine.',
-        ),
-        demo(
-          'The London setup',
-          ['A complete model game: the system builds itself move by move, and White castles with every piece at work.'],
-          START,
-          {
-            moves: ['d4', 'd5', 'Bf4', 'Nf6', 'e3', 'e6', 'Nf3', 'c5', 'c3', 'Nc6', 'Bd3', 'Be7', 'Nbd2', 'O-O', 'O-O'],
-            caption: 'Fifteen moves, one system, zero fear.',
-          },
-        ),
-        drill(
-          'Build the system',
-          'rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2',
-          ['Bf4', 'Nf6', 'e3'],
-          'Start the London: three moves in',
-          'Dark-squared bishop out first, then the e-pawn makes room.',
-          'Bf4, e3: the machine is assembling itself.',
-        ),
-        quiz(
-          'The bishop question',
-          'Why does the London put the bishop on f4 BEFORE playing e3?',
-          [
-            right('It develops to an active diagonal without ever getting locked in', 'Bf4 first means the bishop never lives behind its own pawns. Move order is everything.'),
-            wrong('To attack the f7 pawn at once', 'f7 is a long way from f4. The bishop aims at the kingside, not at a raid.'),
-            wrong('To trade itself off before it becomes bad', 'The London bishop is the star, not a liability to dump.'),
-          ],
-        ),
-        text(
-          'The middlegame plan',
-          [
-            'The setup is not the goal; it is the launchpad. Finished setup means: knight to e5, the strongest square in the system.',
-            'From e5 the knight eyes f7 and g6, supported by your pawns and pieces. Meanwhile c3 and Bd3 keep the home front solid.',
-            'When the queenside is sealed, the kingside attack writes itself: rooks behind the pawns, queen toward h3, and the storm begins.',
-          ],
-          'Finish the setup, plant a knight on e5, then look at his king.',
-        ),
-        quiz(
-          'The early c5 hit',
-          'Black hits your d4 pawn with ...c5 right after 1.d4. Your move?',
-          [
-            right('c3: support d4 and keep building the system', 'One pawn move answers the hit and the machine rolls on. Nothing scary happened.'),
-            wrong('Panic: the system is broken', 'The system survives ...c5. It was designed for it.'),
-            wrong('dxc5 every time: grab everything', 'Sometimes right, but as a reflex it surrenders the center for nothing.'),
-          ],
-        ),
-        playout(
-          'Play the London',
-          'From the start, build the full setup and castle by move 12. Same moves, every game.',
-          START,
-          'w',
-          'Full setup, castled, even',
-          2,
-          'castle',
-          12,
-          'The system played itself. That is the point.',
-          'The setup drifted. Rebuild: d4, Bf4, e3, Nf3, Bd3, Nbd2, castle.',
-        ),
-      ],
-    },
-    {
-      id: 'int-vienna',
-      n: 13,
-      title: 'The Vienna Gambit',
-      subtitle: 'Nc3 keeps every door open, then f4 lights the fuse.',
-      minutes: 11,
-      concepts: ['center', 'initiative', 'development'],
-      steps: [
-        text(
-          'The Vienna idea',
-          [
-            '1.e4 e5 2.Nc3 protects the e4 pawn WITHOUT blocking anything: the f1 bishop and g1 knight both stay free. That flexibility is the Vienna\'s identity.',
-            'Then, the fun part: 3.f4. The pawn strikes at the base of Black\'s center. If Black takes it, White grabs the center with e5 and opens lines everywhere.',
-            'A gambit is not a sacrifice for its own sake: it is a trade of a pawn for time, space and open files. Used with a plan, it is the fastest way to a strong attack at this level.',
-          ],
-          'Nc3 first (every option alive), f4 second (the fight for the center starts).',
-        ),
-        demo(
-          'The gambit accepted',
-          [
-            'After 1.e4 e5 2.Nc3 Nf6 3.f4, Black grabs the pawn: 3...exf4.',
-            'White does not chase the f4 pawn. White plays 4.e5, the center move: the pawn now attacks the f6 knight and takes over the board. If the queen hits back at e7, the f3-knight calmly guards e5.',
-          ],
-          'rnbqkb1r/pppp1ppp/5n2/8/4Pp2/2N5/PPPP1PPP/R1BQKBNR w KQkq - 0 4',
-          { moves: ['e5', 'Qe7', 'Nf3'], caption: 'The queen hit e5 and got refused: the f3-knight guards it.' },
-        ),
-        drill(
-          'Grab the center',
-          'rnbqkb1r/pppp1ppp/5n2/8/4Pp2/2N5/PPPP1PPP/R1BQKBNR w KQkq - 0 4',
-          ['e5', 'Qe7', 'Nf3'],
-          'Accept the pawn grab: e5, meet Qe7, defend',
-          'The pawn pushes onto e5, hitting the f6 knight. The queen reply hits back at e5, so guard it.',
-          'e5 played, the queen bounced, the center is yours.',
-        ),
-        text(
-          'When Black declines',
-          [
-            'Declining with 3...d6 is the solid road: Black supports e5 and dares White to prove something.',
-            'Proof is easy: 4.Nf3, then Bc4, then castle. Normal development with the f4 pawn already pressing on e5. Every move had a job; Black is the one who has to decide what to do with a slightly cramped position.',
-            'The rule for the Vienna player: gambit or no gambit, develop faster than your opponent and keep the center in your hands.',
-          ],
-          'Declined or accepted, White gets easy development and a target.',
-        ),
-        drill(
-          'The solid path',
-          'rnbqkb1r/ppp2ppp/3p1n2/4p3/4PP2/2N5/PPPP1PPP/R1BQKBNR w KQkq - 0 4',
-          ['Nf3', 'Nc6', 'Bc4'],
-          'Declined line: develop with tempo',
-          'Natural moves: Nf3, then the bishop aims at f7.',
-          'A real opening out of the Vienna: every move had a job.',
-        ),
-        quiz(
-          'Why the queen cannot check',
-          'After 3...exf4 4.e5, why does Black not get to play Qh4+?',
-          [
-            right('The f6 knight still blocks the d8-h4 diagonal', 'The queen\'s road runs through f6, and the knight lives there. No check exists.'),
-            wrong('The e5 pawn guards h4', 'e5 attacks d6 and f6, not h4.'),
-            wrong('The c3 knight guards h4', 'c3 is nowhere near h4. The blocker on f6 is the whole answer.'),
-          ],
-        ),
-        quiz(
-          'Facing it as Black',
-          'White plays the Vienna against you. The book-simple answer?',
-          [
-            right('Develop normally: hit e4 with ...Nf6, then take or challenge the center with a plan', 'The Vienna punishes drift, not good development. Play your chess.'),
-            wrong('Copy every move until something happens', 'Copycat play in a gambit means you are always a tempo behind.'),
-            wrong('Push ...g5 at once to trap the f4 pawn', 'Chasing gambit pawns with flank pawns wrecks your own king.'),
-          ],
-        ),
-        playout(
-          'Play the Vienna',
-          'From the start: e4, Nc3, and decide on f4 by what Black does. Castle by move 12.',
-          START,
-          'w',
-          'A Vienna game, castled, even',
-          2,
-          'castle',
-          12,
-          'Vienna on the board: options kept, center fought for.',
-          'The setup slipped. e4, Nc3, watch e5, then f4 with a plan.',
-        ),
-      ],
-    },
-    {
       id: 'int-11',
-      n: 14,
+      n: 15,
       title: 'Attacking the castled king',
       subtitle: 'Storm the walls where they are thinnest.',
       minutes: 10,
@@ -850,7 +869,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-12',
-      n: 15,
+      n: 16,
       title: 'Defense technique',
       subtitle: 'Trade the attacker, hold the line, hit back.',
       minutes: 10,
@@ -886,7 +905,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-13',
-      n: 16,
+      n: 17,
       title: 'Two weaknesses',
       subtitle: 'One defense can hold. Two collapse.',
       minutes: 10,
@@ -945,7 +964,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-trades',
-      n: 17,
+      n: 18,
       title: 'Trade decisions',
       subtitle: 'Every capture answers a question: who improves?',
       minutes: 10,
@@ -1021,7 +1040,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-14',
-      n: 18,
+      n: 19,
       title: 'King activity and opposition',
       subtitle: 'In the endgame, the king is a fighting piece.',
       minutes: 10,
@@ -1075,7 +1094,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-15',
-      n: 19,
+      n: 20,
       title: 'Pawn endings',
       subtitle: 'The square rule and the pawn race.',
       minutes: 10,
@@ -1131,7 +1150,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-16',
-      n: 20,
+      n: 21,
       title: 'Rook endings basics',
       subtitle: 'Cut the king off, keep the rook active.',
       minutes: 10,
@@ -1177,7 +1196,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-17',
-      n: 21,
+      n: 22,
       title: 'Converting an advantage',
       subtitle: 'Winning won positions is its own skill.',
       minutes: 10,
@@ -1227,7 +1246,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-18',
-      n: 22,
+      n: 23,
       title: 'Practice arena: endgames',
       subtitle: 'Kings, pawns and rooks under pressure.',
       minutes: 11,
@@ -1276,7 +1295,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-19',
-      n: 23,
+      n: 24,
       title: 'Practice arena: mixed',
       subtitle: 'Tactics and technique, shuffled.',
       minutes: 11,
@@ -1324,7 +1343,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-20',
-      n: 24,
+      n: 25,
       title: 'Intermediate graduation',
       subtitle: 'A famous pattern, one exam, one game.',
       minutes: 14,

@@ -23,11 +23,11 @@ export async function GET(req: NextRequest) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dayKey)) {
     return NextResponse.json({ error: 'bad day param' }, { status: 400 })
   }
-  // The Lichess bank serves the daily when installed (deterministic per
-  // dayKey — the same position for everyone, from the 5M+ real-game pool).
+  // The Lichess daily (one official puzzle per UTC day, live from the free
+  // API, cached six hours) — the same position for everyone.
   let full: { id: string; fen: string; rating: number } | undefined
   if (lichessAvailable()) {
-    const lp = lichessDaily(dayKey)
+    const lp = await lichessDaily(dayKey)
     if (lp) full = { id: lp.id, fen: lp.fen, rating: lp.rating }
   }
   if (!full) {

@@ -840,3 +840,144 @@ Stage Summary:
 - One supervisor, one heap cap, one warm-up path — boot architecture now matches the best-evidenced design across all sessions; duplicate layers removed without losing any protection.
 - All pushed-commit files marker-free; runtime state repaired; OpeningProgress data fully recovered from the off-box snapshot with FSRS state intact.
 - User-facing answers this session: account was NEVER lost (transient empty-db window / wrong password); sign-in now guaranteed with chessx1234; "session init failed" = kernel OOM at boot + no supervisor, now dead at every layer.
+
+---
+Task ID: 5
+Agent: main (Z.ai Code)
+Task: Root out ALL render fails, "DDoS" and overloads (user: "find the root of all render fails and these ddos and overloads and root them all out optimize never stop")
+
+Work Log:
+- Caught the chronic flap red-handed with a live murder: watchdog log 19:49:25 "port 3000 down with a live Next.js process for 615s — treating as HUNG, killing" — executed against a server that was serving GET / 200 in 16ms the SAME SECOND (dev.log). Root: watchdog-child.ts portAlive() used Bun.connect({hostname, port}) — invalid signature in this Bun runtime (ERR_INVALID_ARG_TYPE "SocketOptions.socket is required"), threw on every call, probe hardwired false since creation. Blind watchdog = infinite ~10-minute kill/respawn loop = every "render failed" / "session init failed" since the watchdog shipped. Previous sessions verified only the respawn path (manual kill -9 -> respawn) and never the health-detection path — the blind spot survived three sessions of hardening.
+- Fix: probe rewritten on fetch() with dual-loopback fallback (127.0.0.1 then [::1], 5s timeout, any HTTP status counts, body cancelled). Verified empirically BEFORE trusting: live:3000 -> true, dead:3999 -> false, game-service:3030 -> true. Watchdog restarted (pid 2971): two probe ticks of SILENCE = it now sees the healthy server.
+- Second boot-flow root, also proven: stale .zscripts/dev.stop (0 bytes, 15:34, left by a dead session) survived the 19:30 reboot; boot log "[dev-server] stop flag present — not starting" -> 300s futile wait -> warm-up skipped -> server only up via watchdog at 19:38, so the whole 19:31-19:38 window = "session init failed" for users. Boot-timeline.log corroborates (custom dev script duration=315s). Fix in dev.sh: (a) boot clears a stale flag unconditionally (a flag that survived a reboot is stale BY DEFINITION — the manual tool keeps working within a live session); (b) warm-up is unconditional with a second-chance wait covering the watchdog respawn path, so the first user hit never races a cold compile.
+- Third root (the "DDoS"/overload baseline): platform probes hammer GET / every ~2.5s around the clock (measured 17 hits/45s, all from [::1] via the platform proxy; 140 hits in the first 10 minutes). With page.tsx as a client component each probe paid a full dev-mode SSR. Fix: / is now force-static via a server wrapper (src/app/page.tsx) around the moved client shell (src/components/shell/client-app.tsx — content identical). Healthy-server probe cost 33.9ms -> 24.3ms avg with no compile spikes; in prod the route serves prerendered HTML outright.
+- Audited and cleared the rest of the overload surface: globe/live 1656ms render was its designed 20s-cache cold fan-out (already deduped + rate-limited + visibility-gated); activity heartbeat is idle/hidden-gated; agent-card polling is SSE-error fallback only; heap cap live (RSS 1268MB vs 3.4GB at the historical OOM); bank fetch skips when present (1.5GB puzzles.db on disk).
+- Runtime repair: dev.stop removed NOW (not just next boot); murdered server restarted via dev-server.sh; single watchdog supervision restored; git core.fileMode=false to kill the boot chmod -R 755 mode churn.
+- Verified: bash -n dev.sh OK; eslint + tsc clean; dev.log 200s only; browser E2E (agent-browser): landing renders (title ChessX, auth screen, zero console errors), admin/admin1234 login -> full app shell (sidebar Home/Play/Learn/Puzzles/Tools/More, Today's Plan, DNA) with screenshots download/verify-root-after-overload-fixes.png + verify-login-after-overload-fixes.png.
+- Pushed as b25ed6b (9 files, +373/-300).
+
+Stage Summary:
+- The render-fail class is dead at its last living root: the watchdog can no longer murder healthy servers (health is MEASURED via a probe that is verified to work, not assumed), a dead session's stop flag can never brick a boot again, warm-up always runs, and the 24/7 probe flood no longer pays per-request SSR.
+- Single supervisor, single flag owner, single warm-up path — and each layer now has live empirical proof of both its positive and negative cases (live->true, dead->false, flag->cleared, boot->serves).
+
+---
+Task ID: 6
+Agent: main (Z.ai Code)
+Task: Make the app lightweight — retire the 1.57GB puzzle bank, stream from free APIs (user: "the puzzle database is not needed only use light apis... it keeps overloading buffering and crashing")
+
+Work Log:
+- User made the long-pending 1.57GB-bank-vs-API call: drop the bank, go light. Executed end to end.
+- Curated the replacement FIRST (while the bank still existed): scripts/build-puzzle-pack.ts distilled db/puzzle-pack.json — 542 puzzles, 132KB, in git — from the bank's quality slice: every rating band 610-2795, all 10 opening tags the repertoire courses teach (10/10 covered), every theme the concept map references (verified live counts: mate 267, fork 78, endgame 196...). 12,000x smaller than the bank it replaces.
+- src/lib/server/lichess-bank.ts rewritten on two light sources with the IDENTICAL exported surface (routes/daily-plan/grader/public API untouched): (1) the pack for windows, opening windows, rush ladder, theme stats, deterministic daily fallback; (2) the free unauthenticated lichess puzzle API for the daily (cached 6h). Found + fixed the replay trap live: the API ships puzzle.fen directly and the initialPly-vs-truncated-PGN convention yields a WRONG position — the shipped fen is the authority (solution[0] validated legal before serving).
+- Durable served-puzzle store (db/served-puzzles.json, capped 2000, atomic tmp+rename): dev compiles each route as its own bundle, so an in-memory LRU in the daily route is invisible to the move route's module copy — caught live ("puzzle not found" for the just-served daily). The bank era shared cross-route truth via the 1.57GB file; the light edition shares it via this kilobyte file.
+- Deleted: bank-bootstrap.ts (the 546MB boot download — it had RE-DOWNLOADED on the Oct 31 boot and refilled the disk; gone for good), lichess-puzzles.ts (dead code referencing a Prisma table that was never in the schema), import-lichess-puzzles.ts, db/puzzles.db (1.57GB freed), db/.bank-status.json.
+- Rewired: index/daily/opening routes (kick calls gone), bank-status route → honest pack+api report, health/deep puzzleSource check, MCP puzzle-bank.ts → pack + lichess daily API with chess.js replay (same-puzzle-as-the-app parity preserved), build-conversion-pool.ts → pack sampler, start-prod comment, instrumentation bank kick removed (boot no longer competes with a giant download).
+- Crash-source sweep while lightening (tsc was dirty): implemented missing engineStatus() (the /api/engine/status route 500-trap), added Level.tagline optional, DELETED dead no-caller routes/files: analysis/review-cache (referenced a ReviewCache model that never existed in any commit), ai/chat/stream (runChatStream never existed), 5 orphan src/content/levels files (shape-incompatible, zero importers). tsc + eslint now fully clean.
+- Repo hygiene in the same push: the Oct 31 restore had rolled local back to f936cdc (soft-reset onto origin/main dissolved the overlap); untracked the 1069-file platform skills/ tree and 1.6GB data/ RE leftovers (gitignored data/, .scratch-zstd/, re/chessigma/extracted/deb/, db/puzzles.db, db/served-puzzles.json).
+- Verified end to end: /api/puzzles/index serves pack windows (All 211 · Mate 83 · Fork 39 chips), /api/puzzles/daily serves THE REAL worldwide lichess daily of the day (7i6QO, rating ~2007, fen shipped+validated), /api/puzzles/move grades the API-served daily correct:true across bundles, opening windows serve Sicilian-tagged puzzles, rush serves the pack ladder, health/deep ALL GREEN ("542 puzzles (pack + served LRU, lichess daily API)"), What's New v0.4.6 seeded, footer stamp bumped. Browser E2E: puzzles view + daily tab render the live board with the hint card (screenshots download/verify-light-puzzles-rated.png, verify-light-puzzles-daily.png). RSS settled ~1.4GB with zero bank page-cache pressure; next-server CPU quiet between probes.
+
+Stage Summary:
+- The app is genuinely lightweight now: no 1.57GB file, no 546MB boot download, no page-cache eviction churn — puzzles stream from a 132KB in-git pack plus one cached API call a day. Every puzzle surface kept its contract; the daily got BETTER (the real worldwide lichess puzzle of the day).
+- Pushed as the "puzzles went cloud-light" commit with the repo-hygiene cleanup.
+
+---
+Task ID: 7
+Agent: main (Z.ai Code)
+Task: "continue never stop render stopped" + successor handoff — fuse the two lightweight lineages, prove the feed end to end
+
+Work Log:
+- Found the sandbox freshly cloned (rsync 16:50) with the local branch ROLLED BACK to a pre-86afc4b base while origin/main carried the Oct 31 lightweight retirement (2ae1572, pushed by the prior session before it died). db/puzzles.db (1.5GB) was back on disk via the clone.
+- Deleted the 1.5GB puzzles.db again, plus bank-bootstrap.ts, bank-status installer route, bank-fetch.mjs.
+- Rewrote lichess-bank.ts on the free Lichess puzzle API and PROBED the upstream contract live: anonymous /api/puzzle/next serves ONE puzzle per call with NO fen (position = replay game.pgn to initialPly+1 plies — calibrated against the daily's real fen, 6/6 full-line replays clean); the anonymous themes filter is IGNORED (locally filtered instead); the opening filter WORKS. Every candidate must replay its whole UCI solution — unsound ones are rejected, never served.
+- Caught a defect in my own first health flag: a single 429 inside a parallel batch flipped the feed red for 60s. Rebuilt as a 3-strikes sliding window.
+- Discovered the divergence with origin/main, reconciled deterministically: reset to 2ae1572 (keeping their pack + durable served-puzzle store + honest status route + dead-code deletions), then re-applied my deltas (async API-first routes, health probe, client copy, eslint src). lichess-bank.ts is a fusion: my live-API windows/rush/openings + their pack fallbacks + their durable served store.
+- Re-proved the cross-bundle dev bug fixed: puzzle LESo0 served by /api/puzzles/index (bundle A) graded by /api/puzzles/move (bundle B) in 11ms, hintFrom d1.
+- E2E verified signed-in (agent-browser): rated tab renders a live 1274-puzzle board with true theme-chip counts; daily 279ms; rush 3.6s cold -> 7ms cached; woodpecker fork set built live 319ms; deep health ALL GREEN ("daily puzzle live from lichess.org (rating 1997)"); SSR warm 51ms; memory stable ~1.9GB dev-mode RSS (vs OOM 3.44GB in the bank era), disk freed (db/ 1.6MB).
+- eslint: fixed the root-owned research/ dir trap (EACCES) by ignoring it and targeting src; lint script now `eslint src`.
+Result: commit fd8b1d2 pushed. The app is disk-light (zero puzzle bytes on disk beyond a 132KB pack), crash-loop source eliminated, all puzzle surfaces live and verified.
+
+---
+Task ID: 8
+Agent: main (Z.ai Code)
+Task: Coach intelligence — "ai still so stupid" (coach contradicted itself about the best move in a live lesson)
+
+Work Log:
+- Root causes found in the live-lesson failure (commit ab21400, 4 files, +434/-39):
+  (a) boardBest (the deterministic engine answer) never saw a position when the client sent only a move list — the route now replays the move list server-side and feeds the derived anchor to the router, so "what is the best move" ALWAYS gets the engine's move with no LLM hedging possible on that path.
+  (b) POV inversion: the "after" eval came from the OPPONENT's POV and was converted as the mover's — Qxf7?? read as +9 and was praised as "excellent". Caught live; now says blunder + Kxf7.
+  (c) Claim guard hardened: "the best move is X" claims are verified against the real engine verdict (position-dossier returns structured top move + alternates); naming any other move best triggers a repair pass whose instruction says the verdict is FINAL. Flip-flopping is structurally impossible, not discouraged.
+  (d) The student's last move is classified by the app's 12-label standard (move-classification.ts) with real engine evals BEFORE the coach speaks, so the coach's verdict matches the badge the app itself would draw.
+  (e) False-positive repair loops killed: opponent-reply mentions (legal on the flipped board) no longer flagged; history positions reconstructed from the move list so discussing a real past move is never a hallucination; past-tense and line-building sentences exempt from the base verdict check.
+- Live verification (this session, curl): start position "What is the best move?" -> "e4 is the move..." (engine's choice, provider builtin); Scholar's-mate position asked TWICE -> identical "Qxf7# is the move..." both times — engine-correct, deterministic, no flip-flop.
+
+Stage Summary:
+- The coach's first answer is now the engine's answer, its verdict matches the 12-label badge standard, and the anti-flip-flop guard is mechanical. Proven live on a forced-mate position.
+
+---
+Task ID: 9
+Agent: main (Z.ai Code)
+Task: Takeback freeze — "i used take back but i cant move now" (root cause + unlimited recovery hatch), plus backlog verification sweep
+
+Work Log:
+- Root causes (play-view.tsx GameScreen) — four strands, all ending the same way: the game stranded on the bot's turn with every recovery affordance disabled:
+  1. /api/engine/move was fetched with NO timeout: a wedged engine held botBusyRef forever, the bot never replied, and takeback refused to run while engineThinking. Fixed: fetch aborts at 20s; lock always released.
+  2. The wasm fallback could hang forever too: if its worker script fails to load, engine-client's init() await never settles (no onerror hook on the fallback worker). Fixed: raced against a hard 10s ceiling.
+  3. A failed attempt never re-armed the driver effect: the game sat at tries=1 with no retry and no way out. Fixed: one bounded retry scheduled on failure; after the second failure the game SELF-HEALS by handing the player their last move back (with an honest bark) instead of freezing.
+  4. Takeback was disabled off-turn and refused mid-think. Now the universal recovery hatch: cancels any in-flight engine reply via a generation token (stale replies discarded on arrival — no ghost moves), refunds the attempt budget for the position being fled, always ends with the player able to move. Takebacks/hints remain unlimited (no quota exists in Play or coach games).
+- E2E proof (agent-browser, three scenarios):
+  (a) Golden path vs Pip: 1.Na3 e5 2.d3 -> takeback -> board rewound to 1.Na3 -> e5 again -> bot replied Nb1. No freeze.
+  (b) Total engine outage vs Maple: ALL engine paths blocked via network interception (server route + stockfish worker + fallback worker) -> e4 played -> two bounded attempts (~10s each) -> AUTO-TAKEBACK restored the position with "Your move"; after unblocking, e4 -> instant e5 reply. No zombie driver.
+  (c) Mid-think cancel vs Maximum (depth 20): d4 played -> takeback clicked DURING the bot's think -> board rewound, my turn, no ghost reply ever appeared (6s watch), then e4 -> e5. Stale-reply guard proven.
+- Backlog sweep verified live: chess.com import — server-side bulk honestly 403s from datacenter IPs with the pointer copy; the panel is browser-first with the PGN-paste path FIRST in the UI; paste path E2E-proven (Opera Game loaded: Philidor Defence detected, 17 moves, analyzer ready). Worklog/succession chain updated.
+
+Stage Summary:
+- The freeze class is dead: no game state can strand the player any more — the takeback always exists, the driver self-heals after engine failures, and stale replies can never corrupt a rewound game. All proven in a real browser.
+Result: commit cdffa96 pushed (play-view.tsx, +162/-48).
+
+---
+Task ID: 8
+Agent: main (Z.ai Code)
+Task: "learn from this book and implement it in the app specially the learn tab and ai coach" (How to Win at Chess, Levy Rozman)
+
+Work Log:
+- Researched the book: the user-linked scribd page yields only metadata, so the full 18-chapter structure was extracted from the Bookey chapter summary (chapters 1-18: basics, notation, practicing, winning, White openings, Black openings, Endgames I-III, attacking/defending, beginner strategy, intermediate openings x3, gambits, intermediate endgames, intermediate tactics, intermediate strategy).
+- Built Tier 7 "How to Win at Chess" (src/content/tiers/howtowin.ts): 20 levels mapping the book's 18 chapters, in the book's own order: rules+notation, how to win+practice, golden rules, Italian Game, Black answers (e5/building blocks/Pirc setups), ladder mate, queen+rook mates, middlegame mates (back rank, smothered, batteries), draws+never-resign, forks+pins, skewers+discovered attacks, beginner strategy, choosing openings, London System, Vienna Gambit+Alapin, Scandinavian, Caro-Kann, gambits real+fake, opposition+pawn endgames, CCA method finale. Levels use the existing step kit (text/demo/quiz/drill/exercise/playout) including 5 live playouts (ladder mate, KQK, castle races, draw hold).
+- Every FEN and move line hand-verified; validator caught 6 defects (smothered-mate FEN had queen/king swapped, pin-drill FEN used a white knight, skewer demo left the white king in check, Scandinavian drill FEN omitted the queen, royal fork SAN hid the pawn capture, pin capture was also check). All fixed; validator green: 7 tiers, 140 levels, 1083 steps, 1284 checks.
+- Wired the tier in: levels.ts TIERS, graduation.ts (20 falsifiable hw-XX lines), coach-skills resolveLevelContext numeric tier guard widened to TIERS.length, lessons-view intro now points at Chapter VII.
+- AI coach: new src/lib/server/htwac-doctrine.ts with the book's method as prompt lines (golden rules, CCA scan, "when you see a good move look for a better one", defense checklist, endgame doctrine, openings-by-level, principle naming, never-resign psychology, draw knowledge). Full doctrine injected into buildCoachSystem (coach-chat.ts) AND the inline prompt in api/ai/chat/route.ts; compact in-game version injected into api/coach-game/chat/route.ts after the verdict-consistency block.
+- E2E proven with agent-browser on a fresh account: onboarding, Study renders Chapter VII with 20 rows and unlock chains, Level 1 played END TO END (read points, quizzes answered, castling demo, en passant drill solved on the real board exd6, promotion drill bxa8=Q via the promote dialog, final quiz) reaching the Lesson Complete screen with the graduation line and "Unlocked: Level 2". Progress persisted via /api/progress (hw-01 completed 9/9). Locked-level gate proven (hw-06 shows "Finish Level 5 ... first"). Coach chat with doctrine answers "I keep losing my queen early" with the book's golden rule verbatim in spirit.
+- REPO HYGIENE (critical): the sandbox clone was 11 commits behind origin/main with prior sessions' work living as untracked files. Diffed working tree vs origin, confirmed origin already carried the canonical lineage (lightweight puzzles, takeback fix, coach verdicts, succession doc), moved my 8 files aside, removed the colliding/stale untracked artifacts (including the tsc-error-bearing strays: ai/chat/stream, analysis/review-cache, content/levels, lichess-puzzles.ts), reset --hard to origin/main (d09f893), re-applied the book work on the current base. tsc --noEmit now fully CLEAN (the old pre-existing errors belonged to the stale artifacts).
+Verification: validate.ts 1284 checks green; eslint clean; tsc clean; SSR 200; agent-browser signed-in E2E (screenshots download/htwac-01..20). 
+Task ID: 41
+Agent: main (Z.ai Code)
+Task: Integrate How to Win at Chess (Levy Rozman) into the existing Learning tab: 12 new levels inserted at the right places, existing lessons deepened
+
+Work Log:
+- Actually read the book's content: fetched the Scribd document (938298705), extracted the embedded Bookey chapter-by-chapter summary, and cross-fetched the full Bookey chapter breakdown (18 chapters: basics, notation, practicing, how to win, openings both colors, endgames I-III, attacking/defending/capturing, beginner strategy, intermediate openings x3, gambits, intermediate endgames/tactics/strategy). Mapped every chapter against all 120 existing levels to find genuine gaps.
+- Curriculum expansion (validator relaxed from exactly-20 to at-least-20 per tier):
+  - Newbie 20 -> 23: nb-21 notation (ch2, pos 2), nb-22 how games are actually won: checkmate/resignation/clock/abandonment + never-resign doctrine + Fool's Mate (ch4, pos 9), nb-23 how to practice: play/solve/review loop (ch3, pos 16).
+  - Beginner 20 -> 23: bg-21 opening don'ts + punished queen raid (ch5, pos 4), bg-22 trade pieces not pawns when ahead (ch18 doctrine at beginner level, pos 11), bg-23 batteries (Q+R file, Q+B diagonal mate) + smothered mate (ch8, pos 14).
+  - Intermediate 20 -> 24: int-21 White openings London/Vienna + Alapin/Advance doctrine (ch12-13, pos 6), int-22 Black openings Scandinavian/Caro-Kann/QGD + setup trade-off (ch6+14, pos 7), int-23 gambits: Smith-Morra, Blackburne Shilling poison pawn with full punish-to-mate drill Qxg2 Rf1 Qxe4+ Be2 Nf3# (ch15, pos 8), int-24 CCA method checks-captures-attacks with Rb8# ladder scan demo and Philidor legacy drill Qg8+ Rxg8 Nf7# (ch17, pos 10).
+  - Advanced 20 -> 21: adv-21 knight endings, two-weakness doctrine, best-blockader, king-escapes-with-fork drill Ne6+, K+N+P playout (ch16, pos 18).
+  - Master 20 -> 21: ms-21 Maroczy Bind from the real Accelerated Dragon position (verified FEN), standing-plans doctrine (ch18, pos 5).
+  - Grandmaster unchanged: the book's scope honestly ends around 1300-1800; the GM tier already over-covers its final checklist themes.
+- Existing lessons deepened: bg-05 gained the family fork drill (Nf6+ Kd8 Nxd5, king+queen fork), bg-06 gained the absolute vs relative pin quiz (book ch10's explicit distinction).
+- Every new FEN/move line pre-verified with chess.js (34 case script), then the full validator re-run: 6 tiers, 132 levels, 1038 steps, 451 concept tags, 214 puzzles, 0 errors.
+- Book-derived coach calibration fixes: coach-skills resolveLevelContext clamped levelN to hardcoded 20 (now clamps by real tier length), coach-artifacts levelRating divided by hardcoded 19 (now per-tier table), agent launch.ts offset clamp raised to the 24-level max. Auth page lesson count 120 -> 132.
+- Whatsnew seed entry added (v0.4.6): The Study: 12 new lessons built from How to Win at Chess.
+- Insertion done programmatically (anchor-after + full tier renumbering script), so existing progress IDs stay stable and unlock chains keep working; new levels slot into the chain at their positions.
+- Verification: bun run validate:content clean, eslint clean, tsc clean, SSR 200, browser E2E as admin: Study renders 0/132 (23/23/24/21/21/20 per tier), new lessons at correct positions (Opening don'ts at Beginner 4), nb-21 played end to end in the lesson player (text points, Ruy Lopez demo playback, drill e4 e5 Nf3 Nc6 on the real board with auto-replies), no console errors, no dev.log errors.
+- Evidence: download/verify-book-lessons-{home,newbie,study,lesson-notation}.png
+
+
+---
+Task ID: 41b
+Agent: main (Z.ai Code)
+Task: Reconcile with origin/main: keep the parallel session's coach doctrine, remove the rejected separate Tier 7
+
+Work Log:
+- Pushing surfaced a parallel session's commit (531a6fa) that had implemented the same book as a SEPARATE Tier 7 ("How to Win at Chess", src/content/tiers/howtowin.ts). The user's later instruction explicitly rejected that shape: "just add them at the suitable place of learning tab not just make a new thing entirely."
+- Rebased my 12-lesson in-place expansion onto origin/main (resolved worklog + whatsnew seed conflicts, both entries kept; deleted the stale db/.bank-status.json which the lightweight-puzzles migration had removed upstream).
+- Removed the rejected separate tier: deleted howtowin.ts, reverted levels.ts to the six-course tiers, dropped the 20 hw-* graduation lines, removed the Chapter VII sentence from the Study intro. Existing progress IDs are untouched.
+- KEPT the valuable half of the parallel commit: src/lib/server/htwac-doctrine.ts (golden rules, CCA scan, defense checklist, endgame doctrine, openings-by-level, never resign, draw knowledge) stays injected into buildCoachSystem, /api/ai/chat, and the in-game coach chat, so the AI coach teaches the same book method the new in-place lessons teach.
+- Post-reconciliation checks: validator green (6 tiers, 132 levels, 1038 steps, 1256 checks), tsc clean, eslint clean.

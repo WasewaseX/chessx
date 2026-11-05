@@ -953,8 +953,81 @@ export const advanced: Tier = {
       ],
     },
     {
-      id: 'adv-18',
+      id: 'adv-21',
       n: 20,
+      title: 'Knight endings: the two-weakness weapon',
+      subtitle: 'One weakness is defended. Two lose. Knights do both jobs.',
+      minutes: 11,
+      concepts: ['endgame', 'kingActivity'],
+      steps: [
+        text(
+          'Why knight endings decide games',
+          [
+            'Knight endings are the most common minor-piece ending in club chess, and they have a signature property: the knight defends and attacks at the same time, from squares no other piece can reach.',
+            'The winning method has a name: two weaknesses. The defender can guard one weakness perfectly with king and knight. Create a second one somewhere else on the board and the defense snaps.',
+            'The usual second weakness is a passed pawn on the opposite side from the action. The defender\'s king walks left, the passer runs right.',
+          ],
+          'One weakness holds. Two weaknesses lose. That is the whole doctrine.',
+        ),
+        demo(
+          'The knight as blockader',
+          [
+            'The black pawn on c5 wants to become a queen. The white knight sits on c4, planted directly in front of it.',
+            'A pawn can never attack a knight standing on the square directly in front of it, and the knight attacks four squares while blocking one. This is why knights are the best blockaders in chess: they stop the passer and fight elsewhere simultaneously.',
+          ],
+          '8/4k3/8/2p5/2N5/8/8/6K1 w - - 0 1',
+          {
+            marks: [
+              { square: 'c5', color: 'red' },
+              { square: 'c4', color: 'green' },
+            ],
+            caption: 'The pawn is a prisoner: the knight blocks and fights at once',
+          },
+        ),
+        drill(
+          'Escape with the fork',
+          '3k1r2/2N5/8/8/8/8/8/6K1 w - - 0 1',
+          ['Ne6+'],
+          'Your knight on c7 is attacked by the king. Save it with tempo',
+          'From c7 the knight can jump to e6, checking the king and hitting the rook on f8 at the same time.',
+          'Ne6 with check: the king must move, and then the rook falls. Ending forks are how knight endings swing.',
+        ),
+        playout(
+          'Convert the two-weakness ending',
+          'You are up a pawn with a passed a-pawn and a knight. Black\'s king guards the kingside pawns. Create the second front: run the a-pawn with your king behind it, and use the knight to distract.',
+          '7k/6pp/8/8/P7/2N3K1/8/8 w - - 0 1',
+          'w',
+          'Win the game: promote the a-pawn or win material by force',
+          2,
+          'material',
+          30,
+          'The second weakness decided it. One defender, two fronts: the doctrine in action.',
+          'The a-pawn needs its king, not just its knight. Walk the king up beside the pawn and the promotion is forced.',
+          'March a5, a6, a7 with the king escorting; keep the knight near the kingside to create the second front.',
+        ),
+        quiz('The two-weakness rule', 'You are defending a knight ending, one weakness, perfect defense. What loses the game for you?', [
+          right('A second weakness appears on the other side of the board', 'King and knight can guard one address. Two addresses split the defense and the position falls.'),
+          wrong('Trading knights', 'The knight trade usually heads toward a draw, which is what the defender wants.'),
+          wrong('The opponent gaining space', 'Space alone does not crack a solid defense. The second weakness does.'),
+        ]),
+        quiz('The best blockader', 'Which piece blockades a passed pawn best, and why?', [
+          right('The knight: it stops the pawn without ever being attacked by it', 'A pawn cannot capture a piece standing on the square directly in front of it, and the knight fights while it blocks.'),
+          wrong('The queen: it is the strongest piece', 'The strongest piece is the worst blockader: it gets tied down completely and becomes a target.'),
+          wrong('The king: it is the safest blocker', 'The king blockades in a pinch, but the knight does the same job while remaining a fighting piece.'),
+        ]),
+        text(
+          'The knight ending checklist',
+          [
+            'When the minor pieces dwindle to knights, run this checklist: activate your king first, fix the enemy pawns on squares your knight attacks, place the knight on a blockading or outpost square, and then hunt for the second weakness.',
+            'Knight endings reward planning more than tactics. The player who knows the destination usually arrives; the player who shuffles usually loses the race.',
+          ],
+          'King first, pawns fixed, knight posted, second weakness created.',
+        ),
+      ],
+    },
+    {
+      id: 'adv-18',
+      n: 21,
       title: 'Queen endings',
       subtitle: 'Checks, forks, and the perpetual road.',
       minutes: 10,
@@ -999,7 +1072,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-19',
-      n: 21,
+      n: 22,
       title: 'Converting winning endgames',
       subtitle: 'King centralization and simplification.',
       minutes: 10,
@@ -1045,7 +1118,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-20',
-      n: 22,
+      n: 23,
       title: 'Advanced graduation',
       subtitle: 'One exam, one famous game, tier cleared.',
       minutes: 19,

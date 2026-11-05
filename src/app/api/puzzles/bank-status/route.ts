@@ -1,22 +1,23 @@
-// Honest, public health report for the puzzle bank. The bank is a large
-// file that is not part of git; on a fresh environment the server installs
-// it in the background (see lib/server/bank-bootstrap). This endpoint lets
-// the UI (and a human) see exactly what that installer is doing — instead
-// of a mysterious "214 puzzles" with no explanation.
+// Honest, public health report for the puzzle source. Since the lightweight
+// decision (Oct 24) the app no longer downloads or holds a 1.57GB bank:
+// puzzles come from db/puzzle-pack.json (small, in git) plus the free
+// lichess daily API. This endpoint reports exactly that — instead of a
+// mysterious number with no explanation.
 import { NextResponse } from 'next/server'
-import { bankStatus, kickBankBootstrap } from '@/lib/server/bank-bootstrap'
-import { lichessCount } from '@/lib/server/lichess-bank'
+import { existsSync, statSync } from 'node:fs'
+import path from 'node:path'
+import { lichessAvailable, lichessCount } from '@/lib/server/lichess-bank'
 
 export async function GET() {
-  // Kicking here makes this endpoint self-starting even if instrumentation
-  // was skipped (e.g. a runtime that does not run the register hook).
-  kickBankBootstrap()
-  const status = bankStatus()
-  // The full COUNT is cached for a minute inside lichess-bank; only ask when
-  // the file is actually present so a fresh boot answers instantly.
-  const count = status.available ? lichessCount() : 0
+  const packPath = path.join(process.cwd(), 'db', 'puzzle-pack.json')
+  const packBytes = existsSync(packPath) ? statSync(packPath).size : 0
+  const available = lichessAvailable()
   return NextResponse.json({
-    ...status,
-    count,
+    source: 'pack+lichess-daily-api',
+    available,
+    count: available ? lichessCount() : 0,
+    packFile: 'db/puzzle-pack.json',
+    packBytes,
+    daily: 'https://lichess.org/api/puzzle/daily (free, cached 6h, deterministic pack fallback)',
   })
 }

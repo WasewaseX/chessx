@@ -1,7 +1,7 @@
 // Tier 2: Beginner. Opening plans, the first tactical weapons, and the
 // basic checkmates every player must own.
 // Book-derived levels (How to Win at Chess: structure and chess principles
-// only, never text): bg-ends, bg-e4-black, bg-d4-black.
+// only, never text): bg-21, bg-22, bg-23, bg-ends.
 import type { Tier } from '../schema'
 import { text, demo, quiz, drill, right, wrong, playout, gtmStep, guess } from '../kit'
 
@@ -210,8 +210,63 @@ export const beginner: Tier = {
       ],
     },
     {
-      id: 'bg-04',
+      id: 'bg-21',
       n: 4,
+      title: 'Opening don\'ts: the queen raid',
+      subtitle: 'Chased queens, moved-twice knights, and other early sins.',
+      minutes: 10,
+      concepts: ['development', 'kingSafety'],
+      steps: [
+        text(
+          'The four don\'ts',
+          [
+            'The opening rules come with a don\'t list, and beginners lose more points to it than to any tactic: do not bring the queen out early, do not move the same piece twice without a reason, do not grab flank pawns, do not start attacking before your pieces are out.',
+            'Each don\'t is the same sin wearing different clothes: moves that do not develop. Your opponent develops instead, and development is what wins the middle game.',
+            'The good moves are just as short: pawns to the center, knights before bishops toward the center, castle inside the first ten moves. e4, Nf3, Bc4, O-O is a whole opening plan in four moves.',
+          ],
+          'Development beats raids: every non-developing move is a gift to your opponent.',
+        ),
+        demo(
+          'The queen raid, punished',
+          [
+            'Watch the classic sin. The queen comes out on move two and grabs for f7, and Black just plays g6: the pawn attacks the queen on h5 directly.',
+            'The queen, embarrassed, grabs the e5 pawn anyway. But the knight on c6 was guarding e5 all along: one capture and the raiding queen is gone.',
+            'Count the cost: White spent three queen moves to lose a queen. Black developed one pawn and collected.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['e4', 'e5', 'Qh5', 'Nc6', 'Bc4', 'g6', 'Qxe5+', 'Nxe5'], caption: 'The knight on c6 guarded e5 the whole time' },
+        ),
+        drill(
+          'Punish the raid',
+          'r1bqkbnr/pppp1ppp/2n5/4Q3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4',
+          ['Nxe5'],
+          'You are Black: the white queen just took your e5 pawn with check. Collect the fee',
+          'The queen checked you, but e5 is defended by your knight on c6.',
+          'Nxe5. The raid ends with the raider captured. Queens that come out early pay rent.',
+        ),
+        quiz('Spot the sin', 'It is move three for White. Which move breaks an opening rule?', [
+          right('Qh5, attacking the f7 pawn', 'The queen out on move three gets chased by pawns and pieces while Black develops. Classic sin.'),
+          wrong('Nf3, developing a knight', 'Knights first, toward the center. Textbook good.'),
+          wrong('O-O, castling short', 'Castling early is the goal, not a sin.'),
+        ]),
+        quiz('Why raids fail', 'Why is an early queen attack bad even when it wins a pawn?', [
+          right('The queen gets chased, and each chase is a tempo your opponent spends developing', 'Time is the currency of the opening. A chased queen pays your opponent\'s salary.'),
+          wrong('It never wins a pawn', 'It sometimes does. The pawn is not the point: the lost time is.'),
+          wrong('The queen might get trapped', 'That is the dramatic version. The normal version is quieter and still losing: tempo after tempo.'),
+        ]),
+        text(
+          'The golden squares',
+          [
+            'Where do the developing moves go? Knights like f3 and c3 for White, f6 and c6 for Black: central, eyeing the enemy half. Bishops like c4 and f4, or e2 and d3 when the center needs support.',
+            'You do not need to memorize openings at this level. You need the habits: center pawns, knights before bishops, castle early, and every move either develops or defends something real.',
+          ],
+          'Same squares, nearly every game: that is not memorization, it is habit.',
+        ),
+      ],
+    },
+    {
+      id: 'bg-04',
+      n: 5,
       title: 'Do not hang pieces',
       subtitle: 'The blunder check that saves hundreds of points.',
       minutes: 9,
@@ -264,7 +319,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-05',
-      n: 5,
+      n: 6,
       title: 'The fork',
       subtitle: 'One piece, two victims.',
       minutes: 10,
@@ -335,11 +390,19 @@ export const beginner: Tier = {
           wrong('Enemy pieces standing far apart on opposite corners', 'Distance is safety from forks. Closeness is the danger.'),
           wrong('A single undefended enemy pawn', 'Undefended pieces matter, but that is the loose piece scan, not the fork scan.'),
         ]),
+        drill(
+          'The family fork',
+          '4k3/8/8/3q4/6N1/8/8/4K3 w - - 0 1',
+          ['Nf6+', 'Kd8', 'Nxd5'],
+          'Fork the king and the queen: the whole family pays',
+          'The knight on g4 can jump to f6, checking the king and hitting the queen on d5 at the same time.',
+          'Nf6 with check, then after the king moves, Nxd5 collects the queen. The family fork is the most feared knight motif in chess: check plus the 9-point prize.',
+        ),
       ],
     },
     {
       id: 'bg-06',
-      n: 6,
+      n: 7,
       title: 'The pin',
       subtitle: 'A piece frozen in front of its own king.',
       minutes: 10,
@@ -398,11 +461,16 @@ export const beginner: Tier = {
           wrong('A rook attacks a lone undefended bishop', 'No line-through-two-pieces, no pin. That is just a threat to capture.'),
           wrong('A knight attacks two pieces at once', 'Two targets at once is a fork. Pins need a straight line and a piece in the middle.'),
         ]),
+        quiz('Absolute or relative?', 'A knight is pinned against your QUEEN (not your king) by a rook. Can the knight legally move?', [
+          right('Yes, legally, but moving it loses the queen: that is a relative pin', 'Pins to the king are absolute (moving is illegal). Pins to anything less are relative: legal but costly, and strong players attack the pinned piece anyway.'),
+          wrong('No: it is frozen like any other pin', 'Only the king makes movement illegal. A queen behind the knight is a relative pin, and relative pins can be broken.'),
+          wrong('Yes, and it costs nothing at all', 'It is legal, but the queen behind it falls. Relative pins are licenses to lose material.'),
+        ]),
       ],
     },
     {
       id: 'bg-07',
-      n: 7,
+      n: 8,
       title: 'The skewer',
       subtitle: 'The pin in reverse: the king moves, the prize falls.',
       minutes: 9,
@@ -460,7 +528,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-08',
-      n: 8,
+      n: 9,
       title: 'Loose pieces drop off',
       subtitle: 'LPDO: the mnemonic that wins games.',
       minutes: 9,
@@ -511,7 +579,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-09',
-      n: 9,
+      n: 10,
       title: 'Do the math, win the trade',
       subtitle: 'When is a capture safe? Count it out.',
       minutes: 10,
@@ -570,7 +638,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-10',
-      n: 10,
+      n: 11,
       title: 'Removing the defender',
       subtitle: 'Break the bodyguard first, then collect.',
       minutes: 9,
@@ -620,8 +688,62 @@ export const beginner: Tier = {
       ],
     },
     {
+      id: 'bg-22',
+      n: 12,
+      title: 'Winning when ahead: trade pieces, not pawns',
+      subtitle: 'The one trade rule that converts advantages into wins.',
+      minutes: 9,
+      concepts: ['tradeDecisions', 'technique'],
+      steps: [
+        text(
+          'The rule that wins won games',
+          [
+            'You are up a piece. Now what? The rule: trade PIECES, not pawns. Every trade removes an attacker and a defender from the board, and the side ahead in material enjoys that math more and more.',
+            'Pawns are different: pawns are the endgame itself. Trade pawns when you are BEHIND, because fewer pawns mean more drawing chances. Keep pawns when you are ahead.',
+            'So: ahead in material, offer and accept every equal queen, rook and minor piece trade you can. Behind in material, dodge piece trades and trade pawns instead.',
+          ],
+          'Ahead: trade pieces, keep pawns. Behind: trade pawns, keep pieces.',
+        ),
+        demo(
+          'The trade that simplifies',
+          [
+            'White is a bishop up. The queens face each other on the d-file, and Black\'s knight guards the queen. White trades: queens off, knight recaptures, and the position steps toward an endgame where the extra bishop dominates.',
+            'Every trade makes the remaining game simpler for the side ahead. Fewer pieces mean fewer surprises, fewer forks, fewer chances for the defender to set traps.',
+          ],
+          'r3k2r/pppp1npp/3qp3/8/4P3/2N5/PPP2PPP/R1BQK2R w kq - 0 1',
+          { moves: ['Qxd6', 'Nxd6'], caption: 'Queens off: the extra bishop starts running the game' },
+        ),
+        drill(
+          'Trade into the won endgame',
+          '3k4/2q5/8/8/3R4/2Q5/8/3K4 w - - 0 1',
+          ['Qxc7+', 'Kxc7'],
+          'You are up a rook. Trade the queens',
+          'The c-file is open. Your queen can take the black queen with check, and the king must recapture.',
+          'Queens off, rook left, king coming: this endgame is won. Trades are the road from a material advantage to a finished game.',
+        ),
+        quiz('The offered trade', 'You are up a knight. Your opponent offers a queen trade. Take it?', [
+          right('Yes: trades favor whoever is ahead in material', 'Fewer attackers make the extra knight safer. Simplification is the winning side\'s best friend.'),
+          wrong('No: keep everything on the board', 'Keeping pieces keeps complications alive, and complications favor the side that is behind.'),
+          wrong('Only if your knight trades too', 'Any equal trade helps the side ahead. The queen trade is the biggest helper of all.'),
+        ]),
+        quiz('Behind and offered a trade', 'Now flip it: you are DOWN a knight and your opponent offers a rook trade. What do you want?', [
+          right('Decline piece trades, trade pawns instead, keep pieces for complications', 'The defender lives on complexity and counterplay. Fewer pawns raise drawing chances; more pieces raise winning chances for your opponent.'),
+          wrong('Accept: even trades are even', 'Even trades shrink the board, and the smaller board favors whoever is ahead.'),
+          wrong('Offer a queen trade back', 'That is the one trade you must never give when behind.'),
+        ]),
+        text(
+          'Why beginners refuse to trade',
+          [
+            'Beginners hoard pieces: more pieces feel stronger. But a material advantage is worth less and less as complications grow, and worth more and more as the board empties.',
+            'When you win a trade while ahead, say why in your head: fewer attackers, simpler position, one step closer to the endgame where the extra piece decides. That habit converts half-points into full points.',
+          ],
+          'An extra piece wins endgames, not complications.',
+        ),
+      ],
+    },
+    {
       id: 'bg-11',
-      n: 11,
+      n: 13,
       title: 'Back-rank defense',
       subtitle: 'Make luft before the rook arrives.',
       minutes: 9,
@@ -677,7 +799,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-12',
-      n: 12,
+      n: 14,
       title: 'The two-rook ladder',
       subtitle: 'The easiest mate in chess, done with a ladder.',
       minutes: 10,
@@ -730,7 +852,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-13',
-      n: 13,
+      n: 15,
       title: 'Queen and king: the box mate',
       subtitle: 'Shrink the box, call your king over, mate.',
       minutes: 11,
@@ -793,7 +915,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-ends',
-      n: 14,
+      n: 16,
       title: 'How games really end',
       subtitle: 'Four ways to win, five ways to draw, zero reasons to resign.',
       minutes: 10,
@@ -898,8 +1020,90 @@ export const beginner: Tier = {
       ],
     },
     {
+      id: 'bg-23',
+      n: 17,
+      title: 'Mating patterns: batteries and the smothered mate',
+      subtitle: 'Two-piece attacks, and the king buried by its own army.',
+      minutes: 11,
+      concepts: ['mate', 'coordination'],
+      steps: [
+        text(
+          'Batteries: two barrels, one target',
+          [
+            'A battery is two of your pieces lined up on the same file, rank or diagonal, aimed at the same target. The front piece fires; the back one backs it up.',
+            'The classic battery: a queen in front with a rook behind on the same file, or a queen in front with a bishop behind on the same diagonal. The queen attacks; the piece behind defends her, which makes squares along the line untouchable.',
+            'Batteries matter because defended attacks become forcing: the opponent cannot just capture your way in.',
+          ],
+          'Two pieces on one line: the front attacks, the back protects.',
+        ),
+        demo(
+          'The queen and rook battery',
+          [
+            'The queen marches to d7 with check. The king would love to capture her, but the rook on d1 is right behind her: d7 is defended all the way down the file.',
+            'The king slinks away, and next move the battery finishes the job. This is why batteries create unstoppable attacks: every square on the line is covered twice.',
+          ],
+          '4k3/8/8/8/8/3Q4/8/3RK3 w - - 0 1',
+          { moves: ['Qd7+', 'Kf8'], caption: 'Qd7 is check, and the rook makes it untouchable' },
+        ),
+        demo(
+          'The bishop-backed queen mate',
+          [
+            'Here the battery fires for mate in one. The bishop on c2 sits behind the queen on d3, both aimed at h7 through the same diagonal.',
+            'Qxh7 is checkmate: the king cannot capture the queen because the bishop guards h7, and the king cannot run because its own pawns and rook wall it in.',
+            'When you castle short, watch h7. It is the most raided square in chess, and batteries are how raids become mates.',
+          ],
+          '5rk1/5ppp/8/8/8/3Q4/PPB1PPPP/6K1 w - - 0 1',
+          { moves: ['Qxh7#'], caption: 'The bishop behind the queen makes h7 untakeable' },
+        ),
+        drill(
+          'Fire the battery',
+          '5rk1/5ppp/8/8/8/3Q4/PPB1PPPP/6K1 w - - 0 1',
+          ['Qxh7#'],
+          'The battery is loaded. Mate in one',
+          'The diagonal from c2 runs through d3 to h7. The queen is already on it.',
+          'Qxh7 is mate: the bishop guards the queen, and the king\'s own army boxes it in.',
+        ),
+        text(
+          'The smothered mate',
+          [
+            'Some kings are buried by their own army. A king in the corner with a rook beside it and two pawns in front has zero escape squares, and a single knight can end it.',
+            'This is the smothered mate: the knight lands where it checks the king, and the king\'s own pieces make every escape square illegal. No capture, no block, no run: mate.',
+            'It is the most famous pattern in chess, and it appears in real games constantly once you know to look for a boxed-in king.',
+          ],
+          'The king\'s own pieces are the walls. The knight is the hammer.',
+        ),
+        demo(
+          'Boxed in',
+          [
+            'The black king sits on h8 with its own rook on g8 and its own pawns on g7 and h7. Every square around it is occupied by a friend.',
+            'The knight jumps to f7: check, and there is nowhere to go. The rook cannot capture the knight, the pawns cannot help. Smothered mate.',
+          ],
+          '6rk/6pp/3N4/8/8/8/8/6K1 w - - 0 1',
+          { moves: ['Nf7#'], caption: 'The king is buried by its own rook and pawns' },
+        ),
+        drill(
+          'Smother it',
+          '6rk/6pp/7N/8/8/8/8/6K1 w - - 0 1',
+          ['Nf7#'],
+          'The king is boxed in. Find the knight move',
+          'The knight on h6 can jump to f7. The king on h8 has no escape squares at all.',
+          'Nf7 is mate: check from the knight, and every flight square is occupied by Black\'s own pieces.',
+        ),
+        quiz('What is a battery?', 'Your queen stands in front of your bishop on the same diagonal, both aimed at the enemy king. What is that called?', [
+          right('A battery', 'Two pieces, one line, one target. The front piece attacks, the back one protects it.'),
+          wrong('A skewer', 'A skewer attacks two ENEMY pieces on one line. A battery is two of YOUR pieces.'),
+          wrong('A pin', 'A pin freezes an enemy piece. A battery is your own artillery.'),
+        ]),
+        quiz('Spotting the smothered mate', 'What condition makes a smothered mate possible?', [
+          right('The enemy king is surrounded by its own pieces with no escape squares', 'The king\'s own army is the prison. Your knight just delivers the sentence.'),
+          wrong('The enemy queen is undefended', 'Queens are irrelevant to the smothered mate. Only the boxed-in king matters.'),
+          wrong('You have two rooks on the seventh rank', 'That is the ladder mate. The smothered mate is a knight\'s work.'),
+        ]),
+      ],
+    },
+    {
       id: 'bg-14',
-      n: 15,
+      n: 18,
       title: 'Passed pawns',
       subtitle: 'No enemy pawns in the way: run or push.',
       minutes: 10,
@@ -963,7 +1167,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-15',
-      n: 16,
+      n: 19,
       title: 'Practice arena: tactics I',
       subtitle: 'Fork, pin, skewer, mixed.',
       minutes: 11,
@@ -1004,7 +1208,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-16',
-      n: 17,
+      n: 20,
       title: 'Practice arena: tactics II',
       subtitle: 'Loose pieces, counting, defense.',
       minutes: 11,
@@ -1042,7 +1246,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-17',
-      n: 18,
+      n: 21,
       title: 'Your first opening: the Italian',
       subtitle: 'A complete, honest opening you can play forever.',
       minutes: 11,
@@ -1105,192 +1309,8 @@ export const beginner: Tier = {
       ],
     },
     {
-      id: 'bg-e4-black',
-      n: 19,
-      title: 'Black answers 1.e4',
-      subtitle: 'Classical, building block, or wall: pick your defense.',
-      minutes: 12,
-      concepts: ['center', 'development', 'pawnStructure'],
-      steps: [
-        text(
-          'Three families, one choice',
-          [
-            'White played 1.e4 and staked a claim in the center. Your reply decides the character of the whole game.',
-            'The classical answer: 1...e5. Meet the center head-on and fight for equal ground immediately. Open, principled, double-edged.',
-            'The building block: 1...c6 (the Caro-Kann) or 1...e6 (the French). Prepare the ...d5 break with a side pawn and take the center one move later, on your terms.',
-            'Setup-based defenses exist too, but at this level the choice is simple: classical or building block. Both are honest.',
-          ],
-          'Pick ONE defense against 1.e4 and play it every time. Consistency teaches faster than variety.',
-        ),
-        demo(
-          'The classical: 1...e5',
-          ['The oldest fight in chess: both sides grab the center, both sides develop, and the game stays open and sharp.'],
-          START,
-          {
-            moves: ['e4', 'e5', 'Nf3', 'Nc6'],
-            caption: 'Meet force with force: the classical reply.',
-          },
-        ),
-        demo(
-          'The building block: the Caro-Kann',
-          ['1...c6 quietly prepares ...d5. The c-pawn does the supporting so the d-pawn can do the fighting.'],
-          START,
-          {
-            moves: ['e4', 'c6', 'd4', 'd5'],
-            caption: 'c6 first, d5 second: the center arrives one move later, fully supported.',
-          },
-        ),
-        text(
-          'Why c6 instead of e6',
-          [
-            'Both 1...c6 and 1...e6 prepare ...d5. The difference is one diagonal.',
-            'The c8 bishop travels toward h3 through d7, e6 and f5. The Caro-Kann pawn on c6 never touches that road. The French pawn on e6 parks itself right on it, and the bishop starts the game asleep.',
-            'That is the Caro-Kann\'s whole selling point: the same solid wall, with a bishop that can come out to f5 and actually play.',
-          ],
-          'Same wall, working bishop: that is why the Caro-Kann is the gentlest solid defense.',
-        ),
-        demo(
-          'The French: the same wall, a sleeping bishop',
-          ['1...e6 builds the same d5 wall. The cost: the c8 bishop is locked in until e6 leaves. Solid and central, but freeing that bishop becomes your first project.'],
-          START,
-          {
-            moves: ['e4', 'e6', 'd4', 'd5'],
-            caption: 'The French: d5 tomorrow, bishop rescue project today.',
-          },
-        ),
-        drill(
-          'Play the Caro-Kann',
-          'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          ['c6', 'd4', 'd5'],
-          'Answer 1.e4 the Caro way',
-          'Support pawn first, fighting pawn second.',
-          'Caro-Kann reached: solid, structural, and the bishop still breathes.',
-        ),
-        drill(
-          'Play the French',
-          'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          ['e6', 'd4', 'd5'],
-          'Answer 1.e4 the French way',
-          'The e-pawn takes the support role this time.',
-          'French reached: rock solid, and the c8 bishop is now your project.',
-        ),
-        quiz(
-          'Which reply keeps the bishop free',
-          'Which move supports ...d5 while leaving the c8 bishop\'s diagonal untouched?',
-          [
-            right('c6, the Caro-Kann', 'The c6 pawn is not on the c8-h3 diagonal. The bishop can aim for f5.'),
-            wrong('e6, the French', 'e6 sits right on the bishop\'s road. Solid, but the bishop sleeps.'),
-            wrong('a6, waiting to see', 'a6 prepares nothing: White takes the center for free.'),
-          ],
-        ),
-        quiz(
-          'The commitment',
-          'What is the honest beginner advice for a Black repertoire against 1.e4?',
-          [
-            right('Choose one defense and play it every time until its plans are yours', 'Ten games with one defense beat one game each with ten defenses.'),
-            wrong('Memorize five defenses and rotate them for variety', 'Variety is for stronger players. Depth beats breadth below expert level.'),
-            wrong('Copy whatever the engine plays first', 'The engine changes its mind every game. A human needs plans, not novelties.'),
-          ],
-        ),
-      ],
-    },
-    {
-      id: 'bg-d4-black',
-      n: 20,
-      title: 'Black answers 1.d4',
-      subtitle: 'The QGD wall, or one setup that answers everything.',
-      minutes: 11,
-      concepts: ['center', 'development', 'kingSafety'],
-      steps: [
-        text(
-          'The other first move',
-          [
-            '1.d4 grabs the center with the queen\'s pawn: slower than 1.e4, but just as greedy.',
-            'The classical answer is 1...d5: plant your own center pawn and hold it. White\'s most common try is 2.c4, the Queen\'s Gambit: a pawn offer designed to make you relax your grip on the center.',
-            'You decline it. 2...e6 supports d5, opens the f8 bishop, and begins the Queen\'s Gambit Declined: one of the most trusted structures in chess history.',
-          ],
-          'The c4 pawn is bait for your center. Decline it, hold d5, develop.',
-        ),
-        demo(
-          'The Queen\'s Gambit Declined',
-          ['The full wall: d5 held, e6 played, knights out, bishop developed, king headed for g8.'],
-          START,
-          {
-            moves: ['d4', 'd5', 'c4', 'e6', 'Nc3', 'Nf6', 'Bg5', 'Be7'],
-            caption: 'The QGD: support the center, develop, castle.',
-          },
-        ),
-        drill(
-          'Play the QGD',
-          'rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq - 0 2',
-          ['e6', 'Nc3', 'Nf6'],
-          'Decline the gambit correctly',
-          'e6 frees the f8 bishop; Nf6 develops and holds d5.',
-          'QGD structure reached: solid as concrete.',
-        ),
-        text(
-          'Freeing the bishop later',
-          [
-            'The one QGD headache is the c8 bishop, boxed in by the e6 pawn. Two standard cures.',
-            'The slow cure: ...b6 and ...Bb7, aiming the bishop at the e4 pawn and the center.',
-            'The dynamic cure: the ...c5 break, hitting d4 and opening the diagonal in one move. It comes when your pieces are ready, not before.',
-          ],
-          'A locked bishop is a plan, not a tragedy. Free it on purpose.',
-        ),
-        demo(
-          'The setup-based fallback',
-          ['If memorizing structures is not your thing yet, one setup answers almost anything: knight out, g6, bishop to g7, d6. Solid by geography, not by memory.'],
-          START,
-          {
-            moves: ['d4', 'Nf6', 'c4', 'g6', 'Nc3', 'Bg7'],
-            caption: 'Nf6, g6, Bg7, d6: the same fist against every jab.',
-          },
-        ),
-        quiz(
-          'The e6 question',
-          'In the QGD, why does Black play e6 before Nf6?',
-          [
-            right('To free the f8 bishop so development keeps flowing', 'e6 opens the door for Be7 or even Bb4. Development never stalls.'),
-            wrong('To attack the c4 pawn immediately', 'Pawns do not attack from behind. e6 is a building move.'),
-            wrong('To stop White from castling', 'Nothing stops White\'s castling on move two.'),
-          ],
-        ),
-        quiz(
-          'The bait',
-          'White plays c4 and attacks your d5 pawn. Why not just take it?',
-          [
-            right('Taking usually opens lines that help White; holding d5 keeps you solid at this level', 'The gambit works exactly when you get greedy without a plan. Decline and develop.'),
-            wrong('You must never capture pawns in the opening', 'Capturing is fine when you know the follow-up. Here the follow-up favors White.'),
-            wrong('The pawn is poisoned and loses a piece by force', 'Not by force: it is a slow, strategic concession, not a trap.'),
-          ],
-        ),
-        quiz(
-          'The commitment, again',
-          'And the honest advice for a Black repertoire against 1.d4?',
-          [
-            right('One system, played every time: QGD if you like walls, g6-setup if you like geography', 'Same rule as against 1.e4: one choice, ten games, real understanding.'),
-            wrong('Play the exact same defense you use against 1.e4', '1.e4 and 1.d4 create different centers. They need different tools.'),
-            wrong('Let the mood decide each game', 'Mood-driven repertoires produce mood-driven results.'),
-          ],
-        ),
-        playout(
-          'Hold as Black',
-          'You are Black in a QGD structure. Develop, castle, keep d5 solid, free the bishop when ready.',
-          'rnbqk2r/pppp1ppp/4p3/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR b KQkq - 3 4',
-          'b',
-          'Get castled and stay even in material',
-          1,
-          'castle',
-          8,
-          'Castled with the center intact: the QGD did its job.',
-          'The center cracked or the king stayed home. Reset and hold d5.',
-          'Be7, then castle. The wall holds itself; you just have to build it.',
-        ),
-      ],
-    },
-    {
       id: 'bg-18',
-      n: 21,
+      n: 22,
       title: 'Play a development game',
       subtitle: 'Full game, one goal: castle by move 12.',
       minutes: 15,
@@ -1336,7 +1356,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-19',
-      n: 22,
+      n: 23,
       title: 'Beginner exam',
       subtitle: 'One quiz, one mate, one trap to punish.',
       minutes: 11,
@@ -1382,7 +1402,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-20',
-      n: 23,
+      n: 24,
       title: 'Beginner graduation',
       subtitle: 'One more game, one tier down.',
       minutes: 16,

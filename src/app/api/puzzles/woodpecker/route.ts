@@ -58,13 +58,14 @@ async function requireProfile(user: { id: string; username: string }) {
   return profile
 }
 
-/** Build a themed pool from the bank, or the curated pool as a fallback. */
-function buildSetPuzzles(theme: string, size: number, rating: number): { puzzles: SetPuzzle[]; kind: 'lichess' | 'curated' } | null {
+/** Build a themed pool from the Lichess API, or the curated pool as a fallback. */
+async function buildSetPuzzles(theme: string, size: number, rating: number): Promise<{ puzzles: SetPuzzle[]; kind: 'lichess' | 'curated' } | null> {
   if (lichessAvailable()) {
-    // A wide themed window around the player's rating, then the closest
-    // `size` rows, lightly shuffled. The order gets frozen into idsJson, so
-    // every later cycle faces the identical sequence.
-    const pool = lichessWindow(rating, Math.min(400, Math.max(80, size * 8)), [theme])
+    // A themed window around the player's rating (live from the free Lichess
+    // puzzle API), then the closest `size` rows, lightly shuffled. The order
+    // gets frozen into idsJson, so every later cycle faces the identical
+    // sequence; served ids stay resolvable through the in-memory LRU.
+    const pool = await lichessWindow(rating, Math.min(50, Math.max(24, size * 4)), [theme])
     if (pool.length > 0) {
       const sorted = [...pool].sort(
         (a, b) => Math.abs(a.rating - rating) - Math.abs(b.rating - rating),
@@ -152,7 +153,7 @@ export async function GET(req: NextRequest) {
     // The bank changed underneath us: fall through and rebuild.
   }
 
-  const built = buildSetPuzzles(theme, size, rating)
+  const built = await buildSetPuzzles(theme, size, rating)
   if (!built || built.puzzles.length < MIN_SET) {
     return NextResponse.json(
       { error: 'Not enough puzzles in this theme yet. Pick another theme.' },

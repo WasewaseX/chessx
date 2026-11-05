@@ -344,3 +344,12 @@ export async function engineIdentity(): Promise<string | null> {
   if (!child || child.dead) return null
   return child.name.includes('Stockfish') ? `${child.name}` : child.name
 }
+
+/**
+ * Engine status for the UI pill and honest degradation (read-only, no search
+ * triggered). The /api/engine/status route serves this verbatim.
+ */
+export async function engineStatus(): Promise<{ available: boolean; engine: string | null }> {
+  const available = await engineAvailable()
+  return { available, engine: available ? await engineIdentity() : null }
+}

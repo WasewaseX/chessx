@@ -128,10 +128,15 @@ export function levelRefLabel(ref: string | null | undefined): string | null {
   return Number.isFinite(n) && n > 0 ? `${tier} · Level ${n}` : tier
 }
 
-/** Rating band the coach aims at for a tier/level pair. Tier 1..6, level 1..20. */
+/** Levels per tier (tier.n -> count). Keep in sync with src/content/tiers:
+ * the course grew past 20 levels per tier when the curriculum expanded. */
+const TIER_LEVEL_COUNT: Record<number, number> = { 1: 23, 2: 23, 3: 24, 4: 21, 5: 21, 6: 20 }
+
+/** Rating band the coach aims at for a tier/level pair. Tier 1..6, level 1..N. */
 export function levelRating(tierN: number, levelN: number): number {
   const base = [550, 800, 1100, 1450, 1800, 2100][Math.min(6, Math.max(1, tierN)) - 1]
-  const progress = (Math.min(20, Math.max(1, levelN)) - 1) / 19
+  const max = TIER_LEVEL_COUNT[Math.min(6, Math.max(1, tierN))] ?? 20
+  const progress = (Math.min(max, Math.max(1, levelN)) - 1) / (max - 1)
   return Math.round(base + progress * 350)
 }
 

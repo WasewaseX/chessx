@@ -852,9 +852,9 @@ export const grandmaster: Tier = {
           'Everything, one game',
           [
             'The capstone: a full game against the strongest regularly-beatable engine level, with a material goal and a clock of your own attention.',
-            'Open with a plan, convert imbalances, prophylax against counterplay, and finish with technique. Everything the last 120 levels taught, in one board.',
+            'Open with a plan, convert imbalances, prophylax against counterplay, and finish with technique. Everything the last 136 levels taught, in one board.',
           ],
-          'One game. One hundred and twenty levels behind it.',
+          'One game. The whole course behind it.',
         ),
         text(
           'Game 6: the strategic masterpiece',
@@ -906,7 +906,7 @@ export const grandmaster: Tier = {
         ]),
         playout(
           'The capstone game',
-          'One game. Everything the last 120 levels taught, against the strongest bot you can beat. Bank the point.',
+          'One game. Everything the last 136 levels taught, against the strongest bot you can beat. Bank the point.',
           START,
           'w',
           'Win 3 or more points of material within 20 moves',

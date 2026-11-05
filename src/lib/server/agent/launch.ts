@@ -42,7 +42,9 @@ function makeEnv(input: LaunchInput, baseLevel: { tierId: string; levelN: number
         profileId: input.profileId,
         skillLevel: input.skillLevel,
         tier: baseLevel.tierId,
-        level: Math.min(20, baseLevel.levelN + offset),
+        // resolveLevelContext clamps by the tier's real length; 24 is the
+        // current max so offsets beyond the last level stay safe here too
+        level: Math.min(24, baseLevel.levelN + offset),
         theme,
         fen: input.ctx.fen,
       })

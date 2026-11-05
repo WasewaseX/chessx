@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getSessionUser, rateLimit } from '@/lib/auth'
 import { engineAvailable, engineIdentity } from '@/lib/server/engine'
-import { bankStatus, kickBankBootstrap } from '@/lib/server/bank-bootstrap'
-import { lichessAvailable, lichessCount, lichessThemeStats } from '@/lib/server/lichess-bank'
+import { lichessAvailable, lichessProbe } from '@/lib/server/lichess-bank'
 import { buildPlan } from '@/lib/server/daily-plan'
 import { buildDnaReport } from '@/lib/server/chess-dna'
 import { dayKeyLocal } from '@/lib/day'
@@ -72,10 +71,11 @@ export async function GET() {
         return (await engineIdentity()) ?? 'up'
       }),
       timed('puzzleBank', async () => {
-        kickBankBootstrap()
-        const s = bankStatus()
-        if (!s.available) throw new Error(s.phase || 'bank unavailable')
-        return `${lichessCount().toLocaleString('en-US')} puzzles on disk`
+        // One cheap live fetch of the official daily — proves the free
+        // Lichess puzzle API is reachable end-to-end. No disk bank anymore:
+        // the 1.5GB file is gone (Nov 2 lightweight mandate).
+        if (!lichessAvailable()) throw new Error('lichess in failure cooldown')
+        return await lichessProbe()
       }),
       timed('planBuilder', async () => {
         const plan = await buildPlan(profile.id, dayKeyLocal())
@@ -87,11 +87,6 @@ export async function GET() {
       }),
       timed('gameService', async () => serviceUp(3030)),
       timed('mcpServer', async () => serviceUp(3031)),
-      timed('puzzleThemes', async () => {
-        if (!lichessAvailable()) throw new Error('bank not mounted yet')
-        const themes = lichessThemeStats(5)
-        return `${themes.length} theme rows indexed`
-      }),
     ]),
   )
 

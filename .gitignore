@@ -92,3 +92,12 @@ watchdog.log
 .zscripts/watchdog-child.pid
 db/custom.db-shm
 db/custom.db-wal
+
+data/
+.scratch-zstd/
+db/puzzles.db
+db/served-puzzles.json
+re/chessigma/extracted/deb/
+db/*.db-wal
+db/*.db-shm
+db/*.db.bak

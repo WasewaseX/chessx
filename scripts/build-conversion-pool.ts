@@ -5,14 +5,16 @@
 // user must demonstrate TECHNIQUE (keeping the advantage while the opponent
 // resists), not find one tactic.
 //
-// Source: random samples from the 5.77M-puzzle bank, filtered to plausible
-// winning themes, then engine-verified one by one. Every position in the
-// output pool carries the engine's own verdict, best line and the side that
-// is winning — the trainer trusts nothing else.
+// Source (updated Oct 24): the light puzzle pack (db/puzzle-pack.json, ~542
+// curated puzzles from the old bank's quality slice) — the 1.57GB bank is
+// retired. The pack's winning-theme density is lower than the full bank's,
+// so the sampler walks the whole pack; resume support keeps the existing
+// verified pool entries across reruns, and the pool only grows when the
+// engine confirms more positions. Existing db/conversion-pool.json is
+// untouched by this change.
 //
 // Run: bun scripts/build-conversion-pool.ts   (writes db/conversion-pool.json)
 
-import { Database } from 'bun:sqlite'
 import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'fs'
 import { Chess } from 'chess.js'
 
@@ -162,8 +164,6 @@ function sanLine(fen: string, pvUci: string[], maxPlies = 6): string[] {
 
 async function main(): Promise<void> {
   const t0 = Date.now()
-  const db = new Database('/home/z/my-project/db/puzzles.db', { readonly: true })
-  const max = (db.query('SELECT MAX(rowid) m FROM puzzles').get() as { m: number }).m
 
   // Resume support: keep already-verified entries across reruns.
   const existing: PoolEntry[] = existsSync(OUT) ? (JSON.parse(readFileSync(OUT, 'utf8')).positions ?? []) : []
@@ -171,15 +171,12 @@ async function main(): Promise<void> {
   const pool: PoolEntry[] = [...existing]
   log(`pool build started: have ${pool.length}/${TARGET}`)
 
-  // 1. Sample candidates generously — most will fail verification.
-  let cands: Cand[] = []
-  for (let i = 0; i < 60 && cands.length < 3000; i++) {
-    const x = Math.floor(Math.random() * max)
-    const rows = db
-      .query('SELECT id, fen, rating, themes FROM puzzles WHERE rowid > ? LIMIT 500')
-      .all(x) as unknown as Cand[]
-    cands.push(...rows)
+  // 1. Sample candidates from the light pack — the whole pack is small
+  //    enough to walk directly (no more 5.77M-row database).
+  const packRaw = JSON.parse(readFileSync('/home/z/my-project/db/puzzle-pack.json', 'utf8')) as {
+    puzzles: { id: string; fen: string; r: number; t: string }[]
   }
+  let cands: Cand[] = (packRaw.puzzles ?? []).map((p) => ({ id: p.id, fen: p.fen, rating: p.r, themes: p.t }))
   // Dedupe identical board positions — lichess puzzles from one master game
   // repeat the same FEN family; a pool of clones is worthless.
   const fenSeen = new Set<string>()
@@ -189,7 +186,6 @@ async function main(): Promise<void> {
     fenSeen.add(board)
     return true
   })
-  db.close()
   const filtered = cands.filter(
     (r) =>
       !seen.has(r.id) &&

@@ -26,12 +26,11 @@ interface HealthReport {
 const CHECK_LABELS: Record<string, string> = {
   database: 'Database',
   engine: 'Chess engine',
-  puzzleBank: 'Puzzle bank',
+  puzzleBank: 'Puzzle feed (Lichess API)',
   planBuilder: "Today's plan builder",
   dnaBuilder: 'Chess DNA builder',
   gameService: 'Live games service',
   mcpServer: 'MCP server',
-  puzzleThemes: 'Puzzle theme index',
 }
 
 export function SystemStatusCard() {

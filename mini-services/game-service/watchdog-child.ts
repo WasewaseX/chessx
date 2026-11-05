@@ -77,19 +77,32 @@ function devProcessExists(): boolean {
 }
 
 async function portAlive(): Promise<boolean> {
-  // Hard timeout: a dropped-SYN backlog (blocked event loop mid-compile) must
-  // hang this probe at most 5s, never stall the whole tick loop.
-  try {
-    const connect = Bun.connect({ hostname: '127.0.0.1', port: DEV_PORT })
-    const timeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('probe-timeout')), 5_000),
-    )
-    const conn = await Promise.race([connect, timeout])
-    conn.end()
-    return true
-  } catch {
-    return false
+  // Liveness = the dev port answers an HTTP round-trip. The previous probe,
+  // Bun.connect({ hostname, port }), is NOT a valid call signature in this
+  // Bun runtime — it threw ERR_INVALID_ARG_TYPE ("SocketOptions.socket is
+  // required") on EVERY call, so portAlive() was hardwired to false and the
+  // watchdog was blind since creation. Consequence, caught live Oct 24
+  // 19:49: it "HUNG-killed" a fully healthy server that was serving GET /
+  // 200s in 16ms the same second — an infinite ~10-minute murder loop, the
+  // chronic "render failed" flapping. fetch() is the well-trodden path: a
+  // dead port rejects immediately, a live one answers (ANY status counts,
+  // including 404/500 — only socket liveness matters here). Both loopbacks
+  // are probed so a server bound to either stack is seen.
+  for (const host of ['127.0.0.1', '[::1]']) {
+    try {
+      const res = await fetch(`http://${host}:${DEV_PORT}/`, {
+        redirect: 'manual',
+        signal: AbortSignal.timeout(5_000),
+        headers: { 'user-agent': 'chessx-watchdog-liveness-probe' },
+      })
+      // Drain/cancel so the probe never pins a response stream.
+      await res.body?.cancel().catch(() => {})
+      return true
+    } catch {
+      // refused / timeout — try the other loopback
+    }
   }
+  return false
 }
 
 /**

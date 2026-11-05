@@ -44,107 +44,122 @@ export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--max-old-space-size=1536"
 export NEXT_TELEMETRY_DISABLED=1
 
 log_step_start() {
-	local step_name="$1"
-	echo "=========================================="
-	echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting: $step_name"
-	echo "=========================================="
-	export STEP_START_TIME
-	STEP_START_TIME=$(date +%s)
+        local step_name="$1"
+        echo "=========================================="
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting: $step_name"
+        echo "=========================================="
+        export STEP_START_TIME
+        STEP_START_TIME=$(date +%s)
 }
 
 log_step_end() {
-	local step_name="${1:-Unknown step}"
-	local end_time
-	end_time=$(date +%s)
-	local duration=$((end_time - STEP_START_TIME))
-	echo "=========================================="
-	echo "[$(date '+%Y-%m-%d %H:%M:%S')] Completed: $step_name"
-	echo "[LOG] Step: $step_name | Duration: ${duration}s"
-	echo "=========================================="
-	echo ""
+        local step_name="${1:-Unknown step}"
+        local end_time
+        end_time=$(date +%s)
+        local duration=$((end_time - STEP_START_TIME))
+        echo "=========================================="
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Completed: $step_name"
+        echo "[LOG] Step: $step_name | Duration: ${duration}s"
+        echo "=========================================="
+        echo ""
 }
 
 start_mini_services() {
-	local mini_services_dir="$PROJECT_DIR/mini-services"
-	local started_count=0
+        local mini_services_dir="$PROJECT_DIR/mini-services"
+        local started_count=0
 
-	log_step_start "Starting mini-services"
-	if [ ! -d "$mini_services_dir" ]; then
-		echo "Mini-services directory not found, skipping..."
-		log_step_end "Starting mini-services"
-		return 0
-	fi
+        log_step_start "Starting mini-services"
+        if [ ! -d "$mini_services_dir" ]; then
+                echo "Mini-services directory not found, skipping..."
+                log_step_end "Starting mini-services"
+                return 0
+        fi
 
-	for service_dir in "$mini_services_dir"/*; do
-		if [ ! -d "$service_dir" ]; then continue; fi
-		local service_name
-		service_name=$(basename "$service_dir")
-		if [ ! -f "$service_dir/package.json" ]; then
-			echo "[$service_name] No package.json found, skipping..."
-			continue
-		fi
-		if ! grep -q '"dev"' "$service_dir/package.json"; then
-			echo "[$service_name] No dev script found, skipping..."
-			continue
-		fi
-		# Idempotency: if the service port already answers, skip. A restart of
-		# this script must not double-bind sockets (EADDRINUSE crash loops).
-		# The port is hardcoded in each service's index.ts (const PORT = nnnn).
-		local port=""
-		port=$(grep -hoP 'const PORT = \K[0-9]+' "$service_dir/index.ts" 2>/dev/null | head -1 || true)
-		if [ -n "$port" ] && curl -s -o /dev/null -m 2 "http://localhost:$port/" 2>/dev/null; then
-			echo "[$service_name] port $port already answering — skipping"
-			continue
-		fi
+        for service_dir in "$mini_services_dir"/*; do
+                if [ ! -d "$service_dir" ]; then continue; fi
+                local service_name
+                service_name=$(basename "$service_dir")
+                if [ ! -f "$service_dir/package.json" ]; then
+                        echo "[$service_name] No package.json found, skipping..."
+                        continue
+                fi
+                if ! grep -q '"dev"' "$service_dir/package.json"; then
+                        echo "[$service_name] No dev script found, skipping..."
+                        continue
+                fi
+                # Idempotency: if the service port already answers, skip. A restart of
+                # this script must not double-bind sockets (EADDRINUSE crash loops).
+                # The port is hardcoded in each service's index.ts (const PORT = nnnn).
+                local port=""
+                port=$(grep -hoP 'const PORT = \K[0-9]+' "$service_dir/index.ts" 2>/dev/null | head -1 || true)
+                if [ -n "$port" ] && curl -s -o /dev/null -m 2 "http://localhost:$port/" 2>/dev/null; then
+                        echo "[$service_name] port $port already answering — skipping"
+                        continue
+                fi
 
-		echo "Starting $service_name in background..."
-		(
-			cd "$service_dir"
-			bun install >/dev/null 2>&1 || true
-			exec bun run dev
-		) >"$SCRIPT_DIR/mini-service-${service_name}.log" 2>&1 &
-		local service_pid=$!
-		echo "[$service_name] Started in background (PID: $service_pid)"
-		started_count=$((started_count + 1))
-	done
+                echo "Starting $service_name in background..."
+                (
+                        cd "$service_dir"
+                        bun install >/dev/null 2>&1 || true
+                        exec bun run dev
+                ) >"$SCRIPT_DIR/mini-service-${service_name}.log" 2>&1 &
+                local service_pid=$!
+                echo "[$service_name] Started in background (PID: $service_pid)"
+                started_count=$((started_count + 1))
+        done
 
-	echo "Mini-services startup completed. Started $started_count service(s)."
-	log_step_end "Starting mini-services"
+        echo "Mini-services startup completed. Started $started_count service(s)."
+        log_step_end "Starting mini-services"
 }
 
 wait_until_healthy() {
-	local max_attempts="${1:-150}"
-	local attempt=1
-	while [ "$attempt" -le "$max_attempts" ]; do
-		local code
-		code=$(curl -s -o /dev/null -m 5 -w '%{http_code}' "http://localhost:3000/" 2>/dev/null || true)
-		if [ "$code" ] && [[ "$code" == 2* || "$code" == 3* ]]; then
-			echo "Next.js dev server healthy (HTTP $code, attempt $attempt)"
-			return 0
-		fi
-		sleep 2
-		attempt=$((attempt + 1))
-	done
-	echo "WARNING: dev server not healthy after $((max_attempts * 2))s"
-	return 1
+        local max_attempts="${1:-150}"
+        local attempt=1
+        while [ "$attempt" -le "$max_attempts" ]; do
+                local code
+                code=$(curl -s -o /dev/null -m 5 -w '%{http_code}' "http://localhost:3000/" 2>/dev/null || true)
+                if [ "$code" ] && [[ "$code" == 2* || "$code" == 3* ]]; then
+                        echo "Next.js dev server healthy (HTTP $code, attempt $attempt)"
+                        return 0
+                fi
+                sleep 2
+                attempt=$((attempt + 1))
+        done
+        echo "WARNING: dev server not healthy after $((max_attempts * 2))s"
+        return 1
 }
 
 warm_up() {
-	# Compile the entry routes from the boot flow itself: `/` is the page the
-	# preview panel opens; /api/auth/me is the first XHR the app fires. After
-	# this, the first user request is a cache hit — the platform health
-	# deadline is never spent on a cold compile again.
-	log_step_start "Warm-up compile"
-	curl -s -m 240 -o /dev/null -w "[warm] GET / -> %{http_code} in %{time_total}s\n" "http://localhost:3000/" || echo "[warm] / warm-up request failed (platform watchdog covers revival)"
-	curl -s -m 90 -o /dev/null -w "[warm] GET /api/auth/me -> %{http_code} in %{time_total}s\n" "http://localhost:3000/api/auth/me" || echo "[warm] /api/auth/me warm-up request failed"
-	log_step_end "Warm-up compile"
+        # Compile the entry routes from the boot flow itself: `/` is the page the
+        # preview panel opens; /api/auth/me is the first XHR the app fires. After
+        # this, the first user request is a cache hit — the platform health
+        # deadline is never spent on a cold compile again.
+        log_step_start "Warm-up compile"
+        curl -s -m 240 -o /dev/null -w "[warm] GET / -> %{http_code} in %{time_total}s\n" "http://localhost:3000/" || echo "[warm] / warm-up request failed (platform watchdog covers revival)"
+        curl -s -m 90 -o /dev/null -w "[warm] GET /api/auth/me -> %{http_code} in %{time_total}s\n" "http://localhost:3000/api/auth/me" || echo "[warm] /api/auth/me warm-up request failed"
+        log_step_end "Warm-up compile"
 }
 
 cd "$PROJECT_DIR"
 
+# BOOT OWNS FLAG HYGIENE — root-out for the Oct 24 19:31 "session init
+# failed" incident. dev.stop is a LIVE-session maintenance tool: pause
+# respawn while a risky manual operation runs, remove it when done. But the
+# Oct 24 15:34 flag was never removed, survived the 19:30 reboot, and
+# dev-server.sh then refused to start the server at boot — wait_until_healthy
+# spun 300s, warm-up was skipped, and every preview hit in that ~6-minute
+# window saw "session init failed" until the platform watchdog rescued.
+# A flag that survived a reboot is stale BY DEFINITION: no live session
+# exists to end. The boot therefore clears it unconditionally — the manual
+# tool keeps working WITHIN a session, and can never brick a boot again.
+if [ -f "$PROJECT_DIR/.zscripts/dev.stop" ]; then
+        echo "[dev.sh] removing STALE dev.stop flag (left over from a previous session — boot-time hygiene)"
+        rm -f "$PROJECT_DIR/.zscripts/dev.stop"
+fi
+
 if ! command -v bun >/dev/null 2>&1; then
-	echo "ERROR: bun is not installed or not in PATH"
-	exit 1
+        echo "ERROR: bun is not installed or not in PATH"
+        exit 1
 fi
 
 log_step_start "bun install"
@@ -165,11 +180,23 @@ log_step_start "Starting dev server"
 bash "$PROJECT_DIR/scripts/dev-server.sh"
 log_step_end "Starting dev server"
 
-if wait_until_healthy 150; then
-	warm_up
-	start_mini_services
-	echo "ChessX is up. Server supervision belongs to the platform-owned watchdog."
-else
-	start_mini_services
-	echo "ERROR: dev server did not become healthy; the platform watchdog keeps retrying."
+if ! wait_until_healthy 150; then
+        # Second chance: the platform-owned watchdog respawn path (2 misses x 15s
+        # probes + spawn + compile) lands inside ~2-3 minutes. The OLD code jumped
+        # straight to the error branch, which skipped warm_up entirely — so the
+        # first real user hit raced a cold compile (the remaining render-fail
+        # vector even after the watchdog rescue). Wait for the rescue, then warm
+        # up regardless of who won the race.
+        echo "First wait failed — platform watchdog respawns the server; waiting for the rescue."
+        wait_until_healthy 120 || echo "ERROR: dev server still not healthy after the second-chance wait; the platform watchdog keeps retrying."
+fi
+# Warm-up must be UNCONDITIONAL — it is the layer that keeps the platform
+# health deadline from being spent on a cold compile, so it may never be a
+# casualty of which branch restarted the server. warm_up itself tolerates a
+# down server (prints a warning, watchdog covers revival).
+warm_up
+start_mini_services
+
+if wait_until_healthy 5; then
+        echo "ChessX is up. Server supervision belongs to the platform-owned watchdog."
 fi

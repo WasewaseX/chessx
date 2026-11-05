@@ -69,7 +69,7 @@ export function resolveLevelContext(
   let tier = TIERS.find((t) => t.id === String(rawTier ?? ''))
   if (!tier) {
     const n = Number(rawTier)
-    if (Number.isFinite(n) && n >= 1 && n <= 6) {
+    if (Number.isFinite(n) && n >= 1 && n <= TIERS.length) {
       tier = TIERS.find((t) => t.n === Math.round(n))
     }
   }
@@ -78,8 +78,8 @@ export function resolveLevelContext(
     tier = TIERS.find((t) => t.n === n) ?? TIERS[0]
   }
   // Tiers no longer all carry exactly 20 levels (book-derived insertions
-  // brought beginner to 23, intermediate to 24): clamp to the tier's real
-  // length so a request for level 23 resolves to level 23, not level 20.
+  // brought beginner to 24, intermediate to 25): clamp to the tier's real
+  // length so a request for level 24 resolves to level 24, not level 20.
   const levelN = Math.min(tier.levels.length, Math.max(1, Math.round(Number(rawLevel) || 1)))
   const level = tier.levels[levelN - 1] ?? tier.levels[0]
   return {

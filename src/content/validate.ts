@@ -256,7 +256,7 @@ async function main() {
   for (const p of puzzles) checkPuzzle(`puzzle ${p.id}`, p)
   console.log(`  ${puzzles.length} puzzles checked`)
 
-  // unique ids, 1..20 numbering per tier
+  // unique ids, sequential numbering per tier (1..N, N >= 20)
   const levelIds = new Set<string>()
   for (const tier of tiers) {
     tier.levels.forEach((level, i) => {
