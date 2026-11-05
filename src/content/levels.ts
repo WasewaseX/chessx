@@ -11,7 +11,7 @@ export const TIERS: Tier[] = [newbie, beginner, intermediate, advanced, master, 
 export interface LevelRef {
   tier: Tier
   level: Tier['levels'][number]
-  /** global level number, 1..120 */
+  /** global level number, tier.n * 100 + array position */
   globalN: number
 }
 

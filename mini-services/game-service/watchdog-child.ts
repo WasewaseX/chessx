@@ -9,8 +9,19 @@
 // Loop: probe 127.0.0.1:3000 every 15s; after two consecutive misses and no
 // live Next.js process (never double-spawn during a long compile), respawn
 // `bun run dev` detached. Single-instance via a pid lockfile.
+//
+// The Nov 5 lesson (the "app is short-lived" incident): a cold compile of `/`
+// on this box now takes 3-10 MINUTES (17 lazy views + engines in the client
+// graph), and during that window the port accepts nothing. The old flat
+// 10-minute HANG_KILL_MS murdered healthy servers that were still compiling —
+// under memory contention (two overlapping servers) a compile blew past 10 min,
+// got killed at 615s, and the respawn re-entered the same loop: the app died
+// every ~11 minutes, forever. Fix: the grace period is tied to the YOUNGEST
+// Next.js process's actual age, read from /proc — a young process gets a full
+// COMPILE_GRACE_MS to finish compiling no matter what; only a MATURE process
+// (one that was already serving and then stopped) is treated as hung.
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 
 const PID_FILE = '/home/z/my-project/.zscripts/watchdog-child.pid'
 const LOG_FILE = '/home/z/my-project/.zscripts/watchdog.log'
@@ -66,8 +77,14 @@ function devProcessExists(): boolean {
 }
 
 async function portAlive(): Promise<boolean> {
+  // Hard timeout: a dropped-SYN backlog (blocked event loop mid-compile) must
+  // hang this probe at most 5s, never stall the whole tick loop.
   try {
-    const conn = await Bun.connect({ hostname: '127.0.0.1', port: DEV_PORT })
+    const connect = Bun.connect({ hostname: '127.0.0.1', port: DEV_PORT })
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('probe-timeout')), 5_000),
+    )
+    const conn = await Promise.race([connect, timeout])
     conn.end()
     return true
   } catch {
@@ -75,16 +92,45 @@ async function portAlive(): Promise<boolean> {
   }
 }
 
+/**
+ * Age (ms) of the YOUNGEST live Next.js server/compile process, derived from
+ * the /proc/<pid> directory mtime (kernel sets it at process birth). This is
+ * what makes the watchdog compile-aware: a freshly born next-server that
+ * cannot serve yet is COMPILED, not HUNG.
+ * Returns Infinity when no process is found (caller respawns immediately).
+ */
+function youngestNextProcessAgeMs(): number {
+  let youngestStart = -Infinity
+  try {
+    for (const pid of readdirSync('/proc')) {
+      if (!/^\d+$/.test(pid)) continue
+      try {
+        const cmd = readFileSync(`/proc/${pid}/cmdline`, 'utf8').replace(/\0/g, ' ')
+        const isNext = cmd.includes('next-server') || (cmd.includes('next') && cmd.split(' ').includes('dev'))
+        if (!isNext) continue
+        const startedAt = statSync(`/proc/${pid}`).mtimeMs
+        if (Number.isFinite(startedAt) && startedAt > youngestStart) youngestStart = startedAt
+      } catch {}
+    }
+  } catch {}
+  if (youngestStart === -Infinity) return Infinity
+  return Date.now() - youngestStart
+}
+
 // --- main loop ---------------------------------------------------------------
 let misses = 0
 let lastSpawnAt = 0
+let lastCompileWaitLogAt = 0
 let hangSince = 0
 
-// A Next.js process that exists but cannot serve (GC thrash, wedged worker,
-// deadlocked compile) must never pin the dead port forever. Ten minutes of
-// "process alive + port dead" is far beyond any compile on this box (worst
-// observed full cold start ~2min), so past that the stale processes are
-// killed and the normal respawn path takes over on the next tick.
+// A MATURE Next.js process that stops serving (GC thrash, wedged worker, a
+// compile that somehow never ends) must never pin the dead port forever.
+// But the bar is age-relative now: any process younger than this grace is
+// presumed to be compiling (worst observed cold start 10 min under memory
+// contention; 20 min leaves generous headroom) and is NEVER killed.
+const COMPILE_GRACE_MS = 20 * 60_000
+// For mature processes the old rule still applies, measured from the first
+// observed miss: 10 minutes of "was serving, now dead" = hung.
 const HANG_KILL_MS = 10 * 60_000
 
 log(`watchdog child started (pid ${process.pid})`)
@@ -98,9 +144,22 @@ async function tick(): Promise<void> {
   misses++
   if (misses < 2) return // one miss may be a long compile — wait for two
   if (devProcessExists()) {
+    const ageMs = youngestNextProcessAgeMs()
+    if (ageMs < COMPILE_GRACE_MS) {
+      // Young process + dead port = almost certainly mid-compile. Never touch
+      // it — killing here is what made the app die every ~11 minutes.
+      const now = Date.now()
+      if (now - lastCompileWaitLogAt > 60_000) {
+        lastCompileWaitLogAt = now
+        log(`port 3000 down, Next.js process is ${Math.round(ageMs / 1000)}s old — inside compile grace, waiting`)
+      }
+      hangSince = 0
+      misses = 1
+      return
+    }
     if (!hangSince) hangSince = Date.now()
     if (Date.now() - hangSince > HANG_KILL_MS) {
-      log(`port 3000 down with a live Next.js process for ${Math.round((Date.now() - hangSince) / 1000)}s — treating as HUNG, killing stale processes`)
+      log(`port 3000 down with a MATURE Next.js process for ${Math.round((Date.now() - hangSince) / 1000)}s — treating as HUNG, killing stale processes`)
       try {
         Bun.spawn(['pkill', '-f', 'next-server'])
         Bun.spawn(['pkill', '-f', 'next dev'])
@@ -109,7 +168,7 @@ async function tick(): Promise<void> {
       misses = 0
       return
     }
-    log('port 3000 down but a Next.js process exists — waiting (compile?)')
+    log(`port 3000 down, mature Next.js process (${Math.round(ageMs / 1000)}s old) — hang watch ${Math.round((Date.now() - hangSince) / 1000)}s`)
     misses = 1
     return
   }

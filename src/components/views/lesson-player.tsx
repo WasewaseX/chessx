@@ -660,6 +660,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           bestStreak={bestStreak}
           tierTitle={tier.title}
           tierColor={tier.color}
+          tierLevelCount={tier.levels.length}
           nextLevel={targetNext}
           nextTierTitle={nextTier?.title ?? null}
           unlockedNow={unlockedNow}
@@ -972,6 +973,7 @@ function CompletionScreen({
   bestStreak: number
   tierTitle: string
   tierColor: string
+  tierLevelCount: number
   nextLevel: NonNullable<ReturnType<typeof findLevel>>['level'] | null
   nextTierTitle: string | null
   unlockedNow: boolean
@@ -982,7 +984,10 @@ function CompletionScreen({
   onPlay: () => void
   onPuzzles: () => void
 }) {
-  const chapterEnd = lesson.n >= 20
+  // the completed lesson closed its chapter: it was the last level of the
+  // tier. Compare against the tier's real length (tiers now carry 23-24
+  // levels after the book-derived insertions) and not a hardcoded 20.
+  const chapterEnd = lesson.n >= tierLevelCount
   // close the lesson with the win sound, once
   const winPlayedRef = useRef(false)
   useEffect(() => {
@@ -1027,7 +1032,7 @@ function CompletionScreen({
         />
       </div>
       <h2 className="mt-2 font-book text-4xl font-semibold text-paper-ink sm:text-5xl">
-        {courseComplete ? '120 levels. Every one of them yours.' : chapterEnd ? 'Chapter complete' : 'Lesson complete'}
+        {courseComplete ? `${ALL_LEVELS.length} levels. Every one of them yours.` : chapterEnd ? 'Chapter complete' : 'Lesson complete'}
       </h2>
       <p className="mt-1 text-sm font-semibold text-paper-faint">
         {courseComplete
@@ -1080,7 +1085,7 @@ function CompletionScreen({
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-paper-line bg-paper-hover px-3.5 py-1.5 text-xs font-extrabold text-paper-muted">
           <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ background: tierColor }} />
-          {tierTitle} level {lesson.n} of 20
+          {tierTitle} level {lesson.n} of {tierLevelCount}
         </span>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-paper-line bg-paper-hover px-3.5 py-1.5 text-xs font-extrabold text-paper-muted">
           <Check className="h-3.5 w-3.5 text-[#81b64c]" strokeWidth={3} />

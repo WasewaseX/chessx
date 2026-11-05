@@ -77,7 +77,10 @@ export function resolveLevelContext(
     const n = SKILL_TIER[skillLevel] ?? 2
     tier = TIERS.find((t) => t.n === n) ?? TIERS[0]
   }
-  const levelN = Math.min(20, Math.max(1, Math.round(Number(rawLevel) || 1)))
+  // Tiers no longer all carry exactly 20 levels (book-derived insertions
+  // brought beginner to 23, intermediate to 24): clamp to the tier's real
+  // length so a request for level 23 resolves to level 23, not level 20.
+  const levelN = Math.min(tier.levels.length, Math.max(1, Math.round(Number(rawLevel) || 1)))
   const level = tier.levels[levelN - 1] ?? tier.levels[0]
   return {
     tierId: tier.id,

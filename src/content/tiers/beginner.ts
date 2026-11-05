@@ -1,5 +1,7 @@
 // Tier 2: Beginner. Opening plans, the first tactical weapons, and the
 // basic checkmates every player must own.
+// Book-derived levels (How to Win at Chess: structure and chess principles
+// only, never text): bg-ends, bg-e4-black, bg-d4-black.
 import type { Tier } from '../schema'
 import { text, demo, quiz, drill, right, wrong, playout, gtmStep, guess } from '../kit'
 
@@ -790,8 +792,114 @@ export const beginner: Tier = {
       ],
     },
     {
-      id: 'bg-14',
+      id: 'bg-ends',
       n: 14,
+      title: 'How games really end',
+      subtitle: 'Four ways to win, five ways to draw, zero reasons to resign.',
+      minutes: 10,
+      concepts: ['endgame', 'technique'],
+      steps: [
+        text(
+          'Four ways a game is won',
+          [
+            'Checkmate is the clean one: the king is attacked and no move saves it.',
+            'The other three happen online every day: your opponent resigns, your opponent runs out of time, or your opponent abandons the game and never comes back.',
+            'This changes what a "lost" position means. Until the mate lands or the handshake comes, nothing is decided. A rook down, two rooks down: the game is still on the board.',
+          ],
+          'Mate, resignation, the flag, abandonment: none of the four care who "should" have won.',
+        ),
+        demo(
+          'When the clock decides',
+          [
+            'Your opponent flags (runs out of time). Do you win?',
+            'Only if you have enough material to mate somehow. A bare king, or king plus a lone bishop or knight, can never deliver mate, so the result is a draw.',
+            'This is why you keep pawns while winning: they are your insurance policy for the flag.',
+          ],
+          '4k3/8/8/8/8/8/8/4K3 w - - 0 1',
+          { caption: 'Opponent flags here: draw, not win. A bare king can never mate.' },
+        ),
+        text(
+          'Every way a game is drawn',
+          [
+            'Stalemate: the side to move has no legal move and is NOT in check. Instant draw, and the most common way beginners throw away a full point.',
+            'Threefold repetition: the same position appears a third time. Claim it and shake hands.',
+            'Insufficient material: king versus king, or king plus one minor piece versus king. Nobody can mate.',
+            'The fifty-move rule: fifty moves each with no capture and no pawn move. Rare, but real.',
+            'Agreement: both players offer and accept. Earned draws are honest; lazy ones are not.',
+          ],
+          'Half a point saved is a full point your opponent did not get.',
+        ),
+        demo(
+          'The stalemate trap',
+          [
+            'You are a whole queen up. One careless move and the game is a draw.',
+            'Qg6?? looks aggressive, but look at the black king: g8 is covered by the queen, g7 and h7 by queen and king, and h8 is not even attacked. No check, no legal move: stalemate.',
+          ],
+          '7k/8/5K2/8/8/3Q4/8/8 w - - 0 1',
+          { moves: ['Qg6'], caption: 'STALEMATE. The full point just became half a point.' },
+        ),
+        demo(
+          'The winning way',
+          [
+            'Same position, correct method: walk the king closer FIRST and keep every stalemate door shut.',
+            'Kg6 takes away h7 and g7, so Black has exactly one move. Then the queen lands on d8 with mate.',
+          ],
+          '7k/8/5K2/8/8/3Q4/8/8 w - - 0 1',
+          { moves: ['Kg6', 'Kg8', 'Qd8#'], caption: 'King first, queen second: the box method, finished.' },
+        ),
+        drill(
+          'Finish without the draw',
+          '7k/8/5K2/8/8/3Q4/8/8 w - - 0 1',
+          ['Kg6', 'Kg8', 'Qd8#'],
+          'Three moves: mate the king, no stalemate slips',
+          'The king walks first. The queen only comes in for the kill.',
+          'Mated with the box method. This is how full points get banked.',
+        ),
+        quiz(
+          'Not enough firewood',
+          'King and bishop against king: can the strong side ever force mate?',
+          [
+            right('No. Insufficient material: the game is a draw no matter what', 'A lone bishop cannot mate. The rulebook says draw, and the rulebook wins.'),
+            wrong('Yes, by driving the king to the corner', 'The corner does not help: no bishop mate exists without help.'),
+            wrong('Yes, if the bishop controls the promotion color', 'There is no promotion: there is no pawn. Dead draw.'),
+          ],
+        ),
+        quiz(
+          'The flag rule',
+          'Your opponent runs out of time. You have a king and a knight; he has a king and five pawns. Result?',
+          [
+            right('Draw: a lone knight can never mate, so the flag scores nothing', 'Time only pays if mate was possible for the flagging player\'s opponent. King and knight cannot.'),
+            wrong('Win: the clock decides everything', 'The clock decides, but only when mate is still possible on the board.'),
+            wrong('Loss for you: his pawns were winning', 'His pawns never promoted. What stands on the board decides the flag.'),
+          ],
+        ),
+        quiz(
+          'Never resign',
+          'Move 15: you blundered a full rook. What is the plan?',
+          [
+            right('Play on. At this level half points come back through flags, stalemates and blunders', 'Your opponents hang pieces and flag in won positions every single day. Make them prove it.'),
+            wrong('Resign: lost is lost', 'A rook down at beginner level is a test of your opponent, not a funeral.'),
+            wrong('Offer a draw: he is winning, so he should accept', 'Never beg. Play the position and make him convert with the clock running.'),
+          ],
+        ),
+        playout(
+          'Convert the full point',
+          'Mate with queen and king. Before every queen move, run the stalemate check: does his king still have a move?',
+          'k7/8/8/8/8/8/8/K6Q w - - 0 1',
+          'w',
+          'Checkmate without ever stalemating',
+          1,
+          'checkmate',
+          25,
+          'Checkmate delivered, zero stalemate scares. The full point is banked.',
+          'The win slipped: stalemate or the clock. Walk the king closer first next time.',
+          'Shrink the box, then bring the king. Mate comes at the end, not in the middle.',
+        ),
+      ],
+    },
+    {
+      id: 'bg-14',
+      n: 15,
       title: 'Passed pawns',
       subtitle: 'No enemy pawns in the way: run or push.',
       minutes: 10,
@@ -855,7 +963,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-15',
-      n: 15,
+      n: 16,
       title: 'Practice arena: tactics I',
       subtitle: 'Fork, pin, skewer, mixed.',
       minutes: 11,
@@ -896,7 +1004,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-16',
-      n: 16,
+      n: 17,
       title: 'Practice arena: tactics II',
       subtitle: 'Loose pieces, counting, defense.',
       minutes: 11,
@@ -934,7 +1042,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-17',
-      n: 17,
+      n: 18,
       title: 'Your first opening: the Italian',
       subtitle: 'A complete, honest opening you can play forever.',
       minutes: 11,
@@ -997,8 +1105,192 @@ export const beginner: Tier = {
       ],
     },
     {
+      id: 'bg-e4-black',
+      n: 19,
+      title: 'Black answers 1.e4',
+      subtitle: 'Classical, building block, or wall: pick your defense.',
+      minutes: 12,
+      concepts: ['center', 'development', 'pawnStructure'],
+      steps: [
+        text(
+          'Three families, one choice',
+          [
+            'White played 1.e4 and staked a claim in the center. Your reply decides the character of the whole game.',
+            'The classical answer: 1...e5. Meet the center head-on and fight for equal ground immediately. Open, principled, double-edged.',
+            'The building block: 1...c6 (the Caro-Kann) or 1...e6 (the French). Prepare the ...d5 break with a side pawn and take the center one move later, on your terms.',
+            'Setup-based defenses exist too, but at this level the choice is simple: classical or building block. Both are honest.',
+          ],
+          'Pick ONE defense against 1.e4 and play it every time. Consistency teaches faster than variety.',
+        ),
+        demo(
+          'The classical: 1...e5',
+          ['The oldest fight in chess: both sides grab the center, both sides develop, and the game stays open and sharp.'],
+          START,
+          {
+            moves: ['e4', 'e5', 'Nf3', 'Nc6'],
+            caption: 'Meet force with force: the classical reply.',
+          },
+        ),
+        demo(
+          'The building block: the Caro-Kann',
+          ['1...c6 quietly prepares ...d5. The c-pawn does the supporting so the d-pawn can do the fighting.'],
+          START,
+          {
+            moves: ['e4', 'c6', 'd4', 'd5'],
+            caption: 'c6 first, d5 second: the center arrives one move later, fully supported.',
+          },
+        ),
+        text(
+          'Why c6 instead of e6',
+          [
+            'Both 1...c6 and 1...e6 prepare ...d5. The difference is one diagonal.',
+            'The c8 bishop travels toward h3 through d7, e6 and f5. The Caro-Kann pawn on c6 never touches that road. The French pawn on e6 parks itself right on it, and the bishop starts the game asleep.',
+            'That is the Caro-Kann\'s whole selling point: the same solid wall, with a bishop that can come out to f5 and actually play.',
+          ],
+          'Same wall, working bishop: that is why the Caro-Kann is the gentlest solid defense.',
+        ),
+        demo(
+          'The French: the same wall, a sleeping bishop',
+          ['1...e6 builds the same d5 wall. The cost: the c8 bishop is locked in until e6 leaves. Solid and central, but freeing that bishop becomes your first project.'],
+          START,
+          {
+            moves: ['e4', 'e6', 'd4', 'd5'],
+            caption: 'The French: d5 tomorrow, bishop rescue project today.',
+          },
+        ),
+        drill(
+          'Play the Caro-Kann',
+          'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          ['c6', 'd4', 'd5'],
+          'Answer 1.e4 the Caro way',
+          'Support pawn first, fighting pawn second.',
+          'Caro-Kann reached: solid, structural, and the bishop still breathes.',
+        ),
+        drill(
+          'Play the French',
+          'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          ['e6', 'd4', 'd5'],
+          'Answer 1.e4 the French way',
+          'The e-pawn takes the support role this time.',
+          'French reached: rock solid, and the c8 bishop is now your project.',
+        ),
+        quiz(
+          'Which reply keeps the bishop free',
+          'Which move supports ...d5 while leaving the c8 bishop\'s diagonal untouched?',
+          [
+            right('c6, the Caro-Kann', 'The c6 pawn is not on the c8-h3 diagonal. The bishop can aim for f5.'),
+            wrong('e6, the French', 'e6 sits right on the bishop\'s road. Solid, but the bishop sleeps.'),
+            wrong('a6, waiting to see', 'a6 prepares nothing: White takes the center for free.'),
+          ],
+        ),
+        quiz(
+          'The commitment',
+          'What is the honest beginner advice for a Black repertoire against 1.e4?',
+          [
+            right('Choose one defense and play it every time until its plans are yours', 'Ten games with one defense beat one game each with ten defenses.'),
+            wrong('Memorize five defenses and rotate them for variety', 'Variety is for stronger players. Depth beats breadth below expert level.'),
+            wrong('Copy whatever the engine plays first', 'The engine changes its mind every game. A human needs plans, not novelties.'),
+          ],
+        ),
+      ],
+    },
+    {
+      id: 'bg-d4-black',
+      n: 20,
+      title: 'Black answers 1.d4',
+      subtitle: 'The QGD wall, or one setup that answers everything.',
+      minutes: 11,
+      concepts: ['center', 'development', 'kingSafety'],
+      steps: [
+        text(
+          'The other first move',
+          [
+            '1.d4 grabs the center with the queen\'s pawn: slower than 1.e4, but just as greedy.',
+            'The classical answer is 1...d5: plant your own center pawn and hold it. White\'s most common try is 2.c4, the Queen\'s Gambit: a pawn offer designed to make you relax your grip on the center.',
+            'You decline it. 2...e6 supports d5, opens the f8 bishop, and begins the Queen\'s Gambit Declined: one of the most trusted structures in chess history.',
+          ],
+          'The c4 pawn is bait for your center. Decline it, hold d5, develop.',
+        ),
+        demo(
+          'The Queen\'s Gambit Declined',
+          ['The full wall: d5 held, e6 played, knights out, bishop developed, king headed for g8.'],
+          START,
+          {
+            moves: ['d4', 'd5', 'c4', 'e6', 'Nc3', 'Nf6', 'Bg5', 'Be7'],
+            caption: 'The QGD: support the center, develop, castle.',
+          },
+        ),
+        drill(
+          'Play the QGD',
+          'rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq - 0 2',
+          ['e6', 'Nc3', 'Nf6'],
+          'Decline the gambit correctly',
+          'e6 frees the f8 bishop; Nf6 develops and holds d5.',
+          'QGD structure reached: solid as concrete.',
+        ),
+        text(
+          'Freeing the bishop later',
+          [
+            'The one QGD headache is the c8 bishop, boxed in by the e6 pawn. Two standard cures.',
+            'The slow cure: ...b6 and ...Bb7, aiming the bishop at the e4 pawn and the center.',
+            'The dynamic cure: the ...c5 break, hitting d4 and opening the diagonal in one move. It comes when your pieces are ready, not before.',
+          ],
+          'A locked bishop is a plan, not a tragedy. Free it on purpose.',
+        ),
+        demo(
+          'The setup-based fallback',
+          ['If memorizing structures is not your thing yet, one setup answers almost anything: knight out, g6, bishop to g7, d6. Solid by geography, not by memory.'],
+          START,
+          {
+            moves: ['d4', 'Nf6', 'c4', 'g6', 'Nc3', 'Bg7'],
+            caption: 'Nf6, g6, Bg7, d6: the same fist against every jab.',
+          },
+        ),
+        quiz(
+          'The e6 question',
+          'In the QGD, why does Black play e6 before Nf6?',
+          [
+            right('To free the f8 bishop so development keeps flowing', 'e6 opens the door for Be7 or even Bb4. Development never stalls.'),
+            wrong('To attack the c4 pawn immediately', 'Pawns do not attack from behind. e6 is a building move.'),
+            wrong('To stop White from castling', 'Nothing stops White\'s castling on move two.'),
+          ],
+        ),
+        quiz(
+          'The bait',
+          'White plays c4 and attacks your d5 pawn. Why not just take it?',
+          [
+            right('Taking usually opens lines that help White; holding d5 keeps you solid at this level', 'The gambit works exactly when you get greedy without a plan. Decline and develop.'),
+            wrong('You must never capture pawns in the opening', 'Capturing is fine when you know the follow-up. Here the follow-up favors White.'),
+            wrong('The pawn is poisoned and loses a piece by force', 'Not by force: it is a slow, strategic concession, not a trap.'),
+          ],
+        ),
+        quiz(
+          'The commitment, again',
+          'And the honest advice for a Black repertoire against 1.d4?',
+          [
+            right('One system, played every time: QGD if you like walls, g6-setup if you like geography', 'Same rule as against 1.e4: one choice, ten games, real understanding.'),
+            wrong('Play the exact same defense you use against 1.e4', '1.e4 and 1.d4 create different centers. They need different tools.'),
+            wrong('Let the mood decide each game', 'Mood-driven repertoires produce mood-driven results.'),
+          ],
+        ),
+        playout(
+          'Hold as Black',
+          'You are Black in a QGD structure. Develop, castle, keep d5 solid, free the bishop when ready.',
+          'rnbqk2r/pppp1ppp/4p3/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR b KQkq - 3 4',
+          'b',
+          'Get castled and stay even in material',
+          1,
+          'castle',
+          8,
+          'Castled with the center intact: the QGD did its job.',
+          'The center cracked or the king stayed home. Reset and hold d5.',
+          'Be7, then castle. The wall holds itself; you just have to build it.',
+        ),
+      ],
+    },
+    {
       id: 'bg-18',
-      n: 18,
+      n: 21,
       title: 'Play a development game',
       subtitle: 'Full game, one goal: castle by move 12.',
       minutes: 15,
@@ -1044,7 +1336,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-19',
-      n: 19,
+      n: 22,
       title: 'Beginner exam',
       subtitle: 'One quiz, one mate, one trap to punish.',
       minutes: 11,
@@ -1090,7 +1382,7 @@ export const beginner: Tier = {
     },
     {
       id: 'bg-20',
-      n: 20,
+      n: 23,
       title: 'Beginner graduation',
       subtitle: 'One more game, one tier down.',
       minutes: 16,

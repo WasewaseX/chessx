@@ -419,8 +419,74 @@ export const advanced: Tier = {
       ],
     },
     {
-      id: 'adv-09',
+      id: 'adv-reroute',
       n: 9,
+      title: 'Improve your worst piece',
+      subtitle: 'The plan starts at the piece doing nothing.',
+      minutes: 10,
+      concepts: ['pieceActivity', 'coordination', 'tempo'],
+      steps: [
+        text(
+          'Find the worst piece',
+          [
+            'Every position has one piece doing the least. Find it and you have found your plan.',
+            'A bad piece is not a broken piece: it is a piece with the wrong address. Your job is to give it a route and a destination, then pay the tempos gladly.',
+            'The alternative, hoping it wakes up on its own, is how equal positions drift into worse ones.',
+          ],
+          'The plan starts at your worst piece. Give it a job or trade it with dignity.',
+        ),
+        demo(
+          'The knight tour',
+          [
+            'A classic route in one diagram: the b1-knight walks d2, f1, g3, heading for f5, and the king castles only AFTER the knight has left f1.',
+            'Five squares, zero waste. d2 develops, f1 opens the road to the kingside, g3 aims at f5. Slow? Yes. Pointless? Every square had a reason.',
+          ],
+          START,
+          {
+            moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Bc5', 'd3', 'Nf6', 'Nbd2', 'd6', 'Nf1', 'O-O', 'Ng3', 'a6', 'O-O'],
+            caption: 'b1-d2-f1-g3, THEN castle: the rook lands on f1 after the knight has left.',
+          },
+        ),
+        drill(
+          'Run the tour',
+          'r1bq1rk1/pppp1ppp/3p1n2/2b1p3/2B1P3/3P1N2/PPP2PPP/R1BQKN1R w KQ - 2 7',
+          ['Ng3'],
+          'Send the f1-knight on its journey',
+          'f1-g3, then f5 next; the king castles after the knight clears f1.',
+          'Ng3. The sleepy knight wakes up on the kingside.',
+        ),
+        quiz(
+          'Which one first',
+          'Three pieces are doing fine; one does nothing. Where does the plan start?',
+          [
+            right('The do-nothing piece: reroute or trade it', 'The worst piece is the plan. Fix it and the whole army improves.'),
+            wrong('The queen: she is the strongest', 'The strongest piece usually needs a target, not a tour. Start with the idle one.'),
+            wrong('The pawns: they never move backward anyway', 'Pawns serve the pieces. The idle piece decides where they should serve.'),
+          ],
+        ),
+        quiz(
+          'The cost',
+          'Reroutes cost time. When is the price right?',
+          [
+            right('When the destination square is worth more than the tempo you pay', 'Buy squares, not moves. If the landing square transforms the position, the tempos are cheap.'),
+            wrong('Never: developed pieces must stay home', 'Developed is not the same as useful. Pieces move until they matter.'),
+            wrong('Always: moving is free in chess', 'Every move is a resource. Spending three on one knight needs a payoff.'),
+          ],
+        ),
+        quiz(
+          'The rim knight',
+          'Your knight sits on a4 doing nothing. The move?',
+          [
+            right('Plan its route back toward the center before the position closes', 'Rim knights need a ticket home. Book the route before the doors shut.'),
+            wrong('Trade it for whatever walks by, at any cost', 'Paying for a bad trade just to be rid of it doubles the loss.'),
+            wrong('Leave it: edge squares are natural knight homes', 'The rim is a knight\'s graveyard. A4 might hold for now, but the plan is the way back.'),
+          ],
+        ),
+      ],
+    },
+    {
+      id: 'adv-09',
+      n: 10,
       title: 'Pawn chains',
       subtitle: 'Attack the base. Know when to release.',
       minutes: 9,
@@ -468,8 +534,83 @@ export const advanced: Tier = {
       ],
     },
     {
+      id: 'adv-breaks',
+      n: 11,
+      title: 'Pawn breaks',
+      subtitle: 'Closed walls are opened by one pawn move.',
+      minutes: 10,
+      concepts: ['pawnBreaks', 'pawnStructure', 'calculation'],
+      steps: [
+        text(
+          'Closed walls, opened by one move',
+          [
+            'A pawn break is an advance whose job is not gaining space: it is opening lines for the pieces standing behind it.',
+            'In closed positions you do not outmaneuver, you BREAK. The break is the pawn move that attacks a fixed enemy pawn, forces a concession, and opens a file or diagonal.',
+            'Three questions before any break: which line opens, whose pieces enjoy it, and does my king care?',
+          ],
+          'A break is a pawn move whose job is opening lines for the pieces behind it.',
+        ),
+        demo(
+          'The French break',
+          [
+            'The classic wall: White has d4 and e4, Black has d5 and e6, and the position is bolted shut.',
+            'White\'s break is f5, hitting the base pawn on e6. But breaks are prepared, not thrown: e5 fixes the structure, c3 and f4 gather the troops, and f5 lands when the pieces behind it are ready.',
+          ],
+          'rnbqkbnr/pppp1ppp/4p3/3p4/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3',
+          { moves: ['e5', 'c5', 'c3', 'Nc6', 'f4'], caption: 'e5 fixes the chain; c3 and f4 prepare the f5 break.' },
+        ),
+        drill(
+          'Strike the structure',
+          'rnbqkbnr/pppp1ppp/4p3/3p4/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3',
+          ['e5'],
+          'Pick the plan-fixing move',
+          'Advance: fix the chain, then undermine with c3 and f4.',
+          'e5! The chain is frozen and the f5 break is scheduled.',
+        ),
+        demo(
+          'Black answers with a break of her own',
+          [
+            'Breaks belong to both sides. Black\'s answer to the French wall is ...c5, hitting the base of White\'s chain.',
+            'Even when White captures, the c-file and the light squares open for BLACK\'S pieces. Count who enjoys the open roads before you call it a win.',
+          ],
+          'rnbqkbnr/pppp1ppp/4p3/3p4/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3',
+          { moves: ['e5', 'c5', 'dxc5', 'Nc6'], caption: 'Breaks trade space for lines: count whose pieces enjoy the open roads.' },
+        ),
+        quiz(
+          'The timing question',
+          'When do you commit to a pawn break?',
+          [
+            right('When your pieces stand behind the break, ready to pour through', 'A break without an army behind it opens lines for HIM. Prepare first, break second.'),
+            wrong('On a fixed schedule, structure be damned', 'Breaks have calendars written by the pieces, not the clock.'),
+            wrong('Never in closed positions: shuffle instead', 'Shuffling is how closed positions are lost. Breaks are how they are won.'),
+          ],
+        ),
+        quiz(
+          'Whose game opens',
+          'You break; a file opens. What decides whether the break was right?',
+          [
+            right('Whose pieces benefit from the open lines, yours or his', 'Open lines are roads. The break that builds HIS road is a present, not a plan.'),
+            wrong('Who captured more pawns in the resulting line', 'Pawn counts in the transition matter less than who owns the open file after it.'),
+            wrong('Nothing: any open file is good for both sides', 'Equal files are rare. Somebody\'s rooks usually arrive first, and that somebody planned it.'),
+          ],
+        ),
+        playout(
+          'Break on purpose',
+          'You are White in a French structure. Prepare the kingside break, open the game, use the pieces.',
+          'rnbqkb1r/pppp1ppp/4pn2/3p4/3PP3/2N5/PPP2PPP/R1BQKBNR w KQkq - 2 4',
+          'w',
+          'Open the position and finish even or better',
+          3,
+          'material',
+          20,
+          'The wall came down on your terms. That is break technique.',
+          'The break came late or into nothing. Prepare first, break second.',
+        ),
+      ],
+    },
+    {
       id: 'adv-10',
-      n: 10,
+      n: 12,
       title: 'Practice arena: calculation',
       subtitle: 'Forcing moves under pressure.',
       minutes: 10,
@@ -517,7 +658,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-11',
-      n: 11,
+      n: 13,
       title: 'Openings with a purpose',
       subtitle: 'Repertoires are plans, not memorization.',
       minutes: 10,
@@ -559,7 +700,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-12',
-      n: 12,
+      n: 14,
       title: 'Isolated queen\u2019s pawn',
       subtitle: 'The most debated pawn in chess.',
       minutes: 10,
@@ -600,7 +741,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-13',
-      n: 13,
+      n: 15,
       title: 'Lucena: the bridge',
       subtitle: 'The most important winning position in rook endgames.',
       minutes: 10,
@@ -646,7 +787,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-14',
-      n: 14,
+      n: 16,
       title: 'Philidor: rear checks',
       subtitle: 'The most important drawing position in rook endgames.',
       minutes: 10,
@@ -685,7 +826,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-15',
-      n: 15,
+      n: 17,
       title: 'Rook activity',
       subtitle: 'Cutting off, behind passed pawns, the active king.',
       minutes: 10,
@@ -722,7 +863,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-16',
-      n: 16,
+      n: 18,
       title: 'Opposite bishops',
       subtitle: 'Drawish, until an outside passed pawn changes everything.',
       minutes: 10,
@@ -771,7 +912,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-17',
-      n: 17,
+      n: 19,
       title: 'Knight versus bishop',
       subtitle: 'The eternal argument, settled by structure.',
       minutes: 10,
@@ -813,7 +954,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-18',
-      n: 18,
+      n: 20,
       title: 'Queen endings',
       subtitle: 'Checks, forks, and the perpetual road.',
       minutes: 10,
@@ -858,7 +999,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-19',
-      n: 19,
+      n: 21,
       title: 'Converting winning endgames',
       subtitle: 'King centralization and simplification.',
       minutes: 10,
@@ -904,7 +1045,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-20',
-      n: 20,
+      n: 22,
       title: 'Advanced graduation',
       subtitle: 'One exam, one famous game, tier cleared.',
       minutes: 19,

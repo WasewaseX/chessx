@@ -225,9 +225,18 @@ async function main() {
   let levels = 0
   let steps = 0
   for (const tier of tiers) {
-    if (tier.levels.length !== 20) {
-      err(`tier ${tier.id}`, `tier must have exactly 20 levels, has ${tier.levels.length}`)
+    // The unlock machinery (lib/unlock.ts, lesson-contents, coach-skills)
+    // treats level.n as a 1-based index into tier.levels: levels[i].n === i+1.
+    // Enforce the real invariant instead of a magic count, and keep the
+    // original 20-level floor so no tier can silently shrink.
+    if (tier.levels.length < 20) {
+      err(`tier ${tier.id}`, `tier must have at least 20 levels, has ${tier.levels.length}`)
     }
+    tier.levels.forEach((level, i) => {
+      if (level.n !== i + 1) {
+        err(`tier ${tier.id}`, `level ${level.id} has n=${level.n} but sits at array index ${i} (n must be index+1)`)
+      }
+    })
     for (const level of tier.levels) {
       levels++
       checkConcepts(`t${tier.n}/${level.id} concepts`, level)
