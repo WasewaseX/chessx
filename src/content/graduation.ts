@@ -25,6 +25,9 @@ export const GRADUATION: Record<string, string> = {
   'nb-18': 'castle, en passant, promote, and underpromote to mate, all under pressure.',
   'nb-19': 'play a real opening plan: center, development, king safety, move by move.',
   'nb-20': 'play a full game with every rule in the book, and the Légal trap is yours to spring.',
+  'nb-21': 'read and write any chess move: notation, captures, checks, mates, and castling.',
+  'nb-22': 'name every way a game ends, and stay standing until the mate is real.',
+  'nb-23': 'run the practice loop: play, solve, review your losses, and keep one lesson from each.',
   // Beginner
   'bg-01': 'fight for the center on move one, and explain why flank pawns waste time.',
   'bg-02': 'develop a new piece every move instead of shuffling one.',
@@ -46,6 +49,9 @@ export const GRADUATION: Record<string, string> = {
   'bg-18': 'play a full development game and castle by move 12.',
   'bg-19': 'punish Scholar’s Mate on sight and run the three-second scan on autopilot.',
   'bg-20': 'finish the Beginner tier with a complete game on the board.',
+  'bg-21': 'spot the opening sins from across the board, and punish the early queen raid on sight.',
+  'bg-22': 'trade pieces when ahead and pawns when behind, on purpose.',
+  'bg-23': 'fire a battery at a boxed king, and smother one when the walls are its own.',
   // Intermediate
   'int-01': 'hit two targets with one move, whatever the piece.',
   'int-02': 'unmask a hidden attacker by moving the piece in front of it.',
@@ -67,6 +73,10 @@ export const GRADUATION: Record<string, string> = {
   'int-18': 'hold endgame technique together under real pressure.',
   'int-19': 'mix tactics and technique in one sitting, and keep your head.',
   'int-20': 'graduate the tier with a famous pattern, an exam, and a full game behind you.',
+  'int-21': 'own one White opening deep: London or Vienna, chosen by style, not fashion.',
+  'int-22': 'answer 1.e4 and 1.d4 with a repertoire you know by plan, not by memorization.',
+  'int-23': 'accept, decline, or punish a gambit, and never assume a pawn is free.',
+  'int-24': 'run CCA on every move: checks, captures, attacks, in that order.',
   // Advanced
   'adv-01': 'generate candidate moves in the master order: checks, captures, threats.',
   'adv-02': 'run the blunder check before every move: what is his best reply?',
@@ -88,6 +98,7 @@ export const GRADUATION: Record<string, string> = {
   'adv-18': 'navigate queen endings: checks, forks, and the perpetual road.',
   'adv-19': 'convert winning endgames by centralizing and simplifying.',
   'adv-20': 'clear the Advanced exam, a famous game, and a tier of new habits.',
+  'adv-21': 'win knight endings with the two-weakness plan and the best blockader in the game.',
   // Master
   'ms-01': 'think in imbalances instead of counting points.',
   'ms-02': 'play prophylaxis: take what he wants before he takes it.',
@@ -109,6 +120,7 @@ export const GRADUATION: Record<string, string> = {
   'ms-18': 'calculate deep, verified combinations.',
   'ms-19': 'combine multiple motifs at full depth.',
   'ms-20': 'out-plan club players: prophylaxis first, trades with intent, defense by counterattack.',
+  'ms-21': 'name the structure on sight and play its standing plan: the Maróczy Bind is yours.',
   // Grandmaster
   'gm-01': 'prune calculation trees and trust only verified endings.',
   'gm-02': 'find resources in worse positions: activity, counterplay, the perpetual.',

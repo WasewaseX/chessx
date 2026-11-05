@@ -203,8 +203,62 @@ export const master: Tier = {
       ],
     },
     {
-      id: 'ms-05',
+      id: 'ms-21',
       n: 5,
+      title: 'The Maroczy Bind',
+      subtitle: 'The c4 and e4 pawns that strangle a Sicilian for a century.',
+      minutes: 10,
+      concepts: ['pawnStructure', 'outposts'],
+      steps: [
+        text(
+          'Structures with names',
+          [
+            'Some pawn structures are so important they carry names, and the names carry standing plans. Learn to recognize them and you skip hours of calculation: the plan is already written.',
+            'The Maroczy Bind is the most famous: White plays pawns to c4 AND e4 against Black\'s Sicilian setup. The two pawns grip the center, and Black\'s freeing break, d5, becomes permanently impossible.',
+            'The London System earns its name the same way: a named structure with a known plan. When you can name the structure, you already know the next five moves.',
+          ],
+          'Name the structure and the plan comes with it.',
+        ),
+        demo(
+          'The bind in action',
+          [
+            'This is the real Maroczy Bind, from the Accelerated Dragon: White has pawns on c4 and e4, Black has the Sicilian setup with d6 and g6.',
+            'Look at d5: it is a hole, and it will stay a hole, because d5 can never be played. The white knights dream of landing there, and Black spends the whole game finding counterplay elsewhere.',
+          ],
+          'r1bqk2r/pp2pb1p/2np1np1/8/2PNP3/2N5/PP3PPP/R1BQKB1R w KQkq - 0 7',
+          {
+            marks: [
+              { square: 'c4', color: 'green' },
+              { square: 'e4', color: 'green' },
+              { square: 'd5', color: 'gold' },
+            ],
+            caption: 'c4 and e4 grip; d5 becomes a White outpost forever',
+          },
+        ),
+        quiz('The binding pawns', 'The Maroczy Bind is White\'s pair of pawns on which two squares?', [
+          right('c4 and e4', 'The two-pawn grip. Together they make d5 impossible and hand White a permanent outpost there.'),
+          wrong('c4 and d4', 'The c4-d4 pair belongs to other structures with other plans. The bind is the c4-e4 grip.'),
+          wrong('d4 and e4', 'The classical center. Strong, but it does not create the bind.'),
+        ]),
+        quiz('What the bind kills', 'Which break does the Maroczy Bind make permanently impossible for Black?', [
+          right('d5, the central freeing push', 'With White pawns on c4 and e4, the d5 square is covered twice. Black\'s counterplay must move to the wings.'),
+          wrong('b5, the queenside space grab', 'b5 is actually one of Black\'s real plans against the bind: pressure c4 from the side.'),
+          wrong('f5, the kingside strike', 'f5 is playable in some lines. The impossible move is the center break.'),
+        ]),
+        text(
+          'Playing with and against the bind',
+          [
+            'With the bind: trade into the endgame, plant a knight on d5 or e5, and press slowly. The bind does not win by itself; it removes Black\'s counterplay so YOUR plan runs unopposed.',
+            'Against the bind: Black\'s counterplay is external, b5 hitting c4 or pressure down the g-file with the dragon bishop. Play for activity, not for the center: the center is lost, the wings are open.',
+            'The meta-lesson of every named structure: know which squares are yours forever, and which fight must move somewhere else.',
+          ],
+          'The bind trades Black\'s center counterplay for wings. Both sides should play where the structure says.',
+        ),
+      ],
+    },
+    {
+      id: 'ms-05',
+      n: 6,
       title: 'Permanent versus temporary',
       subtitle: 'Which weaknesses can outlive this attack?',
       minutes: 10,
@@ -250,7 +304,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-06',
-      n: 6,
+      n: 7,
       title: 'Trading with intent',
       subtitle: 'Which pieces stay, which pieces go, and why.',
       minutes: 10,
@@ -295,7 +349,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-07',
-      n: 7,
+      n: 8,
       title: 'Owning the color',
       subtitle: 'Deep color complexes: plan by square color.',
       minutes: 10,
@@ -343,7 +397,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-08',
-      n: 8,
+      n: 9,
       title: 'Blockade as a strategy',
       subtitle: 'Passed pawns are prisoners if you hold the square.',
       minutes: 10,
@@ -388,7 +442,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-09',
-      n: 9,
+      n: 10,
       title: 'Dynamic versus static',
       subtitle: 'Know when the clock on your advantage expires.',
       minutes: 10,
@@ -441,7 +495,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-10',
-      n: 10,
+      n: 11,
       title: 'Practice arena: master tools',
       subtitle: 'Everything from this tier, live.',
       minutes: 12,
@@ -474,7 +528,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-11',
-      n: 11,
+      n: 12,
       title: 'Steering the game',
       subtitle: 'Choose openings by the endgames they promise.',
       minutes: 10,
@@ -514,7 +568,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-12',
-      n: 12,
+      n: 13,
       title: 'Rook endings deep',
       subtitle: 'Short-side defense, checking distance, the active king.',
       minutes: 12,
@@ -561,7 +615,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-13',
-      n: 13,
+      n: 14,
       title: 'Fortresses',
       subtitle: 'Positions that cannot be cracked, no matter what.',
       minutes: 10,
@@ -603,7 +657,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-14',
-      n: 14,
+      n: 15,
       title: 'Opposite bishops, mastered',
       subtitle: 'The outside passed pawn doctrine.',
       minutes: 12,
@@ -645,7 +699,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-15',
-      n: 15,
+      n: 16,
       title: 'The opposite-side storm',
       subtitle: 'Racing pawns with everything on the line.',
       minutes: 12,
@@ -685,7 +739,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-16',
-      n: 16,
+      n: 17,
       title: 'Difficult defense',
       subtitle: 'Staying alive with activity, not hope.',
       minutes: 12,
@@ -735,7 +789,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-17',
-      n: 17,
+      n: 18,
       title: 'Clock and mind',
       subtitle: 'Practical decisions: time, tilt, and tempo bluffs.',
       minutes: 10,
@@ -780,7 +834,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-18',
-      n: 18,
+      n: 19,
       title: 'Practice arena: master tactics I',
       subtitle: 'Deep combinations, verified.',
       minutes: 12,
@@ -817,7 +871,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-19',
-      n: 19,
+      n: 20,
       title: 'Practice arena: master tactics II',
       subtitle: 'Multi-motif, full depth.',
       minutes: 12,
@@ -854,7 +908,7 @@ export const master: Tier = {
     },
     {
       id: 'ms-20',
-      n: 20,
+      n: 21,
       title: 'Master graduation',
       subtitle: 'One famous combination, one exam, one game.',
       minutes: 20,

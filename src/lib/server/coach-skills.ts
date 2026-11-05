@@ -77,7 +77,8 @@ export function resolveLevelContext(
     const n = SKILL_TIER[skillLevel] ?? 2
     tier = TIERS.find((t) => t.n === n) ?? TIERS[0]
   }
-  const levelN = Math.min(20, Math.max(1, Math.round(Number(rawLevel) || 1)))
+  // clamp by the tier's actual length: tiers can exceed 20 levels
+  const levelN = Math.min(tier.levels.length, Math.max(1, Math.round(Number(rawLevel) || 1)))
   const level = tier.levels[levelN - 1] ?? tier.levels[0]
   return {
     tierId: tier.id,

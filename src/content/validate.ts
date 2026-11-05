@@ -225,8 +225,8 @@ async function main() {
   let levels = 0
   let steps = 0
   for (const tier of tiers) {
-    if (tier.levels.length !== 20) {
-      err(`tier ${tier.id}`, `tier must have exactly 20 levels, has ${tier.levels.length}`)
+    if (tier.levels.length < 20) {
+      err(`tier ${tier.id}`, `tier must have at least 20 levels, has ${tier.levels.length}`)
     }
     for (const level of tier.levels) {
       levels++
@@ -247,7 +247,7 @@ async function main() {
   for (const p of puzzles) checkPuzzle(`puzzle ${p.id}`, p)
   console.log(`  ${puzzles.length} puzzles checked`)
 
-  // unique ids, 1..20 numbering per tier
+  // unique ids, sequential numbering per tier (1..N, N >= 20)
   const levelIds = new Set<string>()
   for (const tier of tiers) {
     tier.levels.forEach((level, i) => {
