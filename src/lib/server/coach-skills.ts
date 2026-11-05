@@ -69,7 +69,7 @@ export function resolveLevelContext(
   let tier = TIERS.find((t) => t.id === String(rawTier ?? ''))
   if (!tier) {
     const n = Number(rawTier)
-    if (Number.isFinite(n) && n >= 1 && n <= 6) {
+    if (Number.isFinite(n) && n >= 1 && n <= TIERS.length) {
       tier = TIERS.find((t) => t.n === Math.round(n))
     }
   }

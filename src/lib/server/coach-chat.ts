@@ -21,6 +21,7 @@ import { routeMessage, hasGenerationIntent, type CommandOutcome, type CoachActio
 import { stripUnsolved, type ArtifactView } from '@/lib/coach-artifacts'
 import { describeFen } from '@/lib/server/chess-describe'
 import { coachMemoryBrief } from '@/lib/server/coach-memory'
+import { htwacDoctrineLines } from '@/lib/server/htwac-doctrine'
 import { dayKeyLocal } from '@/lib/day'
 
 export const CHAT_VALID_VIEWS = new Set(['home', 'play', 'lessons', 'puzzles', 'review', 'coach', 'analysis', 'profile', 'settings'])
@@ -259,6 +260,7 @@ export function buildCoachSystem(r: CoachChatRequest, contextLines: string[]): s
     `You are ${coach.name}, the coach inside ChessX, a chess training app, and you are talking with one student${r.profile.name ? ` called ${r.profile.name}` : ''}. You are a person at a chessboard, not a menu and not a script.`,
     coach.systemLine,
     `The student self-identifies as: ${r.skill}. Calibrate depth to that level.`,
+    ...htwacDoctrineLines(),
     'How you talk:',
     '- Short and alive. A few sentences at most. Sound like a coach sitting across the board, not like a manual.',
     '- If the student greets you, greet them back warmly and offer one concrete next step (a puzzle, a look at the board, a lesson). Two sentences, then stop.',

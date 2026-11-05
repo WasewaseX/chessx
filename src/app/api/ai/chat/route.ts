@@ -20,6 +20,7 @@ import { describeFen } from '@/lib/server/chess-describe'
 import { buildDossierStructured, classifyLastPlayedMove } from '@/lib/server/position-dossier'
 import { verifyClaims, repairInstruction, type EngineVerdictInfo } from '@/lib/server/claim-guard'
 import { coachMemoryBrief } from '@/lib/server/coach-memory'
+import { htwacDoctrineLines } from '@/lib/server/htwac-doctrine'
 import { dayKeyLocal } from '@/lib/day'
 import { Chess } from 'chess.js'
 
@@ -331,6 +332,7 @@ export async function POST(req: NextRequest) {
     // nothing extra is added and the prompt is byte-for-byte as before.
     ...(voice && voice.systemFragment ? ['Stay in character but NEVER let style override the rules below.'] : []),
     `The student self-identifies as: ${skill}. Calibrate depth to that level.`,
+    ...htwacDoctrineLines(),
     'How you talk:',
     '- Short and alive. A few sentences at most. Sound like a coach sitting across the board, not like a manual.',
     '- If the student greets you, greet them back warmly and offer one concrete next step (a puzzle, a look at the board, a lesson). Two sentences, then stop.',
