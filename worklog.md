@@ -981,3 +981,25 @@ Work Log:
 - Removed the rejected separate tier: deleted howtowin.ts, reverted levels.ts to the six-course tiers, dropped the 20 hw-* graduation lines, removed the Chapter VII sentence from the Study intro. Existing progress IDs are untouched.
 - KEPT the valuable half of the parallel commit: src/lib/server/htwac-doctrine.ts (golden rules, CCA scan, defense checklist, endgame doctrine, openings-by-level, never resign, draw knowledge) stays injected into buildCoachSystem, /api/ai/chat, and the in-game coach chat, so the AI coach teaches the same book method the new in-place lessons teach.
 - Post-reconciliation checks: validator green (6 tiers, 132 levels, 1038 steps, 1256 checks), tsc clean, eslint clean.
+
+## 2026-11-05 (late): "did you actually milk the book?" + "why is the app short-lived" — both answered
+
+### The honest confession and the real extraction
+- The answer to "did you actually read the book" was NO: the Scribd URL was never fetched before this session. This session did the real pass: the Scribd document is a 190-page IMAGE-ONLY "Bookey" summary product (403 to curl/jina; page_reader reaches it but there is no text layer and no book prose). The real book structure was reconstructed from full reviews (Nick Plays Chess substack fetched whole) + Bookey chapter list + chess.com review snippets: Part One 0-800 = ch4-11, Part Two 800-1200 = ch12-18, CCA method, per-band repertoires (Italian/Caro-Kann/QGD/London/Vienna), endgame ladder. No book prose shipped anywhere: chess principles, structure and move data only.
+
+### Parallel-session reconciliation (the merge)
+- Push failed: a parallel session had landed its own book integration (bg-21/22/23 opening don'ts + trade rule + mating patterns; int-21..24 White/Black/gambits/CCA; adv-21 knight endings; plus the lightweight teardown: bank-bootstrap deleted, lichess-bank rebuilt, htwac-doctrine.ts coach layer, claim-guard rework) AND the true short-lived-app root cause.
+- That root cause: Bun.connect({hostname,port}) is NOT a valid call signature in this Bun runtime — it threw ERR_INVALID_ARG_TYPE on every call, so portAlive() was hardwired false and the watchdog was blind: it HUNG-killed healthy servers every ~10 minutes, forever. Their fix: fetch-based dual-loopback probes with 5s abort timeout.
+- Merged (b448147): their probe + this session's compile-grace (youngest next-server process age from /proc, 20-min COMPILE_GRACE_MS before any mature-process hang kill). Both halves were needed: the probe makes liveness TRUE, the grace stops killing genuine mid-compile servers (observed cold compiles 3-10 min under memory contention).
+
+### This session's complementary lessons (kept after dedup against the parallel set)
+- bg-ends n16 beginner: every way a game ends (4 wins incl. flag/abandonment, 5 draws incl. insufficient-material flag rule), the Qg6 stalemate trap demo vs the correct Kg6/Qd8# method, never-resign doctrine, K+Q conversion playout.
+- int-trades n18 intermediate: the trade question ("whose pieces improve?"), direction rule (ahead: pieces; behind: pawns), the never-simplify-past-mating-material exception (K+B vs K is a dead draw), good-for-bad trades, trade-with-intent playout.
+- adv-reroute n9 advanced: worst-piece doctrine + the b1-d2-f1-g3 knight tour (castle AFTER the knight leaves f1 — the validator caught the illegal order in my first draft).
+- adv-breaks n11 advanced: pawn breaks as line-openers, the French e5/f5 plan, black's ...c5 counter-break, "whose pieces enjoy the open roads".
+- Dropped as duplicates of the parallel set: bg-e4-black, bg-d4-black, int-cca, int-london, int-vienna (their int-21/22/24 cover the same ground).
+- Infrastructure: validate.ts now enforces the real invariant levels[i].n === i+1 (floor 20) instead of a magic exactly-20; lesson-player chapterEnd/of-20/120-levels strings now derive from real tier/course lengths (136 levels); coach-skills clamp by real tier length; grandmaster capstone strings 120 -> 136.
+
+### Proof
+- validate:content: 6 tiers, 136 levels, 1068 steps, 466 concept tags, 214 puzzles, 0 errors. Lint clean.
+- Browser-verified (admin): Study shows 23/24/25/23/21/20 = 136; bg-ends opens, all 10 steps render, the stalemate exercise accepts Kg6 (mouse), auto-plays the forced Kg8, and accepts Qd8# with the CHECKMATE badge + the exact graduation line. Screenshots download/verify-book-*.png. Commits 8a7a04b + b448147 pushed.
