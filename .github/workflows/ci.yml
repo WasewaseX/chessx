@@ -32,6 +32,11 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Workflow-wide least privilege; only the gates job widens it (SARIF
+# uploads, PR dashboard comment, scorecard publishing).
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -32,7 +32,9 @@ const SPAWN_COOLDOWN_MS = 90_000
 function log(msg: string): void {
   try {
     writeFileSync(LOG_FILE, `[${new Date().toISOString()}] ${msg}\n`, { flag: 'a' })
-  } catch {}
+  } catch {
+    // best-effort file log; the console.log below is the channel that always works
+  }
   console.log(`[watchdog-child] ${msg}`)
 }
 
@@ -57,9 +59,14 @@ try {
   process.on('exit', () => {
     try {
       if (Number(readFileSync(PID_FILE, 'utf8').trim()) === process.pid) unlinkSync(PID_FILE)
-    } catch {}
+    } catch {
+      // pid file already gone or unreadable at exit; nothing to clean up
+    }
   })
-} catch {}
+} catch {
+  // a duplicate watchdog that cannot take the lock exits via the instance
+  // check above; failing the mkdir/write here must not kill the supervisor
+}
 
 // --- helpers ----------------------------------------------------------------
 function devProcessExists(): boolean {
@@ -70,9 +77,14 @@ function devProcessExists(): boolean {
         const cmd = readFileSync(`/proc/${pid}/cmdline`, 'utf8').replace(/\0/g, ' ')
         if (cmd.includes('next-server')) return true
         if (cmd.includes('next') && cmd.split(' ').includes('dev')) return true
-      } catch {}
+      } catch {
+        // the process vanished between readdir and read; just skip it
+      }
     }
-  } catch {}
+  } catch {
+    // /proc unreadable (exotic sandbox): report no dev process and let the
+    // port probe decide
+  }
   return false
 }
 
@@ -123,9 +135,14 @@ function youngestNextProcessAgeMs(): number {
         if (!isNext) continue
         const startedAt = statSync(`/proc/${pid}`).mtimeMs
         if (Number.isFinite(startedAt) && startedAt > youngestStart) youngestStart = startedAt
-      } catch {}
+      } catch {
+        // the process vanished mid-scan, or its stat raced; skip it
+      }
     }
-  } catch {}
+  } catch {
+    // /proc unreadable: fall back to Infinity (no grace info) and let the
+    // caller use the conservative default
+  }
   if (youngestStart === -Infinity) return Infinity
   return Date.now() - youngestStart
 }
@@ -176,7 +193,9 @@ async function tick(): Promise<void> {
       try {
         Bun.spawn(['pkill', '-f', 'next-server'])
         Bun.spawn(['pkill', '-f', 'next dev'])
-      } catch {}
+      } catch {
+        // spawn failure is retried by the next hang detection cycle
+      }
       hangSince = 0
       misses = 0
       return
