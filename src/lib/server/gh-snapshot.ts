@@ -189,6 +189,69 @@ export function hasBackupToken(): boolean {
   return TOKEN !== ''
 }
 
+const ENGINE_REAL = 'engine-native/stockfish/stockfish-real'
+const ENGINE_TMP_TAR = '/tmp/chessx-engine-sf19.tar.gz'
+
+/**
+ * Materialize the native Stockfish binary from the backups repo when the
+ * sandbox lost it (fresh volume; the binaries left the product repo on
+ * purpose — a 103MB binary and an 81MB tarball must never ride in git).
+ * Runs ONLY when the binary is missing: an existing install is never
+ * re-downloaded, so a healthy sandbox pays nothing at boot. When this
+ * cannot restore, the app's engine chain falls back to the wasm UCI child
+ * and every surface keeps working with honest naming.
+ */
+export async function restoreEngineIfMissing(): Promise<boolean> {
+  const { existsSync, writeFileSync, mkdirSync, rmSync, chmodSync } = nodeRequire('fs')
+  if (existsSync(ENGINE_REAL)) return true
+  if (!TOKEN) {
+    console.log('[gh-restore] no GH_BACKUP_TOKEN; native engine stays absent (wasm fallback)')
+    return false
+  }
+  try {
+    const rel = await api(`/repos/${REPO}/releases/tags/engine`)
+    if (rel.status !== 200) {
+      console.log('[gh-restore] no engine release in the backups repo yet (status', rel.status + ')')
+      return false
+    }
+    const json = (await rel.json()) as { assets?: { name: string; url: string }[] }
+    const asset = (json.assets ?? []).find((a) => a.name === 'sf19.tar.gz')
+    if (!asset) {
+      console.log('[gh-restore] engine release has no sf19.tar.gz asset yet; wasm fallback')
+      return false
+    }
+    const bin = await fetch(asset.url, {
+      headers: {
+        Authorization: `Bearer ${TOKEN}`,
+        Accept: 'application/octet-stream',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+    })
+    if (bin.status !== 200 || !bin.body) {
+      console.log('[gh-restore] engine asset download failed (status', bin.status + ')')
+      return false
+    }
+    writeFileSync(ENGINE_TMP_TAR, Buffer.from(await bin.arrayBuffer()))
+    // Extract ONLY the binary member, straight into the layout the wrapper
+    // installer expects (stockfish-real beside the wrapper path).
+    const { execSync } = nodeRequire('child_process')
+    execSync(
+      `tar -xzf '${ENGINE_TMP_TAR}' -C /tmp stockfish/stockfish-linux-x86-64-universal`,
+      { timeout: 120_000 },
+    )
+    mkdirSync('engine-native/stockfish', { recursive: true })
+    execSync(`mv /tmp/stockfish/stockfish-linux-x86-64-universal '${ENGINE_REAL}'`)
+    chmodSync(ENGINE_REAL, 0o755)
+    rmSync('/tmp/stockfish', { recursive: true, force: true })
+    rmSync(ENGINE_TMP_TAR, { force: true })
+    console.log('[gh-restore] native Stockfish binary restored from the backups repo')
+    return true
+  } catch (err) {
+    console.error('[gh-restore] engine restore failed:', err instanceof Error ? err.message : err)
+    return false
+  }
+}
+
 /** Pull latest.db.gz from GitHub into the local DB. Only call when empty. */
 export async function restoreFromGithub(): Promise<boolean> {
   if (!TOKEN) {

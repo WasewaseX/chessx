@@ -13,7 +13,7 @@
 
 import { execSync } from 'child_process'
 import { existsSync } from 'fs'
-import { restoreFromGithub } from '../src/lib/server/gh-snapshot'
+import { restoreFromGithub, restoreEngineIfMissing } from '../src/lib/server/gh-snapshot'
 
 const DB_PATH = process.env.DATABASE_URL?.replace(/^file:/, '') || 'db/custom.db'
 
@@ -61,6 +61,16 @@ async function main() {
     execSync('bun scripts/restore-accounts.ts', { stdio: 'inherit', cwd: process.cwd() })
   } catch (err) {
     console.error('[gh-restore] account restore failed:', err instanceof Error ? err.message : err)
+  }
+
+  // 4. Native engine materialize (no-op when the binary is already on disk).
+  //    The 103MB binary left the product repo (git must stay light); this is
+  //    the only path a fresh sandbox gets it back from. Failure is honest and
+  //    non-fatal: the wasm engine takes over.
+  try {
+    await restoreEngineIfMissing()
+  } catch (err) {
+    console.error('[gh-restore] engine restore failed:', err instanceof Error ? err.message : err)
   }
 }
 
