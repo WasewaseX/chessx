@@ -12,6 +12,7 @@ import { getSessionUser, rateLimit, clientIp } from '@/lib/auth'
 import { runChat, getAiConfig, type ChatMessage } from '@/lib/ai'
 import { coachById } from '@/lib/coaches'
 import { buildDossierStructured } from '@/lib/server/position-dossier'
+import { collapseEchoedSentences } from '@/lib/server/chat-text'
 import { describeFen } from '@/lib/server/chess-describe'
 import { verifyClaims, repairInstruction, type EngineVerdictInfo } from '@/lib/server/claim-guard'
 import { htwacInGameLines } from '@/lib/server/htwac-doctrine'
@@ -129,26 +130,39 @@ export async function POST(req: NextRequest) {
       if (described) contextLines.push(described)
     }
   }
+  // The verified reason is quoted AT MOST ONCE per move across all context
+  // lines. It used to appear up to three times for the same move (worst slip
+  // + focus + engine fact), and the model echoed it verbatim twice in a live
+  // lesson ("Bc4 was the engine's choice. Bc4 was the engine's choice.").
+  // The student's focus move wins; the echo-collapse pass on the answer is
+  // the mechanical safety net underneath.
+  const reasonShown = new Set<string>()
   if (trail.length) {
     const line = trail
       .map((p) => `${p.san}(${p.label}${p.before != null && p.after != null ? ` ${p.before.toFixed(1)}->${p.after.toFixed(1)}` : ''})`)
       .join(' ')
     contextLines.push(`Moves played so far with this app's engine classification (parentheses: label and white-POV pawn eval before->after; these numbers are engine-verified facts you may quote): ${line}`)
+    // See the per-move reason dedup note above the Set declaration.
+    const quoteReason = (p: { san: string; reason?: string }): string => {
+      if (!p.reason || reasonShown.has(p.san)) return ''
+      reasonShown.add(p.san)
+      return ` Verified reason: ${p.reason}`
+    }
+    if (focusSan) {
+      const focus = [...trail].reverse().find((p) => p.san === focusSan)
+      if (focus) {
+        contextLines.push(
+          `The student is asking specifically about ${focus.san} (${focus.label}). Engine facts: eval before ${focus.before ?? '?'} -> after ${focus.after ?? '?'} (white POV, pawns)${focus.bestSan ? `, engine's move: ${focus.bestSan}` : ''}${quoteReason(focus)}.`,
+        )
+      }
+    }
     const studentSide = trail[trail.length - 1]?.color === 'w' ? 'b' : 'w'
     const worst = [...trail]
       .filter((p) => p.color === studentSide && ['inaccuracy', 'mistake', 'blunder', 'missedwin'].includes(p.label))
       .pop()
     if (worst) {
       contextLines.push(
-        `The student's biggest slip so far: ${worst.san} (${worst.label})${worst.bestSan ? `, the engine move was ${worst.bestSan}` : ''}${worst.reason ? `. Verified reason: ${worst.reason}` : ''}.`,
-      )
-    }
-  }
-  if (focusSan) {
-    const focus = [...trail].reverse().find((p) => p.san === focusSan)
-    if (focus) {
-      contextLines.push(
-        `The student is asking specifically about ${focus.san} (${focus.label}). Engine facts: eval before ${focus.before ?? '?'} -> after ${focus.after ?? '?'} (white POV, pawns)${focus.bestSan ? `, engine's move: ${focus.bestSan}` : ''}${focus.reason ? `. Reason: ${focus.reason}` : ''}.`,
+        `The student's biggest slip so far: ${worst.san} (${worst.label})${worst.bestSan ? `, the engine move was ${worst.bestSan}` : ''}${quoteReason(worst)}.`,
       )
     }
   }
@@ -161,7 +175,7 @@ export async function POST(req: NextRequest) {
   if (lastGrounded?.bestSan) {
     const isBest = lastGrounded.san === lastGrounded.bestSan
     contextLines.push(
-      `ENGINE FACT you must respect when discussing recent moves: in the position before ${lastGrounded.san}, the engine's best move was ${lastGrounded.bestSan}. The move actually played, ${lastGrounded.san}, was classified ${lastGrounded.label}${isBest ? ' (it WAS the engine best move)' : ' (so it was NOT the best move)'}.${!isBest && lastGrounded.reason ? ` Verified reason: ${lastGrounded.reason}` : ''}`,
+      `ENGINE FACT you must respect when discussing recent moves: in the position before ${lastGrounded.san}, the engine's best move was ${lastGrounded.bestSan}. The move actually played, ${lastGrounded.san}, was classified ${lastGrounded.label}${isBest ? ' (it WAS the engine best move)' : ' (so it was NOT the best move)'}.${!isBest && lastGrounded.reason && !reasonShown.has(lastGrounded.san) ? ` Verified reason: ${lastGrounded.reason}` : ''}`,
     )
   }
 

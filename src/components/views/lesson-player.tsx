@@ -78,7 +78,7 @@ function chipFor(tone: BubbleTone, coachId?: string): string | undefined {
 }
 
 /* Coach voice pools: the same praise chip and streak moment sound like the
-   coach the learner actually picked, not a default voice. */
+    coach the learner actually picked, not a default voice. */
 const PRAISE_CHIP: Record<string, string> = {
   nina: 'Lovely',
   victor: 'Sharp',
@@ -169,10 +169,10 @@ function ToolButton({
 }
 
 /* Coach persona panel: face + white speech bubble on the dark page. Every
-   step view reports its live guidance up to the parent so the coach is always
-   in one place, talking while the student works the board.
-   No coach chosen yet? The panel becomes the chooser: nothing speaks until
-   the player picks who mentors them. */
+    step view reports its live guidance up to the parent so the coach is always
+    in one place, talking while the student works the board.
+    No coach chosen yet? The panel becomes the chooser: nothing speaks until
+    the player picks who mentors them. */
 function CoachPanel({
   tone,
   chip,
@@ -955,6 +955,7 @@ function CompletionScreen({
   bestStreak,
   tierTitle,
   tierColor,
+  tierLevelCount,
   nextLevel,
   nextTierTitle,
   unlockedNow,
@@ -1852,9 +1853,9 @@ function ExerciseView({
 }
 
 /* Guess the move: play through a real master game (or a labeled composed
-   study) one guess at a time. Full credit for the master move or an equal
-   alternative, half credit for the playable second best, and a miss shows
-   the idea instead of scolding. Guided, never punishing. */
+    study) one guess at a time. Full credit for the master move or an equal
+    alternative, half credit for the playable second best, and a miss shows
+    the idea instead of scolding. Guided, never punishing. */
 function GtmStepView({
   step,
   onPass,
