@@ -79,7 +79,7 @@ bundle was graded by another in 11ms (Nov 2).
 - `/api/health/deep` exercises every subsystem for real (DB round-trip, Stockfish
   probe, live daily fetch, plan/DNA build, both mini services). Keep it honest.
 
-## 3. CURRENT STATE (as of Nov 3, commit series `fd8b1d2 → 8e5b99e`, all green)
+## 3. CURRENT STATE (as of Nov 8, commit series `fd8b1d2 → e8dcd67`, all green)
 
 - tsc clean, `bun run lint` (= `eslint src`) clean.
 - Nov 3 re-certification (live): deep health ALL GREEN (db 31ms, Stockfish 19, daily
@@ -95,6 +95,17 @@ bundle was graded by another in 11ms (Nov 2).
 - Boot: `.zscripts/dev.sh` unconditionally deletes stale `.zscripts/dev.stop` (a stale
   flag once bricked boot for 6 minutes), warms up unconditionally, then hands
   supervision to the platform watchdog. `/` is `force-static`.
+- **CI GATES (Nov 8, worklog task 10)**: every push and PR runs master-ci v1.11.3
+  (run_node=false — bun.lock is the dependency contract) beside the bun build job.
+  Green end to end (run e8dcd67): hygiene, secrets, ai-integrity, docs, security,
+  scorecard. Zero known dependency vulnerabilities (three lockfiles; upstream-pinned
+  stragglers forced via package.json overrides — npm's EOVERRIDE rule requires the
+  override string to equal the direct dependency spec). eslint-plugin-react-hooks is
+  pinned 7.0.1 on purpose: 7.1.1 adds ~70 compiler-rule findings across core views;
+  adopting them is a dedicated refactor pass. The engine binary left git on purpose;
+  `gh-restore` step 4 materializes it from the chessx-backups `engine` release when
+  missing. A parallel session ships book lessons (tier 7 content) — reconcile by
+  content on divergence, and note origin/main was red on tsc once (fixed in 0563e95).
 
 ## 4. THE BACKLOG — FULLY CLOSED as of Nov 3 (all ten items landed + live-proven; keep as regression context, do NOT redo them)
 
@@ -143,12 +154,25 @@ bundle was graded by another in 11ms (Nov 2).
 
 - Keep the hard-won invariants green on every pass: `bunx tsc --noEmit`, `bun run lint`,
   curl the touched routes, agent-browser E2E with screenshots, dev.log tail, commit+push.
-- Coach claim-guard hardening is worth revisiting whenever a new coach failure mode is
-  observed in the wild (the guard is mechanical but the LLM is creative).
+  CI now runs the master-ci gates on every push — a red run on GitHub is a bug to fix
+  at the root the same hour, not an advisory to ignore.
+- AI-integrity ratchet: the gate is advisory by template design, but the tree already
+  meets the blocking bar (first-party blocking findings 0, score 23/100 grade B).
+  When the slop-score deficit drops below 30 (split the giant view files or prune
+  the deficit), flip `fail_on_ai_slop: true` in ci.yml and set
+  `ai_slop_max_deficit` to the measured value; a new coach failure mode in the
+  wild still goes through the claim-guard first.
+- Adopt eslint-plugin-react-hooks 7.1.1's compiler rules (~70 findings across core
+  views: ref access during render, setState-in-effect) as a dedicated refactor pass;
+  the 7.0.1 pin in package.json overrides is a deliberate, documented hold, not debt
+  to forget.
 - REA: any new competitive surface the user asks about should go through REA (ReVa)
   first, never ad-hoc grepping.
 - Watch the 4GB box: RSS baseline ~1.4-1.9GB dev; if puzzles.db ever reappears on disk,
-  DELETE it (the lightweight mandate is final).
+  DELETE it (the lightweight mandate is final). The sandbox auto-committer runs
+  `git add -A` with UUID commit messages — every platform tree (skills/, engine-native/,
+  re/, download/, research/) is gitignored now, so it cannot resurrect them; never
+  un-ignore those paths.
 
 ## 5. OPERATING PROCEDURES
 
