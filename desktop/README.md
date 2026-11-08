@@ -44,7 +44,7 @@ packager, icons, code signing) is out of scope for this scaffold.
   debounced) and only restored when it provably overlaps a display by at
   least 120×60 — the shell never invents x/y.
 - **Origin indicator**: the window title stays the page title on app hosts
-  and grows ` — <host>` whenever the shell is showing any other origin.
+  and grows " — <host>" whenever the shell is showing any other origin.
 - **Google sign-in handoff (RFC 8252)**: see below. Requires the web-side
   routes listed at the bottom — they are implemented in this repository.
 

@@ -670,7 +670,7 @@ Work Log:
   (admin); 40-way concurrent login hammer -> all 429 (rate limiter), zero
   500s; GET / 200; server survived across multiple tool-call sessions
   (pids stable over minutes).
-- Housekeeping: gitignore db/*.db-wal / *.db-shm; dropped a stale stash of
+- Housekeeping: gitignore `db/*.db-wal` and `*.db-shm`; dropped a stale stash of
   prior-session drafts (would have regressed remote's newer opening
   arena/puzzles/dojo work).
 
@@ -947,7 +947,7 @@ Work Log:
 - AI coach: new src/lib/server/htwac-doctrine.ts with the book's method as prompt lines (golden rules, CCA scan, "when you see a good move look for a better one", defense checklist, endgame doctrine, openings-by-level, principle naming, never-resign psychology, draw knowledge). Full doctrine injected into buildCoachSystem (coach-chat.ts) AND the inline prompt in api/ai/chat/route.ts; compact in-game version injected into api/coach-game/chat/route.ts after the verdict-consistency block.
 - E2E proven with agent-browser on a fresh account: onboarding, Study renders Chapter VII with 20 rows and unlock chains, Level 1 played END TO END (read points, quizzes answered, castling demo, en passant drill solved on the real board exd6, promotion drill bxa8=Q via the promote dialog, final quiz) reaching the Lesson Complete screen with the graduation line and "Unlocked: Level 2". Progress persisted via /api/progress (hw-01 completed 9/9). Locked-level gate proven (hw-06 shows "Finish Level 5 ... first"). Coach chat with doctrine answers "I keep losing my queen early" with the book's golden rule verbatim in spirit.
 - REPO HYGIENE (critical): the sandbox clone was 11 commits behind origin/main with prior sessions' work living as untracked files. Diffed working tree vs origin, confirmed origin already carried the canonical lineage (lightweight puzzles, takeback fix, coach verdicts, succession doc), moved my 8 files aside, removed the colliding/stale untracked artifacts (including the tsc-error-bearing strays: ai/chat/stream, analysis/review-cache, content/levels, lichess-puzzles.ts), reset --hard to origin/main (d09f893), re-applied the book work on the current base. tsc --noEmit now fully CLEAN (the old pre-existing errors belonged to the stale artifacts).
-Verification: validate.ts 1284 checks green; eslint clean; tsc clean; SSR 200; agent-browser signed-in E2E (screenshots download/htwac-01..20). 
+Verification: validate.ts 1284 checks green; eslint clean; tsc clean; SSR 200; agent-browser signed-in E2E (screenshots download/htwac-01..20).
 Task ID: 41
 Agent: main (Z.ai Code)
 Task: Integrate How to Win at Chess (Levy Rozman) into the existing Learning tab: 12 new levels inserted at the right places, existing lessons deepened
