@@ -40,9 +40,9 @@
   --color-primary-light: var(--primary-light);
   --color-gold: var(--gold);
   /* "paper" family: the Study screens (lessons) read as printed pages in
-     light mode and as an inked dark book in dark mode. Exposed as utilities
-     (text-paper-ink, bg-paper-card, border-paper-line, ...) so lesson files
-     never hard-code a light-only hex again. */
+      light mode and as an inked dark book in dark mode. Exposed as utilities
+      (text-paper-ink, bg-paper-card, border-paper-line, ...) so lesson files
+      never hard-code a light-only hex again. */
   --color-paper-bg: var(--paper-bg);
   --color-paper-card: var(--paper-card);
   --color-paper-ink: var(--paper-ink);
@@ -191,12 +191,12 @@
     background: rgba(129, 182, 76, 0.32);
   }
   /* Book serif for lesson titles: the study reads like a well-set chess
-     book, not a gaming dashboard. Lora pairs with Inter at small sizes. */
+      book, not a gaming dashboard. Lora pairs with Inter at small sizes. */
   .font-book {
     font-family: "Lora Variable", Georgia, "Times New Roman", serif;
   }
   /* The Study pages: printed paper in light mode, a dark book in dark mode.
-     Set the ink color once here so lesson screens inherit legibly. */
+      Set the ink color once here so lesson screens inherit legibly. */
   .paper {
     background-color: var(--paper-bg);
     background-image: radial-gradient(var(--paper-grain) 1px, transparent 1px);
@@ -206,7 +206,7 @@
 }
 
 /* chess.com-style chunky action button: solid face, pressed on click,
-   with a light sweep on hover so the main actions feel alive */
+    with a light sweep on hover so the main actions feel alive */
 .btn-hero {
   @apply inline-flex items-center justify-center gap-2 rounded-md font-display font-bold uppercase tracking-wide text-white select-none;
   position: relative;
@@ -356,39 +356,39 @@
 }
 
 /* ==========================================================================
-   FULLSCREEN STABLE BOARD COCKPIT — the play-view sizing law
-   --------------------------------------------------------------------------
-   Why this exists: the play board used to float in a small, content-sized
-   column, so ANY layout change (a capture icon appearing, a status text
-   swapping, a bark bubble rendering, the page scrollbar coming and going)
-   re-flowed the page and visibly MOVED the board mid-game. The fix is the
-   chess.com "cockpit" pattern: a viewport-height shell + FIXED-SIZE slots
-   around a board area that owns all leftover space, with the board sized
-   from the AREA's box (container query units) instead of from content.
+    FULLSCREEN STABLE BOARD COCKPIT — the play-view sizing law
+    --------------------------------------------------------------------------
+    Why this exists: the play board used to float in a small, content-sized
+    column, so ANY layout change (a capture icon appearing, a status text
+    swapping, a bark bubble rendering, the page scrollbar coming and going)
+    re-flowed the page and visibly MOVED the board mid-game. The fix is the
+    chess.com "cockpit" pattern: a viewport-height shell + FIXED-SIZE slots
+    around a board area that owns all leftover space, with the board sized
+    from the AREA's box (container query units) instead of from content.
 
-   ZERO-SHIFT LAYOUT CHAIN (read top-down; this is the whole contract):
-     viewport 100dvh
-       -> AppFooter clamped to exactly --cockpit-shell-reserve (41px)
+    ZERO-SHIFT LAYOUT CHAIN (read top-down; this is the whole contract):
+      viewport 100dvh
+        -> AppFooter clamped to exactly --cockpit-shell-reserve (41px)
           => shell + footer = 100dvh, the page never scrolls in-game
-       -> .cockpit-shell      = calc(100dvh - 41px), fixed flex column
-       -> top control bar     = fixed lg:h-9 + mb-2 (flex:none; status text
+        -> .cockpit-shell      = calc(100dvh - 41px), fixed flex column
+        -> top control bar     = fixed lg:h-9 + mb-2 (flex:none; status text
                                 swaps happen INSIDE this fixed row)
-       -> flex row            = flex-1 + min-h-0 (fills the rest, never grows)
-       -> board column (.board-cockpit) = flex-1, stretched to row height
-       -> .cockpit-plate      = flex:none, exactly 50px  (ALWAYS rendered)
-       -> .cockpit-captured   = flex:none, exactly 18px  (ALWAYS rendered,
+        -> flex row            = flex-1 + min-h-0 (fills the rest, never grows)
+        -> board column (.board-cockpit) = flex-1, stretched to row height
+        -> .cockpit-plate      = flex:none, exactly 50px  (ALWAYS rendered)
+        -> .cockpit-captured   = flex:none, exactly 18px  (ALWAYS rendered,
                                 empty state ok) — a capture fills a slot
                                 that already existed
-       -> .cockpit-board-area = flex:1 1 0% + container-type:size (owns ALL
+        -> .cockpit-board-area = flex:1 1 0% + container-type:size (owns ALL
                                 leftover height; its box is the sole measuring
                                 stick for the board)
-       -> .cockpit-board      = width: min(100cqw, 100cqh) + aspect-ratio:1
+        -> .cockpit-board      = width: min(100cqw, 100cqh) + aspect-ratio:1
                                 => min(area width, area height), recomputed
                                 ONLY when the viewport itself resizes
-   Nothing below the shell can change size during play, so the board cannot
-   move. Height-driven sizing means wide windows CENTER the board instead of
-   stretching it (the chess.com look on every window shape).
-   ========================================================================== */
+    Nothing below the shell can change size during play, so the board cannot
+    move. Height-driven sizing means wide windows CENTER the board instead of
+    stretching it (the chess.com look on every window shape).
+    ========================================================================== */
 
 :root {
   /* chrome heights the cockpit reserves (keep in sync with AppFooter) */
@@ -398,8 +398,8 @@
 }
 
 /* The app shell permanently reserves the page-scrollbar slot, so a scrollbar
-   appearing (or vanishing) mid-game can never re-flow — and resize — the
-   board. Overlay-scrollbar platforms (mobile) reserve nothing, as designed. */
+    appearing (or vanishing) mid-game can never re-flow — and resize — the
+    board. Overlay-scrollbar platforms (mobile) reserve nothing, as designed. */
 html {
   scrollbar-gutter: stable;
 }
@@ -409,10 +409,10 @@ html {
 }
 
 /* Pin the desktop footer to the reserved height: its 11px line at the
-   inherited line-height measures ~41.5px, and even a half-pixel of page
-   overflow would allow a nudge-scroll that moves the board. Exactly 41px
-   keeps cockpit-shell + footer = 100dvh with zero page scroll. Mobile keeps
-   its natural (possibly wrapped, taller) footer — it scrolls normally. */
+    inherited line-height measures ~41.5px, and even a half-pixel of page
+    overflow would allow a nudge-scroll that moves the board. Exactly 41px
+    keeps cockpit-shell + footer = 100dvh with zero page scroll. Mobile keeps
+    its natural (possibly wrapped, taller) footer — it scrolls normally. */
 @media (min-width: 64rem) {
   footer {
     height: var(--cockpit-shell-reserve);
@@ -421,8 +421,8 @@ html {
 }
 
 /* Play screen root. Mobile keeps normal stacked flow (the page scrolls under
-   the fixed bottom nav); desktop (lg+) becomes a fixed-height flex shell that
-   exactly fills the space above the footer. */
+    the fixed bottom nav); desktop (lg+) becomes a fixed-height flex shell that
+    exactly fills the space above the footer. */
 @media (min-width: 64rem) {
   .cockpit-shell {
     display: flex;
@@ -432,7 +432,7 @@ html {
 }
 
 /* Board column: a flex column of fixed slots + one flexible board area.
-   min-h-0/min-w-0 let the surrounding row shrink it instead of overflowing. */
+    min-h-0/min-w-0 let the surrounding row shrink it instead of overflowing. */
 .board-cockpit {
   display: flex;
   flex-direction: column;
@@ -441,7 +441,7 @@ html {
 }
 
 /* Player plate (identity + status + clock). Fixed height on desktop, so a
-   status swap or a rating chip can never resize the board. Mobile: auto. */
+    status swap or a rating chip can never resize the board. Mobile: auto. */
 .cockpit-plate {
   flex: none;
 }
@@ -452,8 +452,8 @@ html {
 }
 
 /* Captured-material row: RESERVED ALWAYS (the chess.com rule — captures
-   render icons into a slot that already existed; the empty state is just an
-   empty 18px row). flex:none keeps it out of the flex negotiation. */
+    render icons into a slot that already existed; the empty state is just an
+    empty 18px row). flex:none keeps it out of the flex negotiation. */
 .cockpit-captured {
   flex: none;
   min-height: var(--cockpit-captured-h);
@@ -465,9 +465,9 @@ html {
 }
 
 /* Board area: owns ALL leftover height. It is a SIZE container so the board
-   can measure itself against this box (cqw/cqh) rather than against content.
-   position:relative lets overlays (bot speech bubble) anchor here with zero
-   layout impact. */
+    can measure itself against this box (cqw/cqh) rather than against content.
+    position:relative lets overlays (bot speech bubble) anchor here with zero
+    layout impact. */
 .cockpit-board-area {
   position: relative;
   display: grid;
@@ -482,9 +482,9 @@ html {
 }
 
 /* THE chess.com sizing rule. Mobile: full column width, square. Desktop:
-   height-driven — the board is min(area width, area height) — so it fills
-   the screen edge to edge and is recomputed ONLY on real viewport resizes
-   (the board's ResizeObserver re-measures once for drag math). */
+    height-driven — the board is min(area width, area height) — so it fills
+    the screen edge to edge and is recomputed ONLY on real viewport resizes
+    (the board's ResizeObserver re-measures once for drag math). */
 .cockpit-board {
   width: 100%;
   aspect-ratio: 1;

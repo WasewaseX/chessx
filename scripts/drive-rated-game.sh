@@ -10,8 +10,9 @@ click_square() {
   local sq="$1"
   local coords
   coords=$(agent-browser eval "(() => { const el = document.querySelector(\"[data-square='$sq']\"); if (!el) return null; const r = el.getBoundingClientRect(); return JSON.stringify([r.x + r.width/2, r.y + r.height/2]); })()" | tr -d '"')
-  local x=$(echo "$coords" | sed 's/^\[//; s/,.*//')
-  local y=$(echo "$coords" | sed 's/.*,//; s/\]//')
+  local x y
+  x=$(echo "$coords" | sed 's/^\[//; s/,.*//')
+  y=$(echo "$coords" | sed 's/.*,//; s/\]//')
   agent-browser mouse move "$x" "$y" > /dev/null
   agent-browser mouse down > /dev/null
   agent-browser mouse up > /dev/null

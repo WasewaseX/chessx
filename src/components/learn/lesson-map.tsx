@@ -113,7 +113,7 @@ const CONCEPT_ICON: Record<string, LucideIcon> = {
 const TIER_FALLBACK_ICON: LucideIcon[] = [GraduationCap, Swords, Zap, Brain, Crown, Trophy]
 
 /* module-level wrapper so the lint rule never sees a component being
-   produced by a plain call inside another component's render */
+    produced by a plain call inside another component's render */
 function LevelIcon({
   tierN,
   level,
@@ -203,7 +203,7 @@ function PathNode({ level, tierN, tierTitle, offset, state, onSelect }: PathNode
   )
 
   /* the zigzag offset lives on a plain wrapper: framer-motion owns the
-     transform of the button itself (hover/tap scale) and would wipe it */
+      transform of the button itself (hover/tap scale) and would wipe it */
   return (
     <div className="flex items-center justify-center" style={{ height: ROW_H }}>
       <div style={{ transform: `translateX(${offset}px)` }}>

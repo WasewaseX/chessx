@@ -35,6 +35,16 @@ if [ -f "$SF_PATH" ]; then
   chmod +x "$SF_REAL"
 fi
 
+# No native binary anywhere (fresh clone after the binaries left the repo):
+# install NOTHING. A wrapper pointing at a missing stockfish-real would
+# spawn-fail every engine call; the app's engine chain falls back to the
+# wasm UCI child cleanly when the native path is simply absent.
+# gh-restore materializes stockfish-real from the backups repo when it can.
+if [ ! -f "$SF_REAL" ]; then
+  echo "[engine-wrapper] no native Stockfish binary on disk; leaving the native path absent (wasm fallback will be used)"
+  exit 0
+fi
+
 cat > "$SF_PATH" <<'EOF'
 #!/bin/bash
 # Revival wrapper: every engine spawn carries a health-check ping. If the

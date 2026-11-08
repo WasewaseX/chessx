@@ -27,6 +27,7 @@ cd "$NEXTJS_PROJECT_DIR" || exit 1
 # 设置环境变量
 export NEXT_TELEMETRY_DISABLED=1
 
+BUILD_ID="${BUILD_ID:-local}"
 BUILD_DIR="/tmp/build_fullstack_$BUILD_ID"
 echo "📁 清理并创建构建目录: $BUILD_DIR"
 mkdir -p "$BUILD_DIR"
@@ -49,7 +50,13 @@ bun run build
 # 正常项目（已生成 server.js）整段跳过，不读写任何用户文件。
 if [ ! -f ".next/standalone/server.js" ]; then
     echo "⚠️  构建未产出 .next/standalone/server.js，开始自愈 next.config 的 output 配置..."
-    NEXT_CONFIG_FILE="$(ls next.config.ts next.config.js next.config.mjs next.config.cjs 2>/dev/null | head -1)"
+    NEXT_CONFIG_FILE=""
+    for candidate in next.config.ts next.config.js next.config.mjs next.config.cjs; do
+        if [ -f "$candidate" ]; then
+            NEXT_CONFIG_FILE="$candidate"
+            break
+        fi
+    done
 
     if [ -z "$NEXT_CONFIG_FILE" ]; then
         echo "❌ 构建失败：未找到 next.config.*，无法生成 standalone 部署产物。"

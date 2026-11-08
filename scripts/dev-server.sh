@@ -24,12 +24,12 @@ LOG="$PROJECT_DIR/dev.log"
 [ -f "$STOP_FLAG" ] && { echo "[dev-server] stop flag present — not starting"; exit 0; }
 
 healthy() {
-	curl -s -o /dev/null -m 5 -w '%{http_code}' "http://localhost:3000/" 2>/dev/null | grep -q '^2\|^3'
+  curl -s -o /dev/null -m 5 -w '%{http_code}' "http://localhost:3000/" 2>/dev/null | grep -q '^2\|^3'
 }
 
 if healthy; then
-	echo "[dev-server] healthy server already on :3000 — nothing to do"
-	exit 0
+  echo "[dev-server] healthy server already on :3000 — nothing to do"
+  exit 0
 fi
 
 # Free an orphaned listener: server process died, socket still held. Any pid
@@ -37,14 +37,14 @@ fi
 # already failed), so killing it is safe.
 stale_pid=$(ss -ltnpH 'sport = :3000' 2>/dev/null | grep -oP 'pid=\K[0-9]+' | head -1 || true)
 if [ -n "$stale_pid" ]; then
-	echo "[dev-server] freeing orphaned port 3000 (pid $stale_pid)"
-	kill -9 "$stale_pid" >/dev/null 2>&1 || true
-	sleep 1
+  echo "[dev-server] freeing orphaned port 3000 (pid $stale_pid)"
+  kill -9 "$stale_pid" >/dev/null 2>&1 || true
+  sleep 1
 fi
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [dev-server] starting dev server (heap cap 1536MB)"
-cd "$PROJECT_DIR"
+cd "$PROJECT_DIR" || exit 1
 NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--max-old-space-size=1536" \
 NEXT_TELEMETRY_DISABLED=1 \
-	setsid nohup bun run dev >>"$LOG" 2>&1 < /dev/null &
+  setsid nohup bun run dev >>"$LOG" 2>&1 < /dev/null &
 echo "[dev-server] launched (bun pid $!)"

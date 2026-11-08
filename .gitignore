@@ -101,3 +101,19 @@ re/chessigma/extracted/deb/
 db/*.db-wal
 db/*.db-shm
 db/*.db.bak
+
+# Platform trees and research artifacts are NEVER product content. The
+# sandbox auto-committer runs `git add -A` periodically (it resurrected
+# 849 skills/ files on Nov 3 and re-added the retired engine binaries);
+# these MUST stay ignored or the flap returns.
+/skills/
+/engine-native/
+/re/
+/download/
+# sandbox runtime state
+.zscripts/dev.pid
+.zscripts/dev.stop
+.zscripts/*.png
+
+# Retired puzzle-bank workshop (kept on disk for reference, never in git again)
+/scripts/bank/

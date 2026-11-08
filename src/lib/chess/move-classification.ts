@@ -3,10 +3,12 @@
 // surface (game review, move lists, summaries) import from here, so the
 // label set, colors, icons and plain-words meanings can never drift apart.
 //
-// The set and colors mirror chess.com's public game review:
-// Brilliant !!(teal) | Great !(blue) | Best ★(green) | Excellent 👍(lime)
-// Good ✓(sage) | Book 📖(tan) | Inaccuracy ?!(amber) | Mistake ?(orange)
-// Missed Win ⊖(yellow) | Blunder ??(red) | Forced (gray) | Checkmate (dark)
+// The set and colors mirror chess.com's public game review (icon glyph and
+// color in parentheses; the glyphs live in LABEL_META so code stays the
+// single source):
+// Brilliant !!(teal) | Great !(blue) | Best star(green) | Excellent thumbs-up(lime)
+// Good check(sage) | Book book-icon(tan) | Inaccuracy ?!(amber) | Mistake ?(orange)
+// Missed Win circle-slash(yellow) | Blunder ??(red) | Forced (gray) | Checkmate (dark)
 
 export type MoveLabel =
   | 'brilliant'

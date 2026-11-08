@@ -1,8 +1,21 @@
-# ChessX CI — every push to main is type-checked, linted and built.
+# ChessX CI — two complementary layers on every push and PR.
 #
-# Why this exists: the user's hosted deployment had silently stopped at an old
-# version. A green/red build check on every commit makes a broken build
-# impossible to miss, and gates any GitHub-connected deploy target.
+# Layer 1 (build): the bun-native job. This repo's dependency contract is
+# bun.lock; the job installs with --frozen-lockfile, generates the Prisma
+# client, lints, type-checks and builds. It owns the Node/TypeScript stack
+# because master-ci's Node jobs speak the npm-family lockfiles (a bun.lock
+# repo would silently fall through to bare `npm install` — a contract
+# violation) and cannot run bun.
+#
+# Layer 2 (gates): the reusable Master CI pipeline, pinned to the release
+# tag, runs everything AROUND the Node stack with run_node=false:
+#   hygiene      actionlint, zizmor, yamllint, editorconfig, shellcheck,
+#                oversized files, duplication
+#   secrets      gitleaks over the full git history
+#   ai-integrity AI-slop heuristics (advisory until the tree earns the bar)
+#   docs         markdownlint
+#   security     semgrep + trivy + osv-scanner to the Security tab
+#   deps-review  on pull requests; scorecard publishes on this public repo
 #
 # The build runs against a throwaway SQLite database — no real data in CI.
 
@@ -26,11 +39,9 @@ jobs:
     env:
       DATABASE_URL: file:./ci.db
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -43,17 +54,29 @@ jobs:
       - name: Lint
         run: bun run lint
 
+      - name: Type-check
+        run: bun run typecheck
+
       - name: Build
         # The project ships a custom webpack config (memory guard + node
         # builtins handling), so the build must use webpack — same as dev.
-        # The build script itself also runs prisma generate for deploy targets.
         run: bunx next build --webpack
 
       - name: Upload build trace on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: build-failure-logs
           path: .next/trace
           if-no-files-found: ignore
           retention-days: 5
+
+  gates:
+    uses: WasewaseX/master-ci/.github/workflows/master-ci.yml@v1.11.3
+    with:
+      run_node: 'false'
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
+      id-token: write

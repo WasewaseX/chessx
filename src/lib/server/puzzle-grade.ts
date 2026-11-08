@@ -125,7 +125,7 @@ export function gradePuzzleMoves(puzzleId: string, played: string[], hint = fals
         g.move(script[replyIdx])
       } catch {
         /* the reply plays out client-side from the verdict; here it only
-           keeps the replay aligned for the next grading step */
+            keeps the replay aligned for the next grading step */
       }
     }
   }

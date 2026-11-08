@@ -1,0 +1,24 @@
+# Gitleaks tuning for ChessX.
+#
+# Everything below is third-party reverse-engineering evidence, not ChessX
+# secrets:
+#   re/                       extracted artifacts of the apps under REA study
+#                             (their own minified bundles carry their own
+#                             internal token strings)
+#   docs/chessreps-re-report.md
+#                             quotes PUBLIC client-side keys (Stripe
+#                             publishable key and a public opening encryption
+#                             key) lifted from chessreps' own public
+#                             JavaScript - public by design
+#
+# The default ruleset still applies to every first-party path: any real
+# ChessX secret in source or history still fails this scan.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Third-party RE extracts (their keys, not ours)"
+paths = [
+    '''^re/''',
+    '''^docs/chessreps-re-report\.md$''',
+]

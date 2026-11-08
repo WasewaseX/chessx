@@ -1,0 +1,42 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.py]
+indent_size = 4
+
+[*.go]
+indent_style = tab
+indent_size = unset
+
+[*.md]
+indent_style = unset
+indent_size = unset
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab
+
+# Vendored or generated artifacts keep their shipped formatting.
+[public/engine/stockfish.js]
+indent_style = unset
+indent_size = unset
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+
+[components.json]
+insert_final_newline = unset
+
+# src/lib/chess/engine-worker.ts keeps column-aligned piece-square tables
+# (single-digit values padded to the same column); the alignment is the
+# readability of the file. Relax the even-padding rule there only.
+[src/lib/chess/engine-worker.ts]
+indent_style = unset
+indent_size = unset

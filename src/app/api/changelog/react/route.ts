@@ -1,6 +1,6 @@
 // Changelog reactions — one emoji per viewer per entry, auth optional.
 //
-//  POST /api/changelog/react  { entryId, emoji }   emoji ∈ 🎉 ❤️ 🧠 🐸
+//  POST /api/changelog/react  { entryId, emoji }   emoji in REACTION_EMOJIS
 //
 // Identity: the userId when signed in, else sha256(ip + server salt) so the
 // database never stores a raw address. Toggle semantics: pressing the same

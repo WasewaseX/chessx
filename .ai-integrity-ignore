@@ -1,0 +1,16 @@
+# AI-integrity ignore list for ChessX.
+#
+# Only VENDORED third-party artifacts and non-shipped trees belong here
+# (their code was not written in this repo and is never hand-edited):
+#   public/engine/stockfish.js  the minified Stockfish WASM engine build
+#   engine-native/              Stockfish source checkout (research; not in git)
+#   re/                         REA extraction artifacts (not in git)
+#   skills/, download/, research/  platform/session trees (not in git)
+# First-party code (src/, mini-services/, scripts/, .zscripts/) is always
+# scanned - keep it that way.
+public/engine/*
+engine-native/*
+re/*
+skills/*
+download/*
+research/*

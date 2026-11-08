@@ -31,8 +31,8 @@ STARTER="$PROJECT_DIR/scripts/dev-server.sh"
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [watchdog] $*" >>"$WATCHDOG_LOG"; }
 
 cleanup() {
-	touch "$STOP_FLAG" 2>/dev/null || true
-	log "watchdog exiting (manual stop / signal)"
+  touch "$STOP_FLAG" 2>/dev/null || true
+  log "watchdog exiting (manual stop / signal)"
 }
 trap cleanup EXIT
 trap 'cleanup; exit 143' INT TERM
@@ -48,31 +48,31 @@ FAILS=0
 BACKOFF=5
 
 while true; do
-	if [ -f "$STOP_FLAG" ]; then
-		log "stop flag present — exiting"
-		exit 0
-	fi
+  if [ -f "$STOP_FLAG" ]; then
+    log "stop flag present — exiting"
+    exit 0
+  fi
 
-	CODE=$(curl -s -o /dev/null -m 5 -w '%{http_code}' "http://localhost:3000/" 2>/dev/null)
-	if [ "$CODE" ] && [[ "$CODE" == 2* || "$CODE" == 3* ]]; then
-		if [ "$FAILS" -gt 0 ]; then
-			log "server recovered (HTTP $CODE) after $FAILS failed check(s)"
-		fi
-		FAILS=0
-		BACKOFF=5
-	else
-		FAILS=$((FAILS + 1))
-		# Only react after 3 consecutive failures: one bad probe during a long
-		# compile of a DIFFERENT route must not trigger a restart.
-		if [ "$FAILS" -ge 3 ]; then
-			log "server UNHEALTHY ($FAILS consecutive bad checks, last HTTP ${CODE:-none}) — restarting (backoff ${BACKOFF}s)"
-			bash "$STARTER" >>"$WATCHDOG_LOG" 2>&1
-			sleep "$BACKOFF"
-			BACKOFF=$((BACKOFF * 2))
-			[ "$BACKOFF" -gt 60 ] && BACKOFF=60
-			FAILS=0 # give the starter's work a full window before judging again
-		fi
-	fi
+  CODE=$(curl -s -o /dev/null -m 5 -w '%{http_code}' "http://localhost:3000/" 2>/dev/null)
+  if [ "$CODE" ] && [[ "$CODE" == 2* || "$CODE" == 3* ]]; then
+    if [ "$FAILS" -gt 0 ]; then
+      log "server recovered (HTTP $CODE) after $FAILS failed check(s)"
+    fi
+    FAILS=0
+    BACKOFF=5
+  else
+    FAILS=$((FAILS + 1))
+    # Only react after 3 consecutive failures: one bad probe during a long
+    # compile of a DIFFERENT route must not trigger a restart.
+    if [ "$FAILS" -ge 3 ]; then
+      log "server UNHEALTHY ($FAILS consecutive bad checks, last HTTP ${CODE:-none}) — restarting (backoff ${BACKOFF}s)"
+      bash "$STARTER" >>"$WATCHDOG_LOG" 2>&1
+      sleep "$BACKOFF"
+      BACKOFF=$((BACKOFF * 2))
+      [ "$BACKOFF" -gt 60 ] && BACKOFF=60
+      FAILS=0 # give the starter's work a full window before judging again
+    fi
+  fi
 
-	sleep 5
+  sleep 5
 done
