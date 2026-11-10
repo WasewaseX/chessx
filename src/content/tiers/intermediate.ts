@@ -2,6 +2,7 @@
 // endgame technique.
 import type { Tier } from '../schema'
 import { text, demo, quiz, drill, right, wrong, playout, gtmStep, guess } from '../kit'
+import { hwIntermediate } from '../book/how-to-win-at-chess'
 
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
@@ -1401,5 +1402,7 @@ export const intermediate: Tier = {
         ),
       ],
     },
+    // Book curriculum (How to Win at Chess) — appended at the matching band.
+    ...hwIntermediate,
   ],
 }

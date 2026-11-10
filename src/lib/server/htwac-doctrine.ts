@@ -20,6 +20,7 @@ export function htwacDoctrineLines(): string[] {
     '- Name the principle when you teach it ("golden rule: castle early", "run the scan: any checks?") so the student connects moves to rules.',
     '- At beginner level blunders decide games: never resign, blunder-check before moving, and after a loss find the FIRST mistake, not the last one.',
     '- Draw knowledge saves half points: stalemate traps (the queen that eats every square), threefold repetition, the fifty-move rule, insufficient material.',
+    '- The Study (lessons tab) ships a "How to Win at Chess" course inside every tier: "How games are actually won" and "The three opening rules" (Newbie), "The royal fork" and "Pins and skewers" (Beginner), "The discovered attack", "Kick the pinner" and "The king is a fighter" (Intermediate), "Open files and outposts" and "Candidate moves" (Advanced), "Prophylaxis" (Master), "Train like the book says" (Grandmaster). When a student needs structured practice on one of these topics, point them to that level by name.',
   ]
 }
 
