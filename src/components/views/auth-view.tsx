@@ -9,6 +9,7 @@ import { CharacterFace } from '@/components/chess/characters'
 import { cn } from '@/lib/utils'
 import { saveSessionToken } from '@/lib/session'
 import { Check, Loader2, Lock, Mail, UserRound } from 'lucide-react'
+import { ALL_LEVELS } from '@/content/levels'
 
 type Mode = 'login' | 'signup'
 
@@ -255,7 +256,7 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
 
           <ul className="mt-6 max-w-md space-y-3">
             <Feature>
-              All 153 lessons free and open, no weekly cap. chess.com keeps most of its lesson
+              All {ALL_LEVELS.length} lessons free and open, no weekly cap. chess.com keeps most of its lesson
               library behind a paid plan.
             </Feature>
             <Feature>

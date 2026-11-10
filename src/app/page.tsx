@@ -19,7 +19,7 @@ import ClientApp from '@/components/shell/client-app'
 // Nothing user-facing changes: the served shell, hydration, OAuth fragment
 // flow (?dna= token handling happens in a client effect) and every view are
 // untouched. Only the per-request server cost disappears.
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic' // EXPERIMENT
 
 export default function Page() {
   return <ClientApp />
