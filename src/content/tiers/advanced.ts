@@ -1100,8 +1100,74 @@ export const advanced: Tier = {
     },
 
     {
-      id: 'adv-18',
+      id: 'adv-qvr',
       n: 22,
+      title: 'Queen against rook',
+      subtitle: 'Force the rook away from its king, then fork with the checks.',
+      minutes: 11,
+      concepts: ['endgame', 'technique', 'calculation'],
+      steps: [
+        quiz('Warm-up: from last lesson', 'What usually settles the knight-versus-bishop argument?', [
+          wrong('The bishop always beats the knight', 'Superstition. Structure and the phase of the game decide.'),
+          right('Structure: fixed weak squares favor the knight, open play favors the bishop', 'The verdict is structural, not stylistic.'),
+          wrong('Whoever moves first wins', 'The move alone settles nothing here. The pawn structure does.'),
+        ]),
+        text(
+          'One queen, one rook, one plan',
+          [
+            'Queen against rook is the hardest basic win without pawns — Capablanca opens Chess Fundamentals\' section on it by warning that "the resources of the defence are many". The winning plan never changes, though.',
+            'Part one: separate the pieces. Checks and threats force the rook away from its king. A rook that sits beside its king cannot be won; a rook that wanders is a target.',
+            'Part two: wind up. With the rook cut off, the queen\'s long-range checks — Capablanca notes that "the checks at long range along the diagonals have often been the key" — herd the king to the edge until the rook must interpose where it can be mated or won with protection.',
+          ],
+          'Cut the rook from the king, then mate — never grab the rook unguarded.',
+        ),
+        demo(
+          'The interposition and the switch',
+          [
+            'The rook has been driven to the h-file and the white king fences g7 and h7. The diagonal check Qh2+ asks a question: block on h7, or run to g8?',
+            'Either answer loses. After Rh7 the queen leaves the h-file with tempo — Qb8 is mate: the eighth rank checks, g8 is covered, and the king has nothing. After Kg8 the same idea comes with check from the other side.',
+            'Notice what the queen never does: capture the rook. Qxh7+?? Kxh7 and the board holds two lone kings — a full point thrown away.',
+          ],
+          '7k/6r1/5K2/8/8/8/1Q6/8 w - - 0 1',
+          {
+            moves: ['Qh2+', 'Rh7', 'Qb8#'],
+            marks: [
+              { square: 'b8', color: 'gold' },
+              { square: 'h7', color: 'gray' },
+            ],
+            caption: 'The rook left the eighth rank; the queen switched lines and mated',
+          },
+        ),
+        quiz('Why not take the rook?', 'The rook interposes on h7, defended only by its king. Why is Qxh7+ the beginner\'s disaster?', [
+          right('Kxh7 leaves two bare kings: draw', 'Capablanca\'s warning in Chess Fundamentals: "the beginner will invariably fall into this trap." The queen must keep asking questions, not grab.'),
+          wrong('The king recaptures and loses to your own king', 'Two bare kings is an immediate draw, not a win.'),
+          wrong('The recapture walks into a fork', 'With no queen on the board there is nothing left to fork with. The position is simply dead.'),
+        ]),
+        drill(
+          'Switch and mate',
+          '7k/7r/5K2/8/8/8/7Q/8 w - - 0 1',
+          ['Qb8#'],
+          'The rook has been chased off the back rank. Your king fences g7 and h7. End it.',
+          'The eighth rank is a clear highway. Which line does the queen want to sit on?',
+          'Qb8 is mate: the rank checks the king, g8 is covered by the queen, h7 and g7 by your king. The rook on h7 is a spectator.',
+        ),
+        quiz('The defender\'s whole idea', 'You are the defender: rook and king against a queen. What single defensive idea survives longest?', [
+          right('Keep the rook checking from far away, on the side opposite your king', 'Checking distance: the rook harasses from behind while the king hides near the queen\'s mate squares. The attacker must spend tempi untangling it — that is the long defense Capablanca described.'),
+          wrong('Glue the rook to your king and wait', 'A passive rook beside the king is exactly what part one of the attack exists to punish.'),
+          wrong('Run the rook to safety and hope', 'There is no safety: without checks or distance, the queen herds both pieces at will.'),
+        ]),
+        text(
+          'Where this comes from',
+          [
+            'Chess Fundamentals (José Raúl Capablanca, 1921), section 16: one of the most difficult endings without pawns, won by forcing the rook away from its king and then winning it with long-range checks. His advice to the student: go over the positions slowly, and consider "all the possibilities not given in the text".',
+          ],
+        ),
+      ],
+    },
+
+    {
+      id: 'adv-18',
+      n: 23,
       title: 'Queen endings',
       subtitle: 'Checks, forks, and the perpetual road.',
       minutes: 10,
@@ -1147,7 +1213,7 @@ export const advanced: Tier = {
 
     {
       id: 'adv-19',
-      n: 23,
+      n: 24,
       title: 'Converting winning endgames',
       subtitle: 'King centralization and simplification.',
       minutes: 10,
@@ -1194,7 +1260,7 @@ export const advanced: Tier = {
 
     {
       id: 'adv-20',
-      n: 24,
+      n: 25,
       title: 'Advanced graduation',
       subtitle: 'One exam, one famous game, tier cleared.',
       minutes: 19,

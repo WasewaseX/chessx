@@ -174,8 +174,72 @@ export const grandmaster: Tier = {
     },
 
     {
-      id: 'gm-04',
+      id: 'gm-tempo',
       n: 4,
+      title: 'The spare tempo',
+      subtitle: 'Opposition parity: who moves decides who wins.',
+      minutes: 11,
+      concepts: ['opposition', 'technique', 'calculation'],
+      steps: [
+        quiz('Warm-up: from last lesson', 'Zugzwang barely exists in middlegames because...', [
+          right('Almost every middlegame position has a useful waiting move', 'Pieces can shuffle, pawns can wait — the obligation to move rarely bites until the board empties.'),
+          wrong('The engines would flag it as a bug', 'No engine needed: pawn endings simply have no spare shuffles.'),
+          wrong('Zugzwang is illegal before move 40', 'Not a rule that exists anywhere.'),
+        ]),
+        text(
+          'The parity rule',
+          [
+            'With kings facing on one line, count the squares between them. Capablanca, in Chess Fundamentals (1921), set the rule: when the number of intervening squares is ODD, the player who moved last holds the opposition; when it is EVEN, the player to move holds it.',
+            'That parity rule decides pawn endings before a single pawn moves. Same position, opposite turn, opposite result — the tempo is worth a piece.',
+            'The drawing method writes itself: when he steps aside, mirror him. The famous mirror duel — kings on d5 and d7, white pawn on d4 — is a dead draw while the defender keeps copying: Kc5 is met by Kc7, Ke5 by Ke7, forever. Step out of the mirror even once and the pawn walks.',
+          ],
+          'Count the squares between the kings. Odd: last mover holds it. Even: mover holds it.',
+        ),
+        demo(
+          'Same board, opposite worlds',
+          [
+            'Kings d5 and d7, white pawn d4. White to move: he must leave the d-file — and every aside step lets Black re-take the front: Kc5 is met by Kc7, Ke5 by Ke7. The pawn never escapes. Tablebase verdict: draw.',
+            'The identical position with BLACK to move is lost for Black: any king step hands White the tempo, the king steps back in front of the pawn, and the key squares fall one by one. The only difference between half a point and a full point is whose turn it is.',
+          ],
+          '8/3k4/8/3K4/3P4/8/8/8 w - - 0 1',
+          {
+            marks: [
+              { square: 'd5', color: 'green' },
+              { square: 'd7', color: 'red' },
+            ],
+            caption: 'White to move: draw. Black to move: lost. Nothing else changed.',
+          },
+        ),
+        drill(
+          'Hold the mirror',
+          '8/3k4/8/2K5/3P4/8/8/8 b - - 0 1',
+          ['Kc7', 'Kb5', 'Kb7'],
+          'White has stepped aside to c5, unblocking the pawn, and waits. You are Black: only one move keeps the draw — find it, and then keep the mirror.',
+          'Re-take the opposition on the file White just left. After that, copy every step.',
+          'Kc7 holds the front. When White probes with Kb5, Kb7 restores the mirror — and the draw stands as long as the copy continues.',
+        ),
+        quiz('The triangle', 'You are White in a winning pawn ending, but the kings face off with one square between and YOU must move. The grandmaster\'s fix is:', [
+          right('Triangulate: walk a three-square triangle so the same position returns with HIM to move', 'Losing a move on purpose: three king steps against his two flips the parity. When the mirror is impossible — near the edge, or with the pawn committed — the triangle wins.'),
+          wrong('Push the pawn and hope', 'A pawn push usually un-blocks the defense: he takes the front and the win evaporates.'),
+          wrong('Shuffle two squares back and forth', 'Two squares restores the same parity, not the opposite. It takes three — a triangle.'),
+        ]),
+        quiz('The parity shortcut', 'Kings on the same file with two squares between them, and it is your move. Who holds the opposition?', [
+          right('You do — even intervening squares mean the mover keeps it', 'Capablanca\'s parity rule, verbatim. You step forward one square, and he must give way.'),
+          wrong('Your opponent — the mover always loses it', 'That is the ODD case. Even is the mover\'s.'),
+          wrong('Nobody: parity only matters with pawns between the kings', 'The rule is pure king geometry. Pawns only decide what the opposition is worth.'),
+        ]),
+        text(
+          'Where this comes from',
+          [
+            'Chess Fundamentals (José Raúl Capablanca, 1921), section 13: the opposition, "actual or close", with the warning that handling the king in these duels "often means the winning or losing of a game". The mirror and the triangle are the two verbs of every pawn ending you will ever play.',
+          ],
+        ),
+      ],
+    },
+
+    {
+      id: 'gm-04',
+      n: 5,
       title: 'Building and breaking fortresses',
       subtitle: 'The wall exists before the siege.',
       minutes: 12,
@@ -223,7 +287,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-05',
-      n: 5,
+      n: 6,
       title: 'Structural exchanges',
       subtitle: 'Give a good piece for a bad square, on purpose.',
       minutes: 12,
@@ -270,7 +334,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-06',
-      n: 6,
+      n: 7,
       title: 'Flank thrusts',
       subtitle: 'g5 and f5: the pawns that start revolutions.',
       minutes: 12,
@@ -316,7 +380,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-07',
-      n: 7,
+      n: 8,
       title: 'The exchange sacrifice',
       subtitle: 'A rook for structure, squares, and time.',
       minutes: 12,
@@ -366,7 +430,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-08',
-      n: 8,
+      n: 9,
       title: 'Prophylaxis at the top',
       subtitle: 'Restrict moves before you make your own.',
       minutes: 12,
@@ -417,7 +481,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-09',
-      n: 9,
+      n: 10,
       title: 'The king walks',
       subtitle: 'When the strongest piece changes address mid-game.',
       minutes: 12,
@@ -460,7 +524,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-10',
-      n: 10,
+      n: 11,
       title: 'Passed pawn doctrine',
       subtitle: 'Blockaders, duos, and the far-advanced killer.',
       minutes: 12,
@@ -503,7 +567,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-11',
-      n: 11,
+      n: 12,
       title: 'Rook and pawn: technical wins',
       subtitle: 'Lucena, cutting off, and the wrong rook.',
       minutes: 12,
@@ -544,7 +608,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-12',
-      n: 12,
+      n: 13,
       title: 'Draws you must know',
       subtitle: 'K+B, K+N, stalemate craft, and the perpetual library.',
       minutes: 12,
@@ -585,7 +649,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-13',
-      n: 13,
+      n: 14,
       title: 'Pure technique',
       subtitle: 'One endgame, zero mistakes allowed.',
       minutes: 14,
@@ -632,7 +696,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-14',
-      n: 14,
+      n: 15,
       title: 'Calculating under uncertainty',
       subtitle: 'Playing well when the position has no answer.',
       minutes: 12,
@@ -675,7 +739,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-15',
-      n: 15,
+      n: 16,
       title: 'Preparation thinking',
       subtitle: 'Building a dossier instead of memorizing lines.',
       minutes: 10,
@@ -715,7 +779,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-16',
-      n: 16,
+      n: 17,
       title: 'Analyzing like a professional',
       subtitle: 'The blunder map and the plan audit.',
       minutes: 10,
@@ -762,7 +826,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-17',
-      n: 17,
+      n: 18,
       title: 'Time triage',
       subtitle: 'Mapping clock minutes to position complexity.',
       minutes: 10,
@@ -803,7 +867,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-18',
-      n: 18,
+      n: 19,
       title: 'Grandmaster combinations I',
       subtitle: 'Full depth, full forcing.',
       minutes: 12,
@@ -830,7 +894,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-19',
-      n: 19,
+      n: 20,
       title: 'Grandmaster combinations II',
       subtitle: 'Multi-motif, endgame finish.',
       minutes: 12,
@@ -856,7 +920,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-hw1',
-      n: 20,
+      n: 21,
       title: 'Train like the book says',
       subtitle: 'Analyze yourself, fix one thing, repeat.',
       minutes: 9,
@@ -901,7 +965,7 @@ export const grandmaster: Tier = {
 
     {
       id: 'gm-20',
-      n: 21,
+      n: 22,
       title: 'Capstone',
       subtitle: 'The final game of the curriculum.',
       minutes: 25,

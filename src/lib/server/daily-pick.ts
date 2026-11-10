@@ -18,9 +18,9 @@
 import 'server-only'
 import { existsSync, readFileSync, writeFileSync, renameSync } from 'node:fs'
 import path from 'node:path'
-import { lichessDaily } from './lichess-bank'
+import { lichessAvailable, lichessDaily } from './lichess-bank'
 import { PUZZLES } from '@/content/puzzles'
-import { dailyPuzzleIndex } from '@/lib/api'
+import { dailyPuzzleIndex, dailyPuzzleIdFor } from '@/lib/api'
 
 const SERVED_DAILY_PATH = path.join(process.cwd(), 'db', 'served-daily.json')
 

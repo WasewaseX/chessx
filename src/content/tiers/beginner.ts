@@ -495,9 +495,89 @@ export const beginner: Tier = {
         text('Where this comes from', ['How to Win at Chess (Levy Rozman): the three basic mates — ladder, queen box, and this one — practiced until none can be lost.']),
       ],
     },
+
+    {
+      id: 'bg-kbn',
+      n: 9,
+      title: 'Knight and bishop mate',
+      subtitle: 'The corner mate: bishop\'s color only, knight covers the rest.',
+      minutes: 12,
+      concepts: ['mate', 'endgame', 'coordination'],
+      steps: [
+        quiz('Warm-up: from last lesson', 'With a lone rook, what is the correct order of the method?', [
+          wrong('Check first, walk second', 'Checks without restraint just shove the king around — and can even hand him stalemate.'),
+          right('Cut him off, walk your king up, check last', 'Restrain first, walk second, check last. The same discipline runs the whole mating family.'),
+          wrong('Chase the king with checks from afar', 'A lone rook checking from a distance is a sieve, not a net.'),
+        ]),
+        text(
+          'The last technique mate',
+          [
+            'You own the ladder, the queen box, and the king-and-rook mate. One mating force is left that every handbook makes you learn: knight and bishop against a bare king.',
+            'Capablanca set the rule in Chess Fundamentals (1921): with a knight and a bishop the mate can only be given in the corners of the same color as the bishop. A dark-squared bishop mates in a dark corner; a light-squared bishop mates in a light corner. Nowhere else.',
+            'The method has two parts. First, drive the king to the edge with your king fencing and the bishop cutting diagonals. Second, herd him along the edge into the right corner. The knight covers every square of the color OPPOSITE to the bishop, and your king escorts at close range the whole way.',
+          ],
+          'Bishop picks the corner, knight covers the other color, king escorts.',
+        ),
+        demo(
+          'The finished net',
+          [
+            'The textbook final picture. The white king on f7 already takes g8 and g7 away. The knight on f6 covers h7 and g8. The bishop needs one step to g7 — protected by the king — and the king on h8 has nothing left.',
+            'Every piece has a job: the king fences, the knight covers the squares the bishop cannot reach, the bishop delivers.',
+          ],
+          '7k/5K2/5N1B/8/8/8/8/8 w - - 0 1',
+          {
+            moves: ['Bg7#'],
+            marks: [
+              { square: 'g7', color: 'gold' },
+              { square: 'g8', color: 'green' },
+              { square: 'h7', color: 'green' },
+            ],
+            caption: 'King fences, knight covers, bishop delivers',
+          },
+        ),
+        quiz('Where can the mate land?', 'Your bishop is light-squared. Which corners can ever host the mate?', [
+          right('a8 and h1', 'The light corners match the bishop\'s color. Capablanca\'s rule, verbatim.'),
+          wrong('a1 and h8', 'Those are the dark corners. A light-squared bishop can never check a king sitting there.'),
+          wrong('Any corner, with enough coordination', 'Coordination decides when, geometry decides where: the bishop must deliver the final check, and one bishop only ever touches one corner color.'),
+        ]),
+        drill(
+          'The only move',
+          '5B1k/5K2/5N2/8/8/8/8/8 w - - 0 1',
+          ['Bg7#'],
+          'One move mates. Every other move here is a disaster of one kind or another. Find it.',
+          'Your king and knight already fence g8 and h7. Ask what each move does to that net — and what happens to a king with no moves and no check.',
+          'Bg7 is mate — and every QUIET bishop move instead leaves the king with no moves and no check: stalemate, half a point thrown away. The knight moves just let him slip out.',
+        ),
+        quiz('The stalemate trap', 'The king sits on h8, fenced by your king on f7 and knight on f6. Why can you not just play a waiting bishop move?', [
+          right('The king would have no legal move and no check: stalemate', 'The KBN mate\'s most famous pitfall. A fenced king with nothing to do is stalemate unless your move gives check.'),
+          wrong('Waiting moves are always safe with a big material lead', 'In mate territory a waiting move can hand over the full point. Always scan the defender\'s moves before you shuffle.'),
+          wrong('The knight covers too little', 'The knight covers exactly enough — g8 and h7. That is the problem: the king has nothing left.'),
+        ]),
+        playout(
+          'Herd him to the corner',
+          'King, knight, and bishop against a bare king. Fence with your king, cut with the bishop, cover the other color with the knight — and mate in the bishop\'s corner before the move limit.',
+          '7k/8/8/5K2/3N4/8/7B/8 w - - 0 1',
+          'w',
+          'Checkmate the bare king within 25 moves',
+          1,
+          'checkmate',
+          25,
+          'Mated with knight and bishop: the hardest technique mate in the basic family is yours.',
+          'The king slipped the net. Try again: bishop on a long diagonal, knight covering the opposite color, your king glued to his.',
+          'Bishop cuts diagonals of its own color, knight covers the opposite color, king escorts — mate only in the bishop\'s corner.',
+        ),
+        text(
+          'Where this comes from',
+          [
+            'Chess Fundamentals (José Raúl Capablanca, 1921) teaches this mate among the first principles and warns that it "requires foresight" to finish inside the fifty-move limit. Practice it a few times in the arena — in real games it usually arrives as an accidental promotion with the wrong pieces left on the board.',
+          ],
+        ),
+      ],
+    },
+
     {
       id: 'bg-11',
-      n: 9,
+      n: 10,
       title: 'Back-rank defense',
       subtitle: 'Make luft before the rook arrives.',
       minutes: 9,
@@ -554,7 +634,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-23',
-      n: 10,
+      n: 11,
       title: 'Mating patterns: batteries and the smothered mate',
       subtitle: 'Two-piece attacks, and the king buried by its own army.',
       minutes: 11,
@@ -637,7 +717,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-ends',
-      n: 11,
+      n: 12,
       title: 'How games really end',
       subtitle: 'Four ways to win, five ways to draw, zero reasons to resign.',
       minutes: 10,
@@ -744,7 +824,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-04',
-      n: 12,
+      n: 13,
       title: 'Do not hang pieces',
       subtitle: 'The blunder check that saves hundreds of points.',
       minutes: 9,
@@ -798,7 +878,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-05',
-      n: 13,
+      n: 14,
       title: 'The fork',
       subtitle: 'One piece, two victims.',
       minutes: 10,
@@ -882,7 +962,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-hw1',
-      n: 14,
+      n: 15,
       title: 'The royal fork',
       subtitle: 'One knight hop, two royal targets.',
       minutes: 9,
@@ -942,7 +1022,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-06',
-      n: 15,
+      n: 16,
       title: 'The pin',
       subtitle: 'A piece frozen in front of its own king.',
       minutes: 10,
@@ -1011,7 +1091,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-07',
-      n: 16,
+      n: 17,
       title: 'The skewer',
       subtitle: 'The pin in reverse: the king moves, the prize falls.',
       minutes: 9,
@@ -1070,7 +1150,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-08',
-      n: 17,
+      n: 18,
       title: 'Loose pieces drop off',
       subtitle: 'LPDO: the mnemonic that wins games.',
       minutes: 9,
@@ -1122,7 +1202,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-09',
-      n: 18,
+      n: 19,
       title: 'Do the math, win the trade',
       subtitle: 'When is a capture safe? Count it out.',
       minutes: 10,
@@ -1182,7 +1262,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-10',
-      n: 19,
+      n: 20,
       title: 'Removing the defender',
       subtitle: 'Break the bodyguard first, then collect.',
       minutes: 9,
@@ -1234,7 +1314,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-22',
-      n: 20,
+      n: 21,
       title: 'Winning when ahead: trade pieces, not pawns',
       subtitle: 'The one trade rule that converts advantages into wins.',
       minutes: 9,
@@ -1289,7 +1369,7 @@ export const beginner: Tier = {
 
     {
       id: 'int-24',
-      n: 21,
+      n: 22,
       title: 'The CCA method: checks, captures, attacks',
       subtitle: 'The three-question scan that finds forcing moves in order.',
       minutes: 10,
@@ -1352,7 +1432,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-15',
-      n: 22,
+      n: 23,
       title: 'Practice arena: tactics I',
       subtitle: 'Fork, pin, skewer, mixed.',
       minutes: 11,
@@ -1394,7 +1474,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-16',
-      n: 23,
+      n: 24,
       title: 'Practice arena: tactics II',
       subtitle: 'Loose pieces, counting, defense.',
       minutes: 11,
@@ -1433,7 +1513,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-17',
-      n: 24,
+      n: 25,
       title: 'Your first opening: the Italian',
       subtitle: 'A complete, honest opening you can play forever.',
       minutes: 11,
@@ -1498,7 +1578,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-18',
-      n: 25,
+      n: 26,
       title: 'Play a development game',
       subtitle: 'Full game, one goal: castle by move 12.',
       minutes: 15,
@@ -1545,7 +1625,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-19',
-      n: 26,
+      n: 27,
       title: 'Beginner exam',
       subtitle: 'One quiz, one mate, one trap to punish.',
       minutes: 11,
@@ -1592,7 +1672,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-20',
-      n: 27,
+      n: 28,
       title: 'Beginner graduation',
       subtitle: 'One more game, one tier down.',
       minutes: 16,

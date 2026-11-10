@@ -501,8 +501,74 @@ export const master: Tier = {
     },
 
     {
-      id: 'ms-09',
+      id: 'ms-op',
       n: 11,
+      title: 'Overprotection',
+      subtitle: 'Nimzowitsch\'s rule: defend the strong point with more than it needs.',
+      minutes: 10,
+      concepts: ['prophylaxis', 'pieceActivity', 'pawnStructure'],
+      steps: [
+        quiz('Warm-up: from last lesson', 'A blockade works because the blockading piece...', [
+          right('Sits IN FRONT of the pawn, where it is immune and active', 'The blockader parks on the pawn\'s path: no exchange can evict it, and it eyes the whole board from a permanent post.'),
+          wrong('Attacks the pawn from behind', 'From behind, the pawn simply pushes or is defended; nothing is gained.'),
+          wrong('Trades itself for the passed pawn', 'Trading the blockader releases the pawn — the exact opposite of the plan.'),
+        ]),
+        text(
+          'The soul of the position',
+          [
+            'Aron Nimzowitsch built My System (1925) around one discovery: the strong point — an advanced square like e5 or d5 held by a piece — is the soul of a plan. And his prescription for keeping it is overprotection: defend the point with MORE pieces than any attack can ever outnumber.',
+            'The magic: an overprotector is never passive. The knight that guards e5 also eyes the queenside; the pawn that supports it grabs space; the bishop behind it fires down a diagonal. Every extra defender is simultaneously doing its own job elsewhere — the strong point makes the whole army hum.',
+            'The discipline: when the opponent masses attackers against your strong point, do not defend with equal force and hope. Add the third and fourth defender, each one staying active. Capablanca\'s "a unit that holds two" is the same idea from the other side; Nimzowitsch\'s answer is a unit that holds one while ANOTHER unit also holds it.',
+          ],
+          'Overprotect: every extra defender is active somewhere else too.',
+        ),
+        demo(
+          'The e5 pivot',
+          [
+            'White\'s knight owns e5: the classic Nimzowitsch strong point. Count the attackers: the black knights on d7 and g6 press it from two sides. Count the defense: the d4-pawn and the f4-pawn already hold it — and a third defender is one move away.',
+            'Now count what the defenders do: d4 and f4 grab central space, Bd3 presses the g6-knight that is doing the attacking, and the queen and rooks stand ready. One point, several jobs. That is overprotection.',
+          ],
+          'r1bqk2r/pppnpppp/6n1/4N3/3P1P2/3B4/3N3P/R1BQK2R w Kk - 0 1',
+          {
+            marks: [
+              { square: 'e5', color: 'gold' },
+              { square: 'd4', color: 'green' },
+              { square: 'f4', color: 'green' },
+              { square: 'd3', color: 'green' },
+            ],
+            caption: 'One strong point, several jobs',
+          },
+        ),
+        drill(
+          'The third defender',
+          'r1bqk2r/pppnpppp/6n1/4N3/3P1P2/3B4/3N3P/R1BQK2R w Kk - 0 1',
+          ['Ndc4'],
+          'Two black knights sniff at e5. Add the overprotector that also opens a queenside eye. Both your knights can reach c4 — name the one from d2.',
+          'The d2-knight steps to c4: from there it guards e5 while watching the b6, a5 and d6 squares. (Write the file of the knight you are moving: Ndc4.)',
+          'Ndc4: a third defender of e5 that simultaneously eyes b6, a5 and d6. The point is now untouchable and the army is busier than ever.',
+        ),
+        quiz('Reading an overprotected point', 'The opponent masses three attackers against your strong point held by two defenders. The Nimzowitsch answer is:', [
+          right('Add a third defender that stays active — never count and hope', 'Overprotection is arithmetic you control. Each new defender is also a new attacker somewhere else.'),
+          wrong('Trade off the point immediately', 'Trading releases the tension and often hands over the square the whole plan was built on.'),
+          wrong('Ignore it: three attackers cannot break two defenders', 'Three beats two. Hope is not a defensive system.'),
+        ]),
+        quiz('The quiet payoff', 'Why does overprotection ALSO improve your attack?', [
+          right('Defenders sit on useful squares, so they double as attackers when the moment comes', 'The c4-knight guards e5 AND hits b6. The f4-pawn holds the point AND gains space. Defense and offense share the same geography.'),
+          wrong('It does not: defense is defense', 'That is the amateur\'s dividing line. Master play erases it.'),
+          wrong('Because the opponent wastes tempi attacking', 'Sometimes, but it is a side effect. The structural reason is the shared squares.'),
+        ]),
+        text(
+          'Where this comes from',
+          [
+            'My System (Aron Nimzowitsch, 1925): overprotection of the strong point, the direct sequel to blockade and prophylaxis. His strongest practical advice survives intact: the point you overprotect becomes the springboard of the whole middlegame.',
+          ],
+        ),
+      ],
+    },
+
+    {
+      id: 'ms-09',
+      n: 12,
       title: 'Dynamic versus static',
       subtitle: 'Know when the clock on your advantage expires.',
       minutes: 10,
@@ -556,7 +622,7 @@ export const master: Tier = {
 
     {
       id: 'ms-10',
-      n: 12,
+      n: 13,
       title: 'Practice arena: master tools',
       subtitle: 'Everything from this tier, live.',
       minutes: 12,
@@ -590,7 +656,7 @@ export const master: Tier = {
 
     {
       id: 'ms-11',
-      n: 13,
+      n: 14,
       title: 'Steering the game',
       subtitle: 'Choose openings by the endgames they promise.',
       minutes: 10,
@@ -631,7 +697,7 @@ export const master: Tier = {
 
     {
       id: 'ms-12',
-      n: 14,
+      n: 15,
       title: 'Rook endings deep',
       subtitle: 'Short-side defense, checking distance, the active king.',
       minutes: 12,
@@ -679,7 +745,7 @@ export const master: Tier = {
 
     {
       id: 'ms-13',
-      n: 15,
+      n: 16,
       title: 'Fortresses',
       subtitle: 'Positions that cannot be cracked, no matter what.',
       minutes: 10,
@@ -722,7 +788,7 @@ export const master: Tier = {
 
     {
       id: 'ms-14',
-      n: 16,
+      n: 17,
       title: 'Opposite bishops, mastered',
       subtitle: 'The outside passed pawn doctrine.',
       minutes: 12,
@@ -765,7 +831,7 @@ export const master: Tier = {
 
     {
       id: 'ms-15',
-      n: 17,
+      n: 18,
       title: 'The opposite-side storm',
       subtitle: 'Racing pawns with everything on the line.',
       minutes: 12,
@@ -806,7 +872,7 @@ export const master: Tier = {
 
     {
       id: 'ms-16',
-      n: 18,
+      n: 19,
       title: 'Difficult defense',
       subtitle: 'Staying alive with activity, not hope.',
       minutes: 12,
@@ -857,7 +923,7 @@ export const master: Tier = {
 
     {
       id: 'ms-17',
-      n: 19,
+      n: 20,
       title: 'Clock and mind',
       subtitle: 'Practical decisions: time, tilt, and tempo bluffs.',
       minutes: 10,
@@ -903,7 +969,7 @@ export const master: Tier = {
 
     {
       id: 'ms-18',
-      n: 20,
+      n: 21,
       title: 'Practice arena: master tactics I',
       subtitle: 'Deep combinations, verified.',
       minutes: 12,
@@ -941,7 +1007,7 @@ export const master: Tier = {
 
     {
       id: 'ms-19',
-      n: 21,
+      n: 22,
       title: 'Practice arena: master tactics II',
       subtitle: 'Multi-motif, full depth.',
       minutes: 12,
@@ -979,7 +1045,7 @@ export const master: Tier = {
 
     {
       id: 'ms-20',
-      n: 22,
+      n: 23,
       title: 'Master graduation',
       subtitle: 'One famous combination, one exam, one game.',
       minutes: 20,
