@@ -10,10 +10,12 @@ study, not the arcade". Owner: WasewaseX (GitHub PAT embedded in origin remote).
 
 ## Repo law (violating these costs days)
 
-1. **Every change: lint (`bun run lint`), `bun run validate:content` for any
-   curriculum/puzzle touch, commit + push, then verify IN THE BROWSER with
-   agent-browser before claiming done.** Screenshots are no longer tracked
-   (716c810 untracked the platform/research trees) — keep them in /tmp.
+1. **Every change: lint (`bun run lint`), `bun run typecheck`,
+   `bun run validate:content` for any curriculum/puzzle touch, commit + push,
+   then verify IN THE BROWSER with agent-browser before claiming done.**
+   Screenshots live in .zscratch/shots/ (tracked).
+   typecheck has caught real shipping errors (daily-pick.ts was broken on
+   master for two commits unnoticed).
 2. **A parallel session may be pushing to main at any moment.** Fetch + rebase
    before push; never force-push. Conflicts on artifact files (screenshots,
    dev.stop) resolve by taking upstream's DELETION. If your working line
@@ -38,7 +40,14 @@ study, not the arcade". Owner: WasewaseX (GitHub PAT embedded in origin remote).
 
 - `src/content/tiers/*.ts` — curriculum: 6 tiers → levels → steps
   (text/demo/quiz/exercise/playout/gtm), built with src/content/kit.ts helpers.
-  153 levels incl. the 17 "How to Win at Chess" book levels (src/content/book/).
+  **151 levels** (Newbie 24 / Beginner 28 / Intermediate 29 / Advanced 25 /
+  Master 23 / Grandmaster 22), graduations always LAST in a tier. Structure
+  authority: How to Win at Chess (Levy Rozman) — book-derived levels inlined at
+  book-correct positions (no separate book module anymore; src/content/book/
+  was deleted in 157bde1). Cross-audited against Capablanca's Chess
+  Fundamentals (1921) and Nimzowitsch's My System (1925) — see bg-kbn,
+  adv-qvr, ms-op, gm-tempo. Quotable doctrine comes ONLY from public-domain
+  works (1921/1925), always with attribution; never copy copyrighted text.
 - `src/content/validate.ts` (`bun run validate:content`) — the content CI:
   replays every FEN/SAN with chess.js, enforces SAN suffix truth, mate endings,
   concept tags, n-invariant.
@@ -71,6 +80,14 @@ study, not the arcade". Owner: WasewaseX (GitHub PAT embedded in origin remote).
   the server mid-compile. watchdog-child.ts probes both loopbacks first.
 - Daily-puzzle mismatch (fixed e0b70a1): two sources of truth for the daily id
   meant solved dailies never registered. One resolver owns it now.
+- Tablebase discipline (2026-11-10, handbooks round): every endgame win/draw
+  claim in lesson content is probed against the Lichess tablebase
+  (tablebase.lichess.ovh) BEFORE shipping — several "obvious" teaching
+  positions turned out to be draws (kings d3/d5 + Pd2 with White to move is a
+  draw; the parity flip is the actual lesson). Chess.js proves legality;
+  the tablebase proves the RESULT. Never assert an endgame verdict from memory.
+- KBN stalemate trap: with Kf7+Nf6 fencing g8/h7, any quiet bishop move is
+  stalemate. The bg-kbn drill position (bishop f8) is built around this.
 
 ## Open threads (priority order)
 
@@ -92,6 +109,9 @@ study, not the arcade". Owner: WasewaseX (GitHub PAT embedded in origin remote).
 1. `bun run lint` clean; `bun run validate:content` clean when content moved.
 2. Commit + push (fetch/rebase first).
 3. `agent-browser open http://127.0.0.1:3000/` → screenshot → log in (admin /
-   admin1234 unless ADMIN_PASSWORD env) → exercise the exact flow you touched →
-   screenshot each step → check dev.log tail for compile errors.
+   admin1234 unless ADMIN_PASSWORD env; or sign up a throwaway) → exercise
+   the exact flow you touched → screenshot each step → check dev.log tail
+   for compile errors. To fast-forward lesson prerequisites, POST
+   {lessonId, stepsDone, done:true} to /api/progress from the signed-in
+   session (agent-browser eval fetch).
 4. Report what the browser SAW, not what the build promised.
