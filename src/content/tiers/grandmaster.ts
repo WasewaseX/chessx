@@ -1,8 +1,9 @@
 // Tier 6: Grandmaster. Judgment at full depth: zugzwang, fortresses,
 // exchange sacrifices, preparation, and the capstone game.
+// "Train like the book says" (gm-hw1, How to Win at Chess) closes the teaching
+// arc right before the Capstone — the course still ends with the game.
 import type { Tier } from '../schema'
 import { text, demo, quiz, drill, right, wrong, playout, gtmStep, guess } from '../kit'
-import { hwGrandmaster } from '../book/how-to-win-at-chess'
 
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
@@ -837,17 +838,61 @@ export const grandmaster: Tier = {
       ],
     },
     {
-      id: 'gm-20',
+      id: 'gm-hw1',
       n: 20,
+      title: 'Train like the book says',
+      subtitle: 'Analyze yourself, fix one thing, repeat.',
+      minutes: 9,
+      concepts: ['calculation', 'defense', 'tradeDecisions'],
+      steps: [
+        text(
+          'The loop that actually raises rating',
+          [
+            'Play long games with real thinking time. Blitz measures recognition; improvement needs calculation — the muscle built only under a clock that lets you use the method from these lessons.',
+            'Then the part everyone skips: review your OWN games, and do it without the engine first. Annotate what you thought during the game, find the move where the evaluation flipped, and name the reason in one sentence: missed fork, lazy king, uncounted attack.',
+            'Keep the loop honest: one weakness per week, not five. The book’s closing promise is that rating follows the loop, not the other way around — and every tool in this app exists to run it: games library for the losses, analysis for the flip move, drills for the named weakness.',
+          ],
+          'Play long, review honestly, name the flip move, fix one thing. Repeat.',
+        ),
+        quiz(
+          'The review that improves',
+          'You lost a long game. What is the highest-value first pass?',
+          [
+            right(
+              'Walk it yourself, find where it turned, name the reason',
+              'Your own annotations force the calculation muscle and produce ONE fixable weakness. Engines are for checking the walk, not replacing it.',
+            ),
+            wrong(
+              'Open the engine at move one and read evaluations',
+              'Eval-bar watching feels like study and trains nothing. The flip move is a moment, not a graph.',
+            ),
+            wrong(
+              'Queue ten blitz games to bounce back',
+              'Bouncing back repeats the same weakness ten times at speed. The loop loses to the queue every time.',
+            ),
+          ],
+        ),
+        text(
+          'Where this comes from',
+          [
+            'Your last step in the course: everything before this level gave you the positions; this level gave you the loop. Run it.',
+            'How to Win at Chess (Levy Rozman), applied at this level.',
+          ],
+        ),
+      ],
+    },
+    {
+      id: 'gm-20',
+      n: 21,
       title: 'Capstone',
       subtitle: 'The final game of the curriculum.',
       minutes: 25,
       concepts: ['calculation', 'endgame', 'technique', 'famousGame'],
       steps: [
-        quiz('Retrieval first', 'What must Black avoid in a winning king-and-pawn versus king duel?', [
-          right('Losing a tempo: every king step must keep the pawn guarded and the cage closed', 'One careless step frees the defending king and the win evaporates.'),
-          wrong('Pushing the pawn as fast as possible', 'The pawn waits. The king escorts. Speed spoils zugzwang nets.'),
-          wrong('Trading into a rook ending', 'There is nothing to trade. This is pure geometry.'),
+        quiz('Retrieval first', 'From last lesson: what is the loop that actually raises rating?', [
+          right('Play long games, review your own games without the engine first, fix one weakness at a time', 'The loop: real calculation under a clock, honest self-review, one named weakness per week. Rating follows the loop.'),
+          wrong('Queue blitz until the rating comes back', 'Speed repeats weaknesses. Quantity is not the loop.'),
+          wrong('Memorize more opening lines', 'Lines end at move ten; the loop decides the rest of the game.'),
         ]),
         text(
           'Everything, one game',
@@ -918,7 +963,5 @@ export const grandmaster: Tier = {
         ),
       ],
     },
-    // Book curriculum (How to Win at Chess) — appended at the matching band.
-    ...hwGrandmaster,
   ],
 }

@@ -1,8 +1,11 @@
 // Tier 1: Newbie. First contact with the game: the board, the pieces, the
 // rules, and the very first ways to win material and mate.
+//
+// "How to Win at Chess" (Levy Rozman) is woven into the chapter order, not
+// appended: the objective lesson (nb-22), the opening plan (nb-19) and the
+// four-move-trick defense (nb-hw3) sit at the book's positions in the arc.
 import type { Tier } from '../schema'
 import { text, demo, quiz, drill, exercise, right, wrong, playout, gtmStep, guess } from '../kit'
-import { hwNewbie } from '../book/how-to-win-at-chess'
 
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
@@ -183,10 +186,10 @@ export const newbie: Tier = {
       minutes: 9,
       concepts: ['pawnStructure', 'center'],
       steps: [
-        quiz('Warm-up: from last lesson', 'Which square does the white king start on?', [
-          wrong('d1', 'That is the queen. She sits beside the king.'),
-          right('e1', 'The king starts on e1, between the queen and the bishop.'),
-          wrong('e2', 'e2 is the pawn square in front of the king.'),
+        quiz('Warm-up: from last lesson', 'How do you write the knight move from g1 to f3 in chess notation?', [
+          right('Nf3', 'The piece letter for the knight, then the destination square. The starting square is only written when two pieces could reach the same square.'),
+          wrong('Kf3', 'K is the king’s letter. The knight uses N because the king already claimed K.'),
+          wrong('Knight to f3', 'Scoresheets use letters and squares, not words: N for knight, then the square name.'),
         ]),
         text(
           'Meet the pawn',
@@ -744,10 +747,33 @@ export const newbie: Tier = {
       id: 'nb-22',
       n: 10,
       title: 'How games are actually won',
-      subtitle: 'Checkmate, resignation, the clock, and why you never quit early.',
-      minutes: 9,
-      concepts: ['mate', 'defense'],
+      subtitle: 'Checkmate ends it — material is how you get there.',
+      minutes: 12,
+      concepts: ['mate', 'defense', 'winningMaterial'],
       steps: [
+        text(
+          'Checkmate ends it — material is how you get there',
+          [
+            'Games are won by checkmate. But you never jump straight to mate: you collect small advantages first — free pieces, safer kings, more attackers in one place — until the mate is easy.',
+            'The habit that separates beginners who improve from beginners who stall: before every move, ask what is undefended, and count attackers against defenders on every capture square.',
+            'A piece is "free" when it has more attackers than defenders. Free pieces decide most games below 1000.',
+          ],
+          'Count attackers and defenders before you capture anything.',
+        ),
+        demo(
+          'A pawn left unguarded',
+          [
+            'Black just played 2...f6?? attacking the knight but forgetting what it guards. The e5 pawn now has one attacker (the knight) and zero defenders.',
+            'Watch the line: the knight takes the pawn, and Black cannot take back without the king walking into checks it cannot afford.',
+          ],
+          START,
+          { moves: ['e4', 'e5', 'Nf3', 'f6', 'Nxe5'], caption: 'White to move — why is e5 free?' },
+        ),
+        quiz('Which capture is actually safe', 'A black knight sits on d5. It is attacked by two of your pieces and defended by one. What happens when you capture?', [
+          right('You win a piece', 'Two attackers, one defender: after the trade you keep the extra piece. That is the whole arithmetic of winning material.'),
+          wrong('You lose material', 'Count again: more attackers than defenders means the last attacker survives.'),
+          wrong('It depends on the queen', 'The count is already the answer. Two attackers versus one defender is a won capture wherever it happens.'),
+        ]),
         text(
           'Four ways a game ends',
           [
@@ -801,6 +827,7 @@ export const newbie: Tier = {
           ],
           'Every ending is checkmate, or an agreement that checkmate was coming.',
         ),
+        text('Where this comes from', ['How to Win at Chess (Levy Rozman): the opening chapter’s method, applied at this level.']),
       ],
     },
     {
@@ -811,10 +838,10 @@ export const newbie: Tier = {
       minutes: 9,
       concepts: ['mate', 'kingSafety'],
       steps: [
-        quiz('Warm-up: from last lesson', 'Your king is in check. You can capture the attacker, block, or run. What happens if you play a move that ignores the check?', [
-          right('It is illegal: a check must be answered this very move', 'Check outranks every other plan. Answer it first, then carry on.'),
-          wrong('It is allowed if you are winning material', 'No amount of material excuses leaving the king in check.'),
-          wrong('Nothing, as long as the king is not captured', 'The king is never captured. The game would already be over.'),
+        quiz('Warm-up: from last lesson', 'What actually decides a chess game, according to last lesson?', [
+          right('Checkmate: the king attacked with no escape', 'Material helps you get there, but only the trapped king ends the game. Everything else is a shortcut around it.'),
+          wrong('Capturing the queen', 'Winning the queen makes mating easier. The capture itself ends nothing.'),
+          wrong('Reaching move forty', 'There is no move-count finish. The game ends when the king runs out of squares, or by agreement.'),
         ]),
         text(
           'Trapped behind his own pawns',
@@ -945,17 +972,140 @@ export const newbie: Tier = {
       ],
     },
     {
-      id: 'nb-11',
+      id: 'nb-19',
       n: 13,
+      title: 'The opening plan',
+      subtitle: 'Center, develop, castle. Three jobs, first ten moves.',
+      minutes: 10,
+      concepts: ['center', 'development', 'castlingSafety'],
+      steps: [
+        quiz('Warm-up: from last lesson', 'Your knight visited f1 and came back home. Your king never moved. Can you still castle short?', [
+          right('Yes: the right survives a knight tour', 'Only two things kill castling rights: the king moves, or the h1 rook moves. Where the knight visited is irrelevant.'),
+          wrong('No: the right dies once any piece leaves home', 'Leaving home blocks the square, not the right. Empty f1 again and castling is back on.'),
+          wrong('Only if the knight took a piece on the way', 'Captures never touch castling rights. King and rook movement is the only thing that does.'),
+        ]),
+        text(
+          'What to do at the start',
+          [
+            'Job one: fight for the center with a pawn, usually e4 or d4. Central pawns open lines for your bishops and claim the squares where your pieces will be strongest.',
+            'Job two: develop a new knight or bishop toward the center every move. A piece that comes out attacks more squares, and moving the same piece twice hands your opponent a free move.',
+            'Job three: castle by move 8 to 10, before your king gets hunted in the middle. Then connect your rooks: when nothing stands between them, development is finished.',
+            'That whole plan is a complete opening. Against beginner tricks, good development usually wins on its own.',
+          ],
+          'Center first, pieces second, king safety third.',
+        ),
+        demo('A model opening', ['Both sides will run the same three-job plan. Predict Black\'s reply before each White move lands: Black mirrors every step.', 'Watch for the jobs as you tap Watch the line: which moves fight for the center, which develop a piece, and what is still missing before the plan is done?'], START, {
+          moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Bc5'],
+          caption: 'The Italian Game, a model beginner opening',
+        }),
+        quiz('First move', 'Which first move fights for the center most directly?', [
+          wrong('h4', 'A flank pawn does nothing for the center and develops no piece.'),
+          right('e4 or d4', 'Both open lines for pieces and grab central space immediately.'),
+          wrong('Na3', 'Na3 puts the knight on the rim where it attacks few squares.'),
+        ]),
+        quiz('What is NOT development?', 'Which of these is NOT developing a piece?', [
+          right('Moving the same piece three times while others wait at home', 'Development means more pieces in the game. Shuffling one piece does the opposite.'),
+          wrong('Playing Nf3 early', 'That is textbook development: knight toward the center.'),
+          wrong('Playing Bc4 early', 'Also development: a bishop aimed at the weakest square in Black\'s camp.'),
+        ]),
+        quiz('Spot the rule-breaker', 'Which first move breaks all three opening jobs at once?', [
+          wrong('e4', 'The model citizen: it claims the center, opens the bishop\'s diagonal, and lets the queen out.'),
+          right('h4', 'It claims nothing in the center, develops no piece, and even weakens the king\'s own shelter before castling.'),
+          wrong('Nf3', 'A developing move toward the center — it follows the plan.'),
+        ]),
+        drill('Develop with a plan', 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3', ['Bc4'], 'Develop the bishop to its best square, eyeing f7', 'The f1 bishop has a clear road. Send it to the square only the king defends.', 'Bc4. The bishop now aims at f7, a square only the king defends.'),
+        drill('Complete the plan', 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 1 5', ['O-O'], 'Center is claimed, pieces are out. Finish the job.', 'The last job of the opening is king safety. The kingside is clear.', 'Castled. Center, development, king safety: the whole opening plan in five moves.'),
+        quiz('Connected rooks', 'When are your rooks connected?', [
+          wrong('When they sit on the same color squares', 'Rook colors do not matter. The gap between them does.'),
+          right('When no pieces stand between them', 'Connected rooks are a sign your development is done: the whole army is working together.'),
+          wrong('When both have captured at least one pawn', 'Captures have nothing to do with it. Only the space between them matters.'),
+        ]),
+        playout(
+          'Run the opening plan',
+          'Play White. Follow the three jobs: center pawn, develop a new piece most moves, castle by move 10. The goal gives you slack to 16.',
+          START,
+          'w',
+          'Get castled within 16 moves',
+          1,
+          'castle',
+          16,
+          'Castled inside the move limit. That is the opening plan in action.',
+          'Check which job you skipped: was the center pawn played before pieces moved, and did you castle before shuffling?',
+          'Keep playing the three jobs: center pawn first, a new piece almost every move, and castle the moment the kingside is clear.',
+        ),
+        text('Where this comes from', ['How to Win at Chess (Levy Rozman): the three opening rules, merged into the plan.']),
+      ],
+    },
+    {
+      id: 'nb-hw3',
+      n: 14,
+      title: 'Stop the four-move trick',
+      subtitle: 'The f7 bait, and how to refuse it like a book.',
+      minutes: 8,
+      concepts: ['development', 'kingSafety', 'defense'],
+      steps: [
+        text(
+          'Why everyone tries it on you',
+          [
+            'At the start, f7 is the weakest square on the board: the king is its only defender, and the queen and a bishop can both point at it. So opponents try the two-move checkmate — queen out early, bishop behind, Qxf7#.',
+            'Here is the secret the trappers do not know: the trick only works against someone who never develops. Every normal developing move makes the queen leave empty-handed.',
+            'The rule: see the queen eyeing f7, and do not panic-block. Develop a piece that challenges or shields, and the attacking queen has to retreat while you gain time.',
+          ],
+          'The four-move checkmate is a bet that you will not develop. Take the bet.',
+        ),
+        demo(
+          'g6 slams the door',
+          [
+            'White has played the bait: bishop on c4, queen on h5, both looking at f7. Black answers with the most natural developing move: g6.',
+            'The pawn guards f7 AND opens the bishop’s diagonal. The queen is suddenly attacked and must run — three wasted tempi for White while Black develops.',
+          ],
+          START,
+          {
+            moves: ['e4', 'e5', 'Bc4', 'Nc6', 'Qh5', 'g6'],
+            caption: 'The queen is the piece that has to move',
+          },
+        ),
+        quiz(
+          'The move that loses',
+          'Same setup: White queen on h5, bishop on c4, Black yet to move. Which reply actually loses the game?',
+          [
+            wrong(
+              'g6',
+              'It guards f7 and attacks the queen. This is the book’s answer.',
+            ),
+            right(
+              'Nf6',
+              'It attacks the queen, yes — but it stops guarding f7. Qxf7# ends the game on the spot: two attackers, zero defenders.',
+            ),
+            wrong(
+              'Nc6',
+              'Developing, and it does not hang anything — but it also does not kick the queen.',
+            ),
+          ],
+        ),
+        drill(
+          'Chase the queen, gain the time',
+          'r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1KBNR b KQkq - 3 3',
+          ['g6', 'Qf3', 'Nf6'],
+          'The queen eyes f7. Refuse the bait and develop with tempo.',
+          'A pawn move that guards f7 and attacks the queen.',
+          'g6 guards f7 and hits the queen; when it retreats to f3 renewing the threat, Nf6 blocks, develops, and prepares to castle. Three developing moves versus none.',
+        ),
+        text('Where this comes from', ['How to Win at Chess (Levy Rozman), applied at this level.']),
+      ],
+    },
+    {
+      id: 'nb-11',
+      n: 15,
       title: 'En passant',
       subtitle: 'The strange pawn capture everyone discovers late.',
       minutes: 8,
       concepts: ['pawnStructure', 'tempo'],
       steps: [
-        quiz('Warm-up: from last lesson', 'After White castles long, where do the king and rook land?', [
-          right('King c1, rook d1', 'Same rule as short: the king steps two squares toward the rook, and the rook hops over him.'),
-          wrong('King d1, rook c1', 'Close, but the king takes the bigger step and the rook hops over him.'),
-          wrong('King c1, rook b1', 'The rook lands right next to the king, on d1.'),
+        quiz('Warm-up: from last lesson', 'The enemy queen is on h5 eyeing f7, with the bishop behind it on c4. Which reply defends best?', [
+          right('g6: the pawn guards f7 and attacks the queen', 'One move does both jobs. The queen retreats with time lost, and your bishop comes out behind the pawn next.'),
+          wrong('Nf6: develop and ignore the queen', 'Nf6 stops guarding f7. Qxf7# is checkmate on the spot: two attackers, zero defenders.'),
+          wrong('Qe7: block with your own queen', 'Panic-blocking freezes your worst piece. The queen must babysit f7 forever while White develops freely.'),
         ]),
         text(
           'The capture that looks illegal',
@@ -992,7 +1142,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-12',
-      n: 14,
+      n: 16,
       title: 'Promotion',
       subtitle: 'A pawn reaches the last rank and becomes something huge.',
       minutes: 8,
@@ -1049,7 +1199,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-13',
-      n: 15,
+      n: 17,
       title: 'Stalemate and draws',
       subtitle: 'Games do not always end in a mate.',
       minutes: 13,
@@ -1130,7 +1280,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-14',
-      n: 16,
+      n: 18,
       title: 'Values and trades',
       subtitle: 'Know what your pieces are worth before you swap.',
       minutes: 9,
@@ -1200,7 +1350,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-15',
-      n: 17,
+      n: 19,
       title: 'Is it safe to play that?',
       subtitle: 'The one question that prevents most beginner blunders.',
       minutes: 8,
@@ -1254,7 +1404,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-23',
-      n: 18,
+      n: 20,
       title: 'How to practice',
       subtitle: 'Play, solve, review: the loop that makes every other lesson stick.',
       minutes: 8,
@@ -1306,16 +1456,16 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-16',
-      n: 19,
+      n: 21,
       title: 'Practice arena I',
       subtitle: 'Capture drills: spot the free pieces.',
       minutes: 14,
       concepts: ['winningMaterial', 'defense'],
       steps: [
-        quiz('Warm-up: from last lesson', 'Name the scan from last lesson, in order.', [
-          right('Their checks, their captures, their threats', 'Defense before dreams. Survive their forcing moves, then play your own.'),
-          wrong('Your threats, then their checks', 'Your threats can wait one move. Their forcing moves cannot: that is why the scan starts on their side.'),
-          wrong('Captures only', 'Checks first, always. A threat to your king outranks every other idea on the board.'),
+        quiz('Warm-up: from last lesson', 'What are the three parts of the practice loop?', [
+          right('Play real games, solve puzzles, review your losses', 'All three, a little and often. Skip one part and the loop leaks.'),
+          wrong('Watch videos, memorize openings, collect books', 'Consuming chess is not practicing chess. The loop is play, solve, review.'),
+          wrong('Queue blitz games until the wins come back', 'Volume without review repeats the same mistakes at speed. The loop needs the review step.'),
         ]),
         text(
           'Training, not testing',
@@ -1378,7 +1528,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-17',
-      n: 20,
+      n: 22,
       title: 'Practice arena II',
       subtitle: 'Give check. Escape check. Six drills.',
       minutes: 9,
@@ -1444,7 +1594,7 @@ export const newbie: Tier = {
     },
     {
       id: 'nb-18',
-      n: 21,
+      n: 23,
       title: 'Practice arena III',
       subtitle: 'Review: castling, en passant, promotion.',
       minutes: 8,
@@ -1513,67 +1663,8 @@ export const newbie: Tier = {
       ],
     },
     {
-      id: 'nb-19',
-      n: 22,
-      title: 'The opening plan',
-      subtitle: 'Center, develop, castle. Three jobs, first ten moves.',
-      minutes: 10,
-      concepts: ['center', 'development', 'castlingSafety'],
-      steps: [
-        quiz('Warm-up: from last lesson', 'Your knight visited f1 and came back home. Your king never moved. Can you still castle short?', [
-          right('Yes: the right survives a knight tour', 'Only two things kill castling rights: the king moves, or the h1 rook moves. Where the knight visited is irrelevant.'),
-          wrong('No: the right dies once any piece leaves home', 'Leaving home blocks the square, not the right. Empty f1 again and castling is back on.'),
-          wrong('Only if the knight took a piece on the way', 'Captures never touch castling rights. King and rook movement is the only thing that does.'),
-        ]),
-        text(
-          'What to do at the start',
-          [
-            'Job one: fight for the center with a pawn, usually e4 or d4. Central pawns open lines for your bishops and claim the squares where your pieces will be strongest.',
-            'Job two: develop a new knight or bishop toward the center every move. A piece that comes out attacks more squares, and moving the same piece twice hands your opponent a free move.',
-            'Job three: castle by move 8 to 10, before your king gets hunted in the middle. Then connect your rooks: when nothing stands between them, development is finished.',
-            'That whole plan is a complete opening. Against beginner tricks, good development usually wins on its own.',
-          ],
-          'Center first, pieces second, king safety third.',
-        ),
-        demo('A model opening', ['Both sides will run the same three-job plan. Predict Black\'s reply before each White move lands: Black mirrors every step.', 'Watch for the jobs as you tap Watch the line: which moves fight for the center, which develop a piece, and what is still missing before the plan is done?'], START, {
-          moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Bc5'],
-          caption: 'The Italian Game, a model beginner opening',
-        }),
-        quiz('First move', 'Which first move fights for the center most directly?', [
-          wrong('h4', 'A flank pawn does nothing for the center and develops no piece.'),
-          right('e4 or d4', 'Both open lines for pieces and grab central space immediately.'),
-          wrong('Na3', 'Na3 puts the knight on the rim where it attacks few squares.'),
-        ]),
-        quiz('What is NOT development?', 'Which of these is NOT developing a piece?', [
-          right('Moving the same piece three times while others wait at home', 'Development means more pieces in the game. Shuffling one piece does the opposite.'),
-          wrong('Playing Nf3 early', 'That is textbook development: knight toward the center.'),
-          wrong('Playing Bc4 early', 'Also development: a bishop aimed at the weakest square in Black\'s camp.'),
-        ]),
-        drill('Develop with a plan', 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3', ['Bc4'], 'Develop the bishop to its best square, eyeing f7', 'The f1 bishop has a clear road. Send it to the square only the king defends.', 'Bc4. The bishop now aims at f7, a square only the king defends.'),
-        drill('Complete the plan', 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 1 5', ['O-O'], 'Center is claimed, pieces are out. Finish the job.', 'The last job of the opening is king safety. The kingside is clear.', 'Castled. Center, development, king safety: the whole opening plan in five moves.'),
-        quiz('Connected rooks', 'When are your rooks connected?', [
-          wrong('When they sit on the same color squares', 'Rook colors do not matter. The gap between them does.'),
-          right('When no pieces stand between them', 'Connected rooks are a sign your development is done: the whole army is working together.'),
-          wrong('When both have captured at least one pawn', 'Captures have nothing to do with it. Only the space between them matters.'),
-        ]),
-        playout(
-          'Run the opening plan',
-          'Play White. Follow the three jobs: center pawn, develop a new piece most moves, castle by move 10. The goal gives you slack to 16.',
-          START,
-          'w',
-          'Get castled within 16 moves',
-          1,
-          'castle',
-          16,
-          'Castled inside the move limit. That is the opening plan in action.',
-          'Check which job you skipped: was the center pawn played before pieces moved, and did you castle before shuffling?',
-          'Keep playing the three jobs: center pawn first, a new piece almost every move, and castle the moment the kingside is clear.',
-        ),
-      ],
-    },
-    {
       id: 'nb-20',
-      n: 23,
+      n: 24,
       title: 'Newbie graduation',
       subtitle: 'A famous trap, one last quiz, and your first full game.',
       minutes: 22,
@@ -1670,7 +1761,5 @@ export const newbie: Tier = {
         ),
       ],
     },
-    // Book curriculum (How to Win at Chess) — appended at the matching band.
-    ...hwNewbie,
   ],
 }

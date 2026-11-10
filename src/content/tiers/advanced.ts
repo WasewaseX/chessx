@@ -1,8 +1,9 @@
 // Tier 4: Advanced. Calculation discipline, combinations, positional depth,
 // and real endgame technique.
+// "Attack with your whole team" (adv-hw4, from How to Win at Chess) sits with
+// the attacking cluster where the book places it — not appended after the tier.
 import type { Tier } from '../schema'
 import { text, demo, quiz, drill, right, wrong, playout, gtmStep, guess } from '../kit'
-import { hwAdvanced } from '../book/how-to-win-at-chess'
 
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
@@ -204,17 +205,56 @@ export const advanced: Tier = {
       ],
     },
     {
-      id: 'adv-05',
+      id: 'adv-hw4',
       n: 5,
+      title: 'Attack with your whole team',
+      subtitle: 'Légal’s mate: every attacker counts, every defender counts.',
+      minutes: 12,
+      concepts: ['mate', 'initiative', 'sacrifice'],
+      steps: [
+        text(
+          'The attacker’s arithmetic',
+          [
+            'A kingside attack works when two numbers are true: you have MORE attackers than defenders around the king, and the roads (open lines) are already open. Sacrifices buy the road — never the arithmetic.',
+            'The book’s checklist before any attack: which pieces am I bringing? Which pieces does the defender have? What lines am I opening? If a number is missing, develop first.',
+            'This level’s game is the oldest lesson in attacking arithmetic: Légal’s mate, where a knight sacrifice works ONLY because three pieces point at f7 and the defender is missing one move of development.',
+          ],
+          'Count attackers and defenders around the king. Only attack when the count is yours.',
+        ),
+        gtmStep(
+          'Guess the oldest trap in the book',
+          [
+            'White develops; Black pins the knight and then plays g6, dreaming of winning the queen with Bxd1. White burns the bridge: Nxe5!, ignoring the queen.',
+            'Play White’s continuation at each step. Count attackers on f7 before you answer.',
+          ],
+          'The famous Légal mate, Paris, 1750 (traditional attribution)',
+          START,
+          ['e4', 'e5', 'Nf3', 'd6', 'Bc4', 'Bg4', 'Nc3', 'g6'],
+          [
+            guess('Nxe5!', 'The attack count is ready: bishop c4, knight c3 and this knight all point into the kingside. The queen is bait.', {
+              reply: 'Bxd1',
+            }),
+            guess('Bxf7+', 'First hammer: check, and the bishop cannot be captured — the e5 knight now guards f7.', {
+              reply: 'Ke7',
+            }),
+            guess('Nd5#', 'The third attacker arrives at the square the pinning bishop left empty. Mate with two pieces down — because the count was never close.', {}),
+          ],
+        ),
+        text('Where this comes from', ['How to Win at Chess (Levy Rozman), applied at this level.']),
+      ],
+    },
+    {
+      id: 'adv-05',
+      n: 6,
       title: 'The counterattack',
       subtitle: 'When attacked, ask where THEY are weak.',
       minutes: 9,
       concepts: ['defense', 'initiative'],
       steps: [
-        quiz('Retrieval first', 'What must you do to the f6-style defender before a kingside attack works?', [
-          right('Drive him off, trade him, or deflect him', 'No guard, no wall. Every attack starts with the keeper.'),
-          wrong('Attack the pawns directly', 'Pawns are the wall. The guard in front is the target.'),
-          wrong('Bring the queen first', 'The queen arrives WITH the plan. The defender question comes before the army.'),
+        quiz('Retrieval first', 'From last lesson: before any kingside attack, what do you count?', [
+          right('Attackers versus defenders around the king, and the open lines between them', 'The attacker’s arithmetic: more attackers than defenders, with roads already open. Sacrifices buy roads, never the count.'),
+          wrong('Your material advantage', 'Material says little about mating chances. The local count around the king decides.'),
+          wrong('The opponent’s remaining clock', 'Clock pressure is real but secondary. No count, no attack.'),
         ]),
         text(
           'Answer force with force',
@@ -256,7 +296,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-06',
-      n: 6,
+      n: 7,
       title: 'Weak color complexes',
       subtitle: 'When one color of squares goes dark.',
       minutes: 9,
@@ -316,16 +356,16 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-07',
-      n: 7,
+      n: 8,
       title: 'Blockade and deep outposts',
       subtitle: 'Some squares are addresses, not stops.',
       minutes: 9,
       concepts: ['outposts', 'pieceActivity'],
       steps: [
-        quiz('Retrieval first', 'Your counterattack must come with what, to work against an active attack?', [
-          right('Check or immediate material threat', 'The attacker loses tempo only when forced. Slow plans lose races.'),
-          wrong('At least a pawn of profit', 'Material is not the currency of counterattacks. Tempo is.'),
-          wrong('Queens on the board', 'Even without queens, checks and threats counter.'),
+        quiz('Retrieval first', 'From last lesson: what is a weak color complex?', [
+          right('The squares of one color left permanently hard to defend once their pawn guards are gone', 'When the pawns covering light or dark squares disappear, that color becomes an invasion route no piece can fully guard.'),
+          wrong('Any square a pawn can kick a knight from', 'That is an outpost question. Color complexes are about one whole color losing its pawn cover.'),
+          wrong('A diagonal with no bishop on it', 'The missing bishop is a piece count. The complex is a permanent hole in the pawn structure.'),
         ]),
         text(
           'The permanent residence',
@@ -366,7 +406,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-08',
-      n: 8,
+      n: 9,
       title: 'Space and maneuvering',
       subtitle: 'More room, better pieces, no trades.',
       minutes: 9,
@@ -421,7 +461,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-reroute',
-      n: 9,
+      n: 10,
       title: 'Improve your worst piece',
       subtitle: 'The plan starts at the piece doing nothing.',
       minutes: 10,
@@ -487,7 +527,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-09',
-      n: 10,
+      n: 11,
       title: 'Pawn chains',
       subtitle: 'Attack the base. Know when to release.',
       minutes: 9,
@@ -536,7 +576,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-breaks',
-      n: 11,
+      n: 12,
       title: 'Pawn breaks',
       subtitle: 'Closed walls are opened by one pawn move.',
       minutes: 10,
@@ -611,16 +651,16 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-10',
-      n: 12,
+      n: 13,
       title: 'Practice arena: calculation',
       subtitle: 'Forcing moves under pressure.',
       minutes: 10,
       concepts: ['calculation', 'mate'],
       steps: [
-        quiz('Retrieval first', 'Which pawn of a chain do you attack, and why?', [
-          right('The base: the rearmost pawn, the only one no other pawn can shield', 'Everything in front of it has neighbors. The base stands alone.'),
-          wrong('The head: the most advanced pawn', 'The head is usually well defended by the chain behind it.'),
-          wrong('Any pawn, they are all equal', 'Structural targets are chosen by geometry, not mood.'),
+        quiz('Retrieval first', 'From last lesson: what actually opens a closed position?', [
+          right('A prepared pawn break, timed with your pieces ready behind it', 'Breaks are prepared, not improvised: pawn ready, pieces poised — then the strike opens the lines for whoever is set up.'),
+          wrong('Trading off the heavy pieces', 'Trades close nothing. The walls are pawns; only a pawn strike removes them.'),
+          wrong('Waiting for the opponent to unclose it', 'Closed positions do not open by themselves. Whoever prepares the break chooses the game’s shape.'),
         ]),
         text(
           'Calculate like it counts',
@@ -659,16 +699,16 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-11',
-      n: 13,
+      n: 14,
       title: 'Openings with a purpose',
       subtitle: 'Repertoires are plans, not memorization.',
       minutes: 10,
       concepts: ['development', 'center', 'castlingSafety'],
       steps: [
-        quiz('Retrieval first', 'Which pawn in a chain is the target?', [
-          right('The base, the rearmost one', 'No pawn can defend it. Pieces get tied down for life guarding it.'),
-          wrong('The head, the most advanced one', 'The head has the whole chain behind it.'),
-          wrong('The middle pawn', 'Middle pawns have neighbors on both sides. The base does not.'),
+        quiz('Retrieval first', 'From the calculation arena: what gets calculated first, every time?', [
+          right('The forcing moves: checks, captures, threats', 'The arena’s discipline. Forcing lines are few, concrete, and end arguments.'),
+          wrong('The prettiest combination', 'Beauty is a byproduct. The scan finds what is actually there.'),
+          wrong('Whatever the opponent just allowed', 'Allowed is not safe. The scan runs on your move, from both sides.'),
         ]),
         text(
           'Why you play what you play',
@@ -701,7 +741,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-12',
-      n: 14,
+      n: 15,
       title: 'Isolated queen\u2019s pawn',
       subtitle: 'The most debated pawn in chess.',
       minutes: 10,
@@ -742,7 +782,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-13',
-      n: 15,
+      n: 16,
       title: 'Lucena: the bridge',
       subtitle: 'The most important winning position in rook endgames.',
       minutes: 10,
@@ -788,7 +828,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-14',
-      n: 16,
+      n: 17,
       title: 'Philidor: rear checks',
       subtitle: 'The most important drawing position in rook endgames.',
       minutes: 10,
@@ -827,7 +867,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-15',
-      n: 17,
+      n: 18,
       title: 'Rook activity',
       subtitle: 'Cutting off, behind passed pawns, the active king.',
       minutes: 10,
@@ -864,7 +904,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-16',
-      n: 18,
+      n: 19,
       title: 'Opposite bishops',
       subtitle: 'Drawish, until an outside passed pawn changes everything.',
       minutes: 10,
@@ -913,7 +953,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-17',
-      n: 19,
+      n: 20,
       title: 'Knight versus bishop',
       subtitle: 'The eternal argument, settled by structure.',
       minutes: 10,
@@ -955,7 +995,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-21',
-      n: 20,
+      n: 21,
       title: 'Knight endings: the two-weakness weapon',
       subtitle: 'One weakness is defended. Two lose. Knights do both jobs.',
       minutes: 11,
@@ -1028,16 +1068,16 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-18',
-      n: 21,
+      n: 22,
       title: 'Queen endings',
       subtitle: 'Checks, forks, and the perpetual road.',
       minutes: 10,
       concepts: ['endgame', 'fork', 'technique'],
       steps: [
-        quiz('Retrieval first', 'In an open position with few pawns, which minor piece usually wins the argument?', [
-          right('The bishop: long diagonals and range decide open play', 'No walls to jump, all the room to use.'),
-          wrong('The knight: outposts decide everything', 'Outposts need fixed pawns. Open positions rarely offer them.'),
-          wrong('Neither: only rooks matter', 'Minor pieces fight the whole middlegame before rooks inherit.'),
+        quiz('Retrieval first', 'From last lesson: which piece is the best blockader in the game?', [
+          right('The knight: it stops a passed pawn without losing a step of activity', 'A knight planted in front of the passer still covers squares and fights on both wings — the two-weakness workhorse.'),
+          wrong('The bishop, watching from the side', 'Bishops blockade from a distance and get harassed. The knight sits on the square and stays useful.'),
+          wrong('The rook, parked in front', 'A blockading rook is a passive rook. Rooks belong behind passers — theirs or yours.'),
         ]),
         text(
           'Danger and salvation',
@@ -1073,7 +1113,7 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-19',
-      n: 22,
+      n: 23,
       title: 'Converting winning endgames',
       subtitle: 'King centralization and simplification.',
       minutes: 10,
@@ -1119,16 +1159,16 @@ export const advanced: Tier = {
     },
     {
       id: 'adv-20',
-      n: 23,
+      n: 24,
       title: 'Advanced graduation',
       subtitle: 'One exam, one famous game, tier cleared.',
       minutes: 19,
       concepts: ['endgame', 'calculation', 'technique', 'famousGame'],
       steps: [
-        quiz('Retrieval first', 'When does trading the last rooks pay off in a won rook ending?', [
-          right('When the pawn endgame after the trade is a calculated win', 'Concrete wins only. Hopes do not convert.'),
-          wrong('Always: simplification is automatic', 'A drawn pawn ending erases everything you did to get there.'),
-          wrong('Never: rooks stay on', 'The final trade is the classic finishing technique when the math is checked.'),
+        quiz('Retrieval first', 'From last lesson: what comes first when converting a winning endgame?', [
+          right('Activate the king, then simplify toward a known win', 'Centralize the strongest piece first, trade the defender’s activity away, keep only what wins.'),
+          wrong('Push the pawns fast', 'Pawns run after the king arrives, not before. A lone pawn race is a coin flip.'),
+          wrong('Keep every piece to stay flexible', 'Flexibility favors the defender. Conversion means trading activity away.'),
         ]),
         text(
           'The exam',
@@ -1191,7 +1231,5 @@ export const advanced: Tier = {
         ),
       ],
     },
-    // Book curriculum (How to Win at Chess) — appended at the matching band.
-    ...hwAdvanced,
   ],
 }

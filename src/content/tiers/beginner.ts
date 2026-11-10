@@ -1,10 +1,11 @@
 // Tier 2: Beginner. Opening plans, the first tactical weapons, and the
 // basic checkmates every player must own.
 // Book-derived levels (How to Win at Chess: structure and chess principles
-// only, never text): bg-21, bg-22, bg-23, bg-ends.
+// only, never text): bg-21, bg-22, bg-23, bg-ends. The tactic-ladder band
+// already owned forks, pins, skewers and the back rank, so the book's
+// duplicate takes were folded away — one deep lesson per motif.
 import type { Tier } from '../schema'
 import { text, demo, quiz, drill, right, wrong, playout, gtmStep, guess } from '../kit'
-import { hwBeginner } from '../book/how-to-win-at-chess'
 
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
@@ -1447,7 +1448,5 @@ export const beginner: Tier = {
         ),
       ],
     },
-    // Book curriculum (How to Win at Chess) — appended at the matching band.
-    ...hwBeginner,
   ],
 }

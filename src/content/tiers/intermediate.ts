@@ -2,7 +2,6 @@
 // endgame technique.
 import type { Tier } from '../schema'
 import { text, demo, quiz, drill, right, wrong, playout, gtmStep, guess } from '../kit'
-import { hwIntermediate } from '../book/how-to-win-at-chess'
 
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
@@ -478,10 +477,10 @@ export const intermediate: Tier = {
       minutes: 10,
       concepts: ['outposts', 'pieceActivity'],
       steps: [
-        quiz('Retrieval first', 'When is a clearance sacrifice worth playing?', [
-          right('When what you win or open is worth more than the piece you move out of the way', 'Pay less than you collect. Same arithmetic as every tactic.'),
-          wrong('Never: own pieces must stay put', 'Clearance moves are among the strongest moves in chess when they work.'),
-          wrong('Only in the endgame', 'They fire in openings, middlegames and endgames alike.'),
+        quiz('Retrieval first', 'From last lesson: you accepted a gambit pawn. When does it have to go back?', [
+          right('When keeping it costs pieces, time, or development', 'A gambit pawn is a loan with interest. If holding it stalls your game, return it and finish developing.'),
+          wrong('Never: pawns you win are yours forever', 'Gambit pawns are bait by design. Greed past move ten is how accepted gambits get punished.'),
+          wrong('Only in the endgame, when it is weak', 'By the endgame the gambit player has long since cashed the attack the pawn bought.'),
         ]),
         text(
           'A square with a no-eviction notice',
@@ -776,10 +775,10 @@ export const intermediate: Tier = {
       minutes: 11,
       concepts: ['doubleAttack', 'discoveredAttack', 'calculation'],
       steps: [
-        quiz('Retrieval first', 'How do you fix a bad bishop most cheaply?', [
-          right('Trade it for the enemy\'s best piece, or reroute it outside the pawn wall', 'Either the bad bishop leaves or the diagonals open. Both are wins.'),
-          wrong('Promote a pawn to get a new bishop', 'There is no new bishop coming. Work with the army you have.'),
-          wrong('Trade the pawns instead', 'Some pawn trades wall the bishop in even deeper.'),
+        quiz('Retrieval first', 'From last lesson: what is the CCA scan, in order?', [
+          right('Checks, captures, attacks — forcing moves first', 'The order shrinks the tree: checks constrain replies most, then captures, then direct threats.'),
+          wrong('Attacks, captures, checks', 'Backwards. Checks come first because the reply is the most forced.'),
+          wrong('Whatever looks natural', 'Natural-looking is how forcing refutes get missed. Scan in order, every move.'),
         ]),
         text(
           'Everything you own',
@@ -821,10 +820,10 @@ export const intermediate: Tier = {
       minutes: 10,
       concepts: ['kingSafety', 'pawnBreaks'],
       steps: [
-        quiz('Retrieval first', 'What does a clearance sacrifice usually buy?', [
-          right('An open line for a bigger piece behind the mover', 'The pawn steps aside and the rook or queen inherits the road.'),
-          wrong('A tempo advantage in development', 'Development is a side effect, not the purchase.'),
-          wrong('Nothing: it is pure sacrifice', 'It is an investment with a specific return: the line.'),
+        quiz('Retrieval first', 'From the practice arena: what do you calculate to the end before committing?', [
+          right('The forcing line: every check and capture for both sides', 'The arena\'s habit under pressure. Forcing lines are few, concrete, and they end arguments.'),
+          wrong('Only your own attacking moves', 'One-sided calculation is how attacks run into refutations.'),
+          wrong('The position ten quiet moves deep', 'Depth without forcing moves is fantasy. Forcing lines first, cleanly compared.'),
         ]),
         text(
           'Storms and breakers',
@@ -905,17 +904,76 @@ export const intermediate: Tier = {
       ],
     },
     {
-      id: 'int-13',
+      id: 'int-hw2',
       n: 17,
+      title: 'Kick the pinner',
+      subtitle: 'What to do when your piece is frozen.',
+      minutes: 9,
+      concepts: ['pin', 'defense', 'pawnStructure'],
+      steps: [
+        text(
+          'The guardian can be evicted',
+          [
+            'A pin is only as strong as the piece doing the pinning — and that piece can be attacked. The standard cure is a pawn kick: a6 against Bb5, a3 against Bb4, h3 against Bg4.',
+            'The arithmetic favors you: pawns attacking bishops cost nothing. The pinning piece must retreat or trade itself for the pawn — either way, the frozen piece is free and the pin wasted a move.',
+            'The book’s warning: pins against your king’s cover deserve IMMEDIATE attention, but pins against other pieces can often simply be ignored while you develop around them.',
+          ],
+          'Pin? Ask first: does it really hurt? If yes, kick the pinner with a pawn.',
+        ),
+        demo(
+          'a6 — the cheapest move on the board',
+          [
+            'The Spanish bishop has pinned nothing yet but is a hair from doing so. Black’s a6 attacks it with a pawn.',
+            'If White retreats, Black gained a tempo for free. If White trades on c6, Black recaptures with the b-pawn and the center pawn structure fights for the half-open b-file.',
+          ],
+          'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3',
+          {
+            moves: ['a6', 'Bxc6', 'bxc6'],
+            marks: [{ square: 'a6', color: 'green' }],
+            caption: 'A pawn asks the bishop to leave',
+          },
+        ),
+        quiz(
+          'Which pin deserves the kick',
+          'You can spend one move. A bishop pins your knight against your QUEEN far from the king; meanwhile the enemy is starting a kingside attack. Where does the kick go?',
+          [
+            right(
+              'The kingside — the pin can wait',
+              'The book’s triage: material pins rarely justify abandoning an attack on your king. Defend the king first; the frozen knight is a nuisance, not a loss.',
+            ),
+            wrong(
+              'a3, always kick every pin',
+              'Moves are not free. Chasing a pin that costs you nothing while your king burns is how attacks succeed.',
+            ),
+            wrong(
+              'Move the knight anyway — pins are a myth',
+              'Moving a pinned piece against a queen loses the queen. Myths do not do that; arithmetic does.',
+            ),
+          ],
+        ),
+        drill(
+          'Evict the bishop',
+          'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3',
+          ['a6', 'Bxc6', 'bxc6'],
+          'Black to move: chase the bishop off the pinning diagonal.',
+          'A pawn attack on the pinning piece.',
+          'a6 hits the bishop; after the trade, bxc6 recaptures and Black’s queenside majority lives. The pin is gone for the price of one pawn move.',
+        ),
+        text('Where this comes from', ['How to Win at Chess (Levy Rozman), applied at this level.']),
+      ],
+    },
+    {
+      id: 'int-13',
+      n: 18,
       title: 'Two weaknesses',
       subtitle: 'One defense can hold. Two collapse.',
       minutes: 10,
       concepts: ['initiative', 'pieceActivity'],
       steps: [
-        quiz('Retrieval first', 'When should the defender spend a tempo on luft?', [
-          right('When the back rank itself is the threatened entry', 'Luft is defense only where it answers the real threat.'),
-          wrong('Before every game', 'Luft is situational, not a ritual.'),
-          wrong('When short of time', 'Time trouble is exactly when automatic ritual moves go wrong.'),
+        quiz('Retrieval first', 'From last lesson: your knight is pinned, and the enemy is starting an attack. When must the pin be dealt with?', [
+          right('Only when the pin guards something vital — otherwise defend the king first', 'Pin triage: pins against your king’s cover are urgent; pins on material far from the king can wait while you defend.'),
+          wrong('Always immediately, every pin', 'Chasing harmless pins hands the opponent free tempi. Not every pin hurts.'),
+          wrong('Never: ignore every pin', 'Ignoring a real pin loses the piece behind it. Triage the pin, do not ignore the question.'),
         ]),
         text(
           'Stretch the defense',
@@ -965,7 +1023,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-trades',
-      n: 18,
+      n: 19,
       title: 'Trade decisions',
       subtitle: 'Every capture answers a question: who improves?',
       minutes: 10,
@@ -1041,16 +1099,16 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-14',
-      n: 19,
+      n: 20,
       title: 'King activity and opposition',
       subtitle: 'In the endgame, the king is a fighting piece.',
       minutes: 10,
       concepts: ['kingActivity', 'opposition', 'endgame'],
       steps: [
-        quiz('Retrieval first', 'How do you choose which of two weaknesses to attack?', [
-          right('The one the enemy pieces reach last', 'Distance is defense. Attack where the help is late.'),
-          wrong('Always the closest target', 'The closest target is also the best defended.'),
-          wrong('Coin flip', 'Geometry gives the answer every time.'),
+        quiz('Retrieval first', 'From last lesson: every capture answers which question?', [
+          right('Who improves after the trade?', 'Trades shift the position. The side whose remaining pieces get better should want it.'),
+          wrong('Who has more points on the scoreboard?', 'The count is the start of the answer, not the answer. Activity and structure decide most trades.'),
+          wrong('Can I win a pawn with it?', 'Pawns are one motive among many. The direction the position moves is the real question.'),
         ]),
         text(
           'The king walks out',
@@ -1095,7 +1153,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-15',
-      n: 20,
+      n: 21,
       title: 'Pawn endings',
       subtitle: 'The square rule and the pawn race.',
       minutes: 10,
@@ -1151,7 +1209,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-16',
-      n: 21,
+      n: 22,
       title: 'Rook endings basics',
       subtitle: 'Cut the king off, keep the rook active.',
       minutes: 10,
@@ -1197,7 +1255,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-17',
-      n: 22,
+      n: 23,
       title: 'Converting an advantage',
       subtitle: 'Winning won positions is its own skill.',
       minutes: 10,
@@ -1247,7 +1305,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-18',
-      n: 23,
+      n: 24,
       title: 'Practice arena: endgames',
       subtitle: 'Kings, pawns and rooks under pressure.',
       minutes: 11,
@@ -1296,7 +1354,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-19',
-      n: 24,
+      n: 25,
       title: 'Practice arena: mixed',
       subtitle: 'Tactics and technique, shuffled.',
       minutes: 11,
@@ -1344,7 +1402,7 @@ export const intermediate: Tier = {
     },
     {
       id: 'int-20',
-      n: 25,
+      n: 26,
       title: 'Intermediate graduation',
       subtitle: 'A famous pattern, one exam, one game.',
       minutes: 14,
@@ -1402,7 +1460,5 @@ export const intermediate: Tier = {
         ),
       ],
     },
-    // Book curriculum (How to Win at Chess) — appended at the matching band.
-    ...hwIntermediate,
   ],
 }

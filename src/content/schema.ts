@@ -120,7 +120,7 @@ export type LessonStep = TextStep | DemoStep | QuizStep | ExerciseStep | Playout
 /** One level inside a tier: a single interactive lesson with several steps. */
 export interface Level {
   id: string
-  /** 1..20 within the tier */
+  /** 1..N within the tier: always the array position + 1 (validated). */
   n: number
   title: string
   subtitle: string

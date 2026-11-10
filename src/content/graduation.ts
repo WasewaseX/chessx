@@ -26,8 +26,9 @@ export const GRADUATION: Record<string, string> = {
   'nb-19': 'play a real opening plan: center, development, king safety, move by move.',
   'nb-20': 'play a full game with every rule in the book, and the Légal trap is yours to spring.',
   'nb-21': 'read and write any chess move: notation, captures, checks, mates, and castling.',
-  'nb-22': 'name every way a game ends, and stay standing until the mate is real.',
+  'nb-22': 'win games the honest way: count every capture, never resign a live position, and name all four ways a game ends.',
   'nb-23': 'run the practice loop: play, solve, review your losses, and keep one lesson from each.',
+  'nb-hw3': 'refuse the four-move checkmate on sight: guard f7 with g6, kick the queen, and develop with tempo.',
   // Beginner
   'bg-01': 'fight for the center on move one, and explain why flank pawns waste time.',
   'bg-02': 'develop a new piece every move instead of shuffling one.',
@@ -79,6 +80,7 @@ export const GRADUATION: Record<string, string> = {
   'int-22': 'answer 1.e4 and 1.d4 with a repertoire you know by plan, not by memorization.',
   'int-23': 'accept, decline, or punish a gambit, and never assume a pawn is free.',
   'int-24': 'run CCA on every move: checks, captures, attacks, in that order.',
+  'int-hw2': 'evict a pinning bishop with a pawn, and triage which pins actually hurt before spending a tempo.',
   // Advanced
   'adv-01': 'generate candidate moves in the master order: checks, captures, threats.',
   'adv-02': 'run the blunder check before every move: what is his best reply?',
@@ -103,6 +105,7 @@ export const GRADUATION: Record<string, string> = {
   'adv-19': 'convert winning endgames by centralizing and simplifying.',
   'adv-20': 'clear the Advanced exam, a famous game, and a tier of new habits.',
   'adv-21': 'win knight endings with the two-weakness plan and the best blockader in the game.',
+  'adv-hw4': 'count attackers against defenders around the king, and mate with two pieces down when the count is yours.',
   // Master
   'ms-01': 'think in imbalances instead of counting points.',
   'ms-02': 'play prophylaxis: take what he wants before he takes it.',
@@ -146,5 +149,6 @@ export const GRADUATION: Record<string, string> = {
   'gm-18': 'produce grandmaster combinations at full forcing depth.',
   'gm-19': 'weave multiple motifs into one finish, endgame included.',
   'gm-20': 'read any position like a grandmaster: prune the tree, kill the plan, convert the point.',
+  'gm-hw1': 'run the training loop: play long, review without the engine first, and fix one weakness per week.',
   // How to Win at Chess (the book method)
 }
