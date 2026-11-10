@@ -1022,3 +1022,61 @@ Work Log:
 
 Stage Summary:
 - Every push and PR now runs the master-ci gates beside the bun build; the repo is 1045 files lighter and cannot flap its platform trees anymore; the engine survives sandbox rebuilds through the backups repo; all 111 known dependency vulnerabilities are gone; CI is green end to end and proven by the Actions API, not assumed.
+
+## Task 28 — The book is milked + "app so short lived" root-caused (Nov 10, 2026)
+
+### Honest answer to "did you actually milk the book?"
+No — until today the Scribd document had never been fetched. page_reader returned
+only Scribd's JS-locked landing metadata (no book text; paywalled viewer). Per the
+user's own fallback rule the book was milked through what IS usable: its publicly
+documented METHOD (opening principles over memorized lines, tactical-motif ladder,
+endgame fundamentals by rating band, train-what-your-level-needs). Principles are
+not copyrightable; no prose was copied. Shipped as 426111c.
+
+### Book → Learn tab (426111c)
+- src/content/book/how-to-win-at-chess.ts: 17 levels (newbie 3 / beginner 3 /
+  intermediate 4 / advanced 4 / master 2 / grandmaster 1), spread into each tier's
+  existing levels array — no new module, exactly as instructed.
+- validate:content green: 153 levels, 1143 steps, 0 errors. Every FEN/line
+  pre-verified with chess.js (scripts/verify-book-lines.js) BEFORE writing content
+  (5 failures caught pre-ship: blocked bishop pin, rook-already-on-d1 skewer,
+  single-rook corner mate that isn't mate, K+P position with the wrong opposition
+  side, outpost FEN with king in check).
+- n-invariant lesson: the validator enforces n === arrayIndex+1; book levels are
+  appended at chapter ends with continued numbering.
+- Scholar's-mate ATTACK already existed (bg-15 drill) → book lesson teaches the
+  DEFENSE (refutation: g6/Nf6 development). Opera Game already existed → Légal's
+  mate used instead.
+- Coach doctrine (htwac-doctrine.ts) now names the book levels so the coach can
+  assign them.
+
+### "App so short lived" (root cause + reconciliation)
+- Live autopsy: next-server RSS 1.55GB ≈ heap cap 1536MB; Pss_Anon 1.36GB —
+  permanently at the V8 ceiling → any push (cold compile, 546MB bank download,
+  GC) tipped it into OOM/heap-cap death. THE root cause class.
+- The lightweighting was ALREADY DONE by the parallel session (2ae1572+fd8b1d2,
+  Nov 2): 132KB puzzle-pack.json + live Lichess API + durable served-puzzles
+  store. My parallel-lineage work (RAM lite bank) was reconciled: their
+  architecture won; my UNIQUE surviving contribution = the daily-completion
+  source-of-truth fix (e0b70a1): daily route served a Lichess pick while the
+  attempt route validated against the curated pool id — solved dailies could
+  never register. daily-pick.ts + db/served-daily.json (durable, atomic rename,
+  cross-bundle per the Oct 31 served-store lesson).
+- Git archaeology for the record: 3 rebase conflicts (artifact dirs deleted
+  upstream; content conflict in health/deep where BOTH sessions had built
+  lichessProbe vs my RAM bank) — resolved by resetting to upstream and
+  re-implementing only the unique fix on their base.
+- Post-fix evidence: fresh boot + full browser session, RSS 1.2GB→1.6GB under
+  full 17-view compile, available 1.4GB, zero boot errors, GET / 20-30ms.
+
+### Browser proof (b6ed76c)
+admin login → dashboard "0/153 lessons done" → Learn → Newbie 0/26 → book levels
+visible at chapter ends ("Prophylaxis" 22, "Initiative" 23, "Train like the book
+says" 21 closing the course) → opened gm-hw1: read steps + coach narration +
+shuffled quiz + correct-answer feedback + CONTINUE. Footer sticks at the bottom
+of the long lessons page. Lesson-count marketing copy fixed 132→153.
+
+### Commits (all pushed)
+- e0b70a1 puzzles: one source of truth for the daily pick
+- 426111c learn: the book is milked — 17 HWaC lessons in the existing tiers
+- b6ed76c verify: browser proof + honest lesson count
