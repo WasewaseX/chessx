@@ -4,25 +4,20 @@
 // deterministic rotation when the upstream is unreachable, so the endpoint
 // always answers honestly instead of 500ing.
 import { NextRequest, NextResponse } from 'next/server'
-import { sanitizePuzzle, preflight, withPublic } from '@/lib/server/public-api'
-import { lichessAvailable, lichessDaily } from '@/lib/server/lichess-bank'
-import { PUZZLES } from '@/content/puzzles'
-import { dailyPuzzleIndex } from '@/lib/api'
+import { preflight, withPublic } from '@/lib/server/public-api'
+import { resolveDaily } from '@/lib/server/daily-pick'
 
 export async function GET(req: NextRequest) {
   return withPublic(req, async () => {
     const dayKey = new Date().toISOString().slice(0, 10)
-    if (lichessAvailable()) {
-      const lp = await lichessDaily(dayKey)
-      if (lp) return NextResponse.json(sanitizePuzzle(lp))
-    }
-    const p = PUZZLES[dailyPuzzleIndex(dayKey)]
+    const pick = await resolveDaily(dayKey)
     return NextResponse.json({
-      id: p.id,
-      fen: p.fen,
-      rating: p.rating,
-      themes: p.themes,
-      moveCount: p.solution.split(' ').filter(Boolean).length,
+      id: pick.id,
+      fen: pick.fen,
+      rating: pick.rating,
+      themes: pick.themes,
+      moveCount: pick.moveCount,
+      source: pick.source,
     })
   })
 }

@@ -8,6 +8,7 @@ import { PUZZLES } from '@/content/puzzles'
 import { lichessById, lichessToAppPuzzle } from '@/lib/server/lichess-bank'
 import { dayKeyLocal } from '@/lib/day'
 import { dailyPuzzleIdFor, publicProfile } from '@/lib/api'
+import { expectedDailyId } from '@/lib/server/daily-pick'
 
 export async function POST(req: NextRequest) {
   const user = await getSessionUser()
@@ -57,8 +58,11 @@ export async function POST(req: NextRequest) {
   const streak = solved ? profile.puzzleStreak + 1 : 0
   const xpGain = solved ? 10 + Math.min(streak, 10) : 0
 
-  // Daily credit only when the attempt really is the puzzle that day owns.
-  const dailyDone = kind === 'daily' && solved && puzzleId === dailyPuzzleIdFor(dayKey)
+  // Daily credit only when the attempt really is the puzzle that day owns —
+  // the id this deployment actually served (live Lichess daily / pack pick),
+  // else the curated rotation. Before daily-pick.ts these were two different
+  // sources of truth and a solved daily could never register.
+  const dailyDone = kind === 'daily' && solved && puzzleId === expectedDailyId(dayKey)
 
   // Counters move with atomic increments so racing attempts never lose or
   // double-count an event.
