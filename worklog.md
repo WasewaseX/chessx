@@ -1144,3 +1144,50 @@ bundle → React never mounts → the splash that "never finishes". Hence
   zero swap — if renders fail again, check for memory pressure FIRST (free -m
   + /proc/<pid>/status), and verify main-app.js arrives whole in the browser
   via performance.getEntriesByType('resource').
+
+## 2026-11-10 — The Study restructured to the book's teaching sequence (147 levels)
+
+### What the book actually says (finally harvested, honestly)
+- The Scribd document `938298705` exposes per-page JSONP text layers
+  (`html.scribdassets.com/76bbbp7fy8fx2jwp/pages/{N}-*.jsonp`). 165/190 pages
+  carry text (the rest are diagrams). Harvested to `.zscratch/htwac/pages/`
+  (NOT committed — copyrighted text stays out of the repo). It is a
+  Bookey-style summary edition: chapter summaries, quotes, per-chapter Q&A.
+- Structure map (paraphrase-only) committed at `.zscratch/htwac/book-structure.md`:
+  Part 1 = 0–800 (Ch1–11), Part 2 = 800–1300 (Ch12–18), with the full
+  chapter→section→topic map, teaching order, and repertoire tables.
+
+### What was wrong (the user's "out of place, unprofessional")
+- The book-derived `hw*` levels were `...spread` AFTER each tier's graduation
+  level — three orphan lessons after "Newbie graduation", four after
+  "Advanced graduation", etc. — with duplicate titles (two "How games are
+  actually won", two "Candidate moves").
+- The CCA scan lived in Intermediate; the book teaches it in the BEGINNER
+  strategy chapter (Ch11). Philidor lived in Advanced; the book teaches it in
+  Intermediate endgames (Ch16). Beginner had no answer to 1.e4 and no K+R
+  mate — both core book content (Ch6, Ch7).
+
+### What changed (commit 157bde1, supersedes bc69217)
+- Every unique hw level inlined at its book-correct position; duplicates
+  dropped in favor of the richer inline twins; book module deleted.
+- Cross-tier moves: CCA → Beginner, Passed pawns + Philidor → Intermediate;
+  Intermediate now opens with the repertoire block (book Part 2 order).
+- Three new levels: `bg-e5` Your first defense: e5 (Ch6), `bg-kr` King and
+  rook mate (completes the three basic mates, Ch7), `int-forcing` Forcing
+  sequences: mate in two and three (Ch17).
+- 10 warm-up retrievals rewritten to match new neighbors; graduation lines
+  added for every new level; doctrine Study line rewritten; ship note
+  (0.4.7) added; auth copy derives count dynamically (147).
+- IDs never changed → user progress and unlocks survive the reorder.
+
+### Verification
+- `bun run src/content/validate.ts`: 147 levels, 1311 checks, 0 errors.
+- `bun run lint` clean. Runtime import: 6 tiers / 147 levels in book order.
+- agent-browser: landing shows "All 147 lessons", Learn map shows new
+  positions (bg@5 e5, bg@8 K+R mate, bg@14 royal fork, int@16 forcing,
+  gm@20 train-before-capstone), lesson player renders the new K+R mate level
+  with coach narration; quiz correct AND wrong paths verified with coach
+  feedback; demo playback works. Screenshots in `.zscratch/shots/`.
+- Note: a parallel session pushed its own restructure (bc69217) mid-flight;
+  rebased on top keeping the superset. Remote's dynamic lesson-count copy in
+  auth-view kept (better than a hardcoded 147).
