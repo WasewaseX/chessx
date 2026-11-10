@@ -255,7 +255,7 @@ export function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
 
           <ul className="mt-6 max-w-md space-y-3">
             <Feature>
-              All 132 lessons free and open, no weekly cap. chess.com keeps most of its lesson
+              All 153 lessons free and open, no weekly cap. chess.com keeps most of its lesson
               library behind a paid plan.
             </Feature>
             <Feature>
