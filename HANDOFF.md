@@ -91,18 +91,26 @@ study, not the arcade". Owner: WasewaseX (GitHub PAT embedded in origin remote).
 
 ## Open threads (priority order)
 
-1. Takeback: stuck state + unlimited takes + hint interplay (user-reported).
-2. chess.com import 403: needs client-side fetch (browser cookies) instead of
-   server-side.
-3. chessreps.com deep port: remaining items in docs/chessreps-arena-deep-dive.md
+1. chessreps.com deep port: remaining items in docs/chessreps-arena-deep-dive.md
    (FSRS-6 + depth tiers done; see repo for the rest).
-4. Account-loss diagnosis for tiktokaltrachel@atomicmail.io (the user's real
-   account; admin is a separate seeded account).
-5. Play with Coach: expand in-game coaching depth (doctrine lines exist).
-6. Eye Training + REA (github.com/crosstable/REA) — use the repo, do NOT
+2. Play with Coach: expand in-game coaching depth (doctrine lines exist).
+3. Eye Training + REA (github.com/crosstable/REA) — use the repo, do NOT
    reverse-engineer sloppily (user instruction).
-7. Google sign-in: env-gated copy already ships; wire the provider when env
+4. chess.com-style sidebar UI polish.
+5. Account-loss diagnosis for tiktokaltrachel@atomicmail.io (the user's real
+   account; admin is a separate seeded account).
+6. Google sign-in: env-gated copy already ships; wire the provider when env
    exists.
+
+## Closed threads (verified, do not reopen without new evidence)
+
+- **Takeback** (9749dbd): rewind + unlimited + hint interplay all verified in
+  a live bot game. No code change needed; the earlier freeze fix holds.
+- **chess.com import 403**: already browser-first (import-game-panel.tsx
+  fetches api.chess.com from the USER's browser and posts PGNs to
+  /api/import/username flow 2). The sandbox browser shares the datacenter IP,
+  so a sandbox test still 403s — that is the environment, not a bug. Honest
+  error copy points to the PGN paste tab.
 
 ## Verification recipe (the "done" standard)
 
