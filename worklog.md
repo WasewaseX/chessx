@@ -1191,3 +1191,72 @@ bundle → React never mounts → the splash that "never finishes". Hence
 - Note: a parallel session pushed its own restructure (bc69217) mid-flight;
   rebased on top keeping the superset. Remote's dynamic lesson-count copy in
   auth-view kept (better than a hardcoded 147).
+
+## 2026-11-10 — The handbooks round: Capablanca + Nimzowitsch enter the Study (147 -> 151 levels)
+
+### What "handbooks plural" demanded
+The How to Win at Chess resequence (157bde1) made ONE book the structural
+authority. The new instruction said handbooks, plural — so this round
+cross-audited the curriculum against a second and third handbook and closed
+the real gaps it exposed. The picks: Capablanca's Chess Fundamentals (1921,
+public domain — full text harvested from Project Gutenberg #33870 into
+.zscratch/handbooks/capablanca.txt, NOT committed) and Nimzowitsch's My
+System (1925, concepts public domain).
+
+### The cross-audit findings
+- Capablanca's first-principles mating block ends with the knight-and-bishop
+  mate (s15) — absent from the curriculum.
+- Capablanca's Queen against rook (s16) — "the resources of the defence are
+  many" — absent; his stalemate-trap warning is the lesson's spine.
+- Nimzowitsch's overprotection (the strong-point doctrine, direct sequel to
+  Blockade) — absent.
+- Capablanca's opposition parity rule (s13: odd intervening squares = last
+  mover holds it; even = mover holds it) — only a thin "spare tempo" quiz in
+  gm-03 existed; no lesson taught the mirror draw or losing a move.
+
+### What shipped (commit a570631)
+- bg-kbn Knight and bishop mate — Beginner position 9 (after bg-kr). Corner-
+  color rule, finished-net demo, the ONLY-MOVE drill (every quiet bishop move
+  is stalemate — chess.js-asserted), stalemate-trap quiz, KBN playout from a
+  tablebase-verified won position (dtm 9).
+- adv-qvr Queen against rook — Advanced position 22 (before Queen endings).
+  The two-part method in Capablanca's own words, the interposition-switch
+  demo (Qh2+ Rh7 Qb8# — tablebase-verified mate), the Qxh7+?? Kxh7 trap quiz,
+  the defender's checking-distance idea.
+- ms-op Overprotection — Master position 11 (after Blockade). The e5
+  strong-point demo with honest attack/defense counts (2 attackers: Nd7+Ng6;
+  2->3 defenders), the Ndc4 drill (file disambiguation taught in the hint),
+  the active-defender doctrine.
+- gm-tempo The spare tempo — Grandmaster position 4 (after Zugzwang). The
+  parity rule, the SAME position drawn with White to move and lost with Black
+  to move (both tablebase-verified: "8/3k4/8/3K4/3P4/8/8/8" w=draw / b=loss
+  dtm -28), the mirror-holding drill (Kc7 is the ONLY draw per tablebase,
+  then Kb5/Kb7), triangulation as the parity flip.
+- Coach doctrine Study line updated to name all four levels by tier/position;
+  graduation lines added; n renumbered per tier (validator contract n=i+1);
+  ids never changed for existing levels -> progress and unlock chains survive.
+- Bonus fix: daily-pick.ts had been failing `bun run typecheck` on master
+  since bc69217 (missing imports of lichessAvailable/dailyPuzzleIdFor) — fixed.
+
+### Rigor: no claim shipped from memory
+Every position was probed against the Lichess tablebase first. NOTABLE: the
+"obvious" triangulation teaching positions (kings d3/d5 + Pd2, d4-pawn
+variants, king-in-front d5/d7) are all DRAWS with the defender mirroring —
+the draw/loss flip only exists at the right parity, which is exactly the
+lesson gm-tempo now teaches. Also learned: a Kf7/Nf6 fence means ANY quiet
+bishop move stalemates — the drill uses the bishop-on-f8 position where Bg7#
+is literally the only non-losing move.
+
+### Verification
+- validate.ts: 151 levels, 1326 checks, 0 errors. lint + typecheck clean.
+- agent-browser: signup -> onboarding -> home shows "All 151 lessons"; Study
+  map shows the six tiers at 24/28/29/25/23/22; Knight and bishop mate sits
+  at Beginner position 9 with the unlock chain re-wired; marked gm-01..03
+  done via the progress API, The spare tempo opened as "Level 4 in
+  Grandmaster, Open"; the lesson played end-to-end: warm-up quiz correct ->
+  coach feedback -> parity-rule read step -> demo board renders kings d5/d7
+  with green/red marks -> the mirror drill SOLVED interactively (Kc7 ->
+  scripted Kb5 -> Kb7 -> coach success + "2 in a row" streak); Advanced/Master
+  map entries show adv-qvr@22 and ms-op@11 chains; mobile viewport renders the
+  map with the re-wired chains. Screenshots: .zscratch/shots/hb-*.png.
+- dev.log clean (only artifacts from synthetic automation events).
