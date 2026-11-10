@@ -1080,3 +1080,67 @@ of the long lessons page. Lesson-count marketing copy fixed 132→153.
 - e0b70a1 puzzles: one source of truth for the daily pick
 - 426111c learn: the book is milked — 17 HWaC lessons in the existing tiers
 - b6ed76c verify: browser proof + honest lesson count
+
+## Nov 10 (late) — Learn restructure per the book + "render always fails" root-caused
+
+### The user's brief
+"improve the already existing levels using the book — some things are out of
+place, unprofessional. The book gives us the correct structure."
+
+### What the audit found (all confirmed live, then fixed)
+- The book (How to Win at Chess) had been bolted on as `hw*` levels APPENDED
+  after every tier's graduation level — a student "graduated" and then got 2–4
+  more levels. Six tiers, six anticlimaxes.
+- Duplicate titles inside single tiers: nb-22 ≈ nb-hw1 ("How games are actually
+  won" twice), nb-19 ≈ nb-hw2, ms-02 ≈ ms-hw1, ms-03 ≈ ms-hw2, adv-01 ≈
+  adv-hw3; bg-hw1/2/3, int-hw1/3/4, adv-hw1/2 duplicated deeper lessons.
+- Broken retrieval-warm-up seams left by past insert waves (quiz asked about
+  "the last lesson" that was no longer last), plus ms-16 carrying TWO
+  retrieval quizzes in a row and ms-17 one misplaced near the end.
+
+### The restructure (commits bc69217, 63b4bb9, 56ad44b)
+- Merged, never deleted value: nb-hw1 folded into nb-22 (objective + counting
+  habit), nb-hw2 into nb-19 (opening plan + rule-breaker quiz), ms-hw1/hw2 into
+  ms-02/ms-03. Fully-covered duplicates (bg-hw1/2/3, int-hw1/3/4, adv-hw1/2/3)
+  retired — the deeper lesson keeps the topic.
+- Kept book levels repositioned AT THE BOOK'S PLACE: opening plan + four-move
+  trick right after Castling (Newbie 13/14), Kick the pinner in the defense
+  cluster (Intermediate 17), Attack with your whole team in the attack cluster
+  (Advanced 5), Train like the book says right before the Capstone (GM 20).
+  Every tier now ends with its graduation/capstone. Counts: 24/24/26/24/21/21.
+- All broken warm-up seams rewritten (nb-02/09/11/16, int-06/10/11/13/14,
+  adv-05/07/10/11/18/20, gm-20, ms-05); ms-16/17 quiz bugs removed.
+- n renumbered sequentially per tier (validator enforces n == index+1):
+  140 levels, `bun run validate:content` = 1293 checks, 0 errors.
+- graduation.ts got honest lines for the kept book levels; htwac-doctrine now
+  points the coach at the integrated positions; src/content/book module
+  removed (provenance lives in attribution steps + tier headers).
+- auth-view lesson count derived from ALL_LEVELS (was a stale hardcoded 153).
+
+### "Render always fails / app so short lived" — ROOT CAUSE, evidence chain
+Symptom reproduced live: fresh browser sessions stuck on the splash forever;
+`window.__next_f` consumed, zero React renderers, no fibers. Not a stale HMR
+state (reproduced on brand-new sessions), not force-static (same with
+force-dynamic), not CSP, not truncated HTML (document closes cleanly).
+Evidence: `main-app.js` arrived TRUNCATED in the browser — decodedBodySize
+9,796,488 of the real 13,463,909 bytes (curl always got the full file; the
+browser's gzip stream died mid-flush). Why: memory pressure — next-server RSS
+1.38 GB (dev-mode webpack footprint) + three agent-browser chrome instances
+(~850 MB) on a 4 GB box with zero swap → Node's zlib flush fails → truncated
+bundle → React never mounts → the splash that "never finishes". Hence
+"render always fails", "app so short lived": it dies when the box runs hot.
+
+### The fix + verified recovery
+- Closed the browser sessions (freed ~1.2 GB), restarted the dev server
+  (dev.sh's "already answering" guard had kept the bloated process alive —
+  killed `next dev`/`next-server` explicitly first).
+- Verified recovery: main-app.js arrives complete (13,463,909 bytes), three
+  consecutive reloads all hydrate, full signup→onboarding→study→lesson-player
+  walkthrough ran clean, structural checks pass in the live DOM (nb@10/13/14,
+  graduation-last in every tier, 0/24 counts), lesson player renders Nina +
+  steps. Screenshots: /tmp/final-study.png, /tmp/lesson-open.png.
+- Note kept for the next session: the 1.35 GB next-server RSS is the DEV-mode
+  baseline (13 MB main-app dev bundle). It fits the heap cap but the box has
+  zero swap — if renders fail again, check for memory pressure FIRST (free -m
+  + /proc/<pid>/status), and verify main-app.js arrives whole in the browser
+  via performance.getEntriesByType('resource').
