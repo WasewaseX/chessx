@@ -1,8 +1,4 @@
 // Tier 5: Master. Imbalances, prophylaxis, initiative, deep technique.
-// The How-to-Win-at-Chess prophylaxis and initiative material is merged into
-// ms-02 and ms-03 — same doctrine, one lesson each, no duplicate levels.
-// The How-to-Win-at-Chess prophylaxis and initiative material is merged into
-// ms-02 and ms-03 — same doctrine, one lesson each, no duplicate levels.
 import type { Tier } from '../schema'
 import { text, demo, quiz, drill, right, wrong, playout, gtmStep, guess } from '../kit'
 
@@ -67,6 +63,7 @@ export const master: Tier = {
         drill('Cash the activity', 'r5k1/pppq1p1p/6p1/8/6N1/8/PPP2PPP/R3KB1R w - - 0 1', ['Nf6+', 'Kh8', 'Nxd7'], 'Your army owns the board. Convert activity into material', 'One knight hop checks the king and hits the queen at the same time.', 'Nf6, the king steps, Nxd7. The imbalance you own paid cash. That is the whole doctrine, played.'),
       ],
     },
+
     {
       id: 'ms-02',
       n: 2,
@@ -113,21 +110,10 @@ export const master: Tier = {
           wrong('Always defend: safety over everything', 'Over-defending loses games that one forward move would have won.'),
           wrong('Always attack: the defender must lose eventually', 'Attacks that ignore the counter-threat are how attackers get mated.'),
         ]),
-        quiz('The move before the plan', 'You are ready to start a kingside pawn storm. Meanwhile the enemy knight has spent two moves heading for the beautiful d5 hole in your camp. Best move?', [
-          right('Cover or contest d5 first', 'One prophylactic move kills their whole plan while yours only waits. After the hole is guarded, the storm starts from a position where nothing answers back.'),
-          wrong('Storm first — your attack is faster', 'Attacks that ignore a knight landing in the center are how attacks get countered. Finish the opponent’s strongest idea first, then attack.'),
-          wrong('Ignore it — d5 is far from my king', 'Prophylaxis is not only about mate threats. A knight on d5 anchors every future break; some squares are worth more than pawns.'),
-        ]),
         drill('Your turn to cash it', '4k3/8/8/8/8/8/1q6/R3K3 w - - 0 1', ['Rc1'], 'Stop the queen invasion, from memory', 'She eyes your first rank. Cover the entry squares.', 'Rc1. The first rank holds and the queen bites granite.'),
-        text(
-          'Practice it',
-          [
-            'In your next five games, before each move say the opponent’s most annoying idea out loud. If your move does not answer it, your move needs a reason.',
-            'How to Win at Chess (Levy Rozman): the prophylaxis chapter, merged into this lesson.',
-          ],
-        ),
       ],
     },
+
     {
       id: 'ms-03',
       n: 3,
@@ -165,25 +151,8 @@ export const master: Tier = {
         ]),
         quiz('The forcing test', 'Which of these keeps the initiative alive?', [
           right('A move that gives check or creates an immediate material threat', 'Questions only. Every non-forcing move is a pause, and pauses hand over the baton.'),
-          wrong('A solid developing move', 'Development is for openings. Initiative is kept by threats — though a developing move can threaten too.'),
+          wrong('A solid developing move', 'Development is for openings. Initiative is kept by threats.'),
           wrong('A pawn grab two moves deep', 'Two quiet moves to win a pawn is two free tempi for the defense.'),
-        ]),
-        demo(
-          'Development with a question attached',
-          [
-            'The Italian with an early Bb4 pin against the c3 knight: after Nc3 Bb4, White castles — developing move, king safety, AND now the pinning bishop stares at a knight guarded by a pawn that can kick it (a3).',
-            'Watch who spends the next moves retreating while White’s rook claims the center file. That swing is the initiative made visible: every move developed and asked a question.'
-          ],
-          'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
-          {
-            moves: ['Nc3', 'Bb4', 'O-O'],
-            caption: 'Every move developed and asked a question',
-          },
-        ),
-        quiz('Holding the microphone', 'You just won a pawn with a check. The opponent’s king walks to safety. Which follow-up keeps the initiative?', [
-          right('The forcing move that renews a real threat', 'Initiative survives on questions. One more check, one more capture, one more threat — each reply is forced while your pieces keep arriving.'),
-          wrong('Castle quietly and consolidate the pawn', 'Consolidating is what the DEFENDER does. If the forcing scan offers a real threat, the initiative pays better than the pawn insurance.'),
-          wrong('Offer a trade of queens to simplify', 'Trades are the defender’s best friend: every pair coming off shrinks your attacking surplus.'),
         ]),
         quiz('Spending the initiative', 'You can win a clean pawn OR keep a dangerous initiative by spending two pawns. When is the pawn the right call?', [
           right('When the initiative fades after one solid defensive move and the position has no follow-up', 'Initiative is a currency with an expiry date. If the attack dies anyway, take the money and simplify.'),
@@ -191,12 +160,63 @@ export const master: Tier = {
           wrong('Always take the pawn: material is permanent', 'Permanent material behind a shattered kingside is how won games get mated.'),
         ]),
         drill('Your turn to cash it', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+'], 'Play the key sacrifice, from memory', 'You named the engine. Now play the move.', 'Qd8 plus check. Initiative cashed.'),
-        text('Where this comes from', ['How to Win at Chess (Levy Rozman): every move must ask a question — the initiative chapter, merged into this lesson.']),
       ],
     },
+
+    {
+      id: 'ms-hw2',
+      n: 4,
+      title: 'Initiative: keep asking questions',
+      subtitle: 'The player making threats chooses the topics.',
+      minutes: 11,
+      concepts: ['initiative', 'tempo', 'development'],
+      steps: [
+        text(
+          'Threats are time',
+          [
+            'The initiative is simple to define and brutal to hold: it is the state where every one of your moves creates a problem and every one of theirs solves one. While it holds, their plans do not exist.',
+            'The book’s rule for keeping it: every move must ask a question. A quiet developing move can still ask one — develop AND threaten, develop AND open a line. Pure waiting moves hand the microphone back.',
+            'And the warning that belongs with it: initiative is not recklessness. A threat that loses material on the reply was never a threat — the forcing-move scan from your earlier lessons is what separates an initiative from a donation.',
+          ],
+          'Make every move a question. A threat that loses material on the reply was never a threat.',
+        ),
+        demo(
+          'Development with a question attached',
+          [
+            'The Italian with an early Bb4 pin against the c3 knight: after Nc3 Bb4, White castles — developing move, king safety, AND now the pinning bishop stares at a knight guarded by a pawn that can kick it (a3).',
+            'Watch who spends the next moves retreating while White’s rook claims the center file. That swing is the initiative made visible.',
+          ],
+          'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
+          {
+            moves: ['Nc3', 'Bb4', 'O-O'],
+            caption: 'Every move developed and asked a question',
+          },
+        ),
+        quiz(
+          'Holding the microphone',
+          'You just won a pawn with a check. The opponent’s king walks to safety. Which follow-up keeps the initiative?',
+          [
+            right(
+              'The forcing move that renews a real threat',
+              'Initiative survives on questions. One more check, one more capture, one more threat — each reply is forced while your pieces keep arriving.',
+            ),
+            wrong(
+              'Castle quietly and consolidate the pawn',
+              'Consolidating is what the DEFENDER does. If the forcing scan offers a real threat, the initiative pays better than the pawn insurance.',
+            ),
+            wrong(
+              'Offer a trade of queens to simplify',
+              'Trades are the defender’s best friend: every pair coming off shrinks your attacking surplus. Simplify when AHEAD and under attack — not while holding the initiative.',
+            ),
+          ],
+        ),
+        text('Where this comes from', ['How to Win at Chess (Levy Rozman), applied at this level.']),
+      ],
+    },
+
     {
       id: 'ms-04',
-      n: 4,
+      n: 5,
       title: 'Majorities and the minority attack',
       subtitle: 'Pawn geography decides plans.',
       minutes: 10,
@@ -236,9 +256,10 @@ export const master: Tier = {
         drill('Roll the majority', '8/5p2/6k1/8/5P1K/6P1/7P/8 w - - 0 1', ['g4'], 'Three pawns against one. Start the march that makes a passer', 'The g-pawn leads, the king escorts, and the f-pawn guards the squares behind.', 'g4. The majority advances and the lone f7 pawn can never catch both runners. Majorities are passers in training, exactly as promised.'),
       ],
     },
+
     {
       id: 'ms-21',
-      n: 5,
+      n: 6,
       title: 'The Maroczy Bind',
       subtitle: 'The c4 and e4 pawns that strangle a Sicilian for a century.',
       minutes: 10,
@@ -290,18 +311,19 @@ export const master: Tier = {
         ),
       ],
     },
+
     {
       id: 'ms-05',
-      n: 6,
+      n: 7,
       title: 'Permanent versus temporary',
       subtitle: 'Which weaknesses can outlive this attack?',
       minutes: 10,
       concepts: ['pawnStructure', 'initiative'],
       steps: [
-        quiz('Retrieval first', 'From last lesson: which pawns make the Maróczy Bind, and what do they take away?', [
-          right('White pawns on c4 and e4: they strangle the d5 break and the c5/b6 outposts', 'The bind takes squares away before pieces even fight for them. Playing against it means preparing ...b6 and ...f6 trades.'),
-          wrong('The doubled c-pawns after a Bxc6 trade', 'Doubled pawns are a weakness, not a bind. The Maróczy is two healthy pawns on c4 and e4.'),
-          wrong('The f2 and g3 pawns around a fianchetto', 'That is a king’s shelter. The bind lives in the center, on c4 and e4.'),
+        quiz('Retrieval first', 'What does a pawn majority create that a minority attack does not?', [
+          right('A passed pawn', 'Majorities make runners. Minorities make files and fixed targets.'),
+          wrong('Open files for rooks', 'Minority attacks open files. Majorities make runners.'),
+          wrong('Both are identical tools', 'Opposite tools from opposite pawn counts.'),
         ]),
         text(
           'The mortgage versus the loan',
@@ -336,9 +358,10 @@ export const master: Tier = {
         drill('Harvest the fresh one', '3k4/8/8/8/8/8/3q4/3R2K1 w - - 0 1', ['Rxd2+'], 'Scan rep first: his queen just wandered next to your rook. Temporary weaknesses expire fast', 'The d-file is open and nothing defends her.', 'Rxd2 with check. The temporary weakness paid today, exactly on schedule. Permanent ones wait; loose pieces never do.'),
       ],
     },
+
     {
       id: 'ms-06',
-      n: 7,
+      n: 8,
       title: 'Trading with intent',
       subtitle: 'Which pieces stay, which pieces go, and why.',
       minutes: 10,
@@ -381,9 +404,10 @@ export const master: Tier = {
         drill('Your turn to cash it', '4k3/8/8/8/3b4/5N2/8/4K3 w - - 0 1', ['Nxd4'], 'Decide the trade, from memory', 'His best piece sits on d4. Your knight knows the way.', 'Nxd4. Even trade, better position: the trade vote won.'),
       ],
     },
+
     {
       id: 'ms-07',
-      n: 8,
+      n: 9,
       title: 'Owning the color',
       subtitle: 'Deep color complexes: plan by square color.',
       minutes: 10,
@@ -429,9 +453,10 @@ export const master: Tier = {
         drill('Your turn to cash it', '4k3/8/8/8/8/8/1P2BPPP/2B1K3 w - - 0 1', ['Bh6'], 'Blind the king, from memory', 'The dark squares around his king have no guards. March.', 'Bh6. The dark squares belong to you.'),
       ],
     },
+
     {
       id: 'ms-08',
-      n: 9,
+      n: 10,
       title: 'Blockade as a strategy',
       subtitle: 'Passed pawns are prisoners if you hold the square.',
       minutes: 10,
@@ -474,9 +499,10 @@ export const master: Tier = {
         drill('Your turn to cash it', '4k3/2p1p3/8/8/8/8/8/1N2K3 w - - 0 1', ['Nc3'], 'Start the jail sentence, from memory', 'Two hops to the outpost. First hop?', 'Nc3. The march to d5 begins.'),
       ],
     },
+
     {
       id: 'ms-09',
-      n: 10,
+      n: 11,
       title: 'Dynamic versus static',
       subtitle: 'Know when the clock on your advantage expires.',
       minutes: 10,
@@ -527,9 +553,10 @@ export const master: Tier = {
         ),
       ],
     },
+
     {
       id: 'ms-10',
-      n: 11,
+      n: 12,
       title: 'Practice arena: master tools',
       subtitle: 'Everything from this tier, live.',
       minutes: 12,
@@ -560,9 +587,10 @@ export const master: Tier = {
         ),
       ],
     },
+
     {
       id: 'ms-11',
-      n: 12,
+      n: 13,
       title: 'Steering the game',
       subtitle: 'Choose openings by the endgames they promise.',
       minutes: 10,
@@ -600,9 +628,10 @@ export const master: Tier = {
         drill('Your turn to open', START, ['d4'], 'Open on your terms, from memory', 'Closed structures are your home. First move?', 'd4. The strategic battlefield, again.'),
       ],
     },
+
     {
       id: 'ms-12',
-      n: 13,
+      n: 14,
       title: 'Rook endings deep',
       subtitle: 'Short-side defense, checking distance, the active king.',
       minutes: 12,
@@ -647,9 +676,10 @@ export const master: Tier = {
         drill('Your turn to cash it', '4k3/8/4K3/4P3/8/8/8/7r b - - 0 1', ['Rd1'], 'Hold the distance, from memory', 'Get behind the pawn, check from the back.', 'Rd1. The Philidor rhythm: check, retreat, repeat.'),
       ],
     },
+
     {
       id: 'ms-13',
-      n: 14,
+      n: 15,
       title: 'Fortresses',
       subtitle: 'Positions that cannot be cracked, no matter what.',
       minutes: 10,
@@ -689,9 +719,10 @@ export const master: Tier = {
         playout('Hold the wall', 'You are the wall. The engine brings the rook; the geometry answers. Keep the seal and the half point is guaranteed.', 'r6k/8/8/8/8/8/PP6/KN6 w - - 0 1', 'w', 'Hold the draw for 10 moves', 3, 'draw', 10, 'The rook checked, probed and waited. The wall did not care.', 'If the knight ever leaves b1 for long, the back rank opens and the checks arrive. Keep the seal.', 'Only the knight moves: hop it out to a3 or c3 (the b2 pawn guards both) and back to b1. Never d2: the rook owns that file. The king and pawns never shift.'),
       ],
     },
+
     {
       id: 'ms-14',
-      n: 15,
+      n: 16,
       title: 'Opposite bishops, mastered',
       subtitle: 'The outside passed pawn doctrine.',
       minutes: 12,
@@ -731,9 +762,10 @@ export const master: Tier = {
         drill('Your turn to cash it', '8/8/4k3/8/8/8/1P2B3/2B1K3 w - - 0 1', ['b4'], 'Escort the runner, from memory', 'Clear the path: push the pawn that kicks the blocker.', 'b4. The road opens for the passer.'),
       ],
     },
+
     {
       id: 'ms-15',
-      n: 16,
+      n: 17,
       title: 'The opposite-side storm',
       subtitle: 'Racing pawns with everything on the line.',
       minutes: 12,
@@ -771,9 +803,10 @@ export const master: Tier = {
         drill('Your turn to cash it', 'r1bq1rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'Roll the storm, from memory', 'The center is closed. Where does the wave start?', 'h4. The flank advance begins.'),
       ],
     },
+
     {
       id: 'ms-16',
-      n: 17,
+      n: 18,
       title: 'Difficult defense',
       subtitle: 'Staying alive with activity, not hope.',
       minutes: 12,
@@ -783,6 +816,11 @@ export const master: Tier = {
           right('Behind the storming pawns, ready for the first opened file', 'Pawns open the door. Rooks and queen walk through it.'),
           wrong('Defending your own king', 'You castled opposite wings. The plan is the race, not the shelter.'),
           wrong('Maneuvering in the center', 'The center is a sideshow when the wings are racing.'),
+        ]),
+        quiz('Retrieval first', 'In an opposite-wing race, which moves count double?', [
+          right('Moves that advance your storm AND slow theirs', 'Dual-purpose tempi decide sprints.'),
+          wrong('Quiet improving moves', 'Quiet moves are donations in a race.'),
+          wrong('King safety moves', 'The race ends the king\u2019s relevance either way.'),
         ]),
         text(
           'The active defense doctrine',
@@ -816,9 +854,10 @@ export const master: Tier = {
         drill('Your turn to cash it', '4k3/8/8/8/R2q4/8/8/4K3 w - - 0 1', ['Rxd4'], 'One concrete threat, from memory', 'Her queen is loose. Punish her.', 'Rxd4. Counterattack by capture.'),
       ],
     },
+
     {
       id: 'ms-17',
-      n: 18,
+      n: 19,
       title: 'Clock and mind',
       subtitle: 'Practical decisions: time, tilt, and tempo bluffs.',
       minutes: 10,
@@ -853,12 +892,18 @@ export const master: Tier = {
           wrong('Resign on the spot', 'Rated players win pieces back every day. Nobody wins resignations.'),
         ]),
         drill('The solid move', '4k3/8/8/2b5/3N4/8/8/4K3 w - - 0 1', ['Nb3'], 'Shaken position. Play the most solid retreat', 'b3 keeps the knight safe and eyeing the center.', 'Nb3. Stabilize first. The position does not know your feelings.'),
+        quiz('Retrieval first', 'What earns the big clock investments?', [
+          right('Irreversible decisions: captures, structures, king safety', 'Forks in the road. Forced and trivial moves get seconds.'),
+          wrong('Every move gets equal time', 'Equal spending means the critical branch ran out of budget.'),
+          wrong('Only endgame technique moves', 'The middlegame branches are where games are decided.'),
+        ]),
         drill('Your turn to cash it', '4k3/8/8/2b5/3N4/8/8/4K3 w - - 0 1', ['Nb3'], 'The solid move, from memory', 'The knight and their bishop fight for the same squares.', 'Nb3. Out of the bishop’s range, still in the game.'),
       ],
     },
+
     {
       id: 'ms-18',
-      n: 19,
+      n: 20,
       title: 'Practice arena: master tactics I',
       subtitle: 'Deep combinations, verified.',
       minutes: 12,
@@ -893,9 +938,10 @@ export const master: Tier = {
         ),
       ],
     },
+
     {
       id: 'ms-19',
-      n: 20,
+      n: 21,
       title: 'Practice arena: master tactics II',
       subtitle: 'Multi-motif, full depth.',
       minutes: 12,
@@ -930,9 +976,10 @@ export const master: Tier = {
         ),
       ],
     },
+
     {
       id: 'ms-20',
-      n: 21,
+      n: 22,
       title: 'Master graduation',
       subtitle: 'One famous combination, one exam, one game.',
       minutes: 20,
@@ -1009,5 +1056,6 @@ export const master: Tier = {
         ),
       ],
     },
+
   ],
 }

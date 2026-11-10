@@ -1,7 +1,5 @@
 // Tier 6: Grandmaster. Judgment at full depth: zugzwang, fortresses,
 // exchange sacrifices, preparation, and the capstone game.
-// "Train like the book says" (gm-hw1, How to Win at Chess) closes the teaching
-// arc right before the Capstone — the course still ends with the game.
 import type { Tier } from '../schema'
 import { text, demo, quiz, drill, right, wrong, playout, gtmStep, guess } from '../kit'
 
@@ -70,6 +68,7 @@ export const grandmaster: Tier = {
         drill('Your turn to cash it', 'r1b2k1r/ppp1bppp/8/1B1Q4/5q2/8/PPP2PPP/R3R1K1 w - - 0 1', ['Qd8+'], 'Play the key sacrifice, from memory', 'You named the engine of the tree. Now play the move that starts it.', 'Qd8 plus check. The calculation tree, cashed.'),
       ],
     },
+
     {
       id: 'gm-02',
       n: 2,
@@ -118,6 +117,7 @@ export const grandmaster: Tier = {
         drill('Your turn to cash it', '6k1/8/8/8/8/8/8/3Q2K1 w - - 0 1', ['Qd8+'], 'Start the perpetual, from memory', 'One queen, one rank at a time. First check?', 'Qd8 plus check. The eternal checks, from the first move.'),
       ],
     },
+
     {
       id: 'gm-03',
       n: 3,
@@ -172,6 +172,7 @@ export const grandmaster: Tier = {
         drill('Take the key square', '6k1/8/5K2/6P1/8/8/8/8 w - - 0 1', ['Kg6'], 'The duel hangs on one corresponding square. Step there', 'The king goes where the pawn advances behind him and the enemy king cannot slip past.', 'Kg6. The king has taken the key square ahead of the pawn, and from here every race is won. The rule, not the calculation.'),
       ],
     },
+
     {
       id: 'gm-04',
       n: 4,
@@ -219,6 +220,7 @@ export const grandmaster: Tier = {
         drill('Your turn to cash it', 'k6r/8/2N5/8/8/8/PP6/K7 b - - 0 1', ['Rh1#'], 'Deliver the corner mate, from memory', 'The keystone stays gone. Land the rook.', 'Rh1 mate. The corner was never repaired.'),
       ],
     },
+
     {
       id: 'gm-05',
       n: 5,
@@ -265,6 +267,7 @@ export const grandmaster: Tier = {
         playout('The structure war, played out', 'His pawns are doubled on the c-file: a target that never heals. Open the file, gang up on the front pawn and turn structure into material.', 'r2q1rk1/p1p1bppp/2pn4/8/8/2N5/PPP2PPP/R1BQ1RK1 w - - 0 9', 'w', 'Win at least 3 points of material within 16 moves', 4, 'material', 16, 'The doubled pawn paid its bill. Structure converted into loot.', 'Do not force anything: the c-file is a slow squeeze. Trade into it, then hit c6 from every direction.', 'Every piece you swing toward c6 is a loan the doubled pawn repays with interest.'),
       ],
     },
+
     {
       id: 'gm-06',
       n: 6,
@@ -310,6 +313,7 @@ export const grandmaster: Tier = {
         drill('Your turn to cash it', 'r1bq1rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'Roll the flank, from memory', 'Closed center. Which pawn leads?', 'h4. The flank is the only road.'),
       ],
     },
+
     {
       id: 'gm-07',
       n: 7,
@@ -359,6 +363,7 @@ export const grandmaster: Tier = {
         drill('Your turn to cash it', '2r1k3/8/8/8/8/2N5/PPP5/2KR4 b - - 0 1', ['Rxc3', 'bxc3'], 'Break the shell, from memory', 'The knight on c3 is the guard. The rook is the price.', 'Rxc3, bxc3. Doubled pawns, permanent weakness.'),
       ],
     },
+
     {
       id: 'gm-08',
       n: 8,
@@ -409,6 +414,7 @@ export const grandmaster: Tier = {
         drill('Your turn to cash it', '4k3/2p1p3/8/8/8/8/8/1N2K3 w - - 0 1', ['Nc3'], 'Kill the dream square, from memory', 'First hop toward d5.', 'Nc3. The squeeze has a direction now.'),
       ],
     },
+
     {
       id: 'gm-09',
       n: 9,
@@ -451,6 +457,7 @@ export const grandmaster: Tier = {
         drill('Your turn to cash it', '8/8/8/8/8/4k3/2P5/K1R5 w - - 0 1', ['Kb1'], 'Start the king walk, from memory', 'The rook guards the pawn. The king escorts it. First step?', 'Kb1. The walk of a thousand endgames begins.'),
       ],
     },
+
     {
       id: 'gm-10',
       n: 10,
@@ -493,6 +500,7 @@ export const grandmaster: Tier = {
         drill('Your turn to cash it', '8/8/8/2PP4/8/8/8/4K2k w - - 0 1', ['d6'], 'Roll the duo, from memory', 'The connected pawns march together. Advance the right one.', 'd6. The duo rolls on.'),
       ],
     },
+
     {
       id: 'gm-11',
       n: 11,
@@ -533,6 +541,7 @@ export const grandmaster: Tier = {
         drill('Your turn to cash it', '8/3P2k1/8/1K6/7R/8/1r6/8 w - - 0 1', ['Rb4', 'Rxb4+', 'Kxb4'], 'Build the bridge, from memory', 'Offer the rook, take the check, walk home with the king.', 'Rb4, Rxb4 plus, Kxb4. The Lucena bridge, built by hand.'),
       ],
     },
+
     {
       id: 'gm-12',
       n: 12,
@@ -573,6 +582,7 @@ export const grandmaster: Tier = {
         drill('Your turn to cash it', '7k/8/6K1/8/8/8/8/3Q4 w - - 0 1', ['Qd8#'], 'Mate, not stalemate, from memory', 'The queen lands on the one square that mates.', 'Qd8 mate. Careful to the last move.'),
       ],
     },
+
     {
       id: 'gm-13',
       n: 13,
@@ -619,6 +629,7 @@ export const grandmaster: Tier = {
         ),
       ],
     },
+
     {
       id: 'gm-14',
       n: 14,
@@ -661,6 +672,7 @@ export const grandmaster: Tier = {
         drill('Your turn to cash it', '5r1k/6pp/7N/8/8/1Q6/6PP/6K1 w - - 0 1', ['Qg8+', 'Rxg8', 'Nf7#'], 'Cash the forcing line, from memory', 'Sacrifice, recapture, smothered entry. The shortlist, played.', 'Qg8 plus, Rxg8, Nf7 mate. Calculation verified on the board.'),
       ],
     },
+
     {
       id: 'gm-15',
       n: 15,
@@ -700,6 +712,7 @@ export const grandmaster: Tier = {
         drill('Aim the repertoire', 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', ['d4'], 'You win strategic struggles and lose wild tactics. Open accordingly', 'The queen pawn leads to closed, plannable middlegames.', 'd4. The repertoire serves your strengths. That is preparation in one move.'),
       ],
     },
+
     {
       id: 'gm-16',
       n: 16,
@@ -746,6 +759,7 @@ export const grandmaster: Tier = {
         playout('Play the audit', 'The report scans every move for loose pieces and missed checks. Run that scan here, wait for the practice bot to slip, and make it pay.', 'r1bqkb1r/ppp2ppp/2n5/3p4/3P4/2N5/PPP2PPP/R1BQKB1R w KQkq - 4 6', 'w', 'Win at least 3 points of material within 16 moves', 4, 'material', 16, 'The scan found the loot. That is the habit the audit trains.', 'Loose pieces pay only when you LOOK. Checks, captures, threats, every move.', 'The position is unclear, so keep your options: the scan, not the engine, finds the swing.'),
       ],
     },
+
     {
       id: 'gm-17',
       n: 17,
@@ -786,6 +800,7 @@ export const grandmaster: Tier = {
         drill('Your turn to cash it', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Cut the king off, from memory', 'Park him behind the wall. Which rank?', 'Ra5. The wall goes up and never comes down.'),
       ],
     },
+
     {
       id: 'gm-18',
       n: 18,
@@ -812,6 +827,7 @@ export const grandmaster: Tier = {
         drill('Bridge speed run', '8/3P2k1/8/1K6/7R/8/1r6/8 w - - 0 1', ['Rb4', 'Rxb4+', 'Kxb4'], 'Lucena in one move', 'The checking file is b. Build there.', 'Rb4. Speed on the classics is what buys clock time for the rest.'),
       ],
     },
+
     {
       id: 'gm-19',
       n: 19,
@@ -837,6 +853,7 @@ export const grandmaster: Tier = {
         drill('The back rank, one last time', '2r3k1/5ppp/8/8/8/8/1q1R4/3R2K1 w - - 0 1', ['Rd8+', 'Rxd8', 'Rxd8#'], 'His rook guards the back rank; his queen watches the wrong war. Remove the guard first', 'The d-file is open: deflect the guard, then take it.', 'Rd8, Rxd8, Rxd8 mate. Deflection at full depth: see it, verify it, play it. That is the habit the capstone will demand.'),
       ],
     },
+
     {
       id: 'gm-hw1',
       n: 20,
@@ -881,6 +898,7 @@ export const grandmaster: Tier = {
         ),
       ],
     },
+
     {
       id: 'gm-20',
       n: 21,
@@ -889,10 +907,10 @@ export const grandmaster: Tier = {
       minutes: 25,
       concepts: ['calculation', 'endgame', 'technique', 'famousGame'],
       steps: [
-        quiz('Retrieval first', 'From last lesson: what is the loop that actually raises rating?', [
-          right('Play long games, review your own games without the engine first, fix one weakness at a time', 'The loop: real calculation under a clock, honest self-review, one named weakness per week. Rating follows the loop.'),
-          wrong('Queue blitz until the rating comes back', 'Speed repeats weaknesses. Quantity is not the loop.'),
-          wrong('Memorize more opening lines', 'Lines end at move ten; the loop decides the rest of the game.'),
+        quiz('Retrieval first', 'What must Black avoid in a winning king-and-pawn versus king duel?', [
+          right('Losing a tempo: every king step must keep the pawn guarded and the cage closed', 'One careless step frees the defending king and the win evaporates.'),
+          wrong('Pushing the pawn as fast as possible', 'The pawn waits. The king escorts. Speed spoils zugzwang nets.'),
+          wrong('Trading into a rook ending', 'There is nothing to trade. This is pure geometry.'),
         ]),
         text(
           'Everything, one game',
@@ -963,5 +981,6 @@ export const grandmaster: Tier = {
         ),
       ],
     },
+
   ],
 }

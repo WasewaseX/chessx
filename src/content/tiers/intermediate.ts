@@ -9,270 +9,12 @@ export const intermediate: Tier = {
   id: 'intermediate',
   n: 3,
   title: 'Intermediate',
-  tagline: 'Tactical weapons, positional fundamentals, endgame technique.',
+  tagline: 'A repertoire by plan, endgame technique, tactics at depth, strategy by structure.',
   color: '#3f8f8a',
   levels: [
     {
-      id: 'int-01',
-      n: 1,
-      title: 'Double attack',
-      subtitle: 'Any piece can hit two targets at once.',
-      minutes: 9,
-      concepts: ['doubleAttack', 'fork'],
-      steps: [
-        quiz('Retrieval first', 'From the Beginner tier: what does the mnemonic LPDO stand for?', [
-          right('Loose Pieces Drop Off', 'Undefended pieces are the targets every double attack is looking for.'),
-          wrong('Long Pawns Defend Openings', 'Not a real mnemonic. The real one is about undefended pieces.'),
-          wrong('Look, Plan, Deliver, Occupy', 'Close in spirit, but the classic phrase is Loose Pieces Drop Off.'),
-        ]),
-        text(
-          'Two targets, one move',
-          [
-            'The fork is the knight\u2019s specialty, but every piece can attack two things in one move. A queen slides to a square that hits one piece on its rank and another on its file. A rook lands on a line that touches two loose pieces.',
-            'The recipe is always the same: find two enemy pieces that are undefended or badly defended, then look for one square that attacks them both. Loose pieces drop off, so aim at loose ones first.',
-          ],
-          'One move, two victims: scan for pieces that share a line.',
-        ),
-        demo(
-          'The shared rank',
-          ['The rook on a5 and the bishop on g5 both stand on rank 5. The queen on d1 can reach the middle of that rank in one move.'],
-          '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1',
-          { marks: [{ square: 'd5', color: 'green' }], caption: 'Qd5 hits both pieces at once' },
-        ),
-        drill('Hit them both', '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1', ['Qd5+'], 'Attack the rook and the bishop in one move', 'The queen rides to d5: rank 5 hits both pieces, and the diagonal checks the king.', 'Qd5 with check. Two loose pieces, one move. One of them falls next turn no matter what Black saves.'),
-        drill('Rook double attack', '3r2k1/8/8/8/8/8/5K2/R6b w - - 0 1', ['Rd1'], 'The bishop on h1 and the rook on d8 are both in reach. Find the square.', 'd1 sits on the d-file and the first rank at the same time.', 'Rd1. The bishop on h1 and the rook on d8 are both under fire. Only one can be saved.'),
-        quiz('Choosing targets', 'What makes the best double attack?', [
-          right('Two targets that are both undefended or worth more than your attacker', 'Then whatever your opponent saves, you win material.'),
-          wrong('Any two pieces anywhere', 'A double attack against two defended, cheap pieces usually wins nothing.'),
-          wrong('Two attacks against the king', 'There is only one king. The second target should be material or a mating square.'),
-        ]),
-        quiz('The checklist', 'Before playing a double attack, what must you verify?', [
-          right('That at least one target falls even after the best defense', 'Count the follow-up: if Black saves one piece, is the other really lost? The math comes first.'),
-          wrong('Only that the move looks aggressive', 'Aggressive moves that lose material are just fast losses.'),
-          wrong('That your pieces are on good squares', 'Piece placement helps, but the double attack question is about the two targets and the follow-up.'),
-        ]),
-        drill(
-          'The queen double hit',
-          'r5k1/8/8/3Q4/8/8/8/4K3 w - - 0 1',
-          ['Qd8+', 'Kf7', 'Qxa8'],
-          'One queen move hits the king and the rook',
-          'The queen and both black pieces share a rank. Walk onto it with check.',
-          'Qd8+ forks king and rook along the 8th rank: after the king steps, the rook falls. One move, two jobs.',
-        ),
-      ],
-    },
-    {
-      id: 'int-02',
-      n: 2,
-      title: 'Discovered attack',
-      subtitle: 'Move one piece, free the one behind it.',
-      minutes: 9,
-      concepts: ['discoveredAttack', 'doubleAttack'],
-      steps: [
-        quiz('Retrieval first', 'Which pieces can create a discovered attack?', [
-          right('Any two of your pieces sharing a line: the front one moves, the back one fires', 'Files, ranks and diagonals all carry discoveries. The front piece just has to step aside.'),
-          wrong('Only knights in front of rooks', 'Knights are the most common front piece, but pawns, bishops and queens all discover too.'),
-          wrong('Only queens behind pawns', 'Queens are usually the BACK piece firing the line, not the front.'),
-        ]),
-        text(
-          'The hidden battery',
-          [
-            'When two of your pieces stand on the same line, the front one blocks the back one. Move the front piece and the back piece suddenly attacks: that is a discovered attack.',
-            'If the line points at the king, the moving piece delivers check and a threat at the same time, and your opponent can only parry one. Discovered check is one of the most violent weapons in chess.',
-          ],
-          'Two pieces on one line: every move of the front piece is a threat.',
-        ),
-        text(
-          'Finding your batteries',
-          [
-            'Scan your own pieces first: which pairs share a file, rank or diagonal? Each pair is a loaded weapon waiting for the front piece to move.',
-            'Then make the front move pay double: with the line opening anyway, the moving piece should capture, check or fork something. A discovered attack where the mover does nothing is half a tactic.',
-          ],
-          'Find your own shared lines, then make both halves count.',
-        ),
-        demo(
-          'Double check',
-          ['The knight on e4 shields the rook on e1 from the king on e8. Nd6 opens the file AND jumps next to the king: double check.'],
-          '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1',
-          { moves: ['Nd6+'], caption: 'The rook checks, the knight checks: nothing blocks a double check' },
-        ),
-        demo(
-          'The queen behind the knight',
-          ['More firepower: the queen on e2 waits behind the knight. The knight hops out with check, and the queen fires down the whole e-file at the same time.'],
-          '4k3/8/8/8/4N3/8/4Q3/4R1K1 w - - 0 1',
-          { moves: ['Nd6+'], caption: 'Queen and knight battery: double check again' },
-        ),
-        drill('Open the file', '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1', ['Nd6+'], 'Attack the king with the rook by moving the knight', 'The e-file is the line. The knight hops to d6, which also checks.', 'Nd6 plus check, twice over. The king must run; the knight also eyes e8.'),
-        quiz('Blocking a check', 'Your opponent delivers a double check (two pieces checking at once). Your options are...', [
-          right('Move the king. That is all.', 'Against a double check, blocking and capturing are impossible: two different attackers must both be stopped.'),
-          wrong('Block with a piece', 'You would need to block two lines at once. Impossible with one piece.'),
-          wrong('Capture the piece that moved', 'The other checker still checks. Only the king move survives.'),
-        ]),
-        quiz('Who moves, who stays', 'In a discovered attack, which piece should make the move?', [
-          right('The front piece, ideally to a square that adds a second threat', 'The rear piece does the damage by staying put. The mover should grab something too if possible.'),
-          wrong('The rear piece: it does the hitting', 'The rear piece never moves in a discovered attack. Its power comes from being revealed.'),
-          wrong('It makes no difference which one moves', 'The mover is your extra move: use it to attack, capture or improve something.'),
-        ]),
-        drill('Free the bishop', 'k7/6pp/8/4N3/8/8/8/1B4K1 w - - 0 1', ['Nf7'], 'The bishop on b2 is tired of waiting behind the knight', 'Any knight move opens the b2-g7 diagonal. Pick the jump that lands next to the king: f7.', 'Nf7. The knight hops toward the king side while the bishop suddenly stares at g7. The pawn is doomed.'),
-      ],
-    },
-    {
-      id: 'int-03',
-      n: 3,
-      title: 'The zwischenzug',
-      subtitle: 'Before recapturing, ask: is there something stronger?',
-      minutes: 9,
-      concepts: ['calculation', 'tempo'],
-      steps: [
-        quiz('Retrieval first', 'Against a double check, what is the only legal response?', [
-          right('Moving the king', 'Two checkers cannot be blocked or captured with one move. The king walks.'),
-          wrong('Blocking with a piece', 'One piece cannot block two lines at once.'),
-          wrong('Capturing the checking knight', 'The rook behind it still checks. Capture solves nothing.'),
-        ]),
-        text(
-          'The move in between',
-          [
-            'A zwischenzug (German for intermediate move) is the habit of refusing the obvious reply. Before recapturing, check whether a check, a threat or a bigger capture comes first.',
-            'The most famous beginner trap in chess works because of a zwischenzug: after 1.e4 e5 2.Nf3 Nc6 3.Bc4 Nd4?! 4.Nxe5??, Black does NOT recapture. Qg5 hits the knight on e5 and the g2 pawn at the same time. White grabs material, and Black builds a winning attack on the exposed king.',
-          ],
-          'Capture, then pause: what is stronger than my recapture?',
-        ),
-        text(
-          'When attention drops',
-          [
-            'Exchanges are the most dangerous moments on the board, because both players run on autopilot. The recapture feels automatic, and automatic is where zwischenzugs live.',
-            'The trigger phrase: after a capture, ask "what else can I do?" If the answer is a check, a fork or a bigger prize, do that first. The board will still be there for the recapture.',
-          ],
-          'The moment after a capture is the moment to think twice.',
-        ),
-        demo('The famous refusal', ['Black skips any thought of the knight and inserts Qg5, attacking the knight on e5 and the g2 pawn together. Watch the whole trap unfold.'], START, {
-          moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Nd4', 'Nxe5', 'Qg5', 'Nxf7', 'Qxg2', 'Rf1', 'Qxe4+'],
-          caption: 'Black never recaptured, and White is the one losing material',
-        }),
-        quiz('Zwischenzug trigger', 'When is the zwischenzug most likely to work?', [
-          right('Right after a capture or exchange, when attention drops', 'Exchanges are the moment everyone plays automatically. That is where the extra check or threat lands.'),
-          wrong('Only in the opening', 'It happens in every phase, especially in tactics-rich middlegames.'),
-          wrong('Only when you are losing', 'It wins material at any score.'),
-        ]),
-        quiz('The trap sequence', 'In the trap from the demo, what exactly was the zwischenzug?', [
-          right('Qg5, attacking the e5 knight and the g2 pawn in one move', 'Two threats from one queen. White could not parry both and lost material hand over fist.'),
-          wrong('Qxe4, taking the pawn immediately', 'That is the automatic move the trap exists to punish. The queen move came first.'),
-          wrong('Nxc2+, grabbing a fork', 'The knight was on d4 and never moved. The queen did all the work.'),
-        ]),
-        drill('Refuse the recapture', 'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4', ['Qg5'], 'White just took the e5 pawn with his knight. Punish the greed instead of chasing the knight.', 'Find the square that attacks the knight on e5 and the pawn on g2 at once. The queen lands there in one move: g5.', 'Qg5. The zwischenzug. The knight on e5 is attacked, the g2 pawn hangs, and White cannot hold both.'),
-        quiz('When to just recapture', 'When is immediate recapture the right choice after a capture?', [
-          right('When no intermediate move wins material or forces mate', 'The zwischenzug needs a REAL second threat. Without one, plain recapture is best.'),
-          wrong('Never: always play something in between first', 'Random in-between moves hang material. The zwischenzug must be calculated, not guessed.'),
-          wrong('Whenever you are the stronger player', 'Strength does not change the math. A false zwischenzug just loses material.'),
-        ]),
-      ],
-    },
-    {
-      id: 'int-04',
-      n: 4,
-      title: 'Deflection',
-      subtitle: 'Pull the defender away, then strike.',
-      minutes: 9,
-      concepts: ['removingDefender', 'mate'],
-      steps: [
-        quiz('Retrieval first', 'What is a zwischenzug in one sentence?', [
-          right('An intermediate move played instead of the expected recapture', 'Check, threat or bigger capture first; the recapture can wait.'),
-          wrong('A move that offers a draw', 'Deflection has nothing to do with draw offers.'),
-          wrong('A pawn move in the endgame', 'It happens everywhere, but the term means the in-between move, not a pawn move.'),
-        ]),
-        text(
-          'Fire the bodyguard',
-          [
-            'A defender can guard only one duty at a time. Deflection attacks the defender, forcing it to abandon its post.',
-            'The classic form: the enemy rook guards the back rank. You offer your queen on the same rank as the rook. The rook must capture, and now your other rook ends the game on the opened line.',
-          ],
-          'Attack the guard, not the king. The king falls after.',
-        ),
-        text(
-          'Deflection vs removal',
-          [
-            'Removal captures the defender outright; deflection chases it off its post. Removal costs material: you give something for the defender. Deflection often costs nothing at all, because the defender must move or be lost.',
-            'Ask about every enemy piece: how many jobs does it have? A piece with two jobs can be deflected off either one. A piece with one job must be removed.',
-          ],
-          'Two jobs: deflect. One job: remove.',
-        ),
-        demo('Back rank deflection', ['R1d8+ pulls the a8 rook to d8. The second rook recaptures with mate: the back rank never had a second defender.'], 'r5k1/5ppp/8/8/8/8/3R4/3R2K1 w - - 0 1', {
-          moves: ['Rd8+', 'Rxd8', 'Rxd8#'],
-          caption: 'The rook was bait. The twin rook finished.',
-        }),
-        quiz('Spotting deflection', 'An enemy rook guards both its king on the back rank and a knight on b2. What is the plan?', [
-          right('Attack one duty so hard the rook must abandon the other', 'Deflection wins wherever a piece has two jobs.'),
-          wrong('Attack the king directly', 'The rook guards it. Remove the guard first.'),
-          wrong('Trade everything off', 'Trading the defender\u2019s enemies helps the defender.'),
-        ]),
-        text(
-          'The overload test',
-          [
-            'When one enemy piece defends two things, ask which job you can make it quit. Deflection works because the guard must choose.',
-            'The trick is calculating which job it hates leaving more: if the sacrifice does not win material by force, it is just a gift.',
-          ],
-          'Every overloaded guard is one deflection away from quitting a job.',
-        ),
-        quiz('Counting the jobs', 'Which piece is the most likely deflection target in a middlegame?', [
-          right('A queen: she usually guards an attack AND defends a key square', 'Queens do everything, which makes them chronically overloaded. Ask what she would hate to stop doing.'),
-          wrong('A buried rook on h1', 'Passive pieces often have zero jobs. Nothing to deflect.'),
-          wrong('The king in the endgame', 'The king is usually the protected object, not the guard.'),
-        ]),
-        drill('Bait the rook', 'r5k1/5ppp/8/8/8/8/3R4/3R2K1 w - - 0 1', ['Rd8+', 'Rxd8', 'Rxd8#'], 'Mate in three by deflecting the a8 rook', 'Offer the d2 rook on d8 with check. The a8 rook must take, and the d1 rook recaptures with mate.', 'Rd8 plus check, rook takes, rook recaptures: mate. This is deflection in its purest form.'),
-      ],
-    },
-    {
-      id: 'int-05',
-      n: 5,
-      title: 'Decoy and clearance',
-      subtitle: 'Lure to a doomed square, sweep the road behind you.',
-      minutes: 9,
-      concepts: ['removingDefender', 'tempo'],
-      steps: [
-        quiz('Retrieval first', 'What makes deflection different from simple removal of the defender?', [
-          right('Deflection chases the defender off its post; removal captures it', 'Chasing can cost nothing. Removal usually trades material for the guard.'),
-          wrong('They are the same tactic with different names', 'Different mechanics: one moves the guard, the other deletes it.'),
-          wrong('Deflection only works against queens', 'Any overloaded piece can be deflected: rooks above all.'),
-        ]),
-        text(
-          'Two ways to move the enemy',
-          [
-            'A decoy forces an enemy piece onto a square where a tactic kills it: check the king onto a line, offer a capture onto a fork square.',
-            'Clearance is the mirror image with your own pieces: a capture or pawn push empties a square or line so a bigger force can use it. The pawn that captures on f6 and vanishes from the e-file has just opened a rook highway.',
-          ],
-          'Decoy: pull them in. Clearance: push your own out of the way.',
-        ),
-        demo('Open the e-file', ['exf6 captures a pawn AND clears the e-file. The rook on e1 now stares at the rook on e8.'], '4r1k1/5p2/5p2/4P3/8/8/8/4R1K1 w - - 0 1', {
-          moves: ['exf6', 'Rd8'],
-          caption: 'One capture, two jobs: material and an open file',
-        }),
-        drill('Clear with tempo', '4r1k1/5p2/5p2/4P3/8/8/8/4R1K1 w - - 0 1', ['exf6', 'Rd8'], 'Open the e-file by capturing', 'The pawn takes f6 and stops blocking the rook behind it.', 'exf6. The e-file is open and the pawn attacks g7 as a bonus. Clearance moves that also threaten are gold.'),
-        quiz('Decoy target', 'Which square is the classic decoy destination for a king?', [
-          right('A square where a knight fork or a mating net is waiting', 'Lure the king to the geometry that kills him.'),
-          wrong('The center, always', 'The center is often the safest place for a king in an endgame.'),
-          wrong('A defended square', 'A decoy must move the king somewhere WORSE. Defended squares rarely qualify.'),
-        ]),
-        quiz('Clearance math', 'A clearance capture gives up your pawn (1). Behind it, your rook will win a bishop (3) on the opened line. Was the clearance worth it?', [
-          right('Yes: pay 1 to win 3, and the file stays open for more', 'Clearance sacrifices are arithmetic like everything else. Pay less than you collect.'),
-          wrong('No: never give up pawns', 'Pawns are the standard currency of clearance. Paying one to open a winning line is profit.'),
-          wrong('Only if it is checkmate', 'Winning material or gaining a decisive attack both pay for clearance.'),
-        ]),
-        playout(
-          'Convert the open file',
-          'Rook against rook with an open lane. Use the file, hunt loose pawns, win material.',
-          '4r1k1/5p2/5p2/4P3/8/8/8/4R1K1 w - - 0 1',
-          'w',
-          'Win at least 3 points of material within 14 moves',
-          2,
-          'material',
-          14,
-          'The open file paid its rent. Files are rook income.',
-        ),
-      ],
-    },
-    {
       id: 'int-21',
-      n: 6,
+      n: 1,
       title: 'Openings for White: pick one, own it',
       subtitle: 'London or Vienna: one system, chosen by style, studied deep.',
       minutes: 11,
@@ -333,9 +75,10 @@ export const intermediate: Tier = {
         ),
       ],
     },
+
     {
       id: 'int-22',
-      n: 7,
+      n: 2,
       title: 'Openings for Black: three answers that work',
       subtitle: 'One reply for e4, one for d4, known by plan.',
       minutes: 11,
@@ -405,9 +148,10 @@ export const intermediate: Tier = {
         ),
       ],
     },
+
     {
       id: 'int-23',
-      n: 8,
+      n: 3,
       title: 'Gambits: accept, decline, or punish',
       subtitle: 'Pawn offers, poison pawns, and the keeping-it rule.',
       minutes: 11,
@@ -469,18 +213,810 @@ export const intermediate: Tier = {
         ),
       ],
     },
+
+    {
+      id: 'int-14',
+      n: 4,
+      title: 'King activity and opposition',
+      subtitle: 'In the endgame, the king is a fighting piece.',
+      minutes: 10,
+      concepts: ['kingActivity', 'opposition', 'endgame'],
+      steps: [
+        quiz('Retrieval first', 'The queens are about to come off the board. What does your king become?', [
+          right('A fighting piece — often the strongest one on the board', 'With no queens to hunt him, the king marches to the center and outduels everything in reach.'),
+          wrong('A liability that must hide in the corner forever', 'Hiding kings lose endgames: the brave king collects pawns while the timid one watches.'),
+          wrong('Irrelevant: pawns decide everything alone', 'Pawns decide nothing without the king in front of them. King first, pawns second.'),
+        ]),
+        text(
+          'The king walks out',
+          [
+            'Once the queens are off, the king marches to the center. In endgames, king activity is worth more than a pawn in most positions.',
+            'Opposition: when the kings face each other with exactly one square between them, the side not to move owns the crossing squares. Win the opposition, and your pawn walks through.',
+          ],
+          'Centralize the king, win the opposition, promote the pawn.',
+        ),
+        demo('Face to face', ['The kings stand in direct opposition on the e-file. Whoever must move steps aside, and the pawn escorts his king through.'], '8/8/8/4k3/8/4K3/4P3/8 w - - 0 1', {
+          marks: [
+            { square: 'e5', color: 'red' },
+            { square: 'e3', color: 'green' },
+          ],
+          caption: 'Direct opposition: one square between',
+        }),
+        drill('Take the opposition', '8/8/8/3k4/8/8/3K4/8 w - - 0 1', ['Kd3'], 'Face the black king with one square between', 'The d-file connects the kings. Kd3 faces him with one square between.', 'Kd3. Direct opposition. If Black steps aside, your king eats the key squares.'),
+        quiz('Opposition rule', 'Kings face each other with one square between. Who is in control?', [
+          right('The side not to move', 'The side to move must give way. The other side owns the opposition.'),
+          wrong('The side to move', 'Moving is exactly the problem: you must step aside first.'),
+          wrong('Nobody, kings are equal', 'The turn decides everything in king duels.'),
+        ]),
+        quiz('King target squares', 'In a king-and-pawn race, which squares does the attacking king head for?', [
+          right('The squares directly in front of the pawn', 'The king escorts: in front of the pawn is where he controls the promotion path.'),
+          wrong('The corner where the enemy king sits', 'Corner trips waste time. The pawn\'s path is the highway.'),
+          wrong('His own first rank', 'A defensive king loses pawn endings. March forward.'),
+        ]),
+        drill(
+          'Escort with opposition',
+          '8/8/8/4k3/8/4K3/4P3/8 w - - 0 1',
+          ['Kd3'],
+          'Gain space with the king while keeping the pawn safe',
+          'Step aside to d3: the pawn stays protected, and the kings keep their duel.',
+          'Kd3. Black must choose between opposition and space, and both choices lose the key squares. King dances win pawn endings.',
+        ),
+        quiz('The turn decides', 'In king-and-pawn endings, why does whose turn it is matter so much?', [
+          right('Kings cannot wait in place: the side to move must often give ground first', 'Two kings facing each other create a waiting problem. Whoever must move, loses ground.'),
+          wrong('Because pawn moves are always forced', 'Pawns usually have choices. The kings are the ones running out of moves.'),
+          wrong('The turn only matters when rooks are on the board', 'The turn decides pure king duels. Rooks make it messier, not more important.'),
+        ]),
+      ],
+    },
+
+    {
+      id: 'int-15',
+      n: 5,
+      title: 'Pawn endings',
+      subtitle: 'The square rule and the pawn race.',
+      minutes: 10,
+      concepts: ['endgame', 'technique'],
+      steps: [
+        quiz('Retrieval first', 'Where does the attacking king go in a king-and-pawn endgame?', [
+          right('In front of his own pawn', 'The escort formation. The pawn is only as strong as the king driving it.'),
+          wrong('Behind the pawn', 'A king behind its pawn is a bodyguard for yesterday.'),
+          wrong('Toward the enemy king only', 'The king helps the pawn first; the duel happens on the way.'),
+        ]),
+        text(
+          'Geometry of the runner',
+          [
+            'The square rule: a pawn that starts running can be caught only if the defending king can step into its square, the box from the pawn to its promotion square. Inside the square: catch it. Outside: it queens.',
+            'In pawn races, count tempi before anything else. One tempo decides whether the race is won, lost, or drawn by the first player promoting and then stopping the other pawn.',
+          ],
+          'Draw the square in your head before every king move.',
+        ),
+        demo('The square', ['The black pawn on d5 runs to d1. The gold square is its escape box. A king outside cannot catch it; a king inside always can.'], '8/8/8/3p4/8/8/6K1/7k w - - 0 1', {
+          marks: [
+            { square: 'd1', color: 'gold' },
+            { square: 'd2', color: 'gold' },
+            { square: 'd3', color: 'gold' },
+            { square: 'd4', color: 'gold' },
+          ],
+          caption: 'The square of the pawn',
+        }),
+        drill('Catch the runner', '8/8/8/3p4/8/8/6K1/7k w - - 0 1', ['Kf3'], 'Step into the square and stop the pawn', 'The king on g2 is outside the box. Kf3 steps inside it.', 'Kf3. Inside the square now. The pawn cannot run away from you anymore.'),
+        quiz('Square rule', 'A black pawn on a5 runs to a1. The white king stands on e4. Can he catch it?', [
+          right('Yes, e4 is inside the square of the a5 pawn', 'The square reaches from a5 down to a1 and across to e4. The king is inside, so he catches the pawn.'),
+          wrong('No, the pawn is too fast', 'Distance from e4 to a1 is 3 moves; the pawn needs 4. The king wins the race.'),
+          wrong('Only with the white king on e3', 'e4 already works. The square rule is generous to the side with the better king position.'),
+        ]),
+        quiz('The move in the square rule', 'Does it matter whose move it is when applying the square rule?', [
+          right('Yes: if the defender moves first and can enter the square this move, he catches the pawn', 'The rule assumes it is the pawn\'s move. If the king moves first, he gets a free step into the box.'),
+          wrong('No: the square rule ignores the turn', 'The turn is exactly what the rule measures. King-first changes the verdict.'),
+          wrong('Only in queen endings', 'The square rule is a king-and-pawn tool, and the turn is part of it.'),
+        ]),
+        drill(
+          'Sit in the square',
+          '6k1/8/8/7p/8/7K/8/8 w - - 0 1',
+          ['Kh4'],
+          'The black h-pawn is thinking about running. End the discussion.',
+          'The king is already inside the square. Kh4 parks on the pawn\'s file, and the pawn is stuck forever.',
+          'Kh4. The pawn cannot advance past a king parked on its file. Being inside the square is a lifetime pass.',
+        ),
+        quiz('Racing math', 'Your pawn runs for the last rank while the enemy king is far away. What exactly do you check?', [
+          right('Whether the enemy king can step inside the square of the pawn', 'Inside the square means the king catches it. Outside means the pawn promotes.'),
+          wrong('The total number of pawns left on the board', 'Pawn counts do not stop runners. Geometry does.'),
+          wrong('Whether the enemy rook is active', 'There is no rook in a pure pawn race. The king and the square are the whole story.'),
+        ]),
+      ],
+    },
+
+    {
+      id: 'bg-14',
+      n: 6,
+      title: 'Passed pawns',
+      subtitle: 'No enemy pawns in the way: run or push.',
+      minutes: 10,
+      concepts: ['endgame', 'promotion', 'kingActivity'],
+      steps: [
+        text(
+          'The runner on the board',
+          [
+            'A pawn with no enemy pawns on its file or neighboring files is passed. Nobody can stop it with a pawn; it must be stopped with pieces.',
+            'In endgames passed pawns are money. Push them, support them with the king, and trade the pieces that chase them.',
+            'The farther a passed pawn walks, the more valuable it is: a pawn on the 7th rank is worth more than a rook in many positions.',
+          ],
+          'Passed pawns must be pushed.',
+        ),
+        demo(
+          'Passed or not?',
+          [
+            'The white d-pawn is passed: no black pawn on d, c or e files can ever block or capture it. The white a-pawn is blocked for life.',
+          ],
+          '4k3/p7/8/3P4/8/8/8/4K3 w - - 0 1',
+          {
+            marks: [
+              { square: 'd5', color: 'green' },
+              { square: 'a4', color: 'red' },
+            ],
+            caption: 'Green is passed. Red is stopped.',
+          },
+        ),
+        demo(
+          'The escort formation',
+          [
+            'A passed pawn runs fastest when your king escorts it: the king walks in front, clearing enemy defenders and shielding the pawn from behind.',
+            'King in front of the pawn on the 6th rank is the classic winning formation for pawn endgames.',
+          ],
+          '4k3/8/1K6/1P6/8/8/8/8 w - - 0 1',
+          { marks: [{ square: 'b6', color: 'green' }, { square: 'b5', color: 'green' }], caption: 'King leads, pawn follows' },
+        ),
+        quiz('Spot the passed pawn', 'White pawns: e4. Black pawns: d5 and f5. Is e4 passed?', [
+          right('No, it is blocked by enemy pawns on both sides', 'Enemy pawns on d5 and f5 stop it from ever moving safely forward.'),
+          wrong('Yes, nothing stands on e5', 'Passed means no enemy pawns on the file OR the neighboring files ahead.'),
+          wrong('Pawns are never passed until the endgame', 'Passed pawns exist in the middlegame too. Watch for them early.'),
+        ]),
+        quiz('Blocked vs passed', 'A pawn with an enemy pawn standing directly in front of it is called...', [
+          right('Blocked, and it can never advance while the blocker stands', 'Blocked pawns need help from pieces, or from the blocker disappearing.'),
+          wrong('Passed', 'Passed means a clear road. A wall in front is the opposite.'),
+          wrong('Doubled', 'Doubled means two of your own pawns on the same file. Different problem.'),
+        ]),
+        drill('Start the march', '4k3/8/8/1P6/8/8/8/4K3 w - - 0 1', ['b6'], 'The b-pawn is passed. Walk it home.', 'The pawn on b5 has a clear road. Start with b6.', 'b6. Every step forward raises its price. The opponent must spend pieces to stop it.'),
+        playout(
+          'Push the majority',
+          'You have a healthy pawn majority. Push it, use your king, and win material or promote.',
+          '4k3/pp6/8/8/8/8/PP6/4K3 w - - 0 1',
+          'w',
+          'Win at least 3 points of material within 12 moves',
+          2,
+          'material',
+          12,
+          'Majority converted. This is exactly how endgames are won.',
+        ),
+      ],
+    },
+
+    {
+      id: 'int-16',
+      n: 7,
+      title: 'Rook endings basics',
+      subtitle: 'Cut the king off, keep the rook active.',
+      minutes: 10,
+      concepts: ['endgame', 'pieceActivity'],
+      steps: [
+        quiz('From the pawn endings lesson', 'When the defender moves first, how does the square rule change?', [
+          right('He gets a free step: entering the square this move catches the pawn', 'The standard rule assumes the pawn moves first. King-first adds one tempo of reach.'),
+          wrong('It does not change anything', 'The turn is half the rule.'),
+          wrong('The pawn gets faster', 'Pawns always step one square. The king\'s first move is the variable.'),
+        ]),
+        text(
+          'The active rook wins',
+          [
+            'In rook endgames the attacking rook belongs behind a passed pawn, yours or theirs. Behind your own pawn it escorts the pawn. Behind theirs it attacks the pawn from a square the pawn can never fight back from.',
+            'Cutting off: park the rook on a rank or file in front of the enemy king and he is locked out of the game. A cut-off king cannot defend pawns or fight for promotion squares.',
+          ],
+          'Rook behind the pawn, king out of the game.',
+        ),
+        demo('The wall goes up', ['Ra5 draws a line across the 5th rank. The black king on h8 can never cross it while the rook patrols.'], '7k/8/8/8/8/8/8/R3K3 w - - 0 1', {
+          moves: ['Ra5'],
+          caption: 'The king is cut off from the lower ranks',
+        }),
+        drill('Build the wall', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Cut the black king off with the rook', 'The 5th rank is the fence: Ra5 locks the king on the 8th.', 'Ra5. The king is a spectator now. Your own king walks in freely and takes over.'),
+        quiz('Rook placement', 'Where does the attacking rook belong relative to a passed pawn?', [
+          right('Behind it, whoever the pawn belongs to', 'Behind your pawn it escorts. Behind theirs it herds.'),
+          wrong('In front of it, blocking', 'A rook in front of its own pawn blocks it. In front of theirs, it gets attacked by the king.'),
+          wrong('On the first rank, defending', 'Passive rooks lose rook endgames. Activity is the whole story.'),
+        ]),
+        quiz('Behind your own passer', 'Your rook sits behind your own passed pawn. What does it do from there?', [
+          right('Pushes: every pawn step is protected by the rook from behind', 'The rook clears the road ahead and the pawn walks to promotion.'),
+          wrong('Blocks the pawn from moving', 'Blocking your own passer is the job of the ENEMY. Yours pushes.'),
+          wrong('Rushes to attack the king instead', 'A rook that abandons the passer usually abandons the win.'),
+        ]),
+        drill(
+          'Keep your distance',
+          '7k/7p/8/8/8/8/8/R5K1 w - - 0 1',
+          ['Ra6'],
+          'Fence the black king out of the game, from a distance he can never punish.',
+          'The 5th or 6th rank both cut him off. Pick the 6th: two squares between the fence and the king.',
+          'Ra6. The king is locked into his last two ranks and the rook is safely beyond his reach. Distance is what keeps the fence standing.',
+        ),
+      ],
+    },
+
+    {
+      id: 'adv-14',
+      n: 8,
+      title: 'Philidor: rear checks',
+      subtitle: 'The most important drawing position in rook endgames.',
+      minutes: 10,
+      concepts: ['endgame', 'defense', 'technique'],
+      steps: [
+        quiz('From last lesson: the rook ending', 'Your king is cut off, the enemy pawn runs. What keeps the defending rook useful?', [
+          right('Staying active: checking from behind and attacking the pawn', 'A passive rook defends nothing. Activity is the defender\'s whole salary in rook endings.'),
+          wrong('Sitting passively in front of the pawn forever', 'A parked rook lets the attacker bring the king over at leisure. Activity first.'),
+          wrong('Trading rooks immediately, no matter what', 'Rook trades often hand the win over: without checks, the passer walks home.'),
+        ]),
+        text(
+          'Checks from behind',
+          [
+            'Defending a rook endgame a pawn down: keep your rook BEHIND the enemy pawn on its promotion file, or on the rank in front of the enemy king. The famous Philidor defense: park the rook on the first rank, and the moment the pawn advances to the 6th, give endless rear checks.',
+            'The king can never escape the checks, the rook never runs out of them, and the game is drawn. Miss this technique and every Lucena in history gets to win.',
+          ],
+          'Rook behind the pawn. Checks forever. Draw forever.',
+        ),
+        demo('The checks begin', ['White tries to make progress; the rook checks along every file the king visits, and the black king permanently guards the promotion square.'], '4k3/8/4K3/4P3/8/8/8/7r w - - 0 1', {
+          moves: ['Kd6', 'Rd1+', 'Kc6', 'Rc1+'],
+          caption: 'Checks forever. e7 is blockaded. Draw.',
+        }),
+        drill('Take the draw', '4k3/8/4K3/4P3/8/8/8/7r b - - 0 1', ['Rd1'], 'Black to move: park the rook on the checking file', 'The first rank is the patrol road. d1 watches the file the white king must cross.', 'Rd1. Rear-rank checks are now guaranteed forever. White can shuffle; so can you.'),
+        quiz('Philidor rule', 'When does the defender\u2019s rook switch to rear checks?', [
+          right('The moment the pawn steps onto the 6th rank (or its 3rd from Black\u2019s side)', 'Before that, the rook waits on the first rank. The timing is the whole technique.'),
+          wrong('Immediately, always checking', 'Early checks let the king hide in front of the pawn. Patience first.'),
+          wrong('Never, passivity draws', 'Passivity loses. The rear checks ARE the activity.'),
+        ]),
+        quiz('Philidor timing', 'The defender\u2019s rook sits on the first rank. When does the switch to rear checks happen?', [
+          right('When the pawn reaches the 6th rank: before that, waiting is correct', 'Early checks push the king forward. The third rank is where the defense begins.'),
+          wrong('From move one: always check', 'Constant checking lets the winning king march up supported.'),
+          wrong('Never: the first-rank rook is already the Philidor defense', 'The first rank is the SETUP. The checks after the pawn\u2019s advance are the DEFENSE.'),
+        ]),
+        drill('Your turn to cash it', '4k3/8/4K3/4P3/8/8/8/7r b - - 0 1', ['Rd1'], 'Hold the draw the Philidor way, from memory', 'Get behind the pawn, check from the back, repeat.', 'Rd1. Behind the pawn with checks forever: half a point banked.'),
+      ],
+    },
+
+    {
+      id: 'int-17',
+      n: 9,
+      title: 'Converting an advantage',
+      subtitle: 'Winning won positions is its own skill.',
+      minutes: 10,
+      concepts: ['technique', 'tradeDecisions', 'endgame'],
+      steps: [
+        quiz('From the rook endings lesson', 'How far from the enemy king should a cut-off rook stand?', [
+          right('Two or three ranks: close enough to matter, far enough to be safe', 'A fence the king can attack is not a fence.'),
+          wrong('Right in front of him', 'The king captures or attacks a rook that comes too close.'),
+          wrong('Distance does not matter', 'Distance is exactly what keeps the rook active instead of dead.'),
+        ]),
+        text(
+          'Trade pieces, keep tension',
+          [
+            'When you are up material, trade PIECES, not pawns. Fewer enemy pieces means less counterplay; keeping pawns means more winning chances later.',
+            'Kill counterplay first. Ask every move: what does my opponent want? Deny it, then improve your worst piece. Technique is patience with a plan.',
+            'The king joins the attack in the endgame. Centralize him, escort the passed pawn, and the point takes care of itself.',
+          ],
+          'Simplify pieces, multiply pawns, deactivate their plans.',
+        ),
+        demo('Rook and king finish it', ['Up a rook, the win is technique: rook cuts the king, your king approaches, mate follows.'], '7k/8/8/8/8/8/8/R3K3 w - - 0 1', {
+          marks: [{ square: 'a5', color: 'green' }],
+          caption: 'Ra5 first, then the king walks up',
+        }),
+        quiz('Conversion rule', 'You are up a whole rook in a middlegame. What do you trade?', [
+          right('Pieces, not pawns', 'Fewer enemy pieces means less counterplay. Pawns are your winning margin.'),
+          wrong('Pawns, not pieces', 'Trading pawns opens lines for the enemy pieces to swarm you.'),
+          wrong('Nothing, sit on the material', 'Passive defense invites attacks. Simplify and activate.'),
+        ]),
+        quiz('The first conversion question', 'You just won a piece. What is the first question on every following move?', [
+          right('What does my opponent want, and how do I deny it?', 'Counterplay dies first. Then the technique plays itself.'),
+          wrong('Where can I attack the king?', 'Attacking while ahead is how won games get mated. Deny first.'),
+          wrong('How do I win even more material?', 'Greed extends the game. Converting means closing doors, not opening them.'),
+        ]),
+        playout(
+          'Technique test',
+          'Rook against a lone king: the classic conversion. Box the king with the rook, bring your king, mate.',
+          '7k/8/8/8/8/8/8/R3K3 w - - 0 1',
+          'w',
+          'Checkmate the black king',
+          1,
+          'checkmate',
+          25,
+          'Converted. Rook mate is the first technique every tournament player owns.',
+          'Reset and try the ladder: rook cuts a rank, your king approaches, repeat. Never let the king touch your rook.',
+        ),
+      ],
+    },
+
+    {
+      id: 'int-18',
+      n: 10,
+      title: 'Practice arena: endgames',
+      subtitle: 'Kings, pawns and rooks under pressure.',
+      minutes: 11,
+      concepts: ['endgame', 'kingActivity', 'promotion'],
+      steps: [
+        quiz('Retrieval first', 'What is the first question when converting a won position?', [
+          right('What does my opponent want, and how do I deny it?', 'Counterplay first, technique second. That order wins games.'),
+          wrong('How do I attack faster?', 'Attacks while ahead are how wins become draws.'),
+          wrong('Which pieces can I hoard?', 'Holding everything invites one big tactic. Simplify on purpose.'),
+        ]),
+        text(
+          'Endgame reps',
+          [
+            'Four drills from the endgame levels, then a playable pawn ending.',
+            'In every drill, ask about the kings first. Endgames are king duels with pawns as the stakes.',
+          ],
+        ),
+        drill('Opposition rep', '8/8/8/3k4/8/8/3K4/8 w - - 0 1', ['Kd3'], 'Take the direct opposition', 'One square between the kings: Kd3 faces him on the d-file.', 'Kd3. The opposition is yours.'),
+        drill('Square rule rep', '8/8/8/3p4/8/8/6K1/7k w - - 0 1', ['Kf3'], 'Catch the running pawn', 'Kf3 steps inside the square.', 'Kf3. Caught. Geometry beats hope.'),
+        drill('Cut off rep', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Fence the king out', 'The 5th rank is the wall: Ra5.', 'Ra5. The wall holds.'),
+        drill(
+          'Promote with tempo rep',
+          '4k3/6P1/8/8/8/8/8/4K3 w - - 0 1',
+          ['g8=Q+'],
+          'The passer promotes. Land with a check.',
+          'The new queen fires down the 8th rank the instant she appears.',
+          'g8=Q with check. Promoting with tempo means Black answers you instead of counterattacking.',
+        ),
+        quiz('King priority check', 'Kings and pawns only. Your first question every move is about...', [
+          right('King position: activity and opposition', 'The king is the strongest piece in pawn endings.'),
+          wrong('Pawn storms at the enemy king', 'There is no attack without pieces. The king walks, not storms.'),
+          wrong('Rook activity', 'No rooks on the board in a pawn ending.'),
+        ]),
+        playout(
+          'Pawn ending duel',
+          'King and pawn against a lone king. Push the pawn with the king in front. Win material or promote.',
+          '8/8/8/3k4/8/3K4/4P3/8 w - - 0 1',
+          'w',
+          'Win the pawn race or promote within 15 moves',
+          2,
+          'material',
+          15,
+          'King activity, opposition, promotion: the full pawn-ending method in one game.',
+        ),
+      ],
+    },
+
+    {
+      id: 'int-01',
+      n: 11,
+      title: 'Double attack',
+      subtitle: 'Any piece can hit two targets at once.',
+      minutes: 9,
+      concepts: ['doubleAttack', 'fork'],
+      steps: [
+        quiz('Retrieval first', 'From the Beginner tier: what does the mnemonic LPDO stand for?', [
+          right('Loose Pieces Drop Off', 'Undefended pieces are the targets every double attack is looking for.'),
+          wrong('Long Pawns Defend Openings', 'Not a real mnemonic. The real one is about undefended pieces.'),
+          wrong('Look, Plan, Deliver, Occupy', 'Close in spirit, but the classic phrase is Loose Pieces Drop Off.'),
+        ]),
+        text(
+          'Two targets, one move',
+          [
+            'The fork is the knight\u2019s specialty, but every piece can attack two things in one move. A queen slides to a square that hits one piece on its rank and another on its file. A rook lands on a line that touches two loose pieces.',
+            'The recipe is always the same: find two enemy pieces that are undefended or badly defended, then look for one square that attacks them both. Loose pieces drop off, so aim at loose ones first.',
+          ],
+          'One move, two victims: scan for pieces that share a line.',
+        ),
+        demo(
+          'The shared rank',
+          ['The rook on a5 and the bishop on g5 both stand on rank 5. The queen on d1 can reach the middle of that rank in one move.'],
+          '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1',
+          { marks: [{ square: 'd5', color: 'green' }], caption: 'Qd5 hits both pieces at once' },
+        ),
+        drill('Hit them both', '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1', ['Qd5+'], 'Attack the rook and the bishop in one move', 'The queen rides to d5: rank 5 hits both pieces, and the diagonal checks the king.', 'Qd5 with check. Two loose pieces, one move. One of them falls next turn no matter what Black saves.'),
+        drill('Rook double attack', '3r2k1/8/8/8/8/8/5K2/R6b w - - 0 1', ['Rd1'], 'The bishop on h1 and the rook on d8 are both in reach. Find the square.', 'd1 sits on the d-file and the first rank at the same time.', 'Rd1. The bishop on h1 and the rook on d8 are both under fire. Only one can be saved.'),
+        quiz('Choosing targets', 'What makes the best double attack?', [
+          right('Two targets that are both undefended or worth more than your attacker', 'Then whatever your opponent saves, you win material.'),
+          wrong('Any two pieces anywhere', 'A double attack against two defended, cheap pieces usually wins nothing.'),
+          wrong('Two attacks against the king', 'There is only one king. The second target should be material or a mating square.'),
+        ]),
+        quiz('The checklist', 'Before playing a double attack, what must you verify?', [
+          right('That at least one target falls even after the best defense', 'Count the follow-up: if Black saves one piece, is the other really lost? The math comes first.'),
+          wrong('Only that the move looks aggressive', 'Aggressive moves that lose material are just fast losses.'),
+          wrong('That your pieces are on good squares', 'Piece placement helps, but the double attack question is about the two targets and the follow-up.'),
+        ]),
+        drill(
+          'The queen double hit',
+          'r5k1/8/8/3Q4/8/8/8/4K3 w - - 0 1',
+          ['Qd8+', 'Kf7', 'Qxa8'],
+          'One queen move hits the king and the rook',
+          'The queen and both black pieces share a rank. Walk onto it with check.',
+          'Qd8+ forks king and rook along the 8th rank: after the king steps, the rook falls. One move, two jobs.',
+        ),
+      ],
+    },
+
+    {
+      id: 'int-02',
+      n: 12,
+      title: 'Discovered attack',
+      subtitle: 'Move one piece, free the one behind it.',
+      minutes: 9,
+      concepts: ['discoveredAttack', 'doubleAttack'],
+      steps: [
+        quiz('Retrieval first', 'Which pieces can create a discovered attack?', [
+          right('Any two of your pieces sharing a line: the front one moves, the back one fires', 'Files, ranks and diagonals all carry discoveries. The front piece just has to step aside.'),
+          wrong('Only knights in front of rooks', 'Knights are the most common front piece, but pawns, bishops and queens all discover too.'),
+          wrong('Only queens behind pawns', 'Queens are usually the BACK piece firing the line, not the front.'),
+        ]),
+        text(
+          'The hidden battery',
+          [
+            'When two of your pieces stand on the same line, the front one blocks the back one. Move the front piece and the back piece suddenly attacks: that is a discovered attack.',
+            'If the line points at the king, the moving piece delivers check and a threat at the same time, and your opponent can only parry one. Discovered check is one of the most violent weapons in chess.',
+          ],
+          'Two pieces on one line: every move of the front piece is a threat.',
+        ),
+        text(
+          'Finding your batteries',
+          [
+            'Scan your own pieces first: which pairs share a file, rank or diagonal? Each pair is a loaded weapon waiting for the front piece to move.',
+            'Then make the front move pay double: with the line opening anyway, the moving piece should capture, check or fork something. A discovered attack where the mover does nothing is half a tactic.',
+          ],
+          'Find your own shared lines, then make both halves count.',
+        ),
+        demo(
+          'Double check',
+          ['The knight on e4 shields the rook on e1 from the king on e8. Nd6 opens the file AND jumps next to the king: double check.'],
+          '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1',
+          { moves: ['Nd6+'], caption: 'The rook checks, the knight checks: nothing blocks a double check' },
+        ),
+        demo(
+          'The queen behind the knight',
+          ['More firepower: the queen on e2 waits behind the knight. The knight hops out with check, and the queen fires down the whole e-file at the same time.'],
+          '4k3/8/8/8/4N3/8/4Q3/4R1K1 w - - 0 1',
+          { moves: ['Nd6+'], caption: 'Queen and knight battery: double check again' },
+        ),
+        drill('Open the file', '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1', ['Nd6+'], 'Attack the king with the rook by moving the knight', 'The e-file is the line. The knight hops to d6, which also checks.', 'Nd6 plus check, twice over. The king must run; the knight also eyes e8.'),
+        quiz('Blocking a check', 'Your opponent delivers a double check (two pieces checking at once). Your options are...', [
+          right('Move the king. That is all.', 'Against a double check, blocking and capturing are impossible: two different attackers must both be stopped.'),
+          wrong('Block with a piece', 'You would need to block two lines at once. Impossible with one piece.'),
+          wrong('Capture the piece that moved', 'The other checker still checks. Only the king move survives.'),
+        ]),
+        quiz('Who moves, who stays', 'In a discovered attack, which piece should make the move?', [
+          right('The front piece, ideally to a square that adds a second threat', 'The rear piece does the damage by staying put. The mover should grab something too if possible.'),
+          wrong('The rear piece: it does the hitting', 'The rear piece never moves in a discovered attack. Its power comes from being revealed.'),
+          wrong('It makes no difference which one moves', 'The mover is your extra move: use it to attack, capture or improve something.'),
+        ]),
+        drill('Free the bishop', 'k7/6pp/8/4N3/8/8/8/1B4K1 w - - 0 1', ['Nf7'], 'The bishop on b2 is tired of waiting behind the knight', 'Any knight move opens the b2-g7 diagonal. Pick the jump that lands next to the king: f7.', 'Nf7. The knight hops toward the king side while the bishop suddenly stares at g7. The pawn is doomed.'),
+      ],
+    },
+
+    {
+      id: 'int-03',
+      n: 13,
+      title: 'The zwischenzug',
+      subtitle: 'Before recapturing, ask: is there something stronger?',
+      minutes: 9,
+      concepts: ['calculation', 'tempo'],
+      steps: [
+        quiz('Retrieval first', 'Against a double check, what is the only legal response?', [
+          right('Moving the king', 'Two checkers cannot be blocked or captured with one move. The king walks.'),
+          wrong('Blocking with a piece', 'One piece cannot block two lines at once.'),
+          wrong('Capturing the checking knight', 'The rook behind it still checks. Capture solves nothing.'),
+        ]),
+        text(
+          'The move in between',
+          [
+            'A zwischenzug (German for intermediate move) is the habit of refusing the obvious reply. Before recapturing, check whether a check, a threat or a bigger capture comes first.',
+            'The most famous beginner trap in chess works because of a zwischenzug: after 1.e4 e5 2.Nf3 Nc6 3.Bc4 Nd4?! 4.Nxe5??, Black does NOT recapture. Qg5 hits the knight on e5 and the g2 pawn at the same time. White grabs material, and Black builds a winning attack on the exposed king.',
+          ],
+          'Capture, then pause: what is stronger than my recapture?',
+        ),
+        text(
+          'When attention drops',
+          [
+            'Exchanges are the most dangerous moments on the board, because both players run on autopilot. The recapture feels automatic, and automatic is where zwischenzugs live.',
+            'The trigger phrase: after a capture, ask "what else can I do?" If the answer is a check, a fork or a bigger prize, do that first. The board will still be there for the recapture.',
+          ],
+          'The moment after a capture is the moment to think twice.',
+        ),
+        demo('The famous refusal', ['Black skips any thought of the knight and inserts Qg5, attacking the knight on e5 and the g2 pawn together. Watch the whole trap unfold.'], START, {
+          moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Nd4', 'Nxe5', 'Qg5', 'Nxf7', 'Qxg2', 'Rf1', 'Qxe4+'],
+          caption: 'Black never recaptured, and White is the one losing material',
+        }),
+        quiz('Zwischenzug trigger', 'When is the zwischenzug most likely to work?', [
+          right('Right after a capture or exchange, when attention drops', 'Exchanges are the moment everyone plays automatically. That is where the extra check or threat lands.'),
+          wrong('Only in the opening', 'It happens in every phase, especially in tactics-rich middlegames.'),
+          wrong('Only when you are losing', 'It wins material at any score.'),
+        ]),
+        quiz('The trap sequence', 'In the trap from the demo, what exactly was the zwischenzug?', [
+          right('Qg5, attacking the e5 knight and the g2 pawn in one move', 'Two threats from one queen. White could not parry both and lost material hand over fist.'),
+          wrong('Qxe4, taking the pawn immediately', 'That is the automatic move the trap exists to punish. The queen move came first.'),
+          wrong('Nxc2+, grabbing a fork', 'The knight was on d4 and never moved. The queen did all the work.'),
+        ]),
+        drill('Refuse the recapture', 'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4', ['Qg5'], 'White just took the e5 pawn with his knight. Punish the greed instead of chasing the knight.', 'Find the square that attacks the knight on e5 and the pawn on g2 at once. The queen lands there in one move: g5.', 'Qg5. The zwischenzug. The knight on e5 is attacked, the g2 pawn hangs, and White cannot hold both.'),
+        quiz('When to just recapture', 'When is immediate recapture the right choice after a capture?', [
+          right('When no intermediate move wins material or forces mate', 'The zwischenzug needs a REAL second threat. Without one, plain recapture is best.'),
+          wrong('Never: always play something in between first', 'Random in-between moves hang material. The zwischenzug must be calculated, not guessed.'),
+          wrong('Whenever you are the stronger player', 'Strength does not change the math. A false zwischenzug just loses material.'),
+        ]),
+      ],
+    },
+
+    {
+      id: 'int-04',
+      n: 14,
+      title: 'Deflection',
+      subtitle: 'Pull the defender away, then strike.',
+      minutes: 9,
+      concepts: ['removingDefender', 'mate'],
+      steps: [
+        quiz('Retrieval first', 'What is a zwischenzug in one sentence?', [
+          right('An intermediate move played instead of the expected recapture', 'Check, threat or bigger capture first; the recapture can wait.'),
+          wrong('A move that offers a draw', 'Deflection has nothing to do with draw offers.'),
+          wrong('A pawn move in the endgame', 'It happens everywhere, but the term means the in-between move, not a pawn move.'),
+        ]),
+        text(
+          'Fire the bodyguard',
+          [
+            'A defender can guard only one duty at a time. Deflection attacks the defender, forcing it to abandon its post.',
+            'The classic form: the enemy rook guards the back rank. You offer your queen on the same rank as the rook. The rook must capture, and now your other rook ends the game on the opened line.',
+          ],
+          'Attack the guard, not the king. The king falls after.',
+        ),
+        text(
+          'Deflection vs removal',
+          [
+            'Removal captures the defender outright; deflection chases it off its post. Removal costs material: you give something for the defender. Deflection often costs nothing at all, because the defender must move or be lost.',
+            'Ask about every enemy piece: how many jobs does it have? A piece with two jobs can be deflected off either one. A piece with one job must be removed.',
+          ],
+          'Two jobs: deflect. One job: remove.',
+        ),
+        demo('Back rank deflection', ['R1d8+ pulls the a8 rook to d8. The second rook recaptures with mate: the back rank never had a second defender.'], 'r5k1/5ppp/8/8/8/8/3R4/3R2K1 w - - 0 1', {
+          moves: ['Rd8+', 'Rxd8', 'Rxd8#'],
+          caption: 'The rook was bait. The twin rook finished.',
+        }),
+        quiz('Spotting deflection', 'An enemy rook guards both its king on the back rank and a knight on b2. What is the plan?', [
+          right('Attack one duty so hard the rook must abandon the other', 'Deflection wins wherever a piece has two jobs.'),
+          wrong('Attack the king directly', 'The rook guards it. Remove the guard first.'),
+          wrong('Trade everything off', 'Trading the defender\u2019s enemies helps the defender.'),
+        ]),
+        text(
+          'The overload test',
+          [
+            'When one enemy piece defends two things, ask which job you can make it quit. Deflection works because the guard must choose.',
+            'The trick is calculating which job it hates leaving more: if the sacrifice does not win material by force, it is just a gift.',
+          ],
+          'Every overloaded guard is one deflection away from quitting a job.',
+        ),
+        quiz('Counting the jobs', 'Which piece is the most likely deflection target in a middlegame?', [
+          right('A queen: she usually guards an attack AND defends a key square', 'Queens do everything, which makes them chronically overloaded. Ask what she would hate to stop doing.'),
+          wrong('A buried rook on h1', 'Passive pieces often have zero jobs. Nothing to deflect.'),
+          wrong('The king in the endgame', 'The king is usually the protected object, not the guard.'),
+        ]),
+        drill('Bait the rook', 'r5k1/5ppp/8/8/8/8/3R4/3R2K1 w - - 0 1', ['Rd8+', 'Rxd8', 'Rxd8#'], 'Mate in three by deflecting the a8 rook', 'Offer the d2 rook on d8 with check. The a8 rook must take, and the d1 rook recaptures with mate.', 'Rd8 plus check, rook takes, rook recaptures: mate. This is deflection in its purest form.'),
+      ],
+    },
+
+    {
+      id: 'int-05',
+      n: 15,
+      title: 'Decoy and clearance',
+      subtitle: 'Lure to a doomed square, sweep the road behind you.',
+      minutes: 9,
+      concepts: ['removingDefender', 'tempo'],
+      steps: [
+        quiz('Retrieval first', 'What makes deflection different from simple removal of the defender?', [
+          right('Deflection chases the defender off its post; removal captures it', 'Chasing can cost nothing. Removal usually trades material for the guard.'),
+          wrong('They are the same tactic with different names', 'Different mechanics: one moves the guard, the other deletes it.'),
+          wrong('Deflection only works against queens', 'Any overloaded piece can be deflected: rooks above all.'),
+        ]),
+        text(
+          'Two ways to move the enemy',
+          [
+            'A decoy forces an enemy piece onto a square where a tactic kills it: check the king onto a line, offer a capture onto a fork square.',
+            'Clearance is the mirror image with your own pieces: a capture or pawn push empties a square or line so a bigger force can use it. The pawn that captures on f6 and vanishes from the e-file has just opened a rook highway.',
+          ],
+          'Decoy: pull them in. Clearance: push your own out of the way.',
+        ),
+        demo('Open the e-file', ['exf6 captures a pawn AND clears the e-file. The rook on e1 now stares at the rook on e8.'], '4r1k1/5p2/5p2/4P3/8/8/8/4R1K1 w - - 0 1', {
+          moves: ['exf6', 'Rd8'],
+          caption: 'One capture, two jobs: material and an open file',
+        }),
+        drill('Clear with tempo', '4r1k1/5p2/5p2/4P3/8/8/8/4R1K1 w - - 0 1', ['exf6', 'Rd8'], 'Open the e-file by capturing', 'The pawn takes f6 and stops blocking the rook behind it.', 'exf6. The e-file is open and the pawn attacks g7 as a bonus. Clearance moves that also threaten are gold.'),
+        quiz('Decoy target', 'Which square is the classic decoy destination for a king?', [
+          right('A square where a knight fork or a mating net is waiting', 'Lure the king to the geometry that kills him.'),
+          wrong('The center, always', 'The center is often the safest place for a king in an endgame.'),
+          wrong('A defended square', 'A decoy must move the king somewhere WORSE. Defended squares rarely qualify.'),
+        ]),
+        quiz('Clearance math', 'A clearance capture gives up your pawn (1). Behind it, your rook will win a bishop (3) on the opened line. Was the clearance worth it?', [
+          right('Yes: pay 1 to win 3, and the file stays open for more', 'Clearance sacrifices are arithmetic like everything else. Pay less than you collect.'),
+          wrong('No: never give up pawns', 'Pawns are the standard currency of clearance. Paying one to open a winning line is profit.'),
+          wrong('Only if it is checkmate', 'Winning material or gaining a decisive attack both pay for clearance.'),
+        ]),
+        playout(
+          'Convert the open file',
+          'Rook against rook with an open lane. Use the file, hunt loose pawns, win material.',
+          '4r1k1/5p2/5p2/4P3/8/8/8/4R1K1 w - - 0 1',
+          'w',
+          'Win at least 3 points of material within 14 moves',
+          2,
+          'material',
+          14,
+          'The open file paid its rent. Files are rook income.',
+        ),
+      ],
+    },
+
+    {
+      id: 'int-forcing',
+      n: 16,
+      title: 'Forcing sequences: mate in two and three',
+      subtitle: 'Ride the checks to the end of the tree.',
+      minutes: 11,
+      concepts: ['calculation', 'mate'],
+      steps: [
+        quiz('From the Beginner tier', 'The CCA scan runs in which order?', [
+          right('Checks, then captures, then attacks', 'Most forcing first: checks leave the opponent almost no choice, captures second, threats last.'),
+          wrong('Captures, then checks, then attacks', 'Material instinct is exactly what the scan corrects. A mating check beats a winning capture.'),
+          wrong('Attacks first: threats decide games', 'Threats can be parried. Checks and captures must be answered.'),
+        ]),
+        text(
+          'Every move a check',
+          [
+            'A forcing sequence is a line where the opponent never gets a real choice: every attacking move is a check (or a capture), so every reply is forced. Mate in two and mate in three are almost always found by riding these forced replies, not by calculating ten random branches.',
+            'The discipline: run the scan, find a check, play it in your head, run the scan AGAIN from the new position. If the second scan offers another check — ride it. The tree stays narrow and the mate walks out of the fog.',
+            'Pattern recognition loads the gun; the scan pulls the trigger. You have seen the finishes before in drills — the scan is how you find them live.',
+          ],
+          'Check, forced reply, scan again. Forcing lines are ridden, not calculated.',
+        ),
+        demo(
+          'The ride: three checks, one grave',
+          [
+            'You met this finish in the Beginner tier. Now watch it as a scan ride: Qg8+ is check — the only reply is Rxg8. Run the scan again: Nf7 is check — and it is mate.',
+            'Two checks, two forced replies, zero branching. That is what "forcing" buys: the tree never widens.',
+          ],
+          '5r1k/6pp/7N/8/8/1Q6/8/6K1 w - - 0 1',
+          {
+            moves: ['Qg8+', 'Rxg8', 'Nf7#'],
+            caption: 'Smothered mate: the defender never chooses anything',
+          },
+        ),
+        text(
+          'Forcing does not always mean checking',
+          [
+            'Sometimes the strongest forcing move gives NO check: it takes away squares instead. A rook planted on the seventh rank cuts the enemy king\'s whole escape floor — a quiet move that forces just as hard, because every king move is now forced by the wall.',
+            'Scan order stays the same. When the checks lead nowhere, ask what single move takes away the most squares. Cutting off a rank IS a question the opponent must answer.',
+          ],
+          'A quiet cut-off can force harder than a check. Take away squares, not just tempo.',
+        ),
+        drill(
+          'The wall before the blow',
+          '7k/8/8/R7/1R6/8/8/6K1 w - - 0 1',
+          ['Rb7', 'Kg8', 'Ra8#'],
+          'Mate in two. The first move gives no check at all.',
+          'Where can this king never go while your rooks wait? Build the wall on the seventh rank first.',
+          'Rb7 takes the whole seventh rank: the king crawls to g8 because every other square is gone, and Ra8 ends it. The quiet move was the forcing one.',
+        ),
+        quiz('Reading a mate in two', 'Your first candidate check leads to a position with no follow-up. What now?', [
+          right('Run the scan again from the new position — other checks, other captures', 'One dead branch does not end the calculation. The scan repeats at every node of the ride.'),
+          wrong('Give up and play a quiet developing move', 'In a mating position the quiet move is the LAST thing to check, not the first.'),
+          wrong('Play a second check anyway, even if it loses the queen', 'Forcing is not the same as sound. Every check must survive the reply before you play it for real.'),
+        ]),
+        quiz('When the ride fails', 'The line is check, forced reply — and now the opponent has a free move. What did you miss?', [
+          right('The sequence was not fully forcing: a real choice appeared mid-ride', 'Forcing lines end when choice appears. Back up and test the OTHER check first.'),
+          wrong('Nothing: free moves for the attacker are fine', 'A free move for the DEFENDER is what breaks the ride. Their freedom is your loss.'),
+          wrong('The position was never mate to begin with', 'It may still be — through a different first move. The scan has more candidates than one.'),
+        ]),
+        text('Where this comes from', ['How to Win at Chess (Levy Rozman): mate in two and three are scan rides — checks and captures, forced replies, run the scan again.']),
+      ],
+    },
+    {
+      id: 'int-10',
+      n: 17,
+      title: 'Practice arena: weapons',
+      subtitle: 'Mixed drills from the whole arsenal.',
+      minutes: 11,
+      concepts: ['doubleAttack', 'discoveredAttack', 'calculation'],
+      steps: [
+        quiz('From the tactics block', 'Which moves shrink the opponent\'s replies most?', [
+          right('Checks first, then captures — the forcing moves', 'Forcing moves leave the defender almost no choice, which is why the arena starts there.'),
+          wrong('Quiet pawn moves that build a framework', 'Quiet moves are for positions where nothing forcing exists. In mixed drills, forcing comes first.'),
+          wrong('Flank attacks that ignore the center', 'Flank play without forcing lines gives the opponent a free hand.'),
+        ]),
+        text(
+          'Everything you own',
+          [
+            'Five rounds, no new theory. Name the tactic before you move: double attack, discovery, zwischenzug, clearance, skewer.',
+            'If one repeats an earlier position, that is the point: retrieval practice is what makes patterns permanent.',
+          ],
+        ),
+        drill('Double attack', '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1', ['Qd5+'], 'Hit two pieces with one move', 'Rank 5 is the shared line, and d5 also checks. Ride to d5.', 'Qd5 with check. Same weapon, second rep.'),
+        drill('Discovered check', '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1', ['Nd6+'], 'Open the e-file with a bang', 'The knight hops to d6, and the rook fires down the e-file.', 'Nd6 plus double check. Unstoppable by definition.'),
+        drill('Zwischenzug', 'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4', ['Qg5'], 'White\'s knight just grabbed a pawn. Punish the greed in one move.', 'Two targets, one diagonal: the queen lands on g5.', 'Qg5. The trap that eats greedy knights.'),
+        drill('Clearance', '4r1k1/5p2/5p2/4P3/8/8/8/4R1K1 w - - 0 1', ['exf6', 'Rd8'], 'Open the line with tempo', 'The e5 pawn takes f6, the e-file opens, and Black\'s rook must leave.', 'exf6. Rook road opened, g7 harassed.'),
+        drill(
+          'Skewer rep',
+          '8/8/8/6kq/8/8/8/R5K1 w - - 0 1',
+          ['Ra5+'],
+          'King and queen share a rank. One check decides it.',
+          'Bring the rook to a5 with check. The king steps, the queen falls.',
+          'Ra5 with check, and the queen falls after the king steps. Skewer: the pin in reverse.',
+        ),
+        playout(
+          'Live fire: every weapon, one game',
+          'Full position, engine opponent. Use everything: forks, discoveries, loose piece hunting.',
+          START,
+          'w',
+          'Win at least 3 points of material within 20 moves',
+          3,
+          'material',
+          20,
+          'Arsenal proven. Next: king attacks and endgame technique.',
+        ),
+      ],
+    },
+
+    {
+      id: 'int-hw4',
+      n: 18,
+      title: 'Pawns are the soul of chess',
+      subtitle: 'Pawn moves are the only ones you cannot take back.',
+      minutes: 9,
+      concepts: ['pawnStructure', 'outposts', 'tradeDecisions'],
+      steps: [
+        text(
+          'The permanent moves',
+          [
+            'Every piece can retreat; a pawn cannot. That is why the book spends whole chapters on which pawn moves to avoid: doubled pawns (two on one file, they block each other), isolated pawns (no pawn neighbor can ever defend them), and holes (squares no pawn can ever cover again — knight hotels for the enemy).',
+            'The practical rule: before a pawn move, imagine the board AFTER your best pieces are traded off. If a hole or an isolated pawn is guaranteed forever, the move needs a very good reason.',
+            'This is also why trading is a structure decision: accepting doubled pawns for an open file is often right; accepting them for nothing is the classic 1200 mistake.',
+          ],
+          'Pieces can go back. Pawns sign contracts in ink.',
+        ),
+        demo(
+          'Reading the structure',
+          [
+            'Black’s d5 pawn has no neighbors on c5 or e5: it is isolated, and no black pawn can ever defend it again. White’s d4 is its lifelong enemy.',
+            'Marked for life: the isolated d5 needs a piece bodyguard forever, and the squares in front of it become battlegrounds.',
+          ],
+          'rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 3',
+          {
+            marks: [
+              { square: 'd5', color: 'red' },
+              { square: 'd4', color: 'green' },
+            ],
+            caption: 'The isolated pawn and its lifelong enemy',
+          },
+        ),
+        quiz(
+          'The irreversible mistake',
+          'You can win a knight for a bishop — but the recapture doubles your pawns in a closed position with no open file to show for it. What is the book’s verdict?',
+          [
+            right(
+              'Decline — doubled pawns in a closed position are forever',
+              'No file, no diagonal, no compensation: you would rent a small material gain and pay rent forever. Structures outlive exchanges.',
+            ),
+            wrong(
+              'Accept — material is material',
+              'Below 1600 the count usually rules, but here the count is temporary and the structure is not. This is exactly the trade the book teaches you to refuse.',
+            ),
+            wrong(
+              'Accept and immediately push both doubled pawns',
+              'Pushing doubled pawns opens lines for BOTH sides and leaves the back one weak. It treats the symptom by creating two more.',
+            ),
+          ],
+        ),
+        text('Where this comes from', ['How to Win at Chess (Levy Rozman), applied at this level.']),
+      ],
+    },
+
     {
       id: 'int-06',
-      n: 9,
+      n: 19,
       title: 'Outposts and weak squares',
       subtitle: 'Plant a knight where it can never be evicted.',
       minutes: 10,
       concepts: ['outposts', 'pieceActivity'],
       steps: [
-        quiz('Retrieval first', 'From last lesson: you accepted a gambit pawn. When does it have to go back?', [
-          right('When keeping it costs pieces, time, or development', 'A gambit pawn is a loan with interest. If holding it stalls your game, return it and finish developing.'),
-          wrong('Never: pawns you win are yours forever', 'Gambit pawns are bait by design. Greed past move ten is how accepted gambits get punished.'),
-          wrong('Only in the endgame, when it is weak', 'By the endgame the gambit player has long since cashed the attack the pawn bought.'),
+        quiz('Retrieval first', 'When is a clearance sacrifice worth playing?', [
+          right('When what you win or open is worth more than the piece you move out of the way', 'Pay less than you collect. Same arithmetic as every tactic.'),
+          wrong('Never: own pieces must stay put', 'Clearance moves are among the strongest moves in chess when they work.'),
+          wrong('Only in the endgame', 'They fire in openings, middlegames and endgames alike.'),
         ]),
         text(
           'A square with a no-eviction notice',
@@ -532,9 +1068,10 @@ export const intermediate: Tier = {
         ),
       ],
     },
+
     {
       id: 'int-07',
-      n: 10,
+      n: 20,
       title: 'Open files and the 7th rank',
       subtitle: 'Rooks need roads. Give them the best one.',
       minutes: 9,
@@ -586,9 +1123,10 @@ export const intermediate: Tier = {
         ),
       ],
     },
+
     {
       id: 'int-08',
-      n: 11,
+      n: 21,
       title: 'Pawn structure sins',
       subtitle: 'Doubled, isolated, backward: know what you create.',
       minutes: 10,
@@ -650,9 +1188,10 @@ export const intermediate: Tier = {
         ]),
       ],
     },
+
     {
       id: 'int-09',
-      n: 12,
+      n: 22,
       title: 'Good and bad bishops',
       subtitle: 'Same piece, wildly different jobs.',
       minutes: 9,
@@ -705,325 +1244,10 @@ export const intermediate: Tier = {
         ]),
       ],
     },
-    {
-      id: 'int-24',
-      n: 13,
-      title: 'The CCA method: checks, captures, attacks',
-      subtitle: 'The three-question scan that finds forcing moves in order.',
-      minutes: 10,
-      concepts: ['calculation', 'mate'],
-      steps: [
-        text(
-          'The scan, in order',
-          [
-            'When it is your move, run the same scan every time: first every CHECK, then every CAPTURE, then every ATTACK (threat). Checks first because they are the most forcing: the opponent gets almost no choice.',
-            'This is the CCA method, and it works because forcing moves shrink the opponent\'s replies. The more their options shrink, the further you can see with confidence.',
-            'Pattern recognition still does the heavy lifting: you notice the right check instantly because you have drilled a thousand of them. CCA is the net that catches what the eye skips.',
-          ],
-          'Checks, captures, attacks: the same order, every move, no exceptions.',
-        ),
-        demo(
-          'Checks first: the ladder closes',
-          [
-            'White has two rooks and a simple job. Run the scan: checks first. Rb8 is check, and the rook on a7 already seals the seventh rank.',
-            'The scan found mate in one. Beginners miss this because they look at pawn moves first; trained players find it because they check first, every time.',
-          ],
-          '6k1/R5pp/8/8/8/8/6PP/1R4K1 w - - 0 1',
-          { moves: ['Rb8#'], caption: 'The scan starts with checks: Rb8 ends it' },
-        ),
-        text(
-          'Mate in two: checks all the way',
-          [
-            'When the scan finds a check that does not mate, follow it one move deeper: after the forced reply, run the scan again. Mate-in-two positions are found almost entirely by this discipline.',
-            'The famous finish of the smothered mate works exactly this way: every move for the attacker is a check, so the defender never gets a real choice.',
-          ],
-          'Run the scan after every forcing reply: the tree stays narrow and the mate appears.',
-        ),
-        drill(
-          'Checks lead the way',
-          '5r1k/6pp/7N/8/8/1Q6/8/6K1 w - - 0 1',
-          ['Qg8+', 'Rxg8', 'Nf7#'],
-          'White to play and mate. Start with the checks',
-          'The queen can land on g8 with check. The king cannot take because your knight on h6 guards that square, so the rook must capture.',
-          'Qg8+, Rxg8, Nf7: the Philidor finish. Checks, forced replies, checks again. The scan wrote the line for you.',
-        ),
-        quiz('The order', 'What is the correct CCA order and why?', [
-          right('Checks, then captures, then attacks: most forcing first', 'Checks restrict the opponent most, captures second. Ordering the scan means the deepest lines get calculated first.'),
-          wrong('Captures, checks, attacks: material first', 'Material instinct is exactly what the scan corrects. A check that mates beats a capture that wins a pawn.'),
-          wrong('Attacks first: threats win games', 'Threats can be parried. Checks and captures must be answered.'),
-        ]),
-        quiz('Under attack, scan anyway', 'Your bishop is attacked. Why run the CCA scan instead of just saving it?', [
-          right('A check or counterattack might be stronger than the saved piece', 'Defense is one option among many. The scan compares saving the piece with every forcing move on the board.'),
-          wrong('Never: saving the piece is always first', 'That habit loses games. Countless positions are won by a check played while a piece hangs.'),
-          wrong('The scan is for quiet positions only', 'The scan matters most when things are urgent: forcing moves decide chaos.'),
-        ]),
-        text(
-          'Volume builds the eye',
-          [
-            'The method is the net; the patterns are the fish. Solving puzzles daily loads your eye with motifs, so the scan becomes instant instead of slow.',
-            'A thousand solved puzzles from now, you will not run CCA consciously. You will see the check the way you see a door in a room. Until then: run it anyway, every move, in order.',
-          ],
-          'Scan every move now; soon the eye does it alone.',
-        ),
-      ],
-    },
-    {
-      id: 'int-10',
-      n: 14,
-      title: 'Practice arena: weapons',
-      subtitle: 'Mixed drills from the whole arsenal.',
-      minutes: 11,
-      concepts: ['doubleAttack', 'discoveredAttack', 'calculation'],
-      steps: [
-        quiz('Retrieval first', 'From last lesson: what is the CCA scan, in order?', [
-          right('Checks, captures, attacks — forcing moves first', 'The order shrinks the tree: checks constrain replies most, then captures, then direct threats.'),
-          wrong('Attacks, captures, checks', 'Backwards. Checks come first because the reply is the most forced.'),
-          wrong('Whatever looks natural', 'Natural-looking is how forcing refutes get missed. Scan in order, every move.'),
-        ]),
-        text(
-          'Everything you own',
-          [
-            'Five rounds, no new theory. Name the tactic before you move: double attack, discovery, zwischenzug, clearance, skewer.',
-            'If one repeats an earlier position, that is the point: retrieval practice is what makes patterns permanent.',
-          ],
-        ),
-        drill('Double attack', '6k1/8/8/r5b1/8/8/8/3QK3 w - - 0 1', ['Qd5+'], 'Hit two pieces with one move', 'Rank 5 is the shared line, and d5 also checks. Ride to d5.', 'Qd5 with check. Same weapon, second rep.'),
-        drill('Discovered check', '4k3/8/8/8/4N3/8/8/4R1K1 w - - 0 1', ['Nd6+'], 'Open the e-file with a bang', 'The knight hops to d6, and the rook fires down the e-file.', 'Nd6 plus double check. Unstoppable by definition.'),
-        drill('Zwischenzug', 'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4', ['Qg5'], 'White\'s knight just grabbed a pawn. Punish the greed in one move.', 'Two targets, one diagonal: the queen lands on g5.', 'Qg5. The trap that eats greedy knights.'),
-        drill('Clearance', '4r1k1/5p2/5p2/4P3/8/8/8/4R1K1 w - - 0 1', ['exf6', 'Rd8'], 'Open the line with tempo', 'The e5 pawn takes f6, the e-file opens, and Black\'s rook must leave.', 'exf6. Rook road opened, g7 harassed.'),
-        drill(
-          'Skewer rep',
-          '8/8/8/6kq/8/8/8/R5K1 w - - 0 1',
-          ['Ra5+'],
-          'King and queen share a rank. One check decides it.',
-          'Bring the rook to a5 with check. The king steps, the queen falls.',
-          'Ra5 with check, and the queen falls after the king steps. Skewer: the pin in reverse.',
-        ),
-        playout(
-          'Live fire: every weapon, one game',
-          'Full position, engine opponent. Use everything: forks, discoveries, loose piece hunting.',
-          START,
-          'w',
-          'Win at least 3 points of material within 20 moves',
-          3,
-          'material',
-          20,
-          'Arsenal proven. Next: king attacks and endgame technique.',
-        ),
-      ],
-    },
-    {
-      id: 'int-11',
-      n: 15,
-      title: 'Attacking the castled king',
-      subtitle: 'Storm the walls where they are thinnest.',
-      minutes: 10,
-      concepts: ['kingSafety', 'pawnBreaks'],
-      steps: [
-        quiz('Retrieval first', 'From the practice arena: what do you calculate to the end before committing?', [
-          right('The forcing line: every check and capture for both sides', 'The arena\'s habit under pressure. Forcing lines are few, concrete, and they end arguments.'),
-          wrong('Only your own attacking moves', 'One-sided calculation is how attacks run into refutations.'),
-          wrong('The position ten quiet moves deep', 'Depth without forcing moves is fantasy. Forcing lines first, cleanly compared.'),
-        ]),
-        text(
-          'Storms and breakers',
-          [
-            'A castled king hides behind three pawns. To reach him, march pawns at him or break the wall with pieces. Pawn storms work best when the kings sit on opposite wings. Piece pressure works best against a defense that never finished developing.',
-            'The g- and h-pawns lead the storm: g4-g5 chases the f6 knight, the last defender of the kingside. Once the defender moves, the wall has a door.',
-            'Every attacking piece should arrive with tempo. An attack with two pieces loses to a defense with four.',
-          ],
-          'Storm with pawns, break with pieces, arrive with tempo.',
-        ),
-        demo('The storm gathers', ['h4 and h5 march at the king while the pieces stay flexible. Black must react to the pawn wave.'], 'r1bq1rk1/ppp2ppp/2n5/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', {
-          moves: ['h4', 'h5'],
-          caption: 'The pawn wave rolls forward',
-        }),
-        drill('Roll the wave', 'r1bq1rk1/ppp2ppp/2n5/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'Start the kingside storm', 'The h-pawn leads the assault.', 'h4. Every storm starts with a single pawn step. h5 comes next, then the pieces.'),
-        quiz('Storm timing', 'A pawn storm works best when...', [
-          right('The kings are castled on opposite wings', 'Then your pawn storm races the opponent\u2019s, and whoever opens the wall first usually wins the race.'),
-          wrong('Both kings castled on the same side', 'Same-side storms strengthen the enemy wall in front of your own king too. Slow builds are better there.'),
-          wrong('You are behind in development', 'Pawns cannot attack alone. Pieces follow the storm.'),
-        ]),
-        text(
-          'Storms need closed centers',
-          [
-            'The classic pawn storm (g4, g5, h4, h5 against a castled king) works when the center is closed: nobody can open lines against your own king while you push.',
-            'With an open center, storming pawns open YOUR king first. Check the center before you push a single storm pawn.',
-          ],
-          'Open center: attack with pieces. Closed center: storm with pawns.',
-        ),
-        quiz('The last defender', 'Against a castled king, which piece usually must be deflected, traded or driven off before mate ideas work?', [
-          right('The knight on f6, the natural guard of the kingside', 'g5 chases it, exchanges remove it, or sacrifices deflect it. No f6 knight, no wall.'),
-          wrong('The enemy queen, always', 'The queen is dangerous but rarely the wall. The knight is the classic keeper.'),
-          wrong('The h7 pawn itself', 'Pawns are the wall, not the guard. Attack the guards first.'),
-        ]),
-        drill(
-          'Claim the open file',
-          'r1bq1rk1/ppp2pp1/2n5/3p4/3P3p/2N2N2/PPP1QPK1/2B1R3 w kq - 0 11',
-          ['Rh1'],
-          'The h-file is open and the black pawn sits on h4. Put a rook where it hurts.',
-          'One of your rooks is one move from the open h-file.',
-          'Rh1. The rook stares at h4 and everything behind it. Open files next to the enemy king are attack highways.',
-        ),
-      ],
-    },
-    {
-      id: 'int-12',
-      n: 16,
-      title: 'Defense technique',
-      subtitle: 'Trade the attacker, hold the line, hit back.',
-      minutes: 10,
-      concepts: ['defense', 'tradeDecisions'],
-      steps: [
-        quiz('Retrieval first', 'Which piece is the classic final defender of a castled kingside?', [
-          right('The knight on f6', 'It guards h7 and g8-area squares. Every attack starts by dealing with it.'),
-          wrong('The rook on a8', 'It is on the wrong side of the board for kingside defense.'),
-          wrong('The h7 pawn', 'The pawn IS the wall. The knight is the guard in front of it.'),
-        ]),
-        text(
-          'Three tools of the defender',
-          [
-            'Tool one: TRADE the attacker. An attack with one piece is a nuisance; with none, it is nothing. Offer trades whenever the enemy attack has few pieces.',
-            'Tool two: CONSOLIDATE. Bring your last piece back to defend, make luft, guard the weak square. Boring moves save games.',
-            'Tool three: COUNTERATTACK. If their attack ignores your threats, hit somewhere else. Defense does not mean waiting; it means spending tempo where it counts.',
-          ],
-          'Trade, consolidate, counter. In that order of desperation.',
-        ),
-        drill('Trade the attacker', '4k3/8/8/8/8/2r5/8/2R1K3 w - - 0 1', ['Rxc3'], 'The black rook is the attacker. Remove it.', 'Two rooks share the c-file. Take on c3, and the attack is gone.', 'Rxc3. The attack is gone. Defense by simplification.'),
-        quiz('Defensive trade', 'You are under attack by a queen and a knight. What is the best defensive move usually?', [
-          right('Offer a trade of one of the attackers', 'Each trade shrinks the attack until it is harmless.'),
-          wrong('Push more pawns', 'Pawns do not defend an attack. They open lines for it.'),
-          wrong('Ignore it and attack too', 'Sometimes right, but only when your counterattack comes first. Otherwise trade.'),
-        ]),
-        drill('Counterattack', '4k3/8/8/8/R2q4/8/8/4K3 w - - 0 1', ['Rxd4'], 'Your rook on a4 is attacked by the queen. Answer with force.', 'The queen on d4 is undefended. Your rook on a4 sees her along the rank.', 'Rxd4. The best defense here is a capture. Nine points of attacker, gone.'),
-        quiz('Luft under fire', 'You are being attacked. Should you spend a move making luft (h3 or g3)?', [
-          right('Only when back-rank tricks are the actual threat', 'Every tempo under attack is precious. Luft buys safety only if the back rank is where the attack lands.'),
-          wrong('Always: luft comes first', 'A pointless luft move under attack can be the losing tempo.'),
-          wrong('Never while attacked', 'When the attacker threatens Re8-style mate, luft IS the defensive move. Judge by the threat.'),
-        ]),
-      ],
-    },
-    {
-      id: 'int-hw2',
-      n: 17,
-      title: 'Kick the pinner',
-      subtitle: 'What to do when your piece is frozen.',
-      minutes: 9,
-      concepts: ['pin', 'defense', 'pawnStructure'],
-      steps: [
-        text(
-          'The guardian can be evicted',
-          [
-            'A pin is only as strong as the piece doing the pinning — and that piece can be attacked. The standard cure is a pawn kick: a6 against Bb5, a3 against Bb4, h3 against Bg4.',
-            'The arithmetic favors you: pawns attacking bishops cost nothing. The pinning piece must retreat or trade itself for the pawn — either way, the frozen piece is free and the pin wasted a move.',
-            'The book’s warning: pins against your king’s cover deserve IMMEDIATE attention, but pins against other pieces can often simply be ignored while you develop around them.',
-          ],
-          'Pin? Ask first: does it really hurt? If yes, kick the pinner with a pawn.',
-        ),
-        demo(
-          'a6 — the cheapest move on the board',
-          [
-            'The Spanish bishop has pinned nothing yet but is a hair from doing so. Black’s a6 attacks it with a pawn.',
-            'If White retreats, Black gained a tempo for free. If White trades on c6, Black recaptures with the b-pawn and the center pawn structure fights for the half-open b-file.',
-          ],
-          'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3',
-          {
-            moves: ['a6', 'Bxc6', 'bxc6'],
-            marks: [{ square: 'a6', color: 'green' }],
-            caption: 'A pawn asks the bishop to leave',
-          },
-        ),
-        quiz(
-          'Which pin deserves the kick',
-          'You can spend one move. A bishop pins your knight against your QUEEN far from the king; meanwhile the enemy is starting a kingside attack. Where does the kick go?',
-          [
-            right(
-              'The kingside — the pin can wait',
-              'The book’s triage: material pins rarely justify abandoning an attack on your king. Defend the king first; the frozen knight is a nuisance, not a loss.',
-            ),
-            wrong(
-              'a3, always kick every pin',
-              'Moves are not free. Chasing a pin that costs you nothing while your king burns is how attacks succeed.',
-            ),
-            wrong(
-              'Move the knight anyway — pins are a myth',
-              'Moving a pinned piece against a queen loses the queen. Myths do not do that; arithmetic does.',
-            ),
-          ],
-        ),
-        drill(
-          'Evict the bishop',
-          'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3',
-          ['a6', 'Bxc6', 'bxc6'],
-          'Black to move: chase the bishop off the pinning diagonal.',
-          'A pawn attack on the pinning piece.',
-          'a6 hits the bishop; after the trade, bxc6 recaptures and Black’s queenside majority lives. The pin is gone for the price of one pawn move.',
-        ),
-        text('Where this comes from', ['How to Win at Chess (Levy Rozman), applied at this level.']),
-      ],
-    },
-    {
-      id: 'int-13',
-      n: 18,
-      title: 'Two weaknesses',
-      subtitle: 'One defense can hold. Two collapse.',
-      minutes: 10,
-      concepts: ['initiative', 'pieceActivity'],
-      steps: [
-        quiz('Retrieval first', 'From last lesson: your knight is pinned, and the enemy is starting an attack. When must the pin be dealt with?', [
-          right('Only when the pin guards something vital — otherwise defend the king first', 'Pin triage: pins against your king’s cover are urgent; pins on material far from the king can wait while you defend.'),
-          wrong('Always immediately, every pin', 'Chasing harmless pins hands the opponent free tempi. Not every pin hurts.'),
-          wrong('Never: ignore every pin', 'Ignoring a real pin loses the piece behind it. Triage the pin, do not ignore the question.'),
-        ]),
-        text(
-          'Stretch the defense',
-          [
-            'A single weakness is easy to guard: park a piece nearby and it is safe forever. Two weaknesses on opposite wings are deadly, because the defense cannot be in two places.',
-            'When your main attack stalls, do not push harder against the same wall. Open a second front: a pawn break on the other side, a knight jumping to a new outpost, a rook invasion on a fresh file.',
-          ],
-          'One front is a fight. Two fronts are a win.',
-        ),
-        demo('Two fronts', ['The d5 pawn is a target on one side; the h5 pawn is a second target far away. The black pieces cannot guard both roads.'], '4k3/8/8/2pp4/8/8/8/R3K3 w - - 0 1', {
-          marks: [
-            { square: 'd5', color: 'red' },
-            { square: 'h5', color: 'yellow' },
-          ],
-          caption: 'Red and yellow: the defense must split',
-        }),
-        drill(
-          'Open the far front',
-          '4k3/1p6/8/8/8/8/8/R3K3 w - - 0 1',
-          ['Ra7'],
-          'One army, one far-away target. Start pressure where the defense is thin.',
-          'The a-file runs straight to Black\u2019s home rank. The 7th is the destination.',
-          'Ra7. The far corner becomes a second problem. Distance is the weapon: pieces cannot defend two continents.',
-        ),
-        quiz('Creating the second front', 'Your kingside attack has stalled. Where does the second weakness usually come from?', [
-          right('A pawn break or invasion on the opposite side of the board', 'Distance is the whole weapon: the defense cannot teleport.'),
-          wrong('Doubling pieces behind the same pawn', 'More force against one weakness still loses to one defender.'),
-          wrong('Trading queens', 'Fewer pieces means fewer attacking options. Sometimes right in endgames, rarely in an attack.'),
-        ]),
-        quiz('Which weakness first?', 'You have created weaknesses on both wings. Which do you attack?', [
-          right('The one whose defense forces the longest trip for the enemy pieces', 'Attack where help is farthest away. Geometry decides.'),
-          wrong('Always the nearest one to your pieces', 'Near is convenient, but the far weakness stretches the defense further.'),
-          wrong('The most valuable piece, always', 'Value matters less than whether the defense can arrive in time.'),
-        ]),
-        playout(
-          'Fight on two fronts',
-          'Win material by using more than one threat. When one door closes, knock on another.',
-          START,
-          'w',
-          'Win at least 3 points of material within 20 moves',
-          3,
-          'material',
-          20,
-          'Two fronts, one win. That is intermediate chess.',
-        ),
-      ],
-    },
+
     {
       id: 'int-trades',
-      n: 19,
+      n: 23,
       title: 'Trade decisions',
       subtitle: 'Every capture answers a question: who improves?',
       minutes: 10,
@@ -1097,264 +1321,223 @@ export const intermediate: Tier = {
         ),
       ],
     },
+
     {
-      id: 'int-14',
-      n: 20,
-      title: 'King activity and opposition',
-      subtitle: 'In the endgame, the king is a fighting piece.',
-      minutes: 10,
-      concepts: ['kingActivity', 'opposition', 'endgame'],
-      steps: [
-        quiz('Retrieval first', 'From last lesson: every capture answers which question?', [
-          right('Who improves after the trade?', 'Trades shift the position. The side whose remaining pieces get better should want it.'),
-          wrong('Who has more points on the scoreboard?', 'The count is the start of the answer, not the answer. Activity and structure decide most trades.'),
-          wrong('Can I win a pawn with it?', 'Pawns are one motive among many. The direction the position moves is the real question.'),
-        ]),
-        text(
-          'The king walks out',
-          [
-            'Once the queens are off, the king marches to the center. In endgames, king activity is worth more than a pawn in most positions.',
-            'Opposition: when the kings face each other with exactly one square between them, the side not to move owns the crossing squares. Win the opposition, and your pawn walks through.',
-          ],
-          'Centralize the king, win the opposition, promote the pawn.',
-        ),
-        demo('Face to face', ['The kings stand in direct opposition on the e-file. Whoever must move steps aside, and the pawn escorts his king through.'], '8/8/8/4k3/8/4K3/4P3/8 w - - 0 1', {
-          marks: [
-            { square: 'e5', color: 'red' },
-            { square: 'e3', color: 'green' },
-          ],
-          caption: 'Direct opposition: one square between',
-        }),
-        drill('Take the opposition', '8/8/8/3k4/8/8/3K4/8 w - - 0 1', ['Kd3'], 'Face the black king with one square between', 'The d-file connects the kings. Kd3 faces him with one square between.', 'Kd3. Direct opposition. If Black steps aside, your king eats the key squares.'),
-        quiz('Opposition rule', 'Kings face each other with one square between. Who is in control?', [
-          right('The side not to move', 'The side to move must give way. The other side owns the opposition.'),
-          wrong('The side to move', 'Moving is exactly the problem: you must step aside first.'),
-          wrong('Nobody, kings are equal', 'The turn decides everything in king duels.'),
-        ]),
-        quiz('King target squares', 'In a king-and-pawn race, which squares does the attacking king head for?', [
-          right('The squares directly in front of the pawn', 'The king escorts: in front of the pawn is where he controls the promotion path.'),
-          wrong('The corner where the enemy king sits', 'Corner trips waste time. The pawn\'s path is the highway.'),
-          wrong('His own first rank', 'A defensive king loses pawn endings. March forward.'),
-        ]),
-        drill(
-          'Escort with opposition',
-          '8/8/8/4k3/8/4K3/4P3/8 w - - 0 1',
-          ['Kd3'],
-          'Gain space with the king while keeping the pawn safe',
-          'Step aside to d3: the pawn stays protected, and the kings keep their duel.',
-          'Kd3. Black must choose between opposition and space, and both choices lose the key squares. King dances win pawn endings.',
-        ),
-        quiz('The turn decides', 'In king-and-pawn endings, why does whose turn it is matter so much?', [
-          right('Kings cannot wait in place: the side to move must often give ground first', 'Two kings facing each other create a waiting problem. Whoever must move, loses ground.'),
-          wrong('Because pawn moves are always forced', 'Pawns usually have choices. The kings are the ones running out of moves.'),
-          wrong('The turn only matters when rooks are on the board', 'The turn decides pure king duels. Rooks make it messier, not more important.'),
-        ]),
-      ],
-    },
-    {
-      id: 'int-15',
-      n: 21,
-      title: 'Pawn endings',
-      subtitle: 'The square rule and the pawn race.',
-      minutes: 10,
-      concepts: ['endgame', 'technique'],
-      steps: [
-        quiz('Retrieval first', 'Where does the attacking king go in a king-and-pawn endgame?', [
-          right('In front of his own pawn', 'The escort formation. The pawn is only as strong as the king driving it.'),
-          wrong('Behind the pawn', 'A king behind its pawn is a bodyguard for yesterday.'),
-          wrong('Toward the enemy king only', 'The king helps the pawn first; the duel happens on the way.'),
-        ]),
-        text(
-          'Geometry of the runner',
-          [
-            'The square rule: a pawn that starts running can be caught only if the defending king can step into its square, the box from the pawn to its promotion square. Inside the square: catch it. Outside: it queens.',
-            'In pawn races, count tempi before anything else. One tempo decides whether the race is won, lost, or drawn by the first player promoting and then stopping the other pawn.',
-          ],
-          'Draw the square in your head before every king move.',
-        ),
-        demo('The square', ['The black pawn on d5 runs to d1. The gold square is its escape box. A king outside cannot catch it; a king inside always can.'], '8/8/8/3p4/8/8/6K1/7k w - - 0 1', {
-          marks: [
-            { square: 'd1', color: 'gold' },
-            { square: 'd2', color: 'gold' },
-            { square: 'd3', color: 'gold' },
-            { square: 'd4', color: 'gold' },
-          ],
-          caption: 'The square of the pawn',
-        }),
-        drill('Catch the runner', '8/8/8/3p4/8/8/6K1/7k w - - 0 1', ['Kf3'], 'Step into the square and stop the pawn', 'The king on g2 is outside the box. Kf3 steps inside it.', 'Kf3. Inside the square now. The pawn cannot run away from you anymore.'),
-        quiz('Square rule', 'A black pawn on a5 runs to a1. The white king stands on e4. Can he catch it?', [
-          right('Yes, e4 is inside the square of the a5 pawn', 'The square reaches from a5 down to a1 and across to e4. The king is inside, so he catches the pawn.'),
-          wrong('No, the pawn is too fast', 'Distance from e4 to a1 is 3 moves; the pawn needs 4. The king wins the race.'),
-          wrong('Only with the white king on e3', 'e4 already works. The square rule is generous to the side with the better king position.'),
-        ]),
-        quiz('The move in the square rule', 'Does it matter whose move it is when applying the square rule?', [
-          right('Yes: if the defender moves first and can enter the square this move, he catches the pawn', 'The rule assumes it is the pawn\'s move. If the king moves first, he gets a free step into the box.'),
-          wrong('No: the square rule ignores the turn', 'The turn is exactly what the rule measures. King-first changes the verdict.'),
-          wrong('Only in queen endings', 'The square rule is a king-and-pawn tool, and the turn is part of it.'),
-        ]),
-        drill(
-          'Sit in the square',
-          '6k1/8/8/7p/8/7K/8/8 w - - 0 1',
-          ['Kh4'],
-          'The black h-pawn is thinking about running. End the discussion.',
-          'The king is already inside the square. Kh4 parks on the pawn\'s file, and the pawn is stuck forever.',
-          'Kh4. The pawn cannot advance past a king parked on its file. Being inside the square is a lifetime pass.',
-        ),
-        quiz('Racing math', 'Your pawn runs for the last rank while the enemy king is far away. What exactly do you check?', [
-          right('Whether the enemy king can step inside the square of the pawn', 'Inside the square means the king catches it. Outside means the pawn promotes.'),
-          wrong('The total number of pawns left on the board', 'Pawn counts do not stop runners. Geometry does.'),
-          wrong('Whether the enemy rook is active', 'There is no rook in a pure pawn race. The king and the square are the whole story.'),
-        ]),
-      ],
-    },
-    {
-      id: 'int-16',
-      n: 22,
-      title: 'Rook endings basics',
-      subtitle: 'Cut the king off, keep the rook active.',
-      minutes: 10,
-      concepts: ['endgame', 'pieceActivity'],
-      steps: [
-        quiz('Retrieval first', 'When the defender moves first, how does the square rule change?', [
-          right('He gets a free step: entering the square this move catches the pawn', 'The standard rule assumes the pawn moves first. King-first adds one tempo of reach.'),
-          wrong('It does not change anything', 'The turn is half the rule.'),
-          wrong('The pawn gets faster', 'Pawns always step one square. The king\'s first move is the variable.'),
-        ]),
-        text(
-          'The active rook wins',
-          [
-            'In rook endgames the attacking rook belongs behind a passed pawn, yours or theirs. Behind your own pawn it escorts the pawn. Behind theirs it attacks the pawn from a square the pawn can never fight back from.',
-            'Cutting off: park the rook on a rank or file in front of the enemy king and he is locked out of the game. A cut-off king cannot defend pawns or fight for promotion squares.',
-          ],
-          'Rook behind the pawn, king out of the game.',
-        ),
-        demo('The wall goes up', ['Ra5 draws a line across the 5th rank. The black king on h8 can never cross it while the rook patrols.'], '7k/8/8/8/8/8/8/R3K3 w - - 0 1', {
-          moves: ['Ra5'],
-          caption: 'The king is cut off from the lower ranks',
-        }),
-        drill('Build the wall', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Cut the black king off with the rook', 'The 5th rank is the fence: Ra5 locks the king on the 8th.', 'Ra5. The king is a spectator now. Your own king walks in freely and takes over.'),
-        quiz('Rook placement', 'Where does the attacking rook belong relative to a passed pawn?', [
-          right('Behind it, whoever the pawn belongs to', 'Behind your pawn it escorts. Behind theirs it herds.'),
-          wrong('In front of it, blocking', 'A rook in front of its own pawn blocks it. In front of theirs, it gets attacked by the king.'),
-          wrong('On the first rank, defending', 'Passive rooks lose rook endgames. Activity is the whole story.'),
-        ]),
-        quiz('Behind your own passer', 'Your rook sits behind your own passed pawn. What does it do from there?', [
-          right('Pushes: every pawn step is protected by the rook from behind', 'The rook clears the road ahead and the pawn walks to promotion.'),
-          wrong('Blocks the pawn from moving', 'Blocking your own passer is the job of the ENEMY. Yours pushes.'),
-          wrong('Rushes to attack the king instead', 'A rook that abandons the passer usually abandons the win.'),
-        ]),
-        drill(
-          'Keep your distance',
-          '7k/7p/8/8/8/8/8/R5K1 w - - 0 1',
-          ['Ra6'],
-          'Fence the black king out of the game, from a distance he can never punish.',
-          'The 5th or 6th rank both cut him off. Pick the 6th: two squares between the fence and the king.',
-          'Ra6. The king is locked into his last two ranks and the rook is safely beyond his reach. Distance is what keeps the fence standing.',
-        ),
-      ],
-    },
-    {
-      id: 'int-17',
-      n: 23,
-      title: 'Converting an advantage',
-      subtitle: 'Winning won positions is its own skill.',
-      minutes: 10,
-      concepts: ['technique', 'tradeDecisions', 'endgame'],
-      steps: [
-        quiz('Retrieval first', 'How far from the enemy king should a cut-off rook stand?', [
-          right('Two or three ranks: close enough to matter, far enough to be safe', 'A fence the king can attack is not a fence.'),
-          wrong('Right in front of him', 'The king captures or attacks a rook that comes too close.'),
-          wrong('Distance does not matter', 'Distance is exactly what keeps the rook active instead of dead.'),
-        ]),
-        text(
-          'Trade pieces, keep tension',
-          [
-            'When you are up material, trade PIECES, not pawns. Fewer enemy pieces means less counterplay; keeping pawns means more winning chances later.',
-            'Kill counterplay first. Ask every move: what does my opponent want? Deny it, then improve your worst piece. Technique is patience with a plan.',
-            'The king joins the attack in the endgame. Centralize him, escort the passed pawn, and the point takes care of itself.',
-          ],
-          'Simplify pieces, multiply pawns, deactivate their plans.',
-        ),
-        demo('Rook and king finish it', ['Up a rook, the win is technique: rook cuts the king, your king approaches, mate follows.'], '7k/8/8/8/8/8/8/R3K3 w - - 0 1', {
-          marks: [{ square: 'a5', color: 'green' }],
-          caption: 'Ra5 first, then the king walks up',
-        }),
-        quiz('Conversion rule', 'You are up a whole rook in a middlegame. What do you trade?', [
-          right('Pieces, not pawns', 'Fewer enemy pieces means less counterplay. Pawns are your winning margin.'),
-          wrong('Pawns, not pieces', 'Trading pawns opens lines for the enemy pieces to swarm you.'),
-          wrong('Nothing, sit on the material', 'Passive defense invites attacks. Simplify and activate.'),
-        ]),
-        quiz('The first conversion question', 'You just won a piece. What is the first question on every following move?', [
-          right('What does my opponent want, and how do I deny it?', 'Counterplay dies first. Then the technique plays itself.'),
-          wrong('Where can I attack the king?', 'Attacking while ahead is how won games get mated. Deny first.'),
-          wrong('How do I win even more material?', 'Greed extends the game. Converting means closing doors, not opening them.'),
-        ]),
-        playout(
-          'Technique test',
-          'Rook against a lone king: the classic conversion. Box the king with the rook, bring your king, mate.',
-          '7k/8/8/8/8/8/8/R3K3 w - - 0 1',
-          'w',
-          'Checkmate the black king',
-          1,
-          'checkmate',
-          25,
-          'Converted. Rook mate is the first technique every tournament player owns.',
-          'Reset and try the ladder: rook cuts a rank, your king approaches, repeat. Never let the king touch your rook.',
-        ),
-      ],
-    },
-    {
-      id: 'int-18',
+      id: 'int-11',
       n: 24,
-      title: 'Practice arena: endgames',
-      subtitle: 'Kings, pawns and rooks under pressure.',
-      minutes: 11,
-      concepts: ['endgame', 'kingActivity', 'promotion'],
+      title: 'Attacking the castled king',
+      subtitle: 'Storm the walls where they are thinnest.',
+      minutes: 10,
+      concepts: ['kingSafety', 'pawnBreaks'],
       steps: [
-        quiz('Retrieval first', 'What is the first question when converting a won position?', [
-          right('What does my opponent want, and how do I deny it?', 'Counterplay first, technique second. That order wins games.'),
-          wrong('How do I attack faster?', 'Attacks while ahead are how wins become draws.'),
-          wrong('Which pieces can I hoard?', 'Holding everything invites one big tactic. Simplify on purpose.'),
+        quiz('From last lesson', 'Every capture answers which question?', [
+          right('Who improves after the trade?', 'Trades are judged by the resulting activity, not by the capture itself.'),
+          wrong('Who has more material right now?', 'Material is one input, not the question. A good trade can give up a pawn.'),
+          wrong('Which piece is worth more points?', 'Point counts ignore the board. Activity and structure answer the trade.'),
         ]),
         text(
-          'Endgame reps',
+          'Storms and breakers',
           [
-            'Four drills from the endgame levels, then a playable pawn ending.',
-            'In every drill, ask about the kings first. Endgames are king duels with pawns as the stakes.',
+            'A castled king hides behind three pawns. To reach him, march pawns at him or break the wall with pieces. Pawn storms work best when the kings sit on opposite wings. Piece pressure works best against a defense that never finished developing.',
+            'The g- and h-pawns lead the storm: g4-g5 chases the f6 knight, the last defender of the kingside. Once the defender moves, the wall has a door.',
+            'Every attacking piece should arrive with tempo. An attack with two pieces loses to a defense with four.',
           ],
+          'Storm with pawns, break with pieces, arrive with tempo.',
         ),
-        drill('Opposition rep', '8/8/8/3k4/8/8/3K4/8 w - - 0 1', ['Kd3'], 'Take the direct opposition', 'One square between the kings: Kd3 faces him on the d-file.', 'Kd3. The opposition is yours.'),
-        drill('Square rule rep', '8/8/8/3p4/8/8/6K1/7k w - - 0 1', ['Kf3'], 'Catch the running pawn', 'Kf3 steps inside the square.', 'Kf3. Caught. Geometry beats hope.'),
-        drill('Cut off rep', '7k/8/8/8/8/8/8/R3K3 w - - 0 1', ['Ra5'], 'Fence the king out', 'The 5th rank is the wall: Ra5.', 'Ra5. The wall holds.'),
-        drill(
-          'Promote with tempo rep',
-          '4k3/6P1/8/8/8/8/8/4K3 w - - 0 1',
-          ['g8=Q+'],
-          'The passer promotes. Land with a check.',
-          'The new queen fires down the 8th rank the instant she appears.',
-          'g8=Q with check. Promoting with tempo means Black answers you instead of counterattacking.',
-        ),
-        quiz('King priority check', 'Kings and pawns only. Your first question every move is about...', [
-          right('King position: activity and opposition', 'The king is the strongest piece in pawn endings.'),
-          wrong('Pawn storms at the enemy king', 'There is no attack without pieces. The king walks, not storms.'),
-          wrong('Rook activity', 'No rooks on the board in a pawn ending.'),
+        demo('The storm gathers', ['h4 and h5 march at the king while the pieces stay flexible. Black must react to the pawn wave.'], 'r1bq1rk1/ppp2ppp/2n5/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', {
+          moves: ['h4', 'h5'],
+          caption: 'The pawn wave rolls forward',
+        }),
+        drill('Roll the wave', 'r1bq1rk1/ppp2ppp/2n5/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 9', ['h4'], 'Start the kingside storm', 'The h-pawn leads the assault.', 'h4. Every storm starts with a single pawn step. h5 comes next, then the pieces.'),
+        quiz('Storm timing', 'A pawn storm works best when...', [
+          right('The kings are castled on opposite wings', 'Then your pawn storm races the opponent\u2019s, and whoever opens the wall first usually wins the race.'),
+          wrong('Both kings castled on the same side', 'Same-side storms strengthen the enemy wall in front of your own king too. Slow builds are better there.'),
+          wrong('You are behind in development', 'Pawns cannot attack alone. Pieces follow the storm.'),
         ]),
-        playout(
-          'Pawn ending duel',
-          'King and pawn against a lone king. Push the pawn with the king in front. Win material or promote.',
-          '8/8/8/3k4/8/3K4/4P3/8 w - - 0 1',
-          'w',
-          'Win the pawn race or promote within 15 moves',
-          2,
-          'material',
-          15,
-          'King activity, opposition, promotion: the full pawn-ending method in one game.',
+        text(
+          'Storms need closed centers',
+          [
+            'The classic pawn storm (g4, g5, h4, h5 against a castled king) works when the center is closed: nobody can open lines against your own king while you push.',
+            'With an open center, storming pawns open YOUR king first. Check the center before you push a single storm pawn.',
+          ],
+          'Open center: attack with pieces. Closed center: storm with pawns.',
+        ),
+        quiz('The last defender', 'Against a castled king, which piece usually must be deflected, traded or driven off before mate ideas work?', [
+          right('The knight on f6, the natural guard of the kingside', 'g5 chases it, exchanges remove it, or sacrifices deflect it. No f6 knight, no wall.'),
+          wrong('The enemy queen, always', 'The queen is dangerous but rarely the wall. The knight is the classic keeper.'),
+          wrong('The h7 pawn itself', 'Pawns are the wall, not the guard. Attack the guards first.'),
+        ]),
+        drill(
+          'Claim the open file',
+          'r1bq1rk1/ppp2pp1/2n5/3p4/3P3p/2N2N2/PPP1QPK1/2B1R3 w kq - 0 11',
+          ['Rh1'],
+          'The h-file is open and the black pawn sits on h4. Put a rook where it hurts.',
+          'One of your rooks is one move from the open h-file.',
+          'Rh1. The rook stares at h4 and everything behind it. Open files next to the enemy king are attack highways.',
         ),
       ],
     },
+
+    {
+      id: 'int-12',
+      n: 25,
+      title: 'Defense technique',
+      subtitle: 'Trade the attacker, hold the line, hit back.',
+      minutes: 10,
+      concepts: ['defense', 'tradeDecisions'],
+      steps: [
+        quiz('Retrieval first', 'Which piece is the classic final defender of a castled kingside?', [
+          right('The knight on f6', 'It guards h7 and g8-area squares. Every attack starts by dealing with it.'),
+          wrong('The rook on a8', 'It is on the wrong side of the board for kingside defense.'),
+          wrong('The h7 pawn', 'The pawn IS the wall. The knight is the guard in front of it.'),
+        ]),
+        text(
+          'Three tools of the defender',
+          [
+            'Tool one: TRADE the attacker. An attack with one piece is a nuisance; with none, it is nothing. Offer trades whenever the enemy attack has few pieces.',
+            'Tool two: CONSOLIDATE. Bring your last piece back to defend, make luft, guard the weak square. Boring moves save games.',
+            'Tool three: COUNTERATTACK. If their attack ignores your threats, hit somewhere else. Defense does not mean waiting; it means spending tempo where it counts.',
+          ],
+          'Trade, consolidate, counter. In that order of desperation.',
+        ),
+        drill('Trade the attacker', '4k3/8/8/8/8/2r5/8/2R1K3 w - - 0 1', ['Rxc3'], 'The black rook is the attacker. Remove it.', 'Two rooks share the c-file. Take on c3, and the attack is gone.', 'Rxc3. The attack is gone. Defense by simplification.'),
+        quiz('Defensive trade', 'You are under attack by a queen and a knight. What is the best defensive move usually?', [
+          right('Offer a trade of one of the attackers', 'Each trade shrinks the attack until it is harmless.'),
+          wrong('Push more pawns', 'Pawns do not defend an attack. They open lines for it.'),
+          wrong('Ignore it and attack too', 'Sometimes right, but only when your counterattack comes first. Otherwise trade.'),
+        ]),
+        drill('Counterattack', '4k3/8/8/8/R2q4/8/8/4K3 w - - 0 1', ['Rxd4'], 'Your rook on a4 is attacked by the queen. Answer with force.', 'The queen on d4 is undefended. Your rook on a4 sees her along the rank.', 'Rxd4. The best defense here is a capture. Nine points of attacker, gone.'),
+        quiz('Luft under fire', 'You are being attacked. Should you spend a move making luft (h3 or g3)?', [
+          right('Only when back-rank tricks are the actual threat', 'Every tempo under attack is precious. Luft buys safety only if the back rank is where the attack lands.'),
+          wrong('Always: luft comes first', 'A pointless luft move under attack can be the losing tempo.'),
+          wrong('Never while attacked', 'When the attacker threatens Re8-style mate, luft IS the defensive move. Judge by the threat.'),
+        ]),
+      ],
+    },
+
+    {
+      id: 'int-hw2',
+      n: 26,
+      title: 'Kick the pinner',
+      subtitle: 'What to do when your piece is frozen.',
+      minutes: 9,
+      concepts: ['pin', 'defense', 'pawnStructure'],
+      steps: [
+        text(
+          'The guardian can be evicted',
+          [
+            'A pin is only as strong as the piece doing the pinning — and that piece can be attacked. The standard cure is a pawn kick: a6 against Bb5, a3 against Bb4, h3 against Bg4.',
+            'The arithmetic favors you: pawns attacking bishops cost nothing. The pinning piece must retreat or trade itself for the pawn — either way, the frozen piece is free and the pin wasted a move.',
+            'The book’s warning: pins against your king’s cover deserve IMMEDIATE attention, but pins against other pieces can often simply be ignored while you develop around them.',
+          ],
+          'Pin? Ask first: does it really hurt? If yes, kick the pinner with a pawn.',
+        ),
+        demo(
+          'a6 — the cheapest move on the board',
+          [
+            'The Spanish bishop has pinned nothing yet but is a hair from doing so. Black’s a6 attacks it with a pawn.',
+            'If White retreats, Black gained a tempo for free. If White trades on c6, Black recaptures with the b-pawn and the center pawn structure fights for the half-open b-file.',
+          ],
+          'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3',
+          {
+            moves: ['a6', 'Bxc6', 'bxc6'],
+            marks: [{ square: 'a6', color: 'green' }],
+            caption: 'A pawn asks the bishop to leave',
+          },
+        ),
+        quiz(
+          'Which pin deserves the kick',
+          'You can spend one move. A bishop pins your knight against your QUEEN far from the king; meanwhile the enemy is starting a kingside attack. Where does the kick go?',
+          [
+            right(
+              'The kingside — the pin can wait',
+              'The book’s triage: material pins rarely justify abandoning an attack on your king. Defend the king first; the frozen knight is a nuisance, not a loss.',
+            ),
+            wrong(
+              'a3, always kick every pin',
+              'Moves are not free. Chasing a pin that costs you nothing while your king burns is how attacks succeed.',
+            ),
+            wrong(
+              'Move the knight anyway — pins are a myth',
+              'Moving a pinned piece against a queen loses the queen. Myths do not do that; arithmetic does.',
+            ),
+          ],
+        ),
+        drill(
+          'Evict the bishop',
+          'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3',
+          ['a6', 'Bxc6', 'bxc6'],
+          'Black to move: chase the bishop off the pinning diagonal.',
+          'A pawn attack on the pinning piece.',
+          'a6 hits the bishop; after the trade, bxc6 recaptures and Black’s queenside majority lives. The pin is gone for the price of one pawn move.',
+        ),
+        text('Where this comes from', ['How to Win at Chess (Levy Rozman), applied at this level.']),
+      ],
+    },
+
+    {
+      id: 'int-13',
+      n: 27,
+      title: 'Two weaknesses',
+      subtitle: 'One defense can hold. Two collapse.',
+      minutes: 10,
+      concepts: ['initiative', 'pieceActivity'],
+      steps: [
+        quiz('From the defense lesson', 'When should the defender spend a tempo on luft?', [
+          right('When the back rank itself is the threatened entry', 'Luft is defense only where it answers the real threat.'),
+          wrong('Before every game', 'Luft is situational, not a ritual.'),
+          wrong('When short of time', 'Time trouble is exactly when automatic ritual moves go wrong.'),
+        ]),
+        text(
+          'Stretch the defense',
+          [
+            'A single weakness is easy to guard: park a piece nearby and it is safe forever. Two weaknesses on opposite wings are deadly, because the defense cannot be in two places.',
+            'When your main attack stalls, do not push harder against the same wall. Open a second front: a pawn break on the other side, a knight jumping to a new outpost, a rook invasion on a fresh file.',
+          ],
+          'One front is a fight. Two fronts are a win.',
+        ),
+        demo('Two fronts', ['The d5 pawn is a target on one side; the h5 pawn is a second target far away. The black pieces cannot guard both roads.'], '4k3/8/8/2pp4/8/8/8/R3K3 w - - 0 1', {
+          marks: [
+            { square: 'd5', color: 'red' },
+            { square: 'h5', color: 'yellow' },
+          ],
+          caption: 'Red and yellow: the defense must split',
+        }),
+        drill(
+          'Open the far front',
+          '4k3/1p6/8/8/8/8/8/R3K3 w - - 0 1',
+          ['Ra7'],
+          'One army, one far-away target. Start pressure where the defense is thin.',
+          'The a-file runs straight to Black\u2019s home rank. The 7th is the destination.',
+          'Ra7. The far corner becomes a second problem. Distance is the weapon: pieces cannot defend two continents.',
+        ),
+        quiz('Creating the second front', 'Your kingside attack has stalled. Where does the second weakness usually come from?', [
+          right('A pawn break or invasion on the opposite side of the board', 'Distance is the whole weapon: the defense cannot teleport.'),
+          wrong('Doubling pieces behind the same pawn', 'More force against one weakness still loses to one defender.'),
+          wrong('Trading queens', 'Fewer pieces means fewer attacking options. Sometimes right in endgames, rarely in an attack.'),
+        ]),
+        quiz('Which weakness first?', 'You have created weaknesses on both wings. Which do you attack?', [
+          right('The one whose defense forces the longest trip for the enemy pieces', 'Attack where help is farthest away. Geometry decides.'),
+          wrong('Always the nearest one to your pieces', 'Near is convenient, but the far weakness stretches the defense further.'),
+          wrong('The most valuable piece, always', 'Value matters less than whether the defense can arrive in time.'),
+        ]),
+        playout(
+          'Fight on two fronts',
+          'Win material by using more than one threat. When one door closes, knock on another.',
+          START,
+          'w',
+          'Win at least 3 points of material within 20 moves',
+          3,
+          'material',
+          20,
+          'Two fronts, one win. That is intermediate chess.',
+        ),
+      ],
+    },
+
     {
       id: 'int-19',
-      n: 25,
+      n: 28,
       title: 'Practice arena: mixed',
       subtitle: 'Tactics and technique, shuffled.',
       minutes: 11,
@@ -1400,9 +1583,10 @@ export const intermediate: Tier = {
         ),
       ],
     },
+
     {
       id: 'int-20',
-      n: 26,
+      n: 29,
       title: 'Intermediate graduation',
       subtitle: 'A famous pattern, one exam, one game.',
       minutes: 14,
@@ -1460,5 +1644,6 @@ export const intermediate: Tier = {
         ),
       ],
     },
+
   ],
 }

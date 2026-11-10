@@ -241,6 +241,13 @@ async function readLocalDataStateRaw(): Promise<'empty' | 'pristine' | 'populate
 async function seedWhatsNew(): Promise<void> {
   const SEEDS: { title: string; body: string; tag: string; version?: string; pinned?: boolean }[] = [
     {
+      title: 'The Study now follows the book, chapter by chapter',
+      tag: 'feature',
+      version: '0.4.7',
+      body:
+        'Every tier of The Study was re-ordered to match the teaching sequence of How to Win at Chess, and the book levels that used to trail after each graduation now sit where the book teaches them. Newbie: practice methods move up front, castling and the special moves join the pieces, and the four-move trick now comes right before the opening plan. Beginner gains Your first defense: e5 (how to answer White), the king-and-rook mate (completing the three basic mates), and the royal fork. Intermediate opens with the repertoire and endgames (opposition, passed pawns, Philidor arrives from Advanced), then adds Forcing sequences: mate in two and three. Advanced gains the bishop pair; Master gains Initiative: keep asking questions; the Grandmaster capstone now ends with Train like the book says, where it belongs. Every lesson keeps its identity — your progress carried over untouched.',
+    },
+    {
       title: 'The Study: 12 new lessons built from How to Win at Chess',
       tag: 'feature',
       version: '0.4.6',

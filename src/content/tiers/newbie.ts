@@ -1,9 +1,5 @@
 // Tier 1: Newbie. First contact with the game: the board, the pieces, the
 // rules, and the very first ways to win material and mate.
-//
-// "How to Win at Chess" (Levy Rozman) is woven into the chapter order, not
-// appended: the objective lesson (nb-22), the opening plan (nb-19) and the
-// four-move-trick defense (nb-hw3) sit at the book's positions in the arc.
 import type { Tier } from '../schema'
 import { text, demo, quiz, drill, exercise, right, wrong, playout, gtmStep, guess } from '../kit'
 
@@ -124,6 +120,7 @@ export const newbie: Tier = {
         ),
       ],
     },
+
     {
       id: 'nb-21',
       n: 2,
@@ -178,18 +175,72 @@ export const newbie: Tier = {
         ),
       ],
     },
+
+    {
+      id: 'nb-23',
+      n: 3,
+      title: 'How to practice',
+      subtitle: 'Play, solve, review: the loop that makes every other lesson stick.',
+      minutes: 8,
+      concepts: ['technique', 'calculation'],
+      steps: [
+        text(
+          'The practice loop',
+          [
+            'Chess skill comes from a loop, and the loop has three parts: play real games, solve puzzles, and review what you played. Skip a part and the loop leaks.',
+            'Games are where you practice decisions. Puzzles are where patterns get drilled until you see forks and mates before they happen. Reviewing losses is where the actual lessons hide.',
+            'Do all three a little and often, rather than one of them a lot and rarely. Ten puzzles and one reviewed game beat a two-hour opening video every time.',
+          ],
+          'Play a lot, solve a little every day, review every loss.',
+        ),
+        text(
+          'The review that matters',
+          [
+            'After every game you lose, do this: replay it, find the FIRST real mistake, and keep one sentence about it. Not five sentences. One.',
+            'The engine can show you the worst move, but look without it first: your own eyes catching your own mistake is the skill that improves.',
+            'Every strong player has a review habit. None of them started with talent; all of them started with looking at lost games.',
+          ],
+          'Losses are the syllabus: find the first mistake, keep one lesson.',
+        ),
+        demo(
+          'A review moment',
+          [
+            'Here is the kind of moment a review turns up. White grabbed the pawn on e5 with the knight, and the knight on c6 was guarding it the whole time.',
+            'One capture, one recapture, a piece gone. The one-sentence lesson: count the guards before any capture. That sentence, collected ten times, is worth more than any video.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Nxe5', 'Nxe5'], caption: 'The knight was guarded: a review finds it in seconds' },
+        ),
+        quiz('After the loss', 'You just lost in twenty moves. What is the best next step?', [
+          right('Replay the loss and find the first real mistake', 'The first mistake is where the game was actually decided. Everything after it is noise.'),
+          wrong('Queue a rematch immediately, while angry', 'Tilt loses rematches. One calm review first.'),
+          wrong('Watch two hours of opening videos', 'Openings rarely decide beginner games. The blunder does. Review the blunder.'),
+        ]),
+        quiz('Why puzzles daily?', 'What does solving puzzles every day actually train?', [
+          right('Pattern recognition: seeing forks and mates without calculating from zero', 'Patterns are chess vocabulary. Volume builds vocabulary, and vocabulary is what lets you calculate fast.'),
+          wrong('Memorizing positions move by move', 'Positions differ every game. What transfers is the pattern, not the memorized line.'),
+          wrong('Nothing: puzzles are just for fun', 'They are fun, and also the fastest pattern-builder known. Both are true.'),
+        ]),
+        quiz('Bots as practice', 'Are games against bots a good way to practice?', [
+          right('Fine for warmup, but bots do not play like humans do', 'Bots make different mistakes than people. Warm up on them, sharpen on humans.'),
+          wrong('Never: bots are useless', 'They are useful for loosening up and testing openings without pressure.'),
+          wrong('Bots are better practice than humans', 'They are different practice. Human opponents punish human mistakes, and that is what your rating depends on.'),
+        ]),
+      ],
+    },
+
     {
       id: 'nb-02',
-      n: 3,
+      n: 4,
       title: 'The pawn',
       subtitle: 'Forward only, captures diagonally, never back.',
       minutes: 9,
       concepts: ['pawnStructure', 'center'],
       steps: [
-        quiz('Warm-up: from last lesson', 'How do you write the knight move from g1 to f3 in chess notation?', [
-          right('Nf3', 'The piece letter for the knight, then the destination square. The starting square is only written when two pieces could reach the same square.'),
-          wrong('Kf3', 'K is the king’s letter. The knight uses N because the king already claimed K.'),
-          wrong('Knight to f3', 'Scoresheets use letters and squares, not words: N for knight, then the square name.'),
+        quiz('Warm-up: from last lesson', 'Which square does the white king start on?', [
+          wrong('d1', 'That is the queen. She sits beside the king.'),
+          right('e1', 'The king starts on e1, between the queen and the bishop.'),
+          wrong('e2', 'e2 is the pawn square in front of the king.'),
         ]),
         text(
           'Meet the pawn',
@@ -279,9 +330,10 @@ export const newbie: Tier = {
         ),
       ],
     },
+
     {
       id: 'nb-03',
-      n: 4,
+      n: 5,
       title: 'The knight',
       subtitle: 'The only piece that jumps.',
       minutes: 9,
@@ -373,9 +425,10 @@ export const newbie: Tier = {
         ),
       ],
     },
+
     {
       id: 'nb-04',
-      n: 5,
+      n: 6,
       title: 'The bishop',
       subtitle: 'One color of squares for its whole life.',
       minutes: 9,
@@ -450,9 +503,10 @@ export const newbie: Tier = {
         ),
       ],
     },
+
     {
       id: 'nb-05',
-      n: 6,
+      n: 7,
       title: 'The rook',
       subtitle: 'Straight lines, open files, and the last rank.',
       minutes: 9,
@@ -515,9 +569,10 @@ export const newbie: Tier = {
         ),
       ],
     },
+
     {
       id: 'nb-06',
-      n: 7,
+      n: 8,
       title: 'The queen',
       subtitle: 'Rook moves and bishop moves in one piece. Worth 9 pawns.',
       minutes: 9,
@@ -590,9 +645,10 @@ export const newbie: Tier = {
         ),
       ],
     },
+
     {
       id: 'nb-07',
-      n: 8,
+      n: 9,
       title: 'The king',
       subtitle: 'Slow in the opening, decisive at the end.',
       minutes: 9,
@@ -681,227 +737,19 @@ export const newbie: Tier = {
         ),
       ],
     },
-    {
-      id: 'nb-08',
-      n: 9,
-      title: 'Check',
-      subtitle: 'The king is attacked. Three ways out.',
-      minutes: 8,
-      concepts: ['defense', 'kingSafety'],
-      steps: [
-        quiz('Warm-up: from last lesson', 'From last lesson: when may the king step onto a square?', [
-          wrong('Whenever the square is empty', 'Empty is not enough. Attacked squares are forbidden even when they are empty.'),
-          right('Only when no enemy piece attacks that square', 'That rule is why check matters: an attacked square is forbidden, no matter how few pieces attack it.'),
-          wrong('Only in the endgame', 'The rule has no clock. It holds on move 1 and move 50 alike.'),
-        ]),
-        text(
-          'What check means',
-          [
-            'Check means the king is attacked. You must answer it this very move, in exactly one of three ways.',
-            'Move the king to a safe square. Block the attack with another piece. Capture the attacker.',
-            'If none of the three exists, it is checkmate and the game is over.',
-          ],
-          'Three answers to check: move, block, capture. Nothing else.',
-        ),
-        drill('Capture the attacker', 'k7/8/8/8/8/8/5PPP/3Rr1K1 w - - 0 1', ['Rxe1'], 'Black checked you with the rook. Remove it.', 'The king has no safe square. Can one of your pieces reach the attacker on e1?', 'Rxe1. Your rook removed the attacker, the simplest and best answer to check.'),
-        demo('Block the line', ['The rook on e8 checks the king on e1. Capture is impossible: nothing of yours reaches e8. Which of the other two answers works here? Decide before you watch.'], '4r2k/8/8/8/8/8/8/4KB2 w - - 0 1', { moves: ['Be2'], caption: 'Blocking the check' }),
-        drill(
-          'Block with the queen',
-          '4r2k/8/8/8/8/8/8/4KQ2 w - - 0 1',
-          ['Qe2'],
-          'Block the check, and do it with your queen rather than the king.',
-          'Anything that lands between e8 and e1 ends the check.',
-          'Qe2. Any piece can block: bishops, queens, even pawns.',
-        ),
-        text(
-          'Do not panic',
-          [
-            'A check arrives. The worst response is grabbing the first legal move you see.',
-            'Instead, run the list calmly: can I capture the attacker? Can I block? Where can the king go?',
-            'One of the three answers is usually good. Sometimes two are, and then you pick the better one.',
-            'Run the list every time and most checks become routine. Rushing one move is how pieces get lost.',
-          ],
-          'A check demands an answer right now, and there are only three answers. Choose calmly.',
-        ),
-        quiz('Knight checks', 'A knight checks your king. Which defense is impossible?', [
-          wrong('Capturing the knight', 'If a piece can take the knight, the check is over.'),
-          wrong('Moving the king', 'Running is always an option if a safe square exists.'),
-          right('Blocking: a knight\'s attack cannot be blocked', 'The knight jumps, so there is no line to block. Capture it or move the king.'),
-        ]),
-        quiz('The far checker', 'A pawn can only check from one square away. Which of these three can check from the far end of the board?', [
-          wrong('A knight on the edge', 'Knights are short range no matter where they stand.'),
-          right('A rook on an open file', 'A rook on a clear line checks from anywhere on that line. Distance does not matter.'),
-          wrong('A queen standing next to the king', 'Next to the king is the closest check there is. Open lines are what let rooks and queens check from afar.'),
-        ]),
-        drill(
-          'The only way out',
-          'k7/4r3/8/8/7b/8/4r2n/4K3 w - - 0 1',
-          ['Kd1'],
-          'Two pieces check at once. You cannot block a double check or capture both. Find the one safe square.',
-          'd2 and f2 are covered by the checking rook itself, f1 by the knight on h2, and the rook on e2 is defended by its twin behind it. One square is left.',
-          'Kd1. When two pieces check together, only a king move helps. Remember that pair.',
-        ),
-      ],
-    },
-    {
-      id: 'nb-22',
-      n: 10,
-      title: 'How games are actually won',
-      subtitle: 'Checkmate ends it — material is how you get there.',
-      minutes: 12,
-      concepts: ['mate', 'defense', 'winningMaterial'],
-      steps: [
-        text(
-          'Checkmate ends it — material is how you get there',
-          [
-            'Games are won by checkmate. But you never jump straight to mate: you collect small advantages first — free pieces, safer kings, more attackers in one place — until the mate is easy.',
-            'The habit that separates beginners who improve from beginners who stall: before every move, ask what is undefended, and count attackers against defenders on every capture square.',
-            'A piece is "free" when it has more attackers than defenders. Free pieces decide most games below 1000.',
-          ],
-          'Count attackers and defenders before you capture anything.',
-        ),
-        demo(
-          'A pawn left unguarded',
-          [
-            'Black just played 2...f6?? attacking the knight but forgetting what it guards. The e5 pawn now has one attacker (the knight) and zero defenders.',
-            'Watch the line: the knight takes the pawn, and Black cannot take back without the king walking into checks it cannot afford.',
-          ],
-          START,
-          { moves: ['e4', 'e5', 'Nf3', 'f6', 'Nxe5'], caption: 'White to move — why is e5 free?' },
-        ),
-        quiz('Which capture is actually safe', 'A black knight sits on d5. It is attacked by two of your pieces and defended by one. What happens when you capture?', [
-          right('You win a piece', 'Two attackers, one defender: after the trade you keep the extra piece. That is the whole arithmetic of winning material.'),
-          wrong('You lose material', 'Count again: more attackers than defenders means the last attacker survives.'),
-          wrong('It depends on the queen', 'The count is already the answer. Two attackers versus one defender is a won capture wherever it happens.'),
-        ]),
-        text(
-          'Four ways a game ends',
-          [
-            'A game ends in four ways: checkmate, resignation, running out of clock time, or a player walking away. Only the first is chess; the other three are agreements and rules around the board.',
-            'Checkmate is the king attacked with no escape: it cannot move to safety, nothing can block the attack, and nothing can capture the attacker. That is the whole game: make the last escape impossible.',
-            'The draws, like stalemate and repetition, get their own lesson soon. First own the wins.',
-          ],
-          'The real goal is not material. It is an inescapable attack on the king.',
-        ),
-        text(
-          'Never resign yet',
-          [
-            'When you are losing, the temptation is to resign. At beginner level, resist it: your opponent still has to actually deliver the mate, and missed mates happen every single minute at this level.',
-            'Stay on the board, defend actively, and set small traps. Half of all beginner comebacks start with the losing side refusing to give up.',
-            'Resigning is a skill for later, when you can see with certainty that the end is forced. Until then: play on.',
-          ],
-          'Until the mate is on the board, the game is alive.',
-        ),
-        demo(
-          'The fastest mate in chess',
-          [
-            'Fool\'s Mate ends in two moves: 1.f3 e5 2.g4 and the queen arrives on h4 with checkmate. It works only because White tore open the king\'s diagonal and did nothing to defend it.',
-            'Nobody plays this way twice. The lesson is not the trick: it is that games end when the king runs out of squares, and that sloppy first moves are how it happens.',
-          ],
-          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-          { moves: ['f3', 'e5', 'g4', 'Qh4#'], caption: '1.f3 e5 2.g4 Qh4#: the shortest possible game' },
-        ),
-        drill(
-          'Deliver the fastest mate',
-          'rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 3',
-          ['Qh4#'],
-          'You are Black. Checkmate in one',
-          'White\'s first moves opened the a2-g8 diagonal. Your queen on d8 can fly to h4.',
-          'Qh4 is mate: the king cannot escape, nothing can block, and nothing can capture the queen.',
-        ),
-        quiz('The lost position', 'You are down a queen but not checkmated. What should a beginner do?', [
-          right('Keep playing: defend, look for checks and traps, never hand the win over', 'At this level mates get missed constantly. Making your opponent actually finish the job is your best winning chance.'),
-          wrong('Resign immediately to save time', 'You are throwing away every chance. Games are won on the board, not by hope.'),
-          wrong('Just move the king back and forth', 'Passive shuffling loses to patient play. Defend with purpose: checks, captures, and reuniting your pieces.'),
-        ]),
-        quiz('The clock win', 'Your opponent\'s clock runs out completely, but you have only a king and a knight left. What is the result?', [
-          right('A draw: a king and knight can never checkmate', 'The rule protects against flag-falling with no mating material. A lone knight can never deliver mate, so the game is drawn.'),
-          wrong('You win on time', 'Time only wins if you could still deliver mate. King and knight cannot, so the rule steps in.'),
-          wrong('You lose for not mating faster', 'Nothing punishes you here. The game is simply drawn.'),
-        ]),
-        text(
-          'Walking away and other endings',
-          [
-            'A player who stops moving and leaves loses by abandonment. It happened even in the 19th century, when a famous player preferred disappearing over playing on against a rival.',
-            'These rule-based endings are rare in your games. What matters: checkmate is the real win, resignation and clock wins are the shortcuts around it, and every one of them requires the game to be decided the only way that counts.',
-          ],
-          'Every ending is checkmate, or an agreement that checkmate was coming.',
-        ),
-        text('Where this comes from', ['How to Win at Chess (Levy Rozman): the opening chapter’s method, applied at this level.']),
-      ],
-    },
-    {
-      id: 'nb-09',
-      n: 11,
-      title: 'Checkmate: the back rank',
-      subtitle: 'The most common mate in beginner chess.',
-      minutes: 9,
-      concepts: ['mate', 'kingSafety'],
-      steps: [
-        quiz('Warm-up: from last lesson', 'What actually decides a chess game, according to last lesson?', [
-          right('Checkmate: the king attacked with no escape', 'Material helps you get there, but only the trapped king ends the game. Everything else is a shortcut around it.'),
-          wrong('Capturing the queen', 'Winning the queen makes mating easier. The capture itself ends nothing.'),
-          wrong('Reaching move forty', 'There is no move-count finish. The game ends when the king runs out of squares, or by agreement.'),
-        ]),
-        text(
-          'Trapped behind his own pawns',
-          [
-            'A king boxed in by his own pawns on the last rank can be mated by a single rook or queen sliding to that rank.',
-            'The cure, played before it happens: make a little escape hatch with a pawn move like h3 or g3. Players call it making luft.',
-          ],
-          'Back rank mate: one rook, one rank, no escape squares.',
-        ),
-        demo('The back rank mate', ['The black king is sealed behind f7, g7 and h7.', 'One rook move mates from here. Find the rank and the file before you watch.', 'Shorthand: the # sign marks checkmate. Re8# is the mate you are about to watch, written the way a scoresheet shows it.'], '6k1/5ppp/8/8/8/8/8/4R2K w - - 0 1', { moves: ['Re8#'], caption: 'Re8, mate on the back rank' }),
-        demo(
-          'The hatch works',
-          [
-            'Same idea, but Black has played g6 at some point. Now the rook checks. Find the square the king escapes to before you watch.',
-            'One small pawn move earlier would have saved this king.',
-          ],
-          '6k1/5p1p/6p1/8/8/8/5PPP/4R1K1 w - - 0 1',
-          { moves: ['Re8+', 'Kg7'], caption: 'Check, but not mate: the king escapes' },
-        ),
-        drill('Break through', '3r2k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1', ['Rxd8#'], 'Mate in one', 'The rook on d8 is Black\'s only back-rank defender. Your rook takes it with mate.', 'That was your first checkmate. You removed the only defender and the rook ended the game. When the back rank is the target, count the guards first.'),
-        drill(
-          'Make luft early',
-          '6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1',
-          ['h3'],
-          'Before trouble arrives, give your king an escape square: slide the h-pawn one square',
-          'The h-pawn has one quiet one-square step. Play it and h2 becomes the door.',
-          'h3. The square h2 is now free for the king whenever the back rank opens.',
-        ),
-        quiz('The escape hatch', 'Your king is stuck behind f2, g2, h2 with no moves on the last rank. What prevents back rank mates?', [
-          wrong('Marching the king up the board early', 'Walking the king out through his own pawn wall is far more dangerous than the mate you are preventing. The hatch is the cheap cure.'),
-          right('Playing h3 or g3 once, to make an escape square', 'One little pawn move creates luft, an exit for the king.'),
-          wrong('Keeping all pawns home', 'Pawns on f2, g2, h2 are exactly what seals the king in.'),
-        ]),
-        quiz('Pawns defend forward', 'Why can Black\'s pawns on f7, g7 and h7 not defend the 8th rank?', [
-          wrong('They can: pawns defend every nearby square', 'Pawns are one-way pieces. They never defend anything behind them.'),
-          wrong('Only the king can defend squares', 'Any piece can defend a square. Pawns are the only ones with this one-way limit.'),
-          right('Pawns only capture diagonally forward, and forward for Black is downward', 'The pawns look after ranks 6 and below. The 8th rank is behind their backs.'),
-        ]),
-        drill(
-          'Queen finishes it',
-          '6k1/5ppp/8/8/8/8/8/3Q2K1 w - - 0 1',
-          ['Qd8#'],
-          'The back rank is open. End the game with the queen',
-          'The d-file is clear and the 8th rank is empty. Where does a queen mate from here?',
-          'Qd8 is mate: the queen covers the whole rank and the king is sealed behind his own pawns.',
-        ),
-      ],
-    },
+
     {
       id: 'nb-10',
-      n: 12,
+      n: 10,
       title: 'Castling',
       subtitle: 'King and rook move together, once per game.',
       minutes: 9,
       concepts: ['castlingSafety', 'kingSafety'],
       steps: [
-        quiz('Warm-up: from last lesson', 'What makes back-rank mate possible?', [
-          wrong('A knight attacking from close range', 'Knights cannot reach the back rank from afar. The mate is about escape squares.'),
-          right('The king is sealed in by his own pawns', 'No escape squares and no way to block: one rook check ends the game.'),
-          wrong('The rook capturing a pawn first', 'The mate needs no capture. It needs the king to have nowhere to run.'),
+        quiz('Warm-up: from last lesson', 'May your king step onto a square right next to the enemy king?', [
+          wrong('Yes, if the square is empty', 'Empty is not enough. The enemy king attacks every square around himself.'),
+          right('Never: kings guard every square around themselves', 'The two kings can never stand adjacent — each one attacks all eight squares around him.'),
+          wrong('Only in the endgame', 'The rule has no clock. Kings never touch, from move 1 to move 100.'),
         ]),
         text(
           'The two-piece move',
@@ -971,141 +819,19 @@ export const newbie: Tier = {
         ),
       ],
     },
-    {
-      id: 'nb-19',
-      n: 13,
-      title: 'The opening plan',
-      subtitle: 'Center, develop, castle. Three jobs, first ten moves.',
-      minutes: 10,
-      concepts: ['center', 'development', 'castlingSafety'],
-      steps: [
-        quiz('Warm-up: from last lesson', 'Your knight visited f1 and came back home. Your king never moved. Can you still castle short?', [
-          right('Yes: the right survives a knight tour', 'Only two things kill castling rights: the king moves, or the h1 rook moves. Where the knight visited is irrelevant.'),
-          wrong('No: the right dies once any piece leaves home', 'Leaving home blocks the square, not the right. Empty f1 again and castling is back on.'),
-          wrong('Only if the knight took a piece on the way', 'Captures never touch castling rights. King and rook movement is the only thing that does.'),
-        ]),
-        text(
-          'What to do at the start',
-          [
-            'Job one: fight for the center with a pawn, usually e4 or d4. Central pawns open lines for your bishops and claim the squares where your pieces will be strongest.',
-            'Job two: develop a new knight or bishop toward the center every move. A piece that comes out attacks more squares, and moving the same piece twice hands your opponent a free move.',
-            'Job three: castle by move 8 to 10, before your king gets hunted in the middle. Then connect your rooks: when nothing stands between them, development is finished.',
-            'That whole plan is a complete opening. Against beginner tricks, good development usually wins on its own.',
-          ],
-          'Center first, pieces second, king safety third.',
-        ),
-        demo('A model opening', ['Both sides will run the same three-job plan. Predict Black\'s reply before each White move lands: Black mirrors every step.', 'Watch for the jobs as you tap Watch the line: which moves fight for the center, which develop a piece, and what is still missing before the plan is done?'], START, {
-          moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Bc5'],
-          caption: 'The Italian Game, a model beginner opening',
-        }),
-        quiz('First move', 'Which first move fights for the center most directly?', [
-          wrong('h4', 'A flank pawn does nothing for the center and develops no piece.'),
-          right('e4 or d4', 'Both open lines for pieces and grab central space immediately.'),
-          wrong('Na3', 'Na3 puts the knight on the rim where it attacks few squares.'),
-        ]),
-        quiz('What is NOT development?', 'Which of these is NOT developing a piece?', [
-          right('Moving the same piece three times while others wait at home', 'Development means more pieces in the game. Shuffling one piece does the opposite.'),
-          wrong('Playing Nf3 early', 'That is textbook development: knight toward the center.'),
-          wrong('Playing Bc4 early', 'Also development: a bishop aimed at the weakest square in Black\'s camp.'),
-        ]),
-        quiz('Spot the rule-breaker', 'Which first move breaks all three opening jobs at once?', [
-          wrong('e4', 'The model citizen: it claims the center, opens the bishop\'s diagonal, and lets the queen out.'),
-          right('h4', 'It claims nothing in the center, develops no piece, and even weakens the king\'s own shelter before castling.'),
-          wrong('Nf3', 'A developing move toward the center — it follows the plan.'),
-        ]),
-        drill('Develop with a plan', 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3', ['Bc4'], 'Develop the bishop to its best square, eyeing f7', 'The f1 bishop has a clear road. Send it to the square only the king defends.', 'Bc4. The bishop now aims at f7, a square only the king defends.'),
-        drill('Complete the plan', 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 1 5', ['O-O'], 'Center is claimed, pieces are out. Finish the job.', 'The last job of the opening is king safety. The kingside is clear.', 'Castled. Center, development, king safety: the whole opening plan in five moves.'),
-        quiz('Connected rooks', 'When are your rooks connected?', [
-          wrong('When they sit on the same color squares', 'Rook colors do not matter. The gap between them does.'),
-          right('When no pieces stand between them', 'Connected rooks are a sign your development is done: the whole army is working together.'),
-          wrong('When both have captured at least one pawn', 'Captures have nothing to do with it. Only the space between them matters.'),
-        ]),
-        playout(
-          'Run the opening plan',
-          'Play White. Follow the three jobs: center pawn, develop a new piece most moves, castle by move 10. The goal gives you slack to 16.',
-          START,
-          'w',
-          'Get castled within 16 moves',
-          1,
-          'castle',
-          16,
-          'Castled inside the move limit. That is the opening plan in action.',
-          'Check which job you skipped: was the center pawn played before pieces moved, and did you castle before shuffling?',
-          'Keep playing the three jobs: center pawn first, a new piece almost every move, and castle the moment the kingside is clear.',
-        ),
-        text('Where this comes from', ['How to Win at Chess (Levy Rozman): the three opening rules, merged into the plan.']),
-      ],
-    },
-    {
-      id: 'nb-hw3',
-      n: 14,
-      title: 'Stop the four-move trick',
-      subtitle: 'The f7 bait, and how to refuse it like a book.',
-      minutes: 8,
-      concepts: ['development', 'kingSafety', 'defense'],
-      steps: [
-        text(
-          'Why everyone tries it on you',
-          [
-            'At the start, f7 is the weakest square on the board: the king is its only defender, and the queen and a bishop can both point at it. So opponents try the two-move checkmate — queen out early, bishop behind, Qxf7#.',
-            'Here is the secret the trappers do not know: the trick only works against someone who never develops. Every normal developing move makes the queen leave empty-handed.',
-            'The rule: see the queen eyeing f7, and do not panic-block. Develop a piece that challenges or shields, and the attacking queen has to retreat while you gain time.',
-          ],
-          'The four-move checkmate is a bet that you will not develop. Take the bet.',
-        ),
-        demo(
-          'g6 slams the door',
-          [
-            'White has played the bait: bishop on c4, queen on h5, both looking at f7. Black answers with the most natural developing move: g6.',
-            'The pawn guards f7 AND opens the bishop’s diagonal. The queen is suddenly attacked and must run — three wasted tempi for White while Black develops.',
-          ],
-          START,
-          {
-            moves: ['e4', 'e5', 'Bc4', 'Nc6', 'Qh5', 'g6'],
-            caption: 'The queen is the piece that has to move',
-          },
-        ),
-        quiz(
-          'The move that loses',
-          'Same setup: White queen on h5, bishop on c4, Black yet to move. Which reply actually loses the game?',
-          [
-            wrong(
-              'g6',
-              'It guards f7 and attacks the queen. This is the book’s answer.',
-            ),
-            right(
-              'Nf6',
-              'It attacks the queen, yes — but it stops guarding f7. Qxf7# ends the game on the spot: two attackers, zero defenders.',
-            ),
-            wrong(
-              'Nc6',
-              'Developing, and it does not hang anything — but it also does not kick the queen.',
-            ),
-          ],
-        ),
-        drill(
-          'Chase the queen, gain the time',
-          'r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1KBNR b KQkq - 3 3',
-          ['g6', 'Qf3', 'Nf6'],
-          'The queen eyes f7. Refuse the bait and develop with tempo.',
-          'A pawn move that guards f7 and attacks the queen.',
-          'g6 guards f7 and hits the queen; when it retreats to f3 renewing the threat, Nf6 blocks, develops, and prepares to castle. Three developing moves versus none.',
-        ),
-        text('Where this comes from', ['How to Win at Chess (Levy Rozman), applied at this level.']),
-      ],
-    },
+
     {
       id: 'nb-11',
-      n: 15,
+      n: 11,
       title: 'En passant',
       subtitle: 'The strange pawn capture everyone discovers late.',
       minutes: 8,
       concepts: ['pawnStructure', 'tempo'],
       steps: [
-        quiz('Warm-up: from last lesson', 'The enemy queen is on h5 eyeing f7, with the bishop behind it on c4. Which reply defends best?', [
-          right('g6: the pawn guards f7 and attacks the queen', 'One move does both jobs. The queen retreats with time lost, and your bishop comes out behind the pawn next.'),
-          wrong('Nf6: develop and ignore the queen', 'Nf6 stops guarding f7. Qxf7# is checkmate on the spot: two attackers, zero defenders.'),
-          wrong('Qe7: block with your own queen', 'Panic-blocking freezes your worst piece. The queen must babysit f7 forever while White develops freely.'),
+        quiz('Warm-up: from last lesson', 'After White castles long, where do the king and rook land?', [
+          right('King c1, rook d1', 'Same rule as short: the king steps two squares toward the rook, and the rook hops over him.'),
+          wrong('King d1, rook c1', 'Close, but the king takes the bigger step and the rook hops over him.'),
+          wrong('King c1, rook b1', 'The rook lands right next to the king, on d1.'),
         ]),
         text(
           'The capture that looks illegal',
@@ -1140,9 +866,10 @@ export const newbie: Tier = {
         drill('Catch it in time', '4k3/8/8/1pP5/8/8/8/4K3 w - b6 0 2', ['cxb6'], 'Black just played b7 to b5. Punish it now.', 'Capture as if the b-pawn had stopped one square earlier.', 'The only chance you will ever get, and you took it.'),
       ],
     },
+
     {
       id: 'nb-12',
-      n: 16,
+      n: 12,
       title: 'Promotion',
       subtitle: 'A pawn reaches the last rank and becomes something huge.',
       minutes: 8,
@@ -1197,18 +924,207 @@ export const newbie: Tier = {
         ),
       ],
     },
+
+    {
+      id: 'nb-08',
+      n: 13,
+      title: 'Check',
+      subtitle: 'The king is attacked. Three ways out.',
+      minutes: 8,
+      concepts: ['defense', 'kingSafety'],
+      steps: [
+        quiz('Warm-up: from last lesson', 'Your pawn just promoted to a queen. What can the new queen do that the pawn never could?', [
+          wrong('Nothing: a promoted pawn keeps pawn moves', 'The pawn is gone. Its square now holds a queen with full queen powers.'),
+          right('Move any number of squares in all directions', 'The queen combines rook lines and bishop diagonals: the strongest promotion by far.'),
+          wrong('Only slide diagonally, like a bishop', 'Diagonals are only half the story. The queen also owns every file and rank.'),
+        ]),
+        text(
+          'What check means',
+          [
+            'Check means the king is attacked. You must answer it this very move, in exactly one of three ways.',
+            'Move the king to a safe square. Block the attack with another piece. Capture the attacker.',
+            'If none of the three exists, it is checkmate and the game is over.',
+          ],
+          'Three answers to check: move, block, capture. Nothing else.',
+        ),
+        drill('Capture the attacker', 'k7/8/8/8/8/8/5PPP/3Rr1K1 w - - 0 1', ['Rxe1'], 'Black checked you with the rook. Remove it.', 'The king has no safe square. Can one of your pieces reach the attacker on e1?', 'Rxe1. Your rook removed the attacker, the simplest and best answer to check.'),
+        demo('Block the line', ['The rook on e8 checks the king on e1. Capture is impossible: nothing of yours reaches e8. Which of the other two answers works here? Decide before you watch.'], '4r2k/8/8/8/8/8/8/4KB2 w - - 0 1', { moves: ['Be2'], caption: 'Blocking the check' }),
+        drill(
+          'Block with the queen',
+          '4r2k/8/8/8/8/8/8/4KQ2 w - - 0 1',
+          ['Qe2'],
+          'Block the check, and do it with your queen rather than the king.',
+          'Anything that lands between e8 and e1 ends the check.',
+          'Qe2. Any piece can block: bishops, queens, even pawns.',
+        ),
+        text(
+          'Do not panic',
+          [
+            'A check arrives. The worst response is grabbing the first legal move you see.',
+            'Instead, run the list calmly: can I capture the attacker? Can I block? Where can the king go?',
+            'One of the three answers is usually good. Sometimes two are, and then you pick the better one.',
+            'Run the list every time and most checks become routine. Rushing one move is how pieces get lost.',
+          ],
+          'A check demands an answer right now, and there are only three answers. Choose calmly.',
+        ),
+        quiz('Knight checks', 'A knight checks your king. Which defense is impossible?', [
+          wrong('Capturing the knight', 'If a piece can take the knight, the check is over.'),
+          wrong('Moving the king', 'Running is always an option if a safe square exists.'),
+          right('Blocking: a knight\'s attack cannot be blocked', 'The knight jumps, so there is no line to block. Capture it or move the king.'),
+        ]),
+        quiz('The far checker', 'A pawn can only check from one square away. Which of these three can check from the far end of the board?', [
+          wrong('A knight on the edge', 'Knights are short range no matter where they stand.'),
+          right('A rook on an open file', 'A rook on a clear line checks from anywhere on that line. Distance does not matter.'),
+          wrong('A queen standing next to the king', 'Next to the king is the closest check there is. Open lines are what let rooks and queens check from afar.'),
+        ]),
+        drill(
+          'The only way out',
+          'k7/4r3/8/8/7b/8/4r2n/4K3 w - - 0 1',
+          ['Kd1'],
+          'Two pieces check at once. You cannot block a double check or capture both. Find the one safe square.',
+          'd2 and f2 are covered by the checking rook itself, f1 by the knight on h2, and the rook on e2 is defended by its twin behind it. One square is left.',
+          'Kd1. When two pieces check together, only a king move helps. Remember that pair.',
+        ),
+      ],
+    },
+
+    {
+      id: 'nb-22',
+      n: 14,
+      title: 'How games are actually won',
+      subtitle: 'Checkmate, resignation, the clock, and why you never quit early.',
+      minutes: 9,
+      concepts: ['mate', 'defense'],
+      steps: [
+        text(
+          'Four ways a game ends',
+          [
+            'A game ends in four ways: checkmate, resignation, running out of clock time, or a player walking away. Only the first is chess; the other three are agreements and rules around the board.',
+            'Checkmate is the king attacked with no escape: it cannot move to safety, nothing can block the attack, and nothing can capture the attacker. That is the whole game: make the last escape impossible.',
+            'The draws, like stalemate and repetition, get their own lesson soon. First own the wins.',
+          ],
+          'The real goal is not material. It is an inescapable attack on the king.',
+        ),
+        text(
+          'Never resign yet',
+          [
+            'When you are losing, the temptation is to resign. At beginner level, resist it: your opponent still has to actually deliver the mate, and missed mates happen every single minute at this level.',
+            'Stay on the board, defend actively, and set small traps. Half of all beginner comebacks start with the losing side refusing to give up.',
+            'Resigning is a skill for later, when you can see with certainty that the end is forced. Until then: play on.',
+          ],
+          'Until the mate is on the board, the game is alive.',
+        ),
+        demo(
+          'The fastest mate in chess',
+          [
+            'Fool\'s Mate ends in two moves: 1.f3 e5 2.g4 and the queen arrives on h4 with checkmate. It works only because White tore open the king\'s diagonal and did nothing to defend it.',
+            'Nobody plays this way twice. The lesson is not the trick: it is that games end when the king runs out of squares, and that sloppy first moves are how it happens.',
+          ],
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          { moves: ['f3', 'e5', 'g4', 'Qh4#'], caption: '1.f3 e5 2.g4 Qh4#: the shortest possible game' },
+        ),
+        drill(
+          'Deliver the fastest mate',
+          'rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 3',
+          ['Qh4#'],
+          'You are Black. Checkmate in one',
+          'White\'s first moves opened the a2-g8 diagonal. Your queen on d8 can fly to h4.',
+          'Qh4 is mate: the king cannot escape, nothing can block, and nothing can capture the queen.',
+        ),
+        quiz('The lost position', 'You are down a queen but not checkmated. What should a beginner do?', [
+          right('Keep playing: defend, look for checks and traps, never hand the win over', 'At this level mates get missed constantly. Making your opponent actually finish the job is your best winning chance.'),
+          wrong('Resign immediately to save time', 'You are throwing away every chance. Games are won on the board, not by hope.'),
+          wrong('Just move the king back and forth', 'Passive shuffling loses to patient play. Defend with purpose: checks, captures, and reuniting your pieces.'),
+        ]),
+        quiz('The clock win', 'Your opponent\'s clock runs out completely, but you have only a king and a knight left. What is the result?', [
+          right('A draw: a king and knight can never checkmate', 'The rule protects against flag-falling with no mating material. A lone knight can never deliver mate, so the game is drawn.'),
+          wrong('You win on time', 'Time only wins if you could still deliver mate. King and knight cannot, so the rule steps in.'),
+          wrong('You lose for not mating faster', 'Nothing punishes you here. The game is simply drawn.'),
+        ]),
+        text(
+          'Walking away and other endings',
+          [
+            'A player who stops moving and leaves loses by abandonment. It happened even in the 19th century, when a famous player preferred disappearing over playing on against a rival.',
+            'These rule-based endings are rare in your games. What matters: checkmate is the real win, resignation and clock wins are the shortcuts around it, and every one of them requires the game to be decided the only way that counts.',
+          ],
+          'Every ending is checkmate, or an agreement that checkmate was coming.',
+        ),
+      ],
+    },
+
+    {
+      id: 'nb-09',
+      n: 15,
+      title: 'Checkmate: the back rank',
+      subtitle: 'The most common mate in beginner chess.',
+      minutes: 9,
+      concepts: ['mate', 'kingSafety'],
+      steps: [
+        quiz('Warm-up: from last lesson', 'Your king is in check. You can capture the attacker, block, or run. What happens if you play a move that ignores the check?', [
+          right('It is illegal: a check must be answered this very move', 'Check outranks every other plan. Answer it first, then carry on.'),
+          wrong('It is allowed if you are winning material', 'No amount of material excuses leaving the king in check.'),
+          wrong('Nothing, as long as the king is not captured', 'The king is never captured. The game would already be over.'),
+        ]),
+        text(
+          'Trapped behind his own pawns',
+          [
+            'A king boxed in by his own pawns on the last rank can be mated by a single rook or queen sliding to that rank.',
+            'The cure, played before it happens: make a little escape hatch with a pawn move like h3 or g3. Players call it making luft.',
+          ],
+          'Back rank mate: one rook, one rank, no escape squares.',
+        ),
+        demo('The back rank mate', ['The black king is sealed behind f7, g7 and h7.', 'One rook move mates from here. Find the rank and the file before you watch.', 'Shorthand: the # sign marks checkmate. Re8# is the mate you are about to watch, written the way a scoresheet shows it.'], '6k1/5ppp/8/8/8/8/8/4R2K w - - 0 1', { moves: ['Re8#'], caption: 'Re8, mate on the back rank' }),
+        demo(
+          'The hatch works',
+          [
+            'Same idea, but Black has played g6 at some point. Now the rook checks. Find the square the king escapes to before you watch.',
+            'One small pawn move earlier would have saved this king.',
+          ],
+          '6k1/5p1p/6p1/8/8/8/5PPP/4R1K1 w - - 0 1',
+          { moves: ['Re8+', 'Kg7'], caption: 'Check, but not mate: the king escapes' },
+        ),
+        drill('Break through', '3r2k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1', ['Rxd8#'], 'Mate in one', 'The rook on d8 is Black\'s only back-rank defender. Your rook takes it with mate.', 'That was your first checkmate. You removed the only defender and the rook ended the game. When the back rank is the target, count the guards first.'),
+        drill(
+          'Make luft early',
+          '6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1',
+          ['h3'],
+          'Before trouble arrives, give your king an escape square: slide the h-pawn one square',
+          'The h-pawn has one quiet one-square step. Play it and h2 becomes the door.',
+          'h3. The square h2 is now free for the king whenever the back rank opens.',
+        ),
+        quiz('The escape hatch', 'Your king is stuck behind f2, g2, h2 with no moves on the last rank. What prevents back rank mates?', [
+          wrong('Marching the king up the board early', 'Walking the king out through his own pawn wall is far more dangerous than the mate you are preventing. The hatch is the cheap cure.'),
+          right('Playing h3 or g3 once, to make an escape square', 'One little pawn move creates luft, an exit for the king.'),
+          wrong('Keeping all pawns home', 'Pawns on f2, g2, h2 are exactly what seals the king in.'),
+        ]),
+        quiz('Pawns defend forward', 'Why can Black\'s pawns on f7, g7 and h7 not defend the 8th rank?', [
+          wrong('They can: pawns defend every nearby square', 'Pawns are one-way pieces. They never defend anything behind them.'),
+          wrong('Only the king can defend squares', 'Any piece can defend a square. Pawns are the only ones with this one-way limit.'),
+          right('Pawns only capture diagonally forward, and forward for Black is downward', 'The pawns look after ranks 6 and below. The 8th rank is behind their backs.'),
+        ]),
+        drill(
+          'Queen finishes it',
+          '6k1/5ppp/8/8/8/8/8/3Q2K1 w - - 0 1',
+          ['Qd8#'],
+          'The back rank is open. End the game with the queen',
+          'The d-file is clear and the 8th rank is empty. Where does a queen mate from here?',
+          'Qd8 is mate: the queen covers the whole rank and the king is sealed behind his own pawns.',
+        ),
+      ],
+    },
+
     {
       id: 'nb-13',
-      n: 17,
+      n: 16,
       title: 'Stalemate and draws',
       subtitle: 'Games do not always end in a mate.',
       minutes: 13,
       concepts: ['endgame', 'technique'],
       steps: [
-        quiz('Warm-up: from last lesson', 'Your pawn is one square from the last rank, but a rook guards the promotion square. What now?', [
-          right('Deal with the rook first: remove it, distract it or block the guard, then promote', 'Pushing straight into a guard just loses the pawn. Forcing moves come first.'),
-          wrong('Promote anyway: the new queen outranks the rook', 'The rook captures the new queen the moment she appears. The pawn is gone for nothing.'),
-          wrong('Pawns may capture straight ahead to dodge the rook', 'Pawns capture diagonally only. There is no straight-ahead dodge.'),
+        quiz('Warm-up: from last lesson', 'Which piece usually delivers the back-rank mate?', [
+          wrong('A knight, jumping over the pawn shield', 'Knights cannot attack along a rank. The back-rank mate is a line-piece mate.'),
+          right('A rook or queen, along the eighth rank', 'The king is sealed in by his own pawns, so one heavy piece on the last rank ends the game.'),
+          wrong('A bishop, from a long diagonal', 'Bishops never touch ranks. The eighth rank belongs to rooks and queens.'),
         ]),
         text(
           'Stalemate',
@@ -1278,15 +1194,135 @@ export const newbie: Tier = {
         ),
       ],
     },
+
+    {
+      id: 'nb-hw3',
+      n: 17,
+      title: 'Stop the four-move trick',
+      subtitle: 'The f7 bait, and how to refuse it like a book.',
+      minutes: 8,
+      concepts: ['development', 'kingSafety', 'defense'],
+      steps: [
+        text(
+          'Why everyone tries it on you',
+          [
+            'At the start, f7 is the weakest square on the board: the king is its only defender, and the queen and a bishop can both point at it. So opponents try the two-move checkmate — queen out early, bishop behind, Qxf7#.',
+            'Here is the secret the trappers do not know: the trick only works against someone who never develops. Every normal developing move makes the queen leave empty-handed.',
+            'The rule: see the queen eyeing f7, and do not panic-block. Develop a piece that challenges or shields, and the attacking queen has to retreat while you gain time.',
+          ],
+          'The four-move checkmate is a bet that you will not develop. Take the bet.',
+        ),
+        demo(
+          'g6 slams the door',
+          [
+            'White has played the bait: bishop on c4, queen on h5, both looking at f7. Black answers with the most natural developing move: g6.',
+            'The pawn guards f7 AND opens the bishop’s diagonal. The queen is suddenly attacked and must run — three wasted tempi for White while Black develops.',
+          ],
+          START,
+          {
+            moves: ['e4', 'e5', 'Bc4', 'Nc6', 'Qh5', 'g6'],
+            caption: 'The queen is the piece that has to move',
+          },
+        ),
+        quiz(
+          'The move that loses',
+          'Same setup: White queen on h5, bishop on c4, Black yet to move. Which reply actually loses the game?',
+          [
+            wrong(
+              'g6',
+              'It guards f7 and attacks the queen. This is the book’s answer.',
+            ),
+            right(
+              'Nf6',
+              'It attacks the queen, yes — but it stops guarding f7. Qxf7# ends the game on the spot: two attackers, zero defenders.',
+            ),
+            wrong(
+              'Nc6',
+              'Developing, and it does not hang anything — but it also does not kick the queen.',
+            ),
+          ],
+        ),
+        drill(
+          'Chase the queen, gain the time',
+          'r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1KBNR b KQkq - 3 3',
+          ['g6', 'Qf3', 'Nf6'],
+          'The queen eyes f7. Refuse the bait and develop with tempo.',
+          'A pawn move that guards f7 and attacks the queen.',
+          'g6 guards f7 and hits the queen; when it retreats to f3 renewing the threat, Nf6 blocks, develops, and prepares to castle. Three developing moves versus none.',
+        ),
+        text('Where this comes from', ['How to Win at Chess (Levy Rozman), applied at this level.']),
+      ],
+    },
+
+    {
+      id: 'nb-19',
+      n: 18,
+      title: 'The opening plan',
+      subtitle: 'Center, develop, castle. Three jobs, first ten moves.',
+      minutes: 10,
+      concepts: ['center', 'development', 'castlingSafety'],
+      steps: [
+        quiz('Warm-up: from last lesson', 'The enemy queen lands on h5, eyeing f7, bishop behind her. What is the book\'s answer?', [
+          right('A developing move that guards f7 and attacks the queen, like g6', 'Guard the weak square and gain time: the queen must retreat while every Black piece develops.'),
+          wrong('Panic-block with Nf6, even though it stops guarding f7', 'Nf6 abandons f7: Qxf7# ends the game on the spot. Guarding comes first.'),
+          wrong('Walk the king to e2 by hand', 'Hand-walking the king wastes tempi, breaks the king\'s shelter, and leaves the rook buried.'),
+        ]),
+        text(
+          'What to do at the start',
+          [
+            'Job one: fight for the center with a pawn, usually e4 or d4. Central pawns open lines for your bishops and claim the squares where your pieces will be strongest.',
+            'Job two: develop a new knight or bishop toward the center every move. A piece that comes out attacks more squares, and moving the same piece twice hands your opponent a free move.',
+            'Job three: castle by move 8 to 10, before your king gets hunted in the middle. Then connect your rooks: when nothing stands between them, development is finished.',
+            'That whole plan is a complete opening. Against beginner tricks, good development usually wins on its own.',
+          ],
+          'Center first, pieces second, king safety third.',
+        ),
+        demo('A model opening', ['Both sides will run the same three-job plan. Predict Black\'s reply before each White move lands: Black mirrors every step.', 'Watch for the jobs as you tap Watch the line: which moves fight for the center, which develop a piece, and what is still missing before the plan is done?'], START, {
+          moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Bc5'],
+          caption: 'The Italian Game, a model beginner opening',
+        }),
+        quiz('First move', 'Which first move fights for the center most directly?', [
+          wrong('h4', 'A flank pawn does nothing for the center and develops no piece.'),
+          right('e4 or d4', 'Both open lines for pieces and grab central space immediately.'),
+          wrong('Na3', 'Na3 puts the knight on the rim where it attacks few squares.'),
+        ]),
+        quiz('What is NOT development?', 'Which of these is NOT developing a piece?', [
+          right('Moving the same piece three times while others wait at home', 'Development means more pieces in the game. Shuffling one piece does the opposite.'),
+          wrong('Playing Nf3 early', 'That is textbook development: knight toward the center.'),
+          wrong('Playing Bc4 early', 'Also development: a bishop aimed at the weakest square in Black\'s camp.'),
+        ]),
+        drill('Develop with a plan', 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3', ['Bc4'], 'Develop the bishop to its best square, eyeing f7', 'The f1 bishop has a clear road. Send it to the square only the king defends.', 'Bc4. The bishop now aims at f7, a square only the king defends.'),
+        drill('Complete the plan', 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 1 5', ['O-O'], 'Center is claimed, pieces are out. Finish the job.', 'The last job of the opening is king safety. The kingside is clear.', 'Castled. Center, development, king safety: the whole opening plan in five moves.'),
+        quiz('Connected rooks', 'When are your rooks connected?', [
+          wrong('When they sit on the same color squares', 'Rook colors do not matter. The gap between them does.'),
+          right('When no pieces stand between them', 'Connected rooks are a sign your development is done: the whole army is working together.'),
+          wrong('When both have captured at least one pawn', 'Captures have nothing to do with it. Only the space between them matters.'),
+        ]),
+        playout(
+          'Run the opening plan',
+          'Play White. Follow the three jobs: center pawn, develop a new piece most moves, castle by move 10. The goal gives you slack to 16.',
+          START,
+          'w',
+          'Get castled within 16 moves',
+          1,
+          'castle',
+          16,
+          'Castled inside the move limit. That is the opening plan in action.',
+          'Check which job you skipped: was the center pawn played before pieces moved, and did you castle before shuffling?',
+          'Keep playing the three jobs: center pawn first, a new piece almost every move, and castle the moment the kingside is clear.',
+        ),
+      ],
+    },
+
     {
       id: 'nb-14',
-      n: 18,
+      n: 19,
       title: 'Values and trades',
       subtitle: 'Know what your pieces are worth before you swap.',
       minutes: 9,
       concepts: ['winningMaterial', 'tradeDecisions'],
       steps: [
-        quiz('Warm-up: from last lesson', 'You are a whole queen ahead. Which mistake turns your win into a draw?', [
+        quiz('From the stalemate lesson', 'You are a whole queen ahead. Which mistake turns your win into a draw?', [
           right('Leaving the enemy king unchecked with no legal move', 'That is stalemate: no check, no moves, game drawn. Look before every move when far ahead.'),
           wrong('Trading queens', 'Trades favor the side that is ahead. Trading down is the safe path, not a draw.'),
           wrong('Repeating the position twice', 'Threefold repetition needs the same position three times. Twice is nothing.'),
@@ -1348,9 +1384,10 @@ export const newbie: Tier = {
         drill('Free rook', '4k3/8/8/3r4/8/8/8/3QK3 w - - 0 1', ['Qxd5'], 'This time the count is honest: the rook has no defender. Take it.', 'The queen on d1 looks straight down the d-file. Take on d5.', 'Qxd5. The rook was undefended: five points for free. Count the defenders, then collect.'),
       ],
     },
+
     {
       id: 'nb-15',
-      n: 19,
+      n: 20,
       title: 'Is it safe to play that?',
       subtitle: 'The one question that prevents most beginner blunders.',
       minutes: 8,
@@ -1402,58 +1439,7 @@ export const newbie: Tier = {
         drill('The free pawn and the trap', '4k3/p7/4p3/3p4/8/8/8/R3K3 w - - 0 1', ['Rxa7'], 'One pawn is free, one is bait. Take the free one.', 'The d5 pawn is guarded by its neighbor on e6. The a7 pawn is on its own.', 'Rxa7. One pawn was free; the other would have cost a rook for a pawn.'),
       ],
     },
-    {
-      id: 'nb-23',
-      n: 20,
-      title: 'How to practice',
-      subtitle: 'Play, solve, review: the loop that makes every other lesson stick.',
-      minutes: 8,
-      concepts: ['technique', 'calculation'],
-      steps: [
-        text(
-          'The practice loop',
-          [
-            'Chess skill comes from a loop, and the loop has three parts: play real games, solve puzzles, and review what you played. Skip a part and the loop leaks.',
-            'Games are where you practice decisions. Puzzles are where patterns get drilled until you see forks and mates before they happen. Reviewing losses is where the actual lessons hide.',
-            'Do all three a little and often, rather than one of them a lot and rarely. Ten puzzles and one reviewed game beat a two-hour opening video every time.',
-          ],
-          'Play a lot, solve a little every day, review every loss.',
-        ),
-        text(
-          'The review that matters',
-          [
-            'After every game you lose, do this: replay it, find the FIRST real mistake, and keep one sentence about it. Not five sentences. One.',
-            'The engine can show you the worst move, but look without it first: your own eyes catching your own mistake is the skill that improves.',
-            'Every strong player has a review habit. None of them started with talent; all of them started with looking at lost games.',
-          ],
-          'Losses are the syllabus: find the first mistake, keep one lesson.',
-        ),
-        demo(
-          'A review moment',
-          [
-            'Here is the kind of moment a review turns up. White grabbed the pawn on e5 with the knight, and the knight on c6 was guarding it the whole time.',
-            'One capture, one recapture, a piece gone. The one-sentence lesson: count the guards before any capture. That sentence, collected ten times, is worth more than any video.',
-          ],
-          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-          { moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Nxe5', 'Nxe5'], caption: 'The knight was guarded: a review finds it in seconds' },
-        ),
-        quiz('After the loss', 'You just lost in twenty moves. What is the best next step?', [
-          right('Replay the loss and find the first real mistake', 'The first mistake is where the game was actually decided. Everything after it is noise.'),
-          wrong('Queue a rematch immediately, while angry', 'Tilt loses rematches. One calm review first.'),
-          wrong('Watch two hours of opening videos', 'Openings rarely decide beginner games. The blunder does. Review the blunder.'),
-        ]),
-        quiz('Why puzzles daily?', 'What does solving puzzles every day actually train?', [
-          right('Pattern recognition: seeing forks and mates without calculating from zero', 'Patterns are chess vocabulary. Volume builds vocabulary, and vocabulary is what lets you calculate fast.'),
-          wrong('Memorizing positions move by move', 'Positions differ every game. What transfers is the pattern, not the memorized line.'),
-          wrong('Nothing: puzzles are just for fun', 'They are fun, and also the fastest pattern-builder known. Both are true.'),
-        ]),
-        quiz('Bots as practice', 'Are games against bots a good way to practice?', [
-          right('Fine for warmup, but bots do not play like humans do', 'Bots make different mistakes than people. Warm up on them, sharpen on humans.'),
-          wrong('Never: bots are useless', 'They are useful for loosening up and testing openings without pressure.'),
-          wrong('Bots are better practice than humans', 'They are different practice. Human opponents punish human mistakes, and that is what your rating depends on.'),
-        ]),
-      ],
-    },
+
     {
       id: 'nb-16',
       n: 21,
@@ -1462,10 +1448,10 @@ export const newbie: Tier = {
       minutes: 14,
       concepts: ['winningMaterial', 'defense'],
       steps: [
-        quiz('Warm-up: from last lesson', 'What are the three parts of the practice loop?', [
-          right('Play real games, solve puzzles, review your losses', 'All three, a little and often. Skip one part and the loop leaks.'),
-          wrong('Watch videos, memorize openings, collect books', 'Consuming chess is not practicing chess. The loop is play, solve, review.'),
-          wrong('Queue blitz games until the wins come back', 'Volume without review repeats the same mistakes at speed. The loop needs the review step.'),
+        quiz('Warm-up: from last lesson', 'Name the scan from last lesson, in order.', [
+          right('Their checks, their captures, their threats', 'Defense before dreams. Survive their forcing moves, then play your own.'),
+          wrong('Your threats, then their checks', 'Your threats can wait one move. Their forcing moves cannot: that is why the scan starts on their side.'),
+          wrong('Captures only', 'Checks first, always. A threat to your king outranks every other idea on the board.'),
         ]),
         text(
           'Training, not testing',
@@ -1526,6 +1512,7 @@ export const newbie: Tier = {
         ),
       ],
     },
+
     {
       id: 'nb-17',
       n: 22,
@@ -1592,6 +1579,7 @@ export const newbie: Tier = {
         ),
       ],
     },
+
     {
       id: 'nb-18',
       n: 23,
@@ -1662,6 +1650,7 @@ export const newbie: Tier = {
         ),
       ],
     },
+
     {
       id: 'nb-20',
       n: 24,
@@ -1761,5 +1750,6 @@ export const newbie: Tier = {
         ),
       ],
     },
+
   ],
 }

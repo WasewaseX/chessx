@@ -30,6 +30,7 @@ export const GRADUATION: Record<string, string> = {
   'nb-23': 'run the practice loop: play, solve, review your losses, and keep one lesson from each.',
   'nb-hw3': 'refuse the four-move checkmate on sight: guard f7 with g6, kick the queen, and develop with tempo.',
   // Beginner
+  'bg-e5': 'answer 1.e4 with e5 and 1.d4 with d5, then develop and castle — one defense, played every game.',
   'bg-01': 'fight for the center on move one, and explain why flank pawns waste time.',
   'bg-02': 'develop a new piece every move instead of shuffling one.',
   'bg-03': 'castle early and know what both of your pieces gain from it.',
@@ -43,6 +44,8 @@ export const GRADUATION: Record<string, string> = {
   'bg-11': 'make luft in time, so the back-rank mate never happens to you.',
   'bg-12': 'mate with two rooks using the ladder, the most reliable mate in chess.',
   'bg-13': 'mate with queen and king by shrinking the box, without stalemate slips.',
+  'bg-kr': 'mate with the lone rook: cut the king off, walk your king up, check last.',
+  'bg-hw1': 'land the royal fork: one knight check that pockets the king and whatever stood beside it.',
   'bg-ends': 'read every ending: the four wins, the five draws, and the stalemate traps that turn wins into halves.',
   'bg-14': 'create a passed pawn and shepherd it down the board.',
   'bg-15': 'find forks, pins and skewers in mixed positions, not textbook ones.',
@@ -81,6 +84,8 @@ export const GRADUATION: Record<string, string> = {
   'int-23': 'accept, decline, or punish a gambit, and never assume a pawn is free.',
   'int-24': 'run CCA on every move: checks, captures, attacks, in that order.',
   'int-hw2': 'evict a pinning bishop with a pawn, and triage which pins actually hurt before spending a tempo.',
+  'int-forcing': 'ride forcing lines to mate in two and three: check, forced reply, scan again.',
+  'int-hw4': 'read every pawn move like a contract: doubled pawns, isolated pawns, and holes are forever.',
   // Advanced
   'adv-01': 'generate candidate moves in the master order: checks, captures, threats.',
   'adv-02': 'run the blunder check before every move: what is his best reply?',
@@ -98,6 +103,7 @@ export const GRADUATION: Record<string, string> = {
   'adv-12': 'handle the isolated queen pawn, with and without it.',
   'adv-13': 'win the Lucena position with the bridge, every time.',
   'adv-14': 'hold the Philidor position with rear checks, every time.',
+  'adv-hw2': 'weigh the bishop pair at half a pawn: win it, keep it, or break it when the opponent owns it.',
   'adv-15': 'activate rooks: cutting off, behind passed pawns, and the active king.',
   'adv-16': 'judge opposite-bishop endings, and push the outside passed pawn that matters.',
   'adv-17': 'argue knight versus bishop with structure, not superstition.',
@@ -128,6 +134,7 @@ export const GRADUATION: Record<string, string> = {
   'ms-19': 'combine multiple motifs at full depth.',
   'ms-20': 'out-plan club players: prophylaxis first, trades with intent, defense by counterattack.',
   'ms-21': 'name the structure on sight and play its standing plan: the Maróczy Bind is yours.',
+  'ms-hw2': 'hold the initiative: make every move a question the opponent must answer.',
   // Grandmaster
   'gm-01': 'prune calculation trees and trust only verified endings.',
   'gm-02': 'find resources in worse positions: activity, counterplay, the perpetual.',
