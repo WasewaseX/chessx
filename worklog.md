@@ -1260,3 +1260,25 @@ is literally the only non-losing move.
   map entries show adv-qvr@22 and ms-op@11 chains; mobile viewport renders the
   map with the re-wired chains. Screenshots: .zscratch/shots/hb-*.png.
 - dev.log clean (only artifacts from synthetic automation events).
+
+## 2026-11-10 — Takeback thread closed with live evidence
+
+The three user complaints against Play-view takeback were re-verified in the
+browser (fresh signup handbookver vs Pip, est. 350):
+1. STUCK STATE: gone. Play 1.e4 b5, click Takeback — board rewinds to the
+   full start position, move list reads "No moves yet.", it is the player's
+   turn, and the game continues (1.e4 c5 followed immediately). The
+   mid-think takeback path (generation bump + reply cancellation) is the
+   fix that landed earlier.
+2. UNLIMITED: no count gate exists — the button disables only on game end
+   or empty history.
+3. HINT INTERPLAY: correct. Takeback clears the hint arrow
+   (setHintArrow(null) in applyTakeback), and Hint recomputes from the
+   rewound position (fresh e2->e4 arrow observed).
+No code change was needed this time; the earlier fix holds. Evidence:
+.zscratch/shots/hb-play.png, hb-takeback.png, hb-hint.png,
+hb-after-takeback.png. Note for automation: the play-view board ignores
+synthetic (elementFromPoint-dispatched) mouse events because it uses real
+pointer capture — drive it with agent-browser's real `mouse move/down/up`
+at square centers (square size = board width / 8; e2 center example for a
+471px board at x=349,y=126: (614, 509)).
