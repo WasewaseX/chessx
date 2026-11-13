@@ -1282,3 +1282,55 @@ synthetic (elementFromPoint-dispatched) mouse events because it uses real
 pointer capture — drive it with agent-browser's real `mouse move/down/up`
 at square centers (square size = board width / 8; e2 center example for a
 471px board at x=349,y=126: (614, 509)).
+
+## Task 31 — Blunder Training: standalone trainer + integrated lessons (commit 71e1c96, pushed)
+
+User ask (trace 1a1d3795ac83aef9): "the one thing i always lack is that i
+can't freaking see and i blunder a lot so there needs to be a separate and
+integrated in the lessons blunder training". Shipped both halves:
+
+1. STANDALONE: new Learn sub-tab "Blunder Training" (#/blundertraining,
+   alias #/d, sidebar icon ShieldAlert, highlighted). Three drills, 8
+   rounds each, session score + honest bests + capped training XP via
+   /api/blunder (BlunderRun model, mirrors vision sprint, no Elo):
+   - Threat scan: user PLAYs the opponent's best shot (mate / free piece).
+   - Blunder check: judge the shown candidate safe or blunder; a correct
+     "blunder" call enters stage 2 — play the punishment on the board.
+   - Safe move: user is under attack and must find a surviving move.
+2. INTEGRATED: three new Study levels in the book's sequence — Newbie 21
+   "The blunder check" (after "Is it safe to play that?"), Beginner 23
+   "Spot the threat" (right after "The CCA method"), Intermediate 26
+   "Blunder-proof your moves" (after "Defense technique"). Each mixes
+   warm-up quiz, text, demo, drills and (intermediate) a survive-then-
+   convert playout, and closes with a pointer to the trainer tab.
+
+EXACTNESS: lib/chess/blunder-scan.ts is the one grading engine used by the
+view AND validate.ts (content CI). damage(fen,san) = base balance minus the
+opponent's single best reply; mate-in-one is catastrophic; >= 2 pawns lost
+= blunder. Depth-two exchange handling makes queen-for-pawn, quiet hangs
+and even trades all grade exact. Validator enforces: threat uniqueness per
+position, verdict scan-match, curated traps fail the scan, >= 3 escapes
+exist. 154 levels / 21 drills / 1368 checks green.
+
+Bugs caught and fixed during build (kept here because they bite again):
+- Two first-draft threat FENs were illegal (rook e-file aiming at the black
+  king through an open file) — chess.js tolerates that and even generates
+  king-capture SANs; the validator now probes legality by flipping the turn.
+- blunderDamage was originally White-POV only; fixed to mover-POV.
+- Punish-stage grading must measure harm TO the candidate mover
+  (materialBalance delta from their side), not the punisher's own damage.
+- Board marks must come from the resolved move's `.to`, never SAN.slice(-2)
+  (+/# suffixes corrupt it).
+
+Verification loop (agent-browser, account blundertest1/Scout/Victor):
+threat scan Rb8# found, blunder-check verdicts + both punish lines (Kxd7,
+exd5) played and graded, safe move Rd1 survived, run end -> "New personal
+best." + "+8 XP", GET /api/blunder {"best":{"threat":1,...}}, lessons
+ledger shows 25/29/30 chains, mobile 390px clean. NOTE: a dev-server
+restart was required after db:push (in-memory Prisma client predates the
+new model; watchdog restart on kill worked as designed). Board drives with
+real pointer events only (see Task 30 note).
+
+Left open (unchanged priority): lessons-by-handbook audit (user's structure
+ask), puzzles.db lightening, HANDOFF.md, takeback regression already fixed
+but worth one more pass, chess.com 403 client fetch, chessreps REA.
