@@ -1431,8 +1431,71 @@ export const beginner: Tier = {
     },
 
     {
-      id: 'bg-15',
+      id: 'bg-threat',
       n: 23,
+      title: 'Spot the threat',
+      subtitle: 'After every opponent move, one question: what does THAT move do now?',
+      minutes: 10,
+      concepts: ['defense', 'kingSafety'],
+      steps: [
+        quiz('Warm-up: from last lesson', 'The opponent has just moved. Whose forcing moves does the scan check first?', [
+          right('Theirs: what does that move check, capture, or attack NOW?', 'Their move rewrote the board. Answer their forcing moves before dreaming about yours.'),
+          wrong('Yours: your attack is the plan', 'Your plan is one reply away from being irrelevant. Their threats come first.'),
+          wrong('Nobody: the plan decides the move', 'The plan picks the candidates. The scan picks between them — starting on their side.'),
+        ]),
+        text(
+          'Their move changed the board',
+          [
+            'Threats are not announced. Every opponent move silently asks a new question: what does THIS move check, capture, or attack right now? Not what it threatened two moves ago — what it does NOW.',
+            'That question runs after every single move, including the quiet ones. The quiet ones are the dangerous ones: a pawn move that opens a diagonal, a piece retreat that unmasks a battery, a "nothing move" that leaves the back rank broken.',
+            'Run their scan from their side, and half your blunders disappear — because most blunders are their threat, one move later.',
+          ],
+          'After every opponent move: what does that move do NOW?',
+        ),
+        demo('The threat that never healed', ['White has been quiet all game. Black never made luft: f7, g7, h7 still stand.', 'Run the scan from White\'s side and the board confesses.'], '6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1', { moves: ['Ra8#'], caption: 'The quiet moves never fixed the back rank' }),
+        drill(
+          'Play their shot: the loose queen',
+          '4k3/8/8/2q5/8/1N6/8/4K3 w - - 0 1',
+          ['Nxc5'],
+          'Black\'s queen just landed on c5. Your move: what does the position hand you?',
+          'Scan for captures first. Is anything on the board undefended?',
+          'Nxc5. The queen is loose and the smallest piece is the one that takes it.',
+        ),
+        drill(
+          'Their threat, answered with profit',
+          '4k3/8/4b3/3q4/3R4/8/8/4K3 b - - 0 1',
+          ['Qxd4'],
+          'Your queen is attacked by the rook — and the rook itself has no defender. Find the answer that WINS.',
+          'The best defense is often a capture. What can reach d4 and take the rook?',
+          'Qxd4. The attacker was undefended, so the defense that wins a whole rook IS the defense.',
+        ),
+        drill(
+          'Play their shot: the diagonal',
+          '4k3/8/8/3r4/8/5Q2/8/4K3 w - - 0 1',
+          ['Qxd5'],
+          'The rook stepped onto the queen\'s diagonal and nothing defended it. White to move.',
+          'Checks, captures, attacks — in that order. Which black piece is loose?',
+          'Qxd5. The diagonal is a firing line, and the rook stood on it without a bodyguard.',
+        ),
+        quiz('The bishop that did two things', 'The opponent\'s bishop just moved and now attacks your knight. What is the FIRST question?', [
+          right('What else does that move do — does it also check, capture, or threaten something bigger?', 'One move can carry two threats. Find the bigger one before answering the small one.'),
+          wrong('How do I save the knight?', 'Saving the knight might walk into the real threat. Read the whole move first.'),
+          wrong('How do I attack their bishop back?', 'Counter-attacks before scans are how two pieces die in one move.'),
+        ]),
+        text(
+          'Make it a reflex',
+          [
+            'The scan now runs both ways: after their move, their threats; before yours, the blunder check. Same three words — checks, captures, attacks — on both sides of every move.',
+            'The Blunder Training tab turns this into reps: you play the opponent\'s best shot, judge tempting candidates, and fight out of attacked positions. The drills grade you with the same engine this lesson uses, so a "blunder" there is a real blunder.',
+          ],
+          'Checks, captures, attacks — their side, then yours. Every move.',
+        ),
+      ],
+    },
+
+    {
+      id: 'bg-15',
+      n: 24,
       title: 'Practice arena: tactics I',
       subtitle: 'Fork, pin, skewer, mixed.',
       minutes: 11,
@@ -1474,7 +1537,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-16',
-      n: 24,
+      n: 25,
       title: 'Practice arena: tactics II',
       subtitle: 'Loose pieces, counting, defense.',
       minutes: 11,
@@ -1513,7 +1576,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-17',
-      n: 25,
+      n: 26,
       title: 'Your first opening: the Italian',
       subtitle: 'A complete, honest opening you can play forever.',
       minutes: 11,
@@ -1578,7 +1641,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-18',
-      n: 26,
+      n: 27,
       title: 'Play a development game',
       subtitle: 'Full game, one goal: castle by move 12.',
       minutes: 15,
@@ -1625,7 +1688,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-19',
-      n: 27,
+      n: 28,
       title: 'Beginner exam',
       subtitle: 'One quiz, one mate, one trap to punish.',
       minutes: 11,
@@ -1672,7 +1735,7 @@ export const beginner: Tier = {
 
     {
       id: 'bg-20',
-      n: 28,
+      n: 29,
       title: 'Beginner graduation',
       subtitle: 'One more game, one tier down.',
       minutes: 16,

@@ -271,6 +271,100 @@ async function main() {
     puzzleIds.add(p.id)
   }
 
+  // Blunder Training drill pools: every graded fact is computed with the
+  // same scan engine the drills grade with, so content and gameplay can
+  // never disagree. The curation only supplies the teaching notes.
+  console.log('Validating blunder drill pools...')
+  const blunderMod = await import('./blunder')
+  const scan = await import('../lib/chess/blunder-scan')
+
+  const baseLegal = (where: string, fen: string): boolean => {
+    if (!checkFen(where, fen)) return false
+    // the side NOT to move must not be in check: flip the turn and ask
+    const flipped = fen.replace(/ ([wb]) /, (_m, t) => ` ${t === 'w' ? 'b' : 'w'} `)
+    try {
+      if (new Chess(flipped).isCheck()) {
+        err(where, `illegal position: the side not to move is in check (${fen})`)
+        return false
+      }
+    } catch {
+      err(where, `FEN does not survive a turn flip: ${fen}`)
+      return false
+    }
+    return true
+  }
+
+  let drillCount = 0
+
+  for (const t of blunderMod.THREAT_DRILLS) {
+    drillCount++
+    const where = `threat ${t.id}`
+    if (!baseLegal(where, t.fen)) continue
+    const g = new Chess(t.fen)
+    const shots = g.moves().filter((m) => scan.isWinningShot(t.fen, m))
+    if (!shots.includes(t.threat)) {
+      err(where, `curated threat "${t.threat}" is not a winning shot (found: [${shots.join(', ')}])`)
+    }
+    if (shots.length !== 1) {
+      err(where, `threat must be unique, found [${shots.join(', ')}]`)
+    }
+  }
+
+  for (const b of blunderMod.BLUNDER_CHECK_DRILLS) {
+    drillCount++
+    const where = `blunderCheck ${b.id}`
+    if (!baseLegal(where, b.fen)) continue
+    const g = new Chess(b.fen)
+    try {
+      g.move(b.candidate)
+    } catch {
+      err(where, `candidate "${b.candidate}" is not legal in ${b.fen}`)
+      continue
+    }
+    const safe = scan.isSafeMove(b.fen, b.candidate)
+    if (b.verdict === 'safe' && !safe) {
+      err(where, `candidate "${b.candidate}" is curated safe but the scan says blunder (damage ${scan.blunderDamage(b.fen, b.candidate)})`)
+    }
+    if (b.verdict === 'blunder' && safe) {
+      err(where, `candidate "${b.candidate}" is curated blunder but the scan says safe (damage ${scan.blunderDamage(b.fen, b.candidate)})`)
+    }
+    // the board needs a punish move to show after a blunder verdict
+    if (b.verdict === 'blunder' && !scan.punishMove(b.fen, b.candidate)) {
+      err(where, `blunder verdict has no immediate punish move to show`)
+    }
+  }
+
+  for (const s of blunderMod.SAFE_MOVE_DRILLS) {
+    drillCount++
+    const where = `safemove ${s.id}`
+    if (!baseLegal(where, s.fen)) continue
+    const g = new Chess(s.fen)
+    for (const trap of s.traps) {
+      try {
+        g.move(trap)
+      } catch {
+        err(where, `trap "${trap}" is not legal in ${s.fen}`)
+        continue
+      }
+      if (scan.isSafeMove(s.fen, trap)) {
+        err(where, `trap "${trap}" passes the safe scan but is curated as a trap`)
+      }
+      g.undo()
+    }
+    const safeMoves = g.moves().filter((m) => scan.isSafeMove(s.fen, m))
+    if (safeMoves.length < 3) {
+      err(where, `only ${safeMoves.length} safe moves exist; need at least 3`)
+    }
+    try {
+      g.move(s.escape)
+      if (!scan.isSafeMove(s.fen, s.escape)) err(where, `escape "${s.escape}" fails the safe scan`)
+    } catch {
+      err(where, `escape "${s.escape}" is not legal in ${s.fen}`)
+    }
+  }
+
+  console.log(`  ${drillCount} blunder drills checked`)
+
   if (errors > 0) {
     console.error(`\n${errors} content errors. Fix before shipping.`)
     process.exit(1)

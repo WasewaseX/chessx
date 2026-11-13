@@ -1441,8 +1441,68 @@ export const newbie: Tier = {
     },
 
     {
-      id: 'nb-16',
+      id: 'nb-bcheck',
       n: 21,
+      title: 'The blunder check',
+      subtitle: 'The two-second last look that saves queens and whole games.',
+      minutes: 9,
+      concepts: ['defense', 'winningMaterial'],
+      steps: [
+        quiz('Warm-up: from last lesson', 'You have picked a move that wins a pawn. What comes before you play it?', [
+          wrong('Play it fast: winning moves are for playing', 'Fast hands hang queens. The last look costs two seconds and saves the game.'),
+          right('One last look: if I play this, what is their best reply?', 'The blunder check. Pick the move, then interrogate it: their best reply — does anything hang?'),
+          wrong('Nothing: a capture that wins material is always safe', 'Winning material on your move says nothing about what their reply takes back.'),
+        ]),
+        text(
+          'Good move first, safe move last',
+          [
+            'Here is the habit that separates "I never saw it" from "I saw it": after you choose a move, pause. Play their best reply in your head, once. If the position still looks right, play it.',
+            'This is the blunder check, and it is two seconds long. Their checks, their captures, their threats — against YOUR move, not the position before it. A move that was fine before you chose it can hang a queen the moment it is played.',
+            'The book puts it in one line: when you see a good move, look for a better one. The blunder check is how.',
+          ],
+          'Choose the move, then check it like the opponent will punish it.',
+        ),
+        demo('The check that costs a queen', ['The queen can take a pawn WITH CHECK. Tempting. Run the blunder check: what recaptures?', 'The king itself stands next to its pawn. Nine points for one.'], '4k3/3p4/8/8/8/8/3Q4/4K3 w - - 0 1', { moves: ['Qxd7+', 'Kxd7'], caption: 'The blunder check catches it' }),
+        quiz('Reading the demo', 'Why did Qxd7+ lose the queen?', [
+          right('The pawn on d7 was defended by the king on e8', 'Checks are tempting, not safe. The defender stood on the square you forgot to look at.'),
+          wrong('Capturing with the queen is always risky', 'The queen is fine when nothing recaptures. The scan asks: does anything recapture HERE?'),
+          wrong('Checks should never be played in the opening', 'There is no rule against checks. There is a rule about counting defenders.'),
+        ]),
+        drill(
+          'The truly free pawn',
+          '4k3/8/8/3p4/8/8/3Q4/4K3 w - - 0 1',
+          ['Qxd5'],
+          'One pawn on the board. Run the blunder check, then take it if it is safe.',
+          'Ask: what recaptures on d5? Count the black pieces that can reach the square.',
+          'Qxd5. Nothing recaptures — the blunder check came back clean, so the capture is free.',
+        ),
+        drill(
+          'Attacked: the counter-capture',
+          '4k3/8/1b6/8/3Q4/8/8/4K3 w - - 0 1',
+          ['Qxb6'],
+          'Your queen is attacked by the bishop. Every escape must survive the blunder check. Find the best one.',
+          'The bishop that attacks you may itself be undefended. Count its defenders.',
+          'Qxb6. You captured the attacker itself — the scan found the answer that also wins a piece.',
+        ),
+        quiz('When you see a good move', 'The book says: when you see a good move...', [
+          right('...look for a better one — and blunder-check both', 'A good move found fast is still just a candidate. The scan applies to every candidate, especially the exciting ones.'),
+          wrong('...play it before you change your mind', 'Speed is how the scan gets skipped. The two-second check survives every schedule.'),
+          wrong('...play it, then check it on their clock', 'Blunder checks happen BEFORE the move. After the move is after the game.'),
+        ]),
+        text(
+          'Make it a reflex',
+          [
+            'From now on, every move gets the same treatment: pick the move, check their best reply, then play. It feels slow for a week and automatic forever after.',
+            'The Blunder Training tab drills exactly this on fresh boards: playing the opponent\'s shot, calling tempting moves safe or busted, and finding the move that survives under attack. Ten rounds a day beats an hour of hoping.',
+          ],
+          'Two seconds. Their best reply. Every move.',
+        ),
+      ],
+    },
+
+    {
+      id: 'nb-16',
+      n: 22,
       title: 'Practice arena I',
       subtitle: 'Capture drills: spot the free pieces.',
       minutes: 14,
@@ -1515,7 +1575,7 @@ export const newbie: Tier = {
 
     {
       id: 'nb-17',
-      n: 22,
+      n: 23,
       title: 'Practice arena II',
       subtitle: 'Give check. Escape check. Six drills.',
       minutes: 9,
@@ -1582,7 +1642,7 @@ export const newbie: Tier = {
 
     {
       id: 'nb-18',
-      n: 23,
+      n: 24,
       title: 'Practice arena III',
       subtitle: 'Review: castling, en passant, promotion.',
       minutes: 8,
@@ -1653,7 +1713,7 @@ export const newbie: Tier = {
 
     {
       id: 'nb-20',
-      n: 24,
+      n: 25,
       title: 'Newbie graduation',
       subtitle: 'A famous trap, one last quiz, and your first full game.',
       minutes: 22,

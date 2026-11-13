@@ -383,6 +383,22 @@ model VisionRun {
   @@index([profileId])
 }
 
+// One finished blunder-training session: threat scan, blunder check or
+// safe move rounds. Honest bests and small capped XP are the only residue,
+// mirroring the vision sprint (no puzzle Elo, no rated ledger).
+model BlunderRun {
+  id        String   @id @default(cuid())
+  profileId String   @default("me")
+  mode      String // threat | blunderCheck | safemove
+  score     Int
+  mistakes  Int
+  seconds   Int
+  dayKey    String
+  createdAt DateTime @default(now())
+
+  @@index([profileId])
+}
+
 // A position the student kept ("Save it. Play it another way."): paste a FEN
 // or set up a board, save it, then play it against any bot from either side.
 model SavedPosition {

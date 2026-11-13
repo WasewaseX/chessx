@@ -1416,8 +1416,81 @@ export const intermediate: Tier = {
     },
 
     {
-      id: 'int-hw2',
+      id: 'int-blproof',
       n: 26,
+      title: 'Blunder-proof your moves',
+      subtitle: 'Candidates, then the check: how strong players never hang anything.',
+      minutes: 12,
+      concepts: ['defense', 'calculation', 'prophylaxis'],
+      steps: [
+        quiz('Warm-up: from last lesson', 'Which question is the LAST one before a move is played?', [
+          right('If I play this, what is their best reply — and do I still like the position?', 'The blunder check. The last look catches what excitement overlooks.'),
+          wrong('Is this move my best plan?', 'The plan picked the candidates. Safety picks the winner.'),
+          wrong('Is my opponent lower rated than me?', 'The board does not know the ratings.'),
+        ]),
+        text(
+          'Candidates, then the check',
+          [
+            'At this level the process matters more than any single tactic. Generate two or three candidate moves. THEN run the blunder check on each: play their best reply against every candidate in your head. The survivor is the move.',
+            'The misses here are quieter than Newbie\'s. The move is positionally right and tactically dead: it puts a rook on the right file and leaves it en prise, it starts an attack while the back rank stays open, it wins a pawn and loses a piece to a zwischenzug.',
+            'When you see a good move, look for a better one — and when you see a safe move, look for the good one. The candidates need both papers stamped.',
+          ],
+          'Every candidate faces their best reply before anything gets played.',
+        ),
+        demo('The active rook that dies', ['Re8 looks like the move: the eighth rank, the dream of invasion.', 'Run the check: what is already living on the eighth rank?'], '5rk1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1', { moves: ['Re8', 'Rxe8'], caption: 'One scan kills the candidate' }),
+        quiz('Reading the demo', 'What exactly made Re8 a blunder?', [
+          right('It landed on a rank the black rook already owned, undefended', 'The scan asks: their captures. The rook on f8 captured before the invasion started.'),
+          wrong('Rooks must stay on the first rank until the endgame', 'No such rule. Rook lift-offs win games — after the landing square is scanned.'),
+          wrong('The eighth rank is always dangerous', 'Squares are dangerous when the opponent can reach them profitably. The scan finds which.'),
+        ]),
+        drill(
+          'Under attack, with profit',
+          '4k3/8/8/3r4/3Q4/8/8/4K3 w - - 0 1',
+          ['Qxd5'],
+          'Your queen is attacked by the rook. Any escape keeps you a queen up; one answer wins a whole rook.',
+          'The attacker itself: is it defended? What recaptures on d5?',
+          'Qxd5. The rook came alone. Eat the attacker and the threat is over — with interest.',
+        ),
+        drill(
+          'The pawn that bites a queen',
+          '4k3/8/8/8/8/4p3/3Q4/4K3 w - - 0 1',
+          ['Qxe3+'],
+          'A pawn attacks your queen. Every quiet retreat passes the check — but look for the answer that scores.',
+          'The pawn that attacks you: what defends it? What does the queen see on e3?',
+          'Qxe3+ takes the attacker WITH CHECK. The smallest piece dies for being greedy.',
+        ),
+        playout(
+          'Survive, then convert',
+          'You are a queen up — IF the queen survives the first move. Play the whole thing against the engine: scan, convert, do not hang.',
+          '4k3/8/8/3r4/3Q4/8/8/4K3 w - - 0 1',
+          'w',
+          'Convert your material advantage: stay ahead by 3 or more points.',
+          1,
+          'material',
+          12,
+          'You survived the first shot and converted. The scan came first, the technique followed.',
+          'The first move gave the queen away. Run their scan before anything else — then convert.',
+          'First move: the queen is attacked. The rook is undefended. The check decides both.',
+        ),
+        quiz('The candidate that failed', 'Your favorite candidate fails the blunder check. What now?', [
+          right('Thank the check, pick the next candidate, run the check again', 'The check is doing its job. Candidates are replaceable; queens are not.'),
+          wrong('Play it anyway — the check is probably wrong', 'Hope is not a scan. If their best reply hurts, the move is out.'),
+          wrong('Stop calculating and defend passively forever', 'One failed candidate is one failed candidate. The next one passes.'),
+        ]),
+        text(
+          'The scan at full speed',
+          [
+            'Blunder-proofing is not a phase of thinking — it is the shape of thinking: candidates, then their best replies, then the move. Faster every week, invisible once it lands.',
+            'The Blunder Training tab is the gym for exactly this loop: calling tempting moves safe or busted, and playing out the punishment when the check catches one. Eight rounds a day keeps the horror stories out of your games.',
+          ],
+          'Candidates. Replies. Survivor. That is the whole method.',
+        ),
+      ],
+    },
+
+    {
+      id: 'int-hw2',
+      n: 27,
       title: 'Kick the pinner',
       subtitle: 'What to do when your piece is frozen.',
       minutes: 9,
@@ -1477,7 +1550,7 @@ export const intermediate: Tier = {
 
     {
       id: 'int-13',
-      n: 27,
+      n: 28,
       title: 'Two weaknesses',
       subtitle: 'One defense can hold. Two collapse.',
       minutes: 10,
@@ -1537,7 +1610,7 @@ export const intermediate: Tier = {
 
     {
       id: 'int-19',
-      n: 28,
+      n: 29,
       title: 'Practice arena: mixed',
       subtitle: 'Tactics and technique, shuffled.',
       minutes: 11,
@@ -1586,7 +1659,7 @@ export const intermediate: Tier = {
 
     {
       id: 'int-20',
-      n: 29,
+      n: 30,
       title: 'Intermediate graduation',
       subtitle: 'A famous pattern, one exam, one game.',
       minutes: 14,
